@@ -41,7 +41,7 @@ def test_proximal_maps():
         p = atom(groups, lagrange=lagrange, quadratic=q,
                    offset=offset, weights=weights)
         d = p.conjugate 
-        yield ac, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L, lipschitz=1./L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom
+        yield ac, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom
         # some arguments of the constructor
 
         nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
