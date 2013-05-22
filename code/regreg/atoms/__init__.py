@@ -197,6 +197,12 @@ class affine_atom(object):
         return value
 
 def _work_out_conjugate(offset, quadratic):
+    """
+    Compute the linear term in the conjugate as well as the offset
+    based on having a given offset and the constant and linear
+    terms in quadratic.
+
+    """
     if offset is None:
         offset = 0
     else:

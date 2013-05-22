@@ -313,7 +313,7 @@ class Solver(object):
     def all(self):
         for group in [self.test_simple_problem,
                       self.test_separable,
-                      #self.test_dual_problem,
+                      self.test_dual_problem,
                       #self.test_container,
                       self.test_simple_problem_nonsmooth,
                       self.test_duality_of_projections,

@@ -9,8 +9,8 @@ from ..affine import affine_transform
 from ..smooth import smooth_atom
 from ..problems.composite import smooth_conjugate
 from ..atoms.cones import zero
+from ..atoms import _work_out_conjugate
 from ..identity_quadratic import identity_quadratic
-
 
 class quadratic(smooth_atom):
     """
@@ -96,21 +96,13 @@ class quadratic(smooth_atom):
                 raise ValueError("mode incorrectly specified")
 
 
-    def get_conjugate(self, factor=False, as_quadratic=False):
+    def get_conjugate(self, factor=False):
 
         if self.Q is None:
-            q = identity_quadratic(self.coef, self.offset, 0, 0).collapsed()
-            totalq = q + self.quadratic
-            totalq_conj = totalq.conjugate.collapsed()
-            if as_quadratic:
-                return quadratic(self.shape, 
-                                 offset=totalq_conj.linear_term/totalq_conj.coef,
-                                 coef=totalq_conj.coef,
-                                 quadratic=identity_quadratic(0,0,0,-totalq.constant_term))
-            else:
-                return smooth_conjugate(zero(self.shape,
-                                             quadratic=totalq))
+            as_quad = (identity_quadratic(self.coef, self.offset, 0, 0) + self.quadratic).collapsed()
+            return smooth_conjugate(zero(self.shape,quadratic=as_quad))
         else:
+            #XXX this needs to be tested
             sq = self.quadratic.collapsed()
             if self.offset is not None:
                 sq.linear_term -= self.scale(self.Q_transform.linear_map(self.offset))
