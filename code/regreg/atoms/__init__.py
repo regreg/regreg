@@ -37,10 +37,13 @@ class atom(nonsmooth):
         Return the dual of an atom. This dual is formed by making the a substitution
         of the form v=Ax where A is the self.linear_transform.
 
+        >>> from regreg.api import l1norm
+        >>> import numpy as np
+        >>> penalty = l1norm(30, lagrange=2.3)
         >>> penalty
         l1norm((30,), lagrange=2.300000, offset=None)
-        >>> penalty.dual
-        (<regreg.affine.identity object at 0x10a900bd0>, supnorm((30,), bound=2.300000, offset=0))
+        >>> penalty.dual # doctest: +ELLIPSIS
+        (<regreg.affine.identity object at 0x...>, supnorm((30,), bound=2.300000, offset=None))
 
         If there is a linear part to the penalty, the linear_transform may not be identity:
 
@@ -54,10 +57,8 @@ class atom(nonsmooth):
         affine_atom(l1norm((3,), lagrange=2.300000, offset=None), array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]]))
-        >>> fused_lasso.dual
-        (<regreg.affine.linear_transform object at 0x10a760a50>, supnorm((3,), bound=2.300000, offset=0))
-        >>> 
-
+        >>> fused_lasso.dual # doctest: +ELLIPSIS
+        (<regreg.affine.linear_transform object at 0x...>, supnorm((3,), bound=2.300000, offset=None))
 
         """
         return self.linear_transform, self.conjugate
@@ -67,9 +68,11 @@ class atom(nonsmooth):
         """
         The linear transform applied before a penalty is computed. Defaults to regreg.affine.identity
 
+        >>> from regreg.api import l1norm
+        >>> import numpy as np
         >>> penalty = l1norm(30, lagrange=3.4)
-        >>> penalty.linear_transform
-        <regreg.affine.identity object at 0x10ae825d0>
+        >>> type(penalty.linear_transform)
+        <class 'regreg.affine.identity'>
 
         """
         if not hasattr(self, "_linear_transform"):

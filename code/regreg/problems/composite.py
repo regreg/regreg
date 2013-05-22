@@ -1,5 +1,5 @@
 from numpy.linalg import norm
-from numpy import zeros, array, any as npany
+from numpy import zeros, asarray, any as npany
 import new
 from copy import copy
 
@@ -23,9 +23,11 @@ class composite(object):
     def __init__(self, shape, offset=None,
                  quadratic=None, initial=None):
 
-        self.offset = offset
         if offset is not None:
-            self.offset = array(offset)
+            offset = asarray(offset)
+            if npany(offset != 0):
+                offset = None
+        self.offset = offset
 
         if type(shape) == type(1):
             self.shape = (shape,)
@@ -41,6 +43,20 @@ class composite(object):
             self.coefs = zeros(self.shape)
         else:
             self.coefs = initial.copy()
+
+    def set_offset(self, value):
+        if value is not None:
+            value = asarray(value)
+            if npany(value != 0):
+                self._offset = value
+        else:
+            self._offset = None
+
+    def get_offset(self):
+        if not hasattr(self, "_offset"):
+            self._offset = None
+        return self._offset
+    offset = property(get_offset, set_offset)
 
     def latexify(self, var=None, idx=''):
         template_dict = self.objective_vars.copy()

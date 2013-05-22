@@ -391,9 +391,13 @@ class seminorm(atom):
         # their offset until add. 
         # for atoms, the offset is really the "center"
 
-        new_atom = cls(l.output_shape, lagrange=lagrange, bound=bound,
-                   offset=-offset,
-                   quadratic=quadratic)
+        if offset is None:
+            offset = 0
+        new_atom = cls(l.output_shape, 
+                       lagrange=lagrange, 
+                       bound=bound,
+                       offset=-offset,
+                       quadratic=quadratic)
         return affine_atom(new_atom, l)
 
     @classmethod
@@ -403,6 +407,8 @@ class seminorm(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         new_atom = cls(l.output_shape, lagrange=lagrange, bound=bound,
                    quadratic=quadratic, offset=-offset)
         return affine_atom(new_atom, l)
