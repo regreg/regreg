@@ -23,10 +23,6 @@ class composite(object):
     def __init__(self, shape, offset=None,
                  quadratic=None, initial=None):
 
-        if offset is not None:
-            offset = asarray(offset)
-            if npany(offset != 0):
-                offset = None
         self.offset = offset
 
         if type(shape) == type(1):
