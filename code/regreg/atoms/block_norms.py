@@ -12,6 +12,7 @@ from ..identity_quadratic import identity_quadratic
 from ..problems.composite import smooth_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
+from ..atoms import _work_out_conjugate
 
 @objective_doc_templater()
 class block_sum(seminorms.seminorm):
