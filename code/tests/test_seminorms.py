@@ -50,11 +50,11 @@ def test_proximal_maps():
     counter = 0
     for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
                      [S.l1norm, S.supnorm, S.l2norm,
-                      S.positive_part, S.constrained_max][:1],
-                                              [None, quadratic],
-                                              [U, None],
-                                              [False, True],
-                                              [True, False]):
+                      S.positive_part, S.constrained_max],
+                     [None, quadratic],
+                     [U, None],
+                     [False, True],
+                     [True, False]):
 
         p = atom(shape, lagrange=lagrange, quadratic=q,
                    offset=offset)
@@ -118,11 +118,15 @@ class Solver(object):
         self.loss = rr.quadratic.shift(Z, coef=L)
 
     def test_duality_of_projections(self):
+        cp_atom = copy(self.atom)
+        cp_atom.offset = None
+        cp_atom.quadratic = rr.identity_quadratic(0,0,0,0)
+
         tests = []
 
-        d = self.atom.conjugate
+        d = cp_atom.conjugate
         q = rr.identity_quadratic(1, self.Z, 0, 0)
-        tests.append((self.Z-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
+        tests.append((self.Z-cp_atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
 
         if not self.interactive:
             for test in tests:
@@ -312,7 +316,7 @@ class Solver(object):
                       #self.test_dual_problem,
                       #self.test_container,
                       self.test_simple_problem_nonsmooth,
-                      #self.test_duality_of_projections,
+                      self.test_duality_of_projections,
                       ]:
             for t in group():
                 yield t

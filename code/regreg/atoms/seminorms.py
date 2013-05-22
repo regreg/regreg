@@ -588,7 +588,7 @@ class positive_part(seminorm):
     @doc_template_user
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
-        inside = np.maximum(x, 0).sum() <= bound * (1 + self.tol)
+        inside = np.maximum(arg, 0).sum() <= bound * (1 + self.tol)
         if inside:
             return 0
         else:
@@ -608,7 +608,7 @@ class positive_part(seminorm):
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg)
-        v = x.copy().astype(np.float)
+        v = arg.copy().astype(np.float)
         v = np.atleast_1d(v)
         pos = v > 0
         if np.any(pos):
@@ -649,8 +649,8 @@ class constrained_max(seminorm):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
-        x = np.asarray(x)
-        v = x.copy().astype(np.float)
+        arg = np.asarray(arg)
+        v = arg.copy().astype(np.float)
         v = np.atleast_1d(v)
         pos = v > 0
         if np.any(pos):
