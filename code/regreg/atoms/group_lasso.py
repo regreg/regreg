@@ -16,7 +16,8 @@ from .seminorms import seminorm, conjugate_seminorm_pairs
 from .cones import cone
 from .mixed_lasso_cython import (mixed_lasso_bound_prox,
                                  mixed_lasso_lagrange_prox,
-                                 mixed_lasso_epigraph)
+                                 mixed_lasso_epigraph,
+                                 mixed_lasso_conjugate_bound_prox)
 
 @objective_doc_templater()
 class group_lasso(seminorm):
@@ -278,16 +279,16 @@ class group_lasso_dual(group_lasso):
 
     @doc_template_user
     def bound_prox(self, x, bound=None):
+
         bound = seminorm.bound_prox(self, x, bound)
-        result = np.zeros_like(x)
-        ngroups = self._weight_array.shape[0]
-        for i in range(ngroups):
-            s = self._groups == i
-            group = x[s]
-            ngroup = np.linalg.norm(group)
-            group = group / ngroup
-            result[s] = group * min(self.bound * self._weight_array[i], ngroup)
-        return result
+        x = np.asarray(x, np.float)
+        return mixed_lasso_conjugate_bound_prox(x, float(bound),
+                                                np.array([], np.int),
+                                                np.array([], np.int),
+                                                np.array([], np.int),
+                                                np.array([], np.int),
+                                                self._groups,
+                                                self._weight_array)
 
     @doc_template_user
     def lagrange_prox(self, x,  lipschitz=1, lagrange=None):
