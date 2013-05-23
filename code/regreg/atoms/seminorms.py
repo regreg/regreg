@@ -412,6 +412,50 @@ class seminorm(atom):
                        quadratic=quadratic, offset=-offset)
         return new_atom
 
+    @staticmethod
+    def check_subgradient(atom, prox_center):
+        """
+        For a given seminorm, verify the KKT condition for
+        the problem for the proximal problem
+
+        .. math::
+
+           \text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)
+
+        where $z$ is the `prox_center` and $h$ is `atom`
+        which may be in Lagrange or bound form.
+
+        If the atom is in Lagrange form, this function should
+        return two values equal to the seminorm of the 
+        minimizer. If it is bound form it should return two values
+        equal to the dual seminorm of the residual, i.e.
+        the prox_center minus the minimizer.
+
+        Parameters
+        ----------
+
+        atom : `seminorm`
+
+        prox_center : np.ndarray(np.float)
+             Center for the proximal map.
+
+        Returns
+        -------
+
+        v1, v2 : float
+             Two values that should be equal if the proximal map is correct.
+
+        """
+        atom = copy(atom)
+        atom.quadratic = identity_quadratic(0,0,0,0)
+        atom.offset = None
+        q = identity_quadratic(1, prox_center, 0, 0)
+        U = atom.proximal(q)
+        if atom.bound is not None: # atom is bound mode
+            dual = atom.conjugate
+            return ((prox_center - U) * U).sum() / atom.bound, dual.seminorm(prox_center-U, lagrange=1)
+        else:
+            return ((prox_center - U) * U).sum() / atom.lagrange, atom.seminorm(U, lagrange=1)
 
 @objective_doc_templater()
 class l1norm(seminorm):
@@ -756,3 +800,4 @@ for n1, n2 in [(l1norm,supnorm),
     conjugate_seminorm_pairs[n2] = n1
 
 nonpaired_atoms = [positive_part_lagrange]
+

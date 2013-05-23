@@ -176,6 +176,45 @@ class cone(atom):
                    quadratic=quadratic)
         return affine_cone(cone, l)
 
+    @staticmethod
+    def check_subgradient(atom, prox_center):
+        """
+        For a given seminorm, verify the KKT condition for
+        the problem for the proximal problem
+
+        .. math::
+
+           \text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)
+
+        where $z$ is the `prox_center` and $h$ is `atom`.
+
+        This should return two values that are 0, 
+        one is the inner product of the minimizer and the residual, the
+        other is just 0.
+
+        Parameters
+        ----------
+
+        atom : `cone`
+             A cone instance with a `proximal` method.
+
+        prox_center : np.ndarray(np.float)
+             Center for the proximal map.
+
+        Returns
+        -------
+
+        v1, v2 : float
+             Two values that should be equal if the proximal map is correct.
+
+        """
+        atom = copy(atom)
+        atom.quadratic = identity_quadratic(0,0,0,0)
+        atom.offset = None
+        q = identity_quadratic(1, prox_center, 0, 0)
+        U = atom.proximal(q)
+        return ((prox_center - U) * U).sum(), 0
+
 
 class affine_cone(affine_atom):
 
@@ -405,3 +444,4 @@ for n1, n2 in [(nonnegative,nonpositive),
                ]:
     conjugate_cone_pairs[n1] = n2
     conjugate_cone_pairs[n2] = n1
+
