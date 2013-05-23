@@ -13,13 +13,14 @@ DTYPE_int = np.int
 ctypedef np.int_t DTYPE_int_t
 
 def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center, 
-                     DTYPE_float_t lagrange, DTYPE_float_t lipschitz,
-                     np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                     np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                     np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                     np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                     np.ndarray[DTYPE_int_t, ndim=1] groups,
-                     np.ndarray[DTYPE_float_t, ndim=1] weights):
+                              DTYPE_float_t lagrange, 
+                              DTYPE_float_t lipschitz,
+                              np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
+                              np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
+                              np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
+                              np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
+                              np.ndarray[DTYPE_int_t, ndim=1] groups,
+                              np.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef np.ndarray norms = np.zeros_like(weights)
     cdef np.ndarray factors = np.zeros_like(weights)
@@ -48,14 +49,14 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
 
     return prox_center - projection
 
-def mixed_lasso_conjugate_bound_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center, 
-                     DTYPE_float_t bound, 
-                     np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                     np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                     np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                     np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                     np.ndarray[DTYPE_int_t, ndim=1] groups,
-                     np.ndarray[DTYPE_float_t, ndim=1] weights):
+def mixed_lasso_dual_bound_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center, 
+                                DTYPE_float_t bound, 
+                                np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
+                                np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
+                                np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
+                                np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
+                                np.ndarray[DTYPE_int_t, ndim=1] groups,
+                                np.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef np.ndarray norms = np.zeros_like(weights)
     cdef np.ndarray factors = np.zeros_like(weights)
@@ -257,15 +258,15 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
 
     return failing
    
-def seminorm_mixed_lasso_conjugate(np.ndarray[DTYPE_float_t, ndim=1] x, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                                   np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] groups,
-                                   np.ndarray[DTYPE_float_t, ndim=1] weights,
-                                   DTYPE_float_t nntol=1.e-5,
-				   DTYPE_int_t check_feasibility=0):
+def seminorm_mixed_lasso_dual(np.ndarray[DTYPE_float_t, ndim=1] x, 
+                              np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
+                              np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
+                              np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
+                              np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
+                              np.ndarray[DTYPE_int_t, ndim=1] groups,
+                              np.ndarray[DTYPE_float_t, ndim=1] weights,
+                              DTYPE_float_t nntol=1.e-5,
+                              DTYPE_int_t check_feasibility=0):
     
     cdef np.ndarray norms = np.zeros_like(weights)
     cdef int i
