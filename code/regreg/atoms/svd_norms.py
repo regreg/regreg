@@ -245,6 +245,13 @@ class operator_norm(svd_atom):
 @objective_doc_templater()
 class svd_cone(cone, svd_obj):
 
+    def __copy__(self):
+        return self.__class__(copy(self.matrix_shape),
+                              offset=copy(self.offset),
+                              initial=self.coefs,
+                              quadratic=self.quadratic)
+    
+
     def __repr__(self):
         if self.quadratic.iszero:
             return "%s(%s, offset=%s)" % \
@@ -263,11 +270,11 @@ class svd_cone(cone, svd_obj):
                  quadratic=None,
                  initial=None):
 
-        self.matrix_shape = input_shape
-        shape = np.product(input_shape)+1
+        shape = (np.product(input_shape)+1,)
         cone.__init__(self, shape, offset=offset,
                       quadratic=quadratic,
                       initial=initial)
+        self.matrix_shape = input_shape
 
     @property
     def conjugate(self):
