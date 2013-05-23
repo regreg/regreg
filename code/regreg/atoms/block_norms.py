@@ -13,6 +13,7 @@ from ..problems.composite import smooth_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 from ..atoms import _work_out_conjugate
+from .piecewise_linear import find_solution_piecewise_linear_c
 
 @objective_doc_templater()
 class block_sum(seminorms.seminorm):
@@ -98,7 +99,6 @@ class block_sum(seminorms.seminorm):
 
     @property
     def conjugate(self):
-
         if self.quadratic.coef == 0:
 
             offset, outq = _work_out_conjugate(self.offset, 
@@ -112,7 +112,8 @@ class block_sum(seminorms.seminorm):
                        self.shape, 
                        offset=offset,
                        lagrange=conj_atom.lagrange,
-                       bound=conj_atom.bound)
+                       bound=conj_atom.bound,
+                       quadratic=outq)
 
         else:
             atom = smooth_conjugate(self)
@@ -145,8 +146,7 @@ class block_max(block_sum):
         return np.inf
 
     def lagrange_prox(self, x, lipschitz=1, lagrange=None):
-        warnings.warn('lagrange_prox of block_max requires a little thought -- should be like l1prox')
-        return 0 * x
+        raise ValueError('lagrange_prox of block_max requires a little thought -- should be like l1prox')
 
     def bound_prox(self, x, bound=None):
         x = x.reshape(self.shape)
@@ -179,27 +179,45 @@ class linf_l2(block_max):
                            quadratic=quadratic,
                            initial=initial)
 
-    def constraint(self, x):
-        x = x.reshape(self.shape)
-        norm_max = np.sqrt((x**2).sum(1)).max()
+    @doc_template_user
+    def constraint(self, arg):
+        arg = arg.reshape(self.shape)
+        norm_max = np.sqrt((arg**2).sum(1)).max()
         if norm_max <= self.bound * (1 + self.tol):
             return 0
         return np.inf
 
-    def seminorm(self, x, lagrange=None, check_feasibility=False):
-        x = x.reshape(self.shape)
-        lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
+    @doc_template_user
+    def seminorm(self, arg, lagrange=None, check_feasibility=False):
+        arg = arg.reshape(self.shape)
+        lagrange = seminorms.seminorm.seminorm(self, arg, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
-        norm_max = np.sqrt((x**2).sum(1)).max()
+        norm_max = np.sqrt((arg**2).sum(1)).max()
         return lagrange * norm_max
 
-    def bound_prox(self, x, bound=None):
-        x = x.reshape(self.shape)
-        norm = np.sqrt((x**2).sum(1))
-        bound = seminorms.seminorm.bound_prox(self, x,
-                                      bound=bound)
-        v = x.copy()
+    @doc_template_user
+    def bound_prox(self, arg, bound=None):
+        arg = arg.reshape(self.shape)
+        norm = np.sqrt((arg**2).sum(1))
+        bound = seminorms.seminorm.bound_prox(self, arg,
+                                              bound=bound)
+        v = arg.copy()
         v[norm >= bound] *= bound / norm[norm >= bound][:,np.newaxis]
+        return v
+
+    @doc_template_user
+    def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
+        arg = arg.reshape(self.shape)
+        norm = np.sqrt((arg**2).sum(1))
+        lagrange = seminorms.seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, norm)
+        if cut < np.inf:
+            proj_factor = (norm - cut) * (norm > cut)
+        else:
+            proj_factor = arg
+        factor = (norm - proj_factor) / norm
+        v = arg.copy()
+        v *= factor[:,np.newaxis]
         return v
 
     @property
@@ -245,28 +263,40 @@ class linf_linf(linf_l2):
                            quadratic=quadratic,
                            initial=initial)
 
-    def constraint(self, x):
-        x = x.reshape(self.shape)
-        norm_max = np.fabs(x).max()
+    @doc_template_user
+    def constraint(self, arg):
+        arg = arg.reshape(self.shape)
+        norm_max = np.fabs(arg).max()
         if norm_max <= self.bound * (1 + self.tol):
             return 0
         return np.inf
 
-    def seminorm(self, x, lagrange=None, check_feasibility=False):
-        x = x.reshape(self.shape)
-        lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
+    @doc_template_user
+    def seminorm(self, arg, lagrange=None, check_feasibility=False):
+        arg = arg.reshape(self.shape)
+        lagrange = seminorms.seminorm.seminorm(self, arg, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
-        norm_max = np.fabs(x).max()
+        norm_max = np.fabs(arg).max()
         return lagrange * norm_max
 
-
-    def bound_prox(self, x, bound=None):
-        x = x.reshape(self.shape)
-        bound = seminorms.seminorm.bound_prox(self, x,
+    @doc_template_user
+    def bound_prox(self, arg, bound=None):
+        arg = arg.reshape(self.shape)
+        bound = seminorms.seminorm.bound_prox(self, arg,
                                       bound=bound)
-        # print 'bound', bound
-        return np.clip(x, -bound, bound)
+        return np.clip(arg, -bound, bound).reshape(self.shape)
 
+    @doc_template_user
+    def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
+        lagrange = seminorms.seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        arg = np.asarray(arg, np.float).reshape(-1)
+        absarg = np.fabs(arg)
+        cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, absarg)
+        if cut < np.inf:
+            proj = np.sign(arg) * (absarg - cut) * (absarg > cut)
+        else:
+            proj = arg
+        return (arg - proj).reshape(self.shape)
 
 @objective_doc_templater()
 class l1_l2(block_sum):
@@ -289,12 +319,29 @@ class l1_l2(block_sum):
                            initial=initial)
 
 
-    def lagrange_prox(self, x, lipschitz=1, lagrange=None):
-        x = x.reshape(self.shape)
-        lagrange = seminorms.seminorm.lagrange_prox(self, x, lipschitz, lagrange)
-        norm = np.sqrt((x**2).sum(1))
+    @doc_template_user
+    def lagrange_prox(self, arg, lipschitz=1, lagrange=None):
+        arg = arg.reshape(self.shape)
+        lagrange = seminorms.seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        norm = np.sqrt((arg**2).sum(1))
         mult = np.maximum(norm - lagrange / lipschitz, 0) / norm
-        return x * mult[:, np.newaxis]
+        return arg * mult[:, np.newaxis]
+
+    @doc_template_user
+    def bound_prox(self, arg, bound=None):
+        arg = arg.reshape(self.shape)
+        norm = np.sqrt((arg**2).sum(1))
+        bound = seminorms.seminorm.bound_prox(self, arg,
+                                              bound=bound)
+        cut = find_solution_piecewise_linear_c(bound, 0, norm)
+        if cut < np.inf:
+            proj_factor = (norm - cut) * (norm > cut)
+        else:
+            proj_factor = arg
+        factor = proj_factor / norm
+        v = arg.copy()
+        v *= factor[:,np.newaxis]
+        return v
 
     @property
     def conjugate(self):
@@ -318,6 +365,7 @@ class l1_l2(block_sum):
         self._conjugate._conjugate = self
         return self._conjugate
 
+    @doc_template_user
     def constraint(self, x):
         x = x.reshape(self.shape)
         norm_sum = np.sqrt((x**2).sum(1)).sum()
@@ -325,6 +373,7 @@ class l1_l2(block_sum):
             return 0
         return np.inf
 
+    @doc_template_user
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         x = x.reshape(self.shape)
         lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
@@ -353,25 +402,38 @@ class l1_l1(l1_l2):
                            quadratic=quadratic,
                            initial=initial)
 
-    def lagrange_prox(self, x, lipschitz=1, lagrange=None):
-        x = x.reshape(self.shape)
-        lagrange = seminorms.seminorm.lagrange_prox(self, x, lipschitz, lagrange)
-        norm = np.fabs(x)
-        return np.maximum(norm - lagrange, 0) * np.sign(x)
+    @doc_template_user
+    def lagrange_prox(self, arg, lipschitz=1, lagrange=None):
+        arg = arg.reshape(self.shape)
+        lagrange = seminorms.seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        norm = np.fabs(arg)
+        return (np.maximum(norm - lagrange / lipschitz, 0) * np.sign(arg)).reshape(self.shape)
 
-    def constraint(self, x):
-        x = x.reshape(self.shape)
-        norm_sum = np.fabs(x).sum()
+    @doc_template_user
+    def constraint(self, arg):
+        arg = arg.reshape(self.shape)
+        norm_sum = np.fabs(arg).sum()
         if norm_sum <= self.bound * (1 + self.tol):
             return 0
         return np.inf
 
-    def seminorm(self, x, lagrange=None, check_feasibility=False):
-        x = x.reshape(self.shape)
-        lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
+    @doc_template_user
+    def seminorm(self, arg, lagrange=None, check_feasibility=False):
+        arg = arg.reshape(self.shape)
+        lagrange = seminorms.seminorm.seminorm(self, arg, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
-        norm_sum = np.fabs(x).sum()
+        norm_sum = np.fabs(arg).sum()
         return lagrange * norm_sum
+
+    @doc_template_user
+    def bound_prox(self, arg, bound=None):
+        bound = seminorms.seminorm.bound_prox(self, arg, bound)
+        arg = np.asarray(arg, np.float).reshape(-1)
+        absarg = np.fabs(arg)
+        cut = find_solution_piecewise_linear_c(bound, 0, absarg)
+        if cut < np.inf:
+            value = np.sign(arg) * (absarg - cut) * (absarg > cut)
+        return value.reshape(self.shape)
 
 
 conjugate_block_pairs = {}

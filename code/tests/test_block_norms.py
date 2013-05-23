@@ -29,18 +29,18 @@ def test_proximal_maps():
                                               [False, True]):
 
         if atom not in [B.block_max, B.block_sum]:
-            p = atom(shape, quadratic=q, lagrange=lagrange,
+            p = atom(shape, quadratic=q, lagrange=L,
                        offset=offset)
             d = p.conjugate 
-            yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom
+            yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom, None
 
             # some arguments of the constructor
 
-            nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+            yield nt.assert_raises, AttributeError, setattr, p, 'bound', 4.
+            yield nt.assert_raises, AttributeError, setattr, d, 'lagrange', 4.
 
-            nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+            yield nt.assert_raises, AttributeError, setattr, p, 'bound', 4.
+            yield nt.assert_raises, AttributeError, setattr, d, 'lagrange', 4.
 
             for t in Solver(p, Z, L, FISTA, coef_stop).all():
                 yield t

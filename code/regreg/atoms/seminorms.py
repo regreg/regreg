@@ -156,26 +156,17 @@ class seminorm(atom):
         supnorm((30,), bound=3.400000, offset=0)
 
         """
-        self.quadratic.zeroify()
-        if self.quadratic.coef == 0:
 
+        if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, self.quadratic)
 
-            if self.bound is None:
-                cls = conjugate_seminorm_pairs[self.__class__]
-                conjugate_atom = cls(self.shape,  \
-                           bound=self.lagrange, 
-                           lagrange=None,
-                           quadratic=outq,
-                           offset=offset)
-            else:
-                cls = conjugate_seminorm_pairs[self.__class__]
-                conjugate_atom = cls(self.shape, \
-                           lagrange=self.bound, 
-                           bound=None,
-                           quadratic=outq,
-                           offset=offset)
-
+            
+            cls = conjugate_seminorm_pairs[self.__class__]
+            conjugate_atom = cls(self.shape,  \
+                       bound=self.lagrange, 
+                       lagrange=self.bound,
+                       quadratic=outq,
+                       offset=offset)
         else:
             conjugate_atom = smooth_conjugate(self)
         self._conjugate = conjugate_atom
@@ -495,10 +486,10 @@ class supnorm(seminorm):
         absarg = np.fabs(arg)
         cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, absarg)
         if cut < np.inf:
-            d = np.sign(arg) * (absarg - cut) * (absarg > cut)
+            proj = np.sign(arg) * (absarg - cut) * (absarg > cut)
         else:
-            d = arg
-        return arg - d
+            proj = arg
+        return arg - proj
 
     @doc_template_user
     def bound_prox(self, arg, bound=None):
