@@ -38,8 +38,6 @@ y : %s
 
 @np.testing.dec.slow
 def test_proximal_maps():
-    bound = 0.14
-    lagrange = 0.13
     shape = 20
 
     Z = np.random.standard_normal(shape) * 4
@@ -52,11 +50,11 @@ def test_proximal_maps():
                      [S.l1norm, S.supnorm, S.l2norm,
                       S.positive_part, S.constrained_max],
                      [None, quadratic],
-                     [U, None],
+                     [None, U],
                      [False, True],
                      [True, False]):
 
-        p = atom(shape, lagrange=lagrange, quadratic=q,
+        p = atom(shape, lagrange=L, quadratic=q,
                    offset=offset)
         d = p.conjugate 
         yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % atom, None
@@ -71,13 +69,12 @@ def test_proximal_maps():
         for t in Solver(p, Z, L, FISTA, coef_stop).all():
             yield t
 
-        b = atom(shape, bound=bound, quadratic=q,
+        b = atom(shape, bound=0.3, quadratic=q,
                  offset=offset)
 
         for t in Solver(b, Z, L, FISTA, coef_stop).all():
             yield t
 
-    lagrange = 0.1
     for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
                      sorted(S.nonpaired_atoms),
                                               [None, quadratic],
@@ -85,8 +82,8 @@ def test_proximal_maps():
                                               [False, True],
                                               [False, True]):
 
-        p = atom(shape, lagrange=lagrange, quadratic=q,
-                   offset=offset)
+        p = atom(shape, lagrange=L, quadratic=q,
+                 offset=offset)
         d = p.conjugate 
         yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % atom, None
         # some arguments of the constructor
@@ -311,7 +308,7 @@ class Solver(object):
     def all(self):
         for group in [self.test_simple_problem,
                       self.test_separable,
-                      #self.test_dual_problem,
+                      self.test_dual_problem,
                       #self.test_container,
                       self.test_simple_problem_nonsmooth,
                       self.test_duality_of_projections,
