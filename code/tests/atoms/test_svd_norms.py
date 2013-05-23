@@ -28,7 +28,7 @@ def test_proximal_maps():
                                               [False, True],
                                               [False, True]):
 
-        p = atom(shape, quadratic=q, lagrange=L,
+        p = atom(shape, quadratic=q, lagrange=lagrange,
                    offset=offset)
         d = p.conjugate 
         yield ac, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom

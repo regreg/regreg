@@ -29,7 +29,7 @@ def test_proximal_maps():
                                               [False, True]):
 
         if atom not in [B.block_max, B.block_sum]:
-            p = atom(shape, quadratic=q, lagrange=L,
+            p = atom(shape, quadratic=q, lagrange=lagrange,
                        offset=offset)
             d = p.conjugate 
             yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom, None

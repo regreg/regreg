@@ -196,7 +196,7 @@ class group_lasso_dual(group_lasso):
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
-        x = np.asarray(arg, np.float)
+        arg = np.asarray(arg, np.float)
         return mixed_lasso_dual_bound_prox(arg, float(bound),
                                            np.array([], np.int),
                                            np.array([], np.int),
@@ -208,6 +208,7 @@ class group_lasso_dual(group_lasso):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        arg = np.asarray(arg, np.float)
         r = mixed_lasso_bound_prox(arg, lagrange / lipschitz,
                                    np.array([], np.int),
                                    np.array([], np.int),
@@ -217,7 +218,6 @@ class group_lasso_dual(group_lasso):
                                    self._weight_array)
         return x - r
 
-# the conjugate method needs to be slightly modified
 @objective_doc_templater()
 class group_lasso_cone(cone):
     

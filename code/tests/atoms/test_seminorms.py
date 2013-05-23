@@ -2,11 +2,11 @@ import numpy as np
 import itertools
 from copy import copy
 
-np.random.seed(0)
-
 import regreg.atoms.seminorms as S
 import regreg.api as rr
 import nose.tools as nt
+
+np.random.seed(0)
 
 def all_close(x, y, msg, solver):
     """
@@ -35,66 +35,74 @@ y : %s
 """ % (msg, np.linalg.norm(x-y) / max([1, np.linalg.norm(x), np.linalg.norm(y)]), x, y))
     if not hasattr(solver, 'interactive') or not solver.interactive:
         nt.assert_true(v)
+    else:
+        print msg.split('\n')[0]
 
 @np.testing.dec.slow
-def test_proximal_maps():
+def test_proximal_maps(interactive=False):
     shape = 20
-
-    Z = np.random.standard_normal(shape) * 4
-    W = 0.02 * np.random.standard_normal(shape)
-    U = 0.02 * np.random.standard_normal(shape)
-    quadratic = rr.identity_quadratic(0,0,W,0)
+    lagrange, bound = 0.13, 0.12
+    quadratic = rr.identity_quadratic(0,0,0,0)
 
     counter = 0
     for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
                      [S.l1norm, S.supnorm, S.l2norm,
                       S.positive_part, S.constrained_max],
                      [None, quadratic],
-                     [None, U],
+                     [True, False],
                      [False, True],
                      [True, False]):
 
-        p = atom(shape, lagrange=L, quadratic=q,
-                   offset=offset)
-        d = p.conjugate 
-        yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % atom, None
+        penalty = atom(shape, lagrange=lagrange, quadratic=q)
+        Z = np.random.standard_normal(penalty.shape)
+
+        if offset:
+            penalty.offset = 0.02 * np.random.standard_normal(penalty.shape)
+        if q is not None:
+            penalty.quadratic.linear_term = 0.02 * np.random.standard_normal(penalty.shape)
+
+        dual = penalty.conjugate 
+        yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % atom, None
+
         # some arguments of the constructor
 
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
         
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
 
-        for t in Solver(p, Z, L, FISTA, coef_stop).all():
+        for t in Solver(penalty, Z, L, FISTA, coef_stop, interactive=interactive).all():
             yield t
 
-        b = atom(shape, bound=0.3, quadratic=q,
-                 offset=offset)
+        bound = atom(shape, bound=0.3, quadratic=q)
+        if offset:
+            bound.offset = 0.02 * np.random.standard_normal(bound.shape)
+        if q is not None:
+            bound.quadratic.linear_term = 0.02 * np.random.standard_normal(bound.shape)
 
-        for t in Solver(b, Z, L, FISTA, coef_stop).all():
+
+        for t in Solver(bound, Z, L, FISTA, coef_stop, interactive=interactive).all():
             yield t
 
     for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
                      sorted(S.nonpaired_atoms),
                                               [None, quadratic],
-                                              [None, U],
+                                              [True, False],
                                               [False, True],
                                               [False, True]):
 
-        p = atom(shape, lagrange=L, quadratic=q,
-                 offset=offset)
-        d = p.conjugate 
-        yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % atom, None
-        # some arguments of the constructor
+        penalty = atom(shape, lagrange=L, quadratic=q)
+        dual = penalty.conjugate 
+        yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % atom, None
 
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
         
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
 
-        for t in Solver(p, Z, L, FISTA, coef_stop).all():
+        for t in Solver(penalty, Z, L, FISTA, coef_stop, interactive=interactive).all():
             yield t
 
 
@@ -103,25 +111,29 @@ class Solver(object):
     def __repr__(self):
         return 'Solver(%s)' % repr(self.atom)
 
-    def __init__(self, atom, Z, L, FISTA=True, coef_stop=True, container=True, interactive=False):
+    def __init__(self, atom, Z, L, FISTA=True, coef_stop=True, interactive=False):
         self.interactive = interactive
         self.coef_stop = coef_stop
         self.atom = atom
         self.Z = Z
         self.L = L
         self.FISTA = FISTA
-        self.do_container = container
         self.q = rr.identity_quadratic(L, Z, 0, 0)
         self.loss = rr.quadratic.shift(Z, coef=L)
 
     def test_duality_of_projections(self):
-        if self.atom.quadratic == rr.identity_quadratic(0,0,0,0):
+        if self.atom.quadratic == rr.identity_quadratic(0,0,0,0) or self.atom.quadratic is None:
 
             tests = []
 
             d = self.atom.conjugate
             q = rr.identity_quadratic(1, self.Z, 0, 0)
             tests.append((self.Z-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
+
+            if hasattr(self.atom, 'check_subgradient') and self.atom.offset is None:
+                # check subgradient condition
+                v1, v2 = self.atom.check_subgradient(self.atom, self.Z)
+                tests.append((v1, v2, 'checking subgradient condition\n %s' % str(self)))
 
             if not self.interactive:
                 for test in tests:
@@ -149,7 +161,6 @@ class Solver(object):
         p3.quadratic = atom.quadratic + q
         soln = p3.solve(tol=1.e-14, min_its=10)
         tests.append((atom.proximal(q), soln, 'solving prox with solve method\n %s ' % str(self)))
-        print 'stop'
 
         p4 = copy(atom)
         p4.quadratic = atom.quadratic + q
@@ -306,14 +317,13 @@ class Solver(object):
                 yield all_close(*((test + (self,))))
 
     def all(self):
-        for group in [self.test_simple_problem,
+        for group in [self.test_duality_of_projections,
+                      self.test_simple_problem,
                       self.test_separable,
                       self.test_dual_problem,
                       #self.test_container,
                       self.test_simple_problem_nonsmooth,
-                      self.test_duality_of_projections,
                       ]:
             for t in group():
                 yield t
                   
-
