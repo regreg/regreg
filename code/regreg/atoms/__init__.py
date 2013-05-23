@@ -212,7 +212,7 @@ def _work_out_conjugate(offset, quadratic):
           np.sum(offset * quadratic.linear_term))
 
     if quadratic.linear_term is not None:
-        outoffset = -quadratic.linear_term
+        outoffset = quadratic.linear_term
     else:
         outoffset = None
     return outoffset, outq
