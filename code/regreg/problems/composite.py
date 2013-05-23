@@ -311,8 +311,8 @@ class smooth_conjugate(smooth):
                 if atom.offset is not None:
                     offset -= atom.offset
                 atom = copy(atom)
-                atom.offset = -offset
-                atom.quadratic=newq
+                atom.offset = offset
+                atom.quadratic = newq
                 return atom
             if q.coef != 0:
                 r = q.coef

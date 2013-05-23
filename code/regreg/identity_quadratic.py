@@ -185,18 +185,18 @@ class identity_quadratic(object):
 
     def latexify(self, var=r'\beta', idx=''):
         self.zeroify()
-        v = ' '
+        terms = []
         if self.coef != 0:
-            v += r'\frac{L_{%s}}{2} ' % idx
+            terms.append(r'\frac{L_{%s}}{2} ' % idx)
             if not all(self.center == 0):
-                v += r'\|%s-\mu_{%s}\|^2_2 + ' % (var, idx)
+                terms.append(r'\|%s-\mu_{%s}\|^2_2 ' % (var, idx))
             else:
-                v += r'\|%s\|^2_2 + ' % var
-        if not all(self.linear_term == 0):
-            v += r' \left \langle \eta_{%s}, %s \right \rangle ' % (idx, var)
-        if self.constant_term != 0:
-            v += r' + \gamma_{%s} ' % idx
-        return v
+                terms.append(r'\|%s\|^2_2 + ' % var)
+        if self.linear_term is not None and not all(self.linear_term == 0):
+            terms.append(r' \left \langle \eta_{%s}, %s \right \rangle ' % (idx, var))
+        if self.constant_term is not None and self.constant_term != 0:
+            terms.append(r'\gamma_{%s} ' % idx)
+        return ' + '.join(terms)
 
     def _repr_latex_(self):
         return r'''\begin{equation*} %s \end{equation*} ''' % self.latexify()

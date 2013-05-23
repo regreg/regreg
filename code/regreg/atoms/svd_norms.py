@@ -13,6 +13,7 @@ from ..atoms import atom, _work_out_conjugate
 from .seminorms import conjugate_seminorm_pairs, seminorm
 from .cones import cone, conjugate_cone_pairs
 from .projl1_cython import projl1, projl1_epigraph
+from .piecewise_linear import find_solution_piecewise_linear_c
 
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
@@ -216,12 +217,19 @@ class operator_norm(svd_atom):
         lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
         self.X = X
         U, D, V = self.SVD
-        D_soft_thresholded = D - projl1(D, lagrange/lipschitz)
-        keepD = D_soft_thresholded > 0
-        self.SVD = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
+
+        cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, D)
+        if cut < np.inf:
+            V = (D - cut) * (D > cut)
+        else:
+            V = D
+        D -= V
+        self._D = D
+
+        self.SVD = U, D, V
         c = self.conjugate
         c.SVD = self.SVD
-        self._X = np.dot(U[:,keepD], D_soft_thresholded[keepD][:,np.newaxis] * V[keepD])
+        self._X = np.dot(U, D[:,np.newaxis] * V)
         return self.X
 
     @doc_template_user
@@ -229,7 +237,7 @@ class operator_norm(svd_atom):
         bound = svd_atom.bound_prox(self, X, bound)
         self.X = X
         U, D, V = self.SVD
-        self._D = np.minimum(D, bound)
+
         # store the projected X -- or should we keep original?
         self._X = np.dot(U, D[:,np.newaxis] * V)
         return self.X
@@ -241,12 +249,12 @@ class svd_cone(cone, svd_obj):
         if self.quadratic.iszero:
             return "%s(%s, offset=%s)" % \
                 (self.__class__.__name__,
-                 `self.matrix_shape`,
+                 repr(self.matrix_shape),
                  str(self.offset))
         else:
             return "%s(%s, offset=%s, quadratic=%s)" % \
                 (self.__class__.__name__,
-                 `self.matrix_shape`,
+                 repr(self.matrix_shape),
                  str(self.offset),
                  str(self.quadratic))
 
@@ -267,7 +275,6 @@ class svd_cone(cone, svd_obj):
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
             cls = conjugate_cone_pairs[self.__class__]
-            print self.matrix_shape, 'matrixshape'
             new_atom = cls(self.matrix_shape,
                        offset=offset,
                        quadratic=outq)
@@ -327,7 +334,6 @@ class nuclear_norm_epigraph_polar(svd_cone):
         if incone:
             return 0
         return np.inf
-
 
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
