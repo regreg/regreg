@@ -364,7 +364,6 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                          np.ndarray[DTYPE_float_t, ndim=1] weights):
 
     cdef np.ndarray[DTYPE_float_t, ndim=1] x = center[:-1]
-    cdef np.ndarray[DTYPE_float_t, ndim=1] result = np.zeros_like(center)
     cdef DTYPE_float_t norm = center[-1]
 
     cdef int p = groups.shape[0]
@@ -400,21 +399,24 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                                                      fnorms,
                                                      fweights)
 
-    if cut < np.inf and norm + cut >= 0:
-        for j in range(weights.shape[0]):
-            factors[j] = min(1., cut * weights[j] / norms[j])
+    cdef np.ndarray[DTYPE_float_t, ndim=1] result = np.zeros_like(center)
+    if cut < np.inf:
+        if norm + cut >= 0:
+            for j in range(weights.shape[0]):
+                factors[j] = min(1., cut * weights[j] / norms[j])
 
-        for i in range(p):
-            if groups[i] >= 0:
-                projection[i] = x[i] * factors[groups[i]]
+            for i in range(p):
+                if groups[i] >= 0:
+                    projection[i] = x[i] * factors[groups[i]]
 
-        projection[l1_penalty] = x[l1_penalty] * np.minimum(1., cut / np.fabs(x[l1_penalty]))
-        projection[unpenalized] = 0
-        projection[positive_part] = np.minimum(cut, x[positive_part])
-        projection[nonnegative] = np.minimum(x[nonnegative], 0)
+            projection[l1_penalty] = x[l1_penalty] * np.minimum(1., cut / np.fabs(x[l1_penalty]))
+            projection[unpenalized] = 0
+            projection[positive_part] = np.minimum(cut, x[positive_part])
+            projection[nonnegative] = np.minimum(x[nonnegative], 0)
 
-        result[:-1] = x - projection
-        result[-1] = norm + cut
+            result[:-1] = x - projection
+            result[-1] = norm + cut
+        # else, it is zero from initialization
     else:
         result[:] = center
 
