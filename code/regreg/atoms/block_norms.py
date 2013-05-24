@@ -18,14 +18,7 @@ from .piecewise_linear import find_solution_piecewise_linear_c
 @objective_doc_templater()
 class block_sum(seminorms.seminorm):
 
-    _doc_dict = {'linear':r' + \text{Tr}(\eta^T X)',
-                 'constant':r' + \tau',
-                 'objective': '',
-                 'shape':r'p \times q',
-                 'var':r'X'}
-
     objective_template = r"""\|%(var)s\|_{1,h}"""
-    objective_vars = {'var': r'X + A'}
 
     def __init__(self, atom_cls, shape,
                  lagrange=None,
@@ -126,7 +119,6 @@ class block_sum(seminorms.seminorm):
 class block_max(block_sum):
 
     objective_template = r"""\|%(var)s\|_{\infty,h}"""
-    objective_vars = {'var': r'X + A'}
 
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         x = x.reshape(self.shape)
