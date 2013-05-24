@@ -341,17 +341,17 @@ class l2_epigraph_polar(cone):
             return 0
         return np.inf
 
-
     @doc_template_user
-    def cone_prox(self, x):
-        norm = -x[-1]
-        coef = -x[:-1]
+    def cone_prox(self, arg):
+        arg = -arg
+        norm = arg[-1]
+        coef = arg[:-1]
         norm_coef = np.linalg.norm(coef)
         thold = (norm_coef - norm) / 2.
-        result = np.zeros_like(x)
+        result = np.zeros_like(arg)
         result[:-1] = coef / norm_coef * max(norm_coef - thold, 0)
         result[-1] = max(norm + thold, 0)
-        return x + result
+        return -result
 
 
 class l1_epigraph(cone):
