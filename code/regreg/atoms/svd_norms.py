@@ -10,7 +10,7 @@ from copy import copy
 import numpy as np
 
 from ..atoms import atom, _work_out_conjugate
-from .seminorms import conjugate_seminorm_pairs, seminorm
+from .seminorms import conjugate_seminorm_pairs, seminorm, l1norm, supnorm
 from .cones import cone, conjugate_cone_pairs
 from .projl1_cython import projl1, projl1_epigraph
 from .piecewise_linear import find_solution_piecewise_linear_c
@@ -134,18 +134,16 @@ class nuclear_norm(svd_atom):
         # if the md5 hash of X doesn't match.
         lagrange = seminorm.seminorm(self, X, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
-        self.X = X
-        _, D, _ = self.SVD
-        return self.lagrange * np.sum(D)
+        U, D, V = np.linalg.svd(X, full_matrices=0)
+        return lagrange * np.fabs(D).sum()
 
     @doc_template_user
     def constraint(self, X, bound=None):
         # This will compute an svd of X
         # if the md5 hash of X doesn't match.
         bound = seminorm.constraint(self, X, bound=bound)
-        self.X = X
-        _, D, _ = self.SVD
-        inbox = np.sum(D) <= bound * (1 + self.tol)
+        U, D, V = np.linalg.svd(X, full_matrices=0)
+        inbox = np.fabs(D).sum() <= bound * (1 + self.tol)
         if inbox:
             return 0
         else:
@@ -154,30 +152,38 @@ class nuclear_norm(svd_atom):
     @doc_template_user
     def lagrange_prox(self, X,  lipschitz=1, lagrange=None):
         lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
-        self.X = X
-        U, D, V = self.SVD
-        D_soft_thresholded = np.maximum(D - lagrange/lipschitz, 0)
+        U, D, V = np.linalg.svd(X, full_matrices=0)
+        l1atom = l1norm(np.product(self.shape), lagrange=lagrange)
+        D_soft_thresholded = l1atom.lagrange_prox(D, lipschitz=lipschitz, lagrange=lagrange)
         keepD = D_soft_thresholded > 0
-        self.SVD = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
-        c = self.conjugate
-        c.SVD = self.SVD
-        self._X = np.dot(U[:,keepD], D_soft_thresholded[keepD][:,np.newaxis] * V[keepD])
-        return self.X
+        print 'subgrad', l1atom.check_subgradient(l1atom, D)
+        print 'now', D, D_soft_thresholded
+        print 'shape', U.shape, D.shape, V.shape
+        print 'norm', np.linalg.norm(X - np.dot(U, D[:,np.newaxis] * V))
+        U_new, D_new, V_new = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
+        #self.SVD = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
+        #c = self.conjugate
+        #c.SVD = self.SVD
+        #= self.SVD
+        #self._X = 
+        return np.dot(U, D_soft_thresholded[:,np.newaxis] * V)
 
     @doc_template_user
     def bound_prox(self, X, bound=None):
         bound = svd_atom.bound_prox(self, X, bound)
-        self.X = X
-        U, D, V = self.SVD
-        D_projected = projl1(D, bound)
+        U, D, V = np.linalg.svd(X, full_matrices=0)
+        l1atom = l1norm(np.product(self.shape), bound=bound)
+        D_projected = l1atom.bound_prox(D)
         keepD = D_projected > 0
-        # store the projected X -- or should we keep original?
-        self.SVD = U[:,keepD], D_projected[keepD], V[keepD]
-        c = self.conjugate
-        c.SVD = self.SVD
-        self._X = np.dot(U[:,keepD], D_projected[keepD][:,np.newaxis] * V[keepD])
-        return self.X
-
+        U_new, D_new, V_new = U[:,keepD], D_projected[keepD], V[keepD]
+        return np.dot(U_new, D_new[:,np.newaxis] * V_new)
+#         self.SVD = U[:,keepD], D_projected[keepD], V[keepD]
+#         c = self.conjugate
+#         c.SVD = self.SVD
+#         U_new, D_new, V_new = self.SVD
+#         self._X = np.dot(U_new, D_new[:,np.newaxis] * V_new)
+#         return self.X
+        return np.dot(U, D_projected[:,np.newaxis] * V)
 
 @objective_doc_templater()
 class operator_norm(svd_atom):
@@ -195,18 +201,16 @@ class operator_norm(svd_atom):
         # if the md5 hash of X doesn't match.
         lagrange = seminorm.seminorm(self, X, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
-        self.X = X
-        _, D, _ = self.SVD
-        return self.lagrange * np.max(D)
+        U, D, V = np.linalg.svd(X, full_matrices=0)
+        return lagrange * np.max(D)
 
     @doc_template_user
     def constraint(self, X, bound=None):
         # This will compute an svd of X
         # if the md5 hash of X doesn't match.
         bound = seminorm.constraint(self, X, bound=bound)
-        self.X = X
-        _, D, _ = self.SVD
-        inbox = np.max(D) <= self.bound * (1 + self.tol)
+        U, D, V = np.linalg.svd(X, full_matrices=0)
+        inbox = np.max(D) <= bound * (1 + self.tol)
         if inbox:
             return 0
         else:
@@ -215,32 +219,18 @@ class operator_norm(svd_atom):
     @doc_template_user
     def lagrange_prox(self, X,  lipschitz=1, lagrange=None):
         lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
-        self.X = X
-        U, D, V = self.SVD
-
-        cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, D)
-        if cut < np.inf:
-            V = (D - cut) * (D > cut)
-        else:
-            V = D
-        D -= V
-        self._D = D
-
-        self.SVD = U, D, V
-        c = self.conjugate
-        c.SVD = self.SVD
-        self._X = np.dot(U, D[:,np.newaxis] * V)
-        return self.X
+        U, D, V = np.linalg.svd(X, full_matrices=False)
+        supatom = supnorm(np.product(self.shape), lagrange=lagrange)
+        D_new = supatom.lagrange_prox(D, lipschitz=lipschitz, lagrange=lagrange)
+        return np.dot(U, D_new[:,np.newaxis] * V)
 
     @doc_template_user
     def bound_prox(self, X, bound=None):
         bound = svd_atom.bound_prox(self, X, bound)
-        self.X = X
-        U, D, V = self.SVD
-
-        # store the projected X -- or should we keep original?
-        self._X = np.dot(U, D[:,np.newaxis] * V)
-        return self.X
+        U, D, V = np.linalg.svd(X, full_matrices=False)
+        supatom = supnorm(np.product(self.shape), bound=bound)
+        D_new = supatom.bound_prox(D)
+        return np.dot(U, D_new[:,np.newaxis] * V)
 
 @objective_doc_templater()
 class svd_cone(cone, svd_obj):
