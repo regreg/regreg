@@ -28,7 +28,7 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
     cdef int i, j
     cdef int p = groups.shape[0]
     
-    cdef lf = lagrange / lipschitz
+    cdef implied_bound = lagrange / lipschitz
     
     for i in range(p):
         if groups[i] >= 0:
@@ -36,15 +36,15 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
     
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        factors[j] = min(1., lf * weights[j] / norms[j])
+        factors[j] = min(1., implied_bound * weights[j] / norms[j])
     
     for i in range(p):
         if groups[i] >= 0:
             projection[i] = prox_center[i] * factors[groups[i]]
 
-    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, lf / np.fabs(prox_center[l1_penalty]))
+    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, implied_bound / np.fabs(prox_center[l1_penalty]))
     projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(lf, prox_center[positive_part])
+    projection[positive_part] = np.minimum(implied_bound, prox_center[positive_part])
     projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
     return prox_center - projection

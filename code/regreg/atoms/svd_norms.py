@@ -18,46 +18,8 @@ from .piecewise_linear import find_solution_piecewise_linear_c
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 
-
-class svd_obj(object):
-
-    def compute_and_store_svd(self, X):
-        """
-        Compute and store svd of X for use in multiple function calls.
-        """
-        self._md5x = md5(X).hexdigest()
-        self._X = X
-        self.SVD = np.linalg.svd(X, full_matrices=0)
-        return self.SVD
-
-    def setX(self, X):
-        if not hasattr(self, "_md5x") or md5(X).hexdigest() != self._md5x:
-            self.compute_and_store_svd(X)
-    def getX(self):
-        if hasattr(self, "_X"):
-            return self._X
-        raise AttributeError("X has not been set")
-    X = property(getX, setX)
-
-    def get_conjugate(self):
-        seminorm.get_conjugate(self)
-        # share the SVD with the conjugate
-        if hasattr(self, "_X"):
-            for attr in ['_X', '_U' ,'_D', '_V']:
-                setattr(self._conjugate, attr, getattr(self, attr))
-        return self._conjugate
-    conjugate = property(get_conjugate)
-
-    def get_SVD(self):
-        if hasattr(self, "_U"):
-            return self._U, self._D, self._V
-        raise AttributeError("SVD has not been set")
-    def set_SVD(self, UDV):
-        self._U, self._D, self._V = UDV
-    SVD = property(get_SVD, set_SVD)
-
 @objective_doc_templater()
-class svd_atom(seminorm, svd_obj):
+class svd_atom(seminorm):
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['var'] = 'X'
     objective_vars['shape'] = r'n \times p'
@@ -161,11 +123,6 @@ class nuclear_norm(svd_atom):
         print 'shape', U.shape, D.shape, V.shape
         print 'norm', np.linalg.norm(X - np.dot(U, D[:,np.newaxis] * V))
         U_new, D_new, V_new = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
-        #self.SVD = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
-        #c = self.conjugate
-        #c.SVD = self.SVD
-        #= self.SVD
-        #self._X = 
         return np.dot(U, D_soft_thresholded[:,np.newaxis] * V)
 
     @doc_template_user
@@ -177,12 +134,6 @@ class nuclear_norm(svd_atom):
         keepD = D_projected > 0
         U_new, D_new, V_new = U[:,keepD], D_projected[keepD], V[keepD]
         return np.dot(U_new, D_new[:,np.newaxis] * V_new)
-#         self.SVD = U[:,keepD], D_projected[keepD], V[keepD]
-#         c = self.conjugate
-#         c.SVD = self.SVD
-#         U_new, D_new, V_new = self.SVD
-#         self._X = np.dot(U_new, D_new[:,np.newaxis] * V_new)
-#         return self.X
         return np.dot(U, D_projected[:,np.newaxis] * V)
 
 @objective_doc_templater()
@@ -233,7 +184,7 @@ class operator_norm(svd_atom):
         return np.dot(U, D_new[:,np.newaxis] * V)
 
 @objective_doc_templater()
-class svd_cone(cone, svd_obj):
+class svd_cone(cone):
 
     def __copy__(self):
         return self.__class__(copy(self.matrix_shape),
@@ -285,14 +236,9 @@ class svd_cone(cone, svd_obj):
 class nuclear_norm_epigraph(svd_cone):
 
     def constraint(self, normX):
-        """
-        The non-negative constraint of x.
-        """
         norm = normX[-1]
-        import sys; sys.stderr.write(`(normX.shape, self.matrix_shape)`+'\n')
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
 
         incone = np.fabs(D[1:]).sum() / norm <= 1 + self.tol
         if incone:
@@ -302,16 +248,15 @@ class nuclear_norm_epigraph(svd_cone):
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
         newD = np.zeros(D.shape[0]+1)
         newD[-1] = norm
         newD[:-1] = D
         newD = projl1_epigraph(newD)
         result = np.zeros_like(normX)
         result[-1] = newD[-1] 
-        self.X = np.dot(U, newD[:-1,np.newaxis] * V)
-        result[:-1] = self.X.reshape(-1)
+        newX = np.dot(U, newD[:-1][:,np.newaxis] * V)
+        result[:-1] = newX.reshape(-1)
         return result
 
 @objective_doc_templater()
@@ -324,8 +269,7 @@ class nuclear_norm_epigraph_polar(svd_cone):
         
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
 
         incone = D.max() / -norm <= 1 + self.tol
         if incone:
@@ -335,16 +279,16 @@ class nuclear_norm_epigraph_polar(svd_cone):
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
+
         newD = np.zeros(D.shape[0]+1)
         newD[-1] = norm
         newD[:-1] = D
         newD = newD - projl1_epigraph(newD)
         result = np.zeros_like(normX)
         result[-1] = newD[-1]
-        self.X = np.dot(U, newD[:-1,np.newaxis] * V)
-        result[:-1] = self.X.reshape(-1)
+        newX = np.dot(U, newD[:-1][:,np.newaxis] * V)
+        result[:-1] = newX.reshape(-1)
         return result
 
 @objective_doc_templater()
@@ -353,8 +297,7 @@ class operator_norm_epigraph(svd_cone):
     def constraint(self, normX):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
 
         incone = D.max() / norm <= 1 + self.tol
         if incone:
@@ -364,16 +307,16 @@ class operator_norm_epigraph(svd_cone):
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
+
         newD = np.zeros(D.shape[0]+1)
         newD[-1] = norm
         newD[:-1] = D
         newD = newD + projl1_epigraph(-newD)
         result = np.zeros_like(normX)
         result[-1] = newD[-1]
-        self.X = np.dot(U, newD[:-1,np.newaxis] * V)
-        result[:-1] = self.X.reshape(-1)
+        newX = np.dot(U, newD[:-1][:,np.newaxis] * V)
+        result[:-1] = newX.reshape(-1)
         return result
 
 @objective_doc_templater()
@@ -382,8 +325,7 @@ class operator_norm_epigraph_polar(svd_cone):
     def constraint(self, normX):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
 
         incone = D.sum() / -norm <= 1 + self.tol
         if incone:
@@ -393,16 +335,15 @@ class operator_norm_epigraph_polar(svd_cone):
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
-        self.X = X
-        U, D, V = self.SVD
+        U, D, V = np.linalg.svd(X, full_matrices=False)
         newD = np.zeros(D.shape[0]+1)
         newD[-1] = norm
         newD[:-1] = D
         newD = -projl1_epigraph(-newD)
         result = np.zeros_like(normX)
         result[-1] = newD[-1]
-        self.X = np.dot(U, newD[:-1,np.newaxis] * V)
-        result[:-1] = self.X.reshape(-1)
+        newX = np.dot(U, newD[:-1][:,np.newaxis] * V)
+        result[:-1] = newX.reshape(-1)
         return result
 
 

@@ -18,7 +18,9 @@ from .cones import cone
 from .mixed_lasso_cython import (mixed_lasso_bound_prox,
                                  mixed_lasso_lagrange_prox,
                                  mixed_lasso_epigraph,
-                                 mixed_lasso_dual_bound_prox)
+                                 mixed_lasso_dual_bound_prox,
+                                 seminorm_mixed_lasso,
+                                 seminorm_mixed_lasso_dual)
 
 @objective_doc_templater()
 class group_lasso(seminorm):
@@ -54,8 +56,9 @@ class group_lasso(seminorm):
         self._weight_array = np.ones(len(sg))
         
         for i, g in enumerate(sorted(np.unique(groups))):
-            self._groups[(groups == g)] = i
-            self._weight_array[i] = self.weights.get(g, np.sqrt((groups == g).sum()))
+            group = self.groups == g
+            self._groups[group] = i
+            self._weight_array[i] = self.weights.get(g, np.sqrt(group.sum()))
             self.weights[g] = self._weight_array[i]
 
     def __eq__(self, other):
@@ -130,19 +133,26 @@ class group_lasso(seminorm):
         return self._conjugate
 
     @doc_template_user
-    def seminorm(self, arg, lagrange=1., check_feasibility=False):
-        value = 0
-        ngroups = self._weight_array.shape[0]
-        for i in range(ngroups):
-            group = arg[self._groups == i]
-            value += self._weight_array[i] * np.linalg.norm(group)
-        return value * lagrange
+    def seminorm(self, arg, lagrange=None, check_feasibility=False):
+        lagrange = seminorm.seminorm(self, arg, 
+                                     lagrange=lagrange,
+                                     check_feasibility=check_feasibility)
+        arg = np.asarray(arg, np.float)
+        return lagrange * seminorm_mixed_lasso(arg, \
+                                    np.array([], np.int),
+                                    np.array([], np.int),
+                                    np.array([], np.int),
+                                    np.array([], np.int),
+                                    self._groups,
+                                    self._weight_array,
+                                    False)
 
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg, np.float)
-        return mixed_lasso_lagrange_prox(arg, float(lagrange),
+        return mixed_lasso_lagrange_prox(arg, 
+                                         float(lagrange),
                                          float(lipschitz),
                                          np.array([], np.int),
                                          np.array([], np.int),
@@ -185,13 +195,18 @@ class group_lasso_dual(group_lasso):
     tol = 1.0e-05
 
     @doc_template_user
-    def seminorm(self, arg, lagrange=1, check_feasibility=False):
-        value = 0
-        ngroups = self._weight_array.shape[0]
-        for i in range(ngroups):
-            group = arg[self._groups == i]
-            value = max(value, np.linalg.norm(group) / self._weight_array[i])
-        return value * lagrange
+    def seminorm(self, arg, lagrange=None, check_feasibility=False):
+        lagrange = seminorm.seminorm(self, arg, lagrange=lagrange,
+                                     check_feasibility=check_feasibility)
+        arg = np.asarray(arg, np.float)
+        return lagrange * seminorm_mixed_lasso_dual(arg, \
+                                    np.array([], np.int),
+                                    np.array([], np.int),
+                                    np.array([], np.int),
+                                    np.array([], np.int),
+                                    self._groups,
+                                    self._weight_array,
+                                    False)
 
     @doc_template_user
     def bound_prox(self, arg, bound=None):
@@ -216,7 +231,7 @@ class group_lasso_dual(group_lasso):
                                    np.array([], np.int),
                                    self._groups,
                                    self._weight_array)
-        return x - r
+        return arg - r
 
 @objective_doc_templater()
 class group_lasso_cone(cone):
