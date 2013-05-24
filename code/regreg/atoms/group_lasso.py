@@ -414,13 +414,13 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
         arg = np.asarray(arg, np.float)
-        return - mixed_lasso_epigraph(-arg,
-                                       np.array([], np.int),
-                                       np.array([], np.int),
-                                       np.array([], np.int),
-                                       np.array([], np.int),
-                                       self.snorm._group_array,
-                                       self.snorm._weight_array)
+        return -mixed_lasso_epigraph(-arg,
+                                      np.array([], np.int),
+                                      np.array([], np.int),
+                                      np.array([], np.int),
+                                      np.array([], np.int),
+                                      self.snorm._group_array,
+                                      self.snorm._weight_array)
 
     @doc_template_user
     def constraint(self, arg):
