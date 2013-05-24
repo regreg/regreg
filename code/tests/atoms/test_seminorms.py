@@ -40,86 +40,117 @@ y : %s
 
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):
-    shape = 20
-    lagrange, bound = 0.13, 0.12
-    quadratic = rr.identity_quadratic(0,0,0,0)
+    for klass in [S.l1norm, S.supnorm, S.l2norm,
+                  S.positive_part, S.constrained_max]:
+        factory = SolverFactory(klass, 'lagrange')
+        for solver in factory:
+            penalty = solver.atom
+            dual = penalty.conjugate 
+            Z = solver.prox_center
+            L = solver.L
 
-    counter = 0
-    for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
-                     [S.l1norm, S.supnorm, S.l2norm,
-                      S.positive_part, S.constrained_max],
-                     [None, quadratic],
-                     [True, False],
-                     [False, True],
-                     [True, False]):
+            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % klass, None
 
-        penalty = atom(shape, lagrange=lagrange, quadratic=q)
-        Z = np.random.standard_normal(penalty.shape)
+            # some arguments of the constructor
 
-        if offset:
-            penalty.offset = 0.02 * np.random.standard_normal(penalty.shape)
-        if q is not None:
-            penalty.quadratic.linear_term = 0.02 * np.random.standard_normal(penalty.shape)
-
-        dual = penalty.conjugate 
-        yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % atom, None
-
-        # some arguments of the constructor
-
-        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
         
-        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
 
-        for t in Solver(penalty, Z, L, FISTA, coef_stop, interactive=interactive).all():
-            yield t
+            for t in solver.all_tests():
+                yield t
 
-        bound = atom(shape, bound=0.3, quadratic=q)
-        if offset:
-            bound.offset = 0.02 * np.random.standard_normal(bound.shape)
-        if q is not None:
-            bound.quadratic.linear_term = 0.02 * np.random.standard_normal(bound.shape)
+        factory = SolverFactory(klass, 'bound')
+        for solver in factory:
+            for t in solver.all_tests():
+                yield t
 
+    for klass in sorted(S.nonpaired_atoms):
+        factory = SolverFactory(klass, 'lagrange')
+        for solver in factory:
 
-        for t in Solver(bound, Z, L, FISTA, coef_stop, interactive=interactive).all():
-            yield t
+            penalty = solver.atom
+            dual = penalty.conjugate 
+            Z = solver.prox_center
+            L = solver.L
 
-    for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
-                     sorted(S.nonpaired_atoms),
-                                              [None, quadratic],
-                                              [True, False],
-                                              [False, True],
-                                              [False, True]):
+            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % klass, None
 
-        penalty = atom(shape, lagrange=L, quadratic=q)
-        dual = penalty.conjugate 
-        yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % atom, None
-
-        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
         
-        nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
 
-        for t in Solver(penalty, Z, L, FISTA, coef_stop, interactive=interactive).all():
-            yield t
+            for t in solver.all_tests():
+                yield t
+
+class SolverFactory(object):
+
+    offset_choices = [True, False]
+    FISTA_choices =[True,False]
+    coef_stop_choices = [True,False]
+    lagrange = 0.13
+    bound = 0.14
+    L_choices = [0.1,0.5,1]
+    quadratic_choices = [True, False]
+    shape = (20,)
+    interactive = False
+
+    def __init__(self, klass, mode):
+        self.klass = klass
+        self.mode = mode
+
+    def __iter__(self):
+        for offset, FISTA, coef_stop, L, q in itertools.product(self.offset_choices,
+                                                                self.FISTA_choices,
+                                                                self.coef_stop_choices,
+                                                                self.L_choices,
+                                                                self.quadratic_choices):
+            self.FISTA = FISTA
+            self.coef_stop = coef_stop
+            self.L = L
+            if q: 
+                q = rr.identity_quadratic(0,0,np.random.standard_normal(self.shape)*0.02)
+            else:
+                q = None
+            if self.mode == 'lagrange':
+                atom = self.klass(self.shape, lagrange=self.lagrange, quadratic=q)
+            else:
+                atom = self.klass(self.shape, bound=self.bound, quadratic=q)
+            if offset:
+                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+
+            solver = Solver(atom, interactive=self.interactive, 
+                            coef_stop=coef_stop,
+                            FISTA=FISTA,
+                            L=L)
+            yield solver
 
 
 class Solver(object):
 
+    def __iter__(self):
+        factory = SolverFactory(self.atom.__class__)
+        for solver in factory:
+            yield solver
+
     def __repr__(self):
         return 'Solver(%s)' % repr(self.atom)
 
-    def __init__(self, atom, Z, L, FISTA=True, coef_stop=True, interactive=False):
+    def __init__(self, atom, interactive=False, coef_stop=False,
+                 FISTA=True, L=1):
+        self.atom = atom
         self.interactive = interactive
         self.coef_stop = coef_stop
-        self.atom = atom
-        self.Z = Z
-        self.L = L
         self.FISTA = FISTA
-        self.q = rr.identity_quadratic(L, Z, 0, 0)
-        self.loss = rr.quadratic.shift(Z, coef=L)
+        self.L = L
+
+        self.prox_center = np.random.standard_normal(atom.shape)
+        self.q = rr.identity_quadratic(L, self.prox_center, 0, 0)
+        self.loss = rr.quadratic.shift(self.prox_center, coef=L)
 
     def test_duality_of_projections(self):
         if self.atom.quadratic == rr.identity_quadratic(0,0,0,0) or self.atom.quadratic is None:
@@ -127,12 +158,12 @@ class Solver(object):
             tests = []
 
             d = self.atom.conjugate
-            q = rr.identity_quadratic(1, self.Z, 0, 0)
-            tests.append((self.Z-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
+            q = rr.identity_quadratic(1, self.prox_center, 0, 0)
+            tests.append((self.prox_center-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
 
             if hasattr(self.atom, 'check_subgradient') and self.atom.offset is None:
                 # check subgradient condition
-                v1, v2 = self.atom.check_subgradient(self.atom, self.Z)
+                v1, v2 = self.atom.check_subgradient(self.atom, self.prox_center)
                 tests.append((v1, v2, 'checking subgradient condition\n %s' % str(self)))
 
             if not self.interactive:
@@ -180,7 +211,7 @@ class Solver(object):
 
     def test_simple_problem(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         problem = rr.simple_problem(loss, atom)
@@ -191,9 +222,9 @@ class Solver(object):
 
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
-        q = rr.identity_quadratic(L, Z, 0, 0)
-        lossq = rr.quadratic.shift(Z.copy(), coef=0.6*L)
-        lossq.quadratic = rr.identity_quadratic(0.4*L, Z.copy(), 0, 0)
+        q = rr.identity_quadratic(L, prox_center, 0, 0)
+        lossq = rr.quadratic.shift(prox_center.copy(), coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center.copy(), 0, 0)
         problem = rr.simple_problem(lossq, atom)
 
         tests.append((atom.proximal(q), 
@@ -230,7 +261,7 @@ class Solver(object):
 
     def test_dual_problem(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         dproblem = rr.dual_problem.fromprimal(loss, atom)
@@ -252,7 +283,7 @@ class Solver(object):
 
     def test_separable(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         problem = rr.separable_problem.singleton(atom, loss)
@@ -280,7 +311,7 @@ class Solver(object):
 
     def test_container(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         problem = rr.container(loss, atom)
@@ -292,8 +323,8 @@ class Solver(object):
 
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
-        lossq = rr.quadratic.shift(Z, coef=0.6*L)
-        lossq.quadratic = rr.identity_quadratic(0.4*L, Z, 0, 0)
+        lossq = rr.quadratic.shift(prox_center, coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center, 0, 0)
         problem = rr.container(lossq, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
@@ -316,14 +347,24 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
-    def all(self):
-        for group in [self.test_duality_of_projections,
-                      self.test_simple_problem,
-                      self.test_separable,
-                      self.test_dual_problem,
-                      #self.test_container,
-                      self.test_simple_problem_nonsmooth,
-                      ]:
-            for t in group():
-                yield t
-                  
+    def all_tests(self, iterate_over_self=False):
+                              
+        if iterate_over_self:
+            for solver in self:
+                for group in [solver.test_duality_of_projections,
+                              solver.test_simple_problem,
+                              solver.test_separable,
+                              solver.test_dual_problem,
+                              #solver.test_container,
+                              solver.test_simple_problem_nonsmooth]:
+                    for t in group():
+                        yield t
+        else:
+            for group in [self.test_duality_of_projections,
+                          self.test_simple_problem,
+                          self.test_separable,
+                          self.test_dual_problem,
+                          #self.test_container,
+                          self.test_simple_problem_nonsmooth]:
+                for t in group():
+                    yield t
