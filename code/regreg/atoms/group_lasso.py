@@ -49,7 +49,7 @@ class group_lasso(seminorm):
                           lagrange=lagrange,
                           bound=bound)
 
-        self.weights = weights
+        self.weights = copy(weights)
         self._group_array = np.zeros(shape, np.int)
 
         sg = sorted(np.unique(self.groups))
@@ -65,18 +65,18 @@ class group_lasso(seminorm):
         if self.__class__ == other.__class__:
             return (self.shape == other.shape and 
                     np.all(self.groups == other.groups)
-                    and np.all(self.weights == other.weights)
+                    and (self.weights == other.weights)
                     and self.lagrange == other.lagrange)
         return False
 
     def __copy__(self):
         return self.__class__(copy(self.groups),
-                              weights=self.weights,
-                              offset=self.offset,
+                              weights=copy(self.weights),
+                              offset=copy(self.offset),
                               lagrange=self.lagrange,
                               bound=self.bound,
-                              quadratic=self.quadratic,
-                              initial=self.coefs)
+                              quadratic=copy(self.quadratic),
+                              initial=copy(self.coefs))
     
     def __repr__(self):
         if self.lagrange is not None:
@@ -261,6 +261,13 @@ class group_lasso_cone(cone):
                                         quadratic=None,
                                         initial=None)
 
+    def __copy__(self):
+        return self.__class__(copy(self.groups),
+                              weights=copy(self.weights),
+                              offset=copy(self.offset),
+                              initial=copy(self.coefs),
+                              quadratic=copy(self.quadratic))
+    
 
     def __repr__(self):
         if self.quadratic.iszero:
@@ -284,7 +291,7 @@ class group_lasso_cone(cone):
                                                self.quadratic)
             cls = conjugate_cone_pairs[self.__class__]
             new_atom = cls(self.groups,
-                           weights=self.weights,
+                           weights=copy(self.weights),
                            offset=offset,
                            quadratic=outq)
         else:
@@ -319,8 +326,10 @@ class group_lasso_epigraph(group_lasso_cone):
     objective_template = (r"""I^{\infty}\left(\sum_g \|%(var)s[g]\|_2 """
                           + r"""\leq %(var)s[-1]\right)""")
 
+    seminorm_class = group_lasso
+
     @doc_template_user
-    def cone_prox(self, arg,  lipschitz=1):
+    def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
         return mixed_lasso_epigraph(arg,
                                     np.array([], np.int),
@@ -340,9 +349,10 @@ class group_lasso_epigraph_polar(group_lasso_cone):
     objective_template = (r"""I^{\infty}(\max_g \|%(var)s[g]\|_2 \leq """
                           + r"""-%(var)s[-1]\)""")
 
+    seminorm_class = group_lasso_dual
 
     @doc_template_user
-    def cone_prox(self, arg,  lipschitz=1):
+    def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
         return arg - mixed_lasso_epigraph(arg,
                                           np.array([], np.int),
@@ -372,7 +382,7 @@ class group_lasso_dual_epigraph(group_lasso_cone):
     seminorm_class = group_lasso_dual
 
     @doc_template_user
-    def cone_prox(self, arg,  lipschitz=1):
+    def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
         return arg + mixed_lasso_epigraph(-arg,
                                            np.array([], np.int),
@@ -381,6 +391,13 @@ class group_lasso_dual_epigraph(group_lasso_cone):
                                            np.array([], np.int),
                                            self.snorm._group_array,
                                            self.snorm._weight_array)
+
+    @doc_template_user
+    def constraint(self, arg):
+        incone = self.snorm.seminorm(arg[:-1], lagrange=1) <= (1 + self.tol) * (arg[-1])
+        if incone:
+            return 0
+        return np.inf
 
 @objective_doc_templater()
 class group_lasso_dual_epigraph_polar(group_lasso_cone):
@@ -392,8 +409,11 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
     objective_template = (r"""I^{\infty}(%(var)s: \sum_g \|%(var)s[g]\|_2 \leq """
                           + r"""-%(var)s[-1]\}}""")
 
+    seminorm_class = group_lasso
+
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
+        arg = np.asarray(arg, np.float)
         return - mixed_lasso_epigraph(-arg,
                                        np.array([], np.int),
                                        np.array([], np.int),

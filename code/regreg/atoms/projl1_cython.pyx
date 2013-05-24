@@ -64,7 +64,7 @@ def projl1_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center):
     cdef DTYPE_float_t norm = center[-1]
     cdef double cut = find_solution_piecewise_linear_c(norm, 1, np.fabs(x))
 
-    if cut < np.inf:
+    if cut < np.inf and (norm + cut >= 0):
         result[-1] = norm + cut
         result[:-1] = soft_threshold(x, cut)
     else:

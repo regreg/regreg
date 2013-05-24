@@ -400,7 +400,7 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                                                      fnorms,
                                                      fweights)
 
-    if cut < np.inf:
+    if cut < np.inf and norm + cut >= 0:
         for j in range(weights.shape[0]):
             factors[j] = min(1., cut * weights[j] / norms[j])
 
