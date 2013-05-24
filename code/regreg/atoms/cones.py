@@ -31,8 +31,8 @@ class cone(atom):
     def __copy__(self):
         return self.__class__(copy(self.shape),
                               offset=copy(self.offset),
-                              initial=self.coefs,
-                              quadratic=self.quadratic)
+                              initial=copy(self.coefs),
+                              quadratic=copy(self.quadratic))
     
     def __repr__(self):
         if self.quadratic.iszero:
@@ -405,7 +405,6 @@ class linf_epigraph(cone):
 
     @doc_template_user
     def constraint(self, x):
-
         incone = np.fabs(x[:-1]).max() <= (1 + self.tol) * x[-1]
         if incone:
             return 0
