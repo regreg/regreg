@@ -41,7 +41,7 @@ class group_lasso(seminorm):
                  quadratic=None,
                  initial=None):
 
-        self.groups = np.asarray(groups)
+        self.groups = np.asarray(groups).copy()
         shape = self.groups.shape
         seminorm.__init__(self, shape, offset=offset,
                           quadratic=quadratic,

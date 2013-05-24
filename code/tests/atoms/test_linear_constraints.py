@@ -26,7 +26,7 @@ class ConstraintSolverFactory(ConeSolverFactory):
             self.coef_stop = coef_stop
             self.L = L
 
-            basis = np.linalg.svd(np.random.standard_normal((4,) + self.shape, full_matrices=0)[2]
+            basis = np.linalg.svd(np.random.standard_normal((4,) + self.shape), full_matrices=0)[2]
             atom = self.klass(self.shape, basis)
 
             if q: 
