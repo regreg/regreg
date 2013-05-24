@@ -278,6 +278,14 @@ class group_lasso_cone(cone):
     def groups(self):
         return self.snorm.groups
 
+    @doc_template_user
+    def constraint(self, x):
+        incone = self.snorm.seminorm(x[:-1], lagrange=1) <= (1 + self.tol) * x[-1]
+        if incone:
+            return 0
+        return np.inf
+
+
 @objective_doc_templater()
 class group_lasso_epigraph(group_lasso_cone):
 
@@ -306,13 +314,6 @@ class group_lasso_epigraph(group_lasso_cone):
                  bound=None,
                  quadratic=None,
                  initial=None)
-
-    @doc_template_user
-    def constraint(self, x):
-        incone = self.snorm.seminorm(x[1:], lagrange=1) <= 1 + self.tol
-        if incone:
-            return 0
-        return np.inf
 
     @doc_template_user
     def cone_prox(self, x,  lipschitz=1):
@@ -354,13 +355,6 @@ class group_lasso_epigraph_polar(group_lasso_cone):
                  bound=None,
                  quadratic=None,
                  initial=None)
-
-    @doc_template_user
-    def constraint(self, x):
-        incone = self.snorm.seminorm(x[1:], lagrange=1) <= 1 + self.tol
-        if incone:
-            return 0
-        return np.inf
 
     @doc_template_user
     def cone_prox(self, x,  lipschitz=1):
@@ -405,13 +399,6 @@ class group_lasso_dual_epigraph(group_lasso_cone):
                  initial=None)
 
     @doc_template_user
-    def constraint(self, x):
-        incone = self.snorm.seminorm(x[1:], lagrange=1) <= 1 + self.tol
-        if incone:
-            return 0
-        return np.inf
-
-    @doc_template_user
     def cone_prox(self, x,  lipschitz=1):
         return x + mixed_lasso_epigraph(-x,
                                          np.array([], np.int),
@@ -451,13 +438,6 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
                  bound=None,
                  quadratic=None,
                  initial=None)
-
-    @doc_template_user
-    def constraint(self, x):
-        incone = self.snorm.seminorm(x[1:], lagrange=1) <= 1 + self.tol
-        if incone:
-            return 0
-        return np.inf
 
     @doc_template_user
     def cone_prox(self, x,  lipschitz=1):

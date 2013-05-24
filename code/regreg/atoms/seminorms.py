@@ -451,10 +451,14 @@ class seminorm(atom):
         atom.offset = None
         q = identity_quadratic(1, prox_center, 0, 0)
         U = atom.proximal(q)
+        dual = atom.conjugate
         if atom.bound is not None: # atom is bound mode
-            dual = atom.conjugate
+            if not np.allclose(atom.seminorm(U, lagrange=1), atom.bound):
+                raise ValueError('expecting residual to have norm equal to bound parameter')
             return ((prox_center - U) * U).sum() / atom.bound, dual.seminorm(prox_center-U, lagrange=1)
         else:
+            if not np.allclose(dual.seminorm(prox_center - U, lagrange=1), atom.lagrange):
+                raise ValueError('expecting residual to have norm equal to lagrange parameter')
             return ((prox_center - U) * U).sum() / atom.lagrange, atom.seminorm(U, lagrange=1)
 
 @objective_doc_templater()
@@ -553,8 +557,8 @@ class l2norm(seminorm):
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, arg, 
-                                 check_feasibility=check_feasibility, 
-                                 lagrange=lagrange)
+                                     check_feasibility=check_feasibility, 
+                                     lagrange=lagrange)
         return lagrange * np.linalg.norm(arg)
 
     @doc_template_user
