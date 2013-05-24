@@ -5,35 +5,55 @@ import regreg.atoms.svd_norms as C_SVD
 import nose.tools as nt
 import itertools
 
-from test_seminorms import Solver
+np.random.seed(10)
+
+from test_seminorms import Solver, SolverFactory
+
+class ConeSolverFactory(SolverFactory):
+
+    FISTA_choices = [True]
+    L_choices = [0.3]
+    coef_stop_choices = [False]
+
+    def __init__(self, klass):
+        self.klass = klass
+
+    def __iter__(self):
+        for offset, FISTA, coef_stop, L, q in itertools.product(self.offset_choices,
+                                                                self.FISTA_choices,
+                                                                self.coef_stop_choices,
+                                                                self.L_choices,
+                                                                self.quadratic_choices):
+            self.FISTA = FISTA
+            self.coef_stop = coef_stop
+            self.L = L
+
+            atom = self.klass(self.shape)
+
+            if q: 
+                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+
+            if offset:
+                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+
+            solver = Solver(atom, interactive=self.interactive, 
+                            coef_stop=coef_stop,
+                            FISTA=FISTA,
+                            L=L)
+            yield solver
+
 
 @np.testing.dec.slow
 def test_proximal_maps():
-
-    quadratic = rr.identity_quadratic(0,0,0,0)
-
-    for L, atom, q, offset, FISTA, coef_stop in itertools.product( 
-        [0.5,1,0.1], 
-        sorted(C.conjugate_cone_pairs.keys()),
-        [None, quadratic],
-        [True, False],
-        [False, True],
-        [False, True]):
-
-        if atom in [C_SVD.nuclear_norm_epigraph,
-                    C_SVD.nuclear_norm_epigraph_polar,
-                    C_SVD.operator_norm_epigraph,
-                    C_SVD.operator_norm_epigraph_polar]:
-            shape = (5,4)
+    for klass in sorted(C.conjugate_cone_pairs.keys()):
+        if klass in [C_SVD.nuclear_norm_epigraph,
+                     C_SVD.nuclear_norm_epigraph_polar,
+                     C_SVD.operator_norm_epigraph,
+                     C_SVD.operator_norm_epigraph_polar]:
+            ConeSolverFactory.shape = (5,4)
         else:
-            shape = 20
-
-        cone_instance = atom(shape, quadratic=q)
-        Z = np.random.standard_normal(cone_instance.shape)
-
-        if offset:
-            cone_instance.offset = 0.02 * np.random.standard_normal(cone_instance.shape)
-        if q is not None:
-            cone_instance.quadratic.linear_term = 0.02 * np.random.standard_normal(cone_instance.shape)
-        for t in Solver(cone_instance, Z, L, FISTA, coef_stop).all():
-            yield t
+            ConeSolverFactory.shape = 20
+        factory = ConeSolverFactory(klass)
+        for solver in factory:
+            for t in solver.all_tests():
+                yield t

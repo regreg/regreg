@@ -391,8 +391,9 @@ class l1_epigraph_polar(cone):
 
 
     @doc_template_user
-    def cone_prox(self, x):
-        return x - projl1_epigraph(x)
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float).copy()
+        return arg - projl1_epigraph(arg)
 
 class linf_epigraph(cone):
 
@@ -411,8 +412,8 @@ class linf_epigraph(cone):
         return np.inf
 
     @doc_template_user
-    def cone_prox(self, x):
-        return x + projl1_epigraph(-x)
+    def cone_prox(self, arg):
+        return arg + projl1_epigraph(-arg)
 
 class linf_epigraph_polar(cone):
 
@@ -431,8 +432,8 @@ class linf_epigraph_polar(cone):
         return np.inf
 
     @doc_template_user
-    def cone_prox(self, x):
-        return -projl1_epigraph(-x)
+    def cone_prox(self, arg):
+        return -projl1_epigraph(-arg)
 
 
 conjugate_cone_pairs = {}

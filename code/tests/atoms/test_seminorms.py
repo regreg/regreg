@@ -6,7 +6,7 @@ import regreg.atoms.seminorms as S
 import regreg.api as rr
 import nose.tools as nt
 
-np.random.seed(0)
+#np.random.seed(0)
 
 def all_close(x, y, msg, solver):
     """
@@ -112,14 +112,15 @@ class SolverFactory(object):
             self.FISTA = FISTA
             self.coef_stop = coef_stop
             self.L = L
-            if q: 
-                q = rr.identity_quadratic(0,0,np.random.standard_normal(self.shape)*0.02)
-            else:
-                q = None
+
             if self.mode == 'lagrange':
-                atom = self.klass(self.shape, lagrange=self.lagrange, quadratic=q)
+                atom = self.klass(self.shape, lagrange=self.lagrange)
             else:
-                atom = self.klass(self.shape, bound=self.bound, quadratic=q)
+                atom = self.klass(self.shape, bound=self.bound)
+
+            if q: 
+                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+
             if offset:
                 atom.offset = 0.02 * np.random.standard_normal(atom.shape)
 
@@ -347,24 +348,12 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
-    def all_tests(self, iterate_over_self=False):
-                              
-        if iterate_over_self:
-            for solver in self:
-                for group in [solver.test_duality_of_projections,
-                              solver.test_simple_problem,
-                              solver.test_separable,
-                              solver.test_dual_problem,
-                              #solver.test_container,
-                              solver.test_simple_problem_nonsmooth]:
-                    for t in group():
-                        yield t
-        else:
-            for group in [self.test_duality_of_projections,
-                          self.test_simple_problem,
-                          self.test_separable,
-                          self.test_dual_problem,
-                          #self.test_container,
-                          self.test_simple_problem_nonsmooth]:
-                for t in group():
-                    yield t
+    def all_tests(self):
+        for group in [self.test_duality_of_projections,
+                      self.test_simple_problem,
+                      self.test_separable,
+                      self.test_dual_problem,
+                      #self.test_container,
+                      self.test_simple_problem_nonsmooth]:
+            for t in group():
+                yield t

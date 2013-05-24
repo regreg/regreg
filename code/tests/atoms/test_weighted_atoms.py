@@ -5,53 +5,58 @@ from numpy import testing as npt
 
 import regreg.atoms.weighted_atoms as WA
 
-from test_seminorms import Solver
+from test_seminorms import Solver, SolverFactory
 
+w1 = np.ones(20) * 0.5
+w2 = w1 * 0
+w2[:10] = 2.
+
+class WeightedSolverFactory(SolverFactory):
+
+    weight_choices = [w1, w2]
+    FISTA_choices = [True]
+    L_choices = [0.3]
+    coef_stop_choices = [False]
+
+    def __init__(self, klass, mode):
+        self.klass = klass
+        self.mode = mode
+
+    def __iter__(self):
+        for offset, FISTA, coef_stop, L, q, w in itertools.product(self.offset_choices,
+                                                                   self.FISTA_choices,
+                                                                   self.coef_stop_choices,
+                                                                   self.L_choices,
+                                                                   self.quadratic_choices,
+                                                                   self.weight_choices):
+            self.FISTA = FISTA
+            self.coef_stop = coef_stop
+            self.L = L
+
+            if self.mode == 'lagrange':
+                atom = self.klass(self.shape, w, lagrange=self.lagrange)
+            else:
+                atom = self.klass(self.shape, w, bound=self.bound)
+
+            if q: 
+                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+
+            if offset:
+                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+
+            solver = Solver(atom, interactive=self.interactive, 
+                            coef_stop=coef_stop,
+                            FISTA=FISTA,
+                            L=L)
+            yield solver
+
+@np.testing.dec.slow
 def test_proximal_maps():
-    shape = 20
-
-    bound = 0.14
-    lagrange = 0.13
-
-    Z = np.random.standard_normal(shape) * 2
-    W = 0.02 * np.random.standard_normal(shape)
-    U = 0.02 * np.random.standard_normal(shape)
-    quadratic = rr.identity_quadratic(0,0,W,0)
-
-    basis = np.linalg.svd(np.random.standard_normal((4,20)), full_matrices=0)[2]
-
-    w1 = np.ones(20) * 0.5
-    w2 = w1 * 0
-    w2[:10] = 2.
-
-    for L, atom, q, offset, FISTA, coef_stop, weights in itertools.product([0.5,1,0.1], \
-                                              sorted(WA.conjugate_weighted_pairs.keys()),
-                                              [None, quadratic],
-                                              [True,False],
-                                              [False, True],
-                                              [False, True],
-                                              [w1, w2]):
-
-        # we only have two weighted atoms,
-        # l1 in lagrange and supnorm in bound
-
-        print 'weights: ', weights.shape
-        if atom == WA.l1norm:
-            penalty = atom(shape, weights, quadratic=q,
-                           offset=offset, lagrange=lagrange)
-        else:
-            penalty = atom(shape, weights, quadratic=q,
-                           offset=offset, bound=bound)
-            
-        Z = np.random.standard_normal(penalty.shape)
-
-        if offset:
-            penalty.offset = 0.02 * np.random.standard_normal(penalty.shape)
-        if q is not None:
-            penalty.quadratic.linear_term = 0.02 * np.random.standard_normal(penalty.shape)
-        for t in Solver(penalty, Z, L, FISTA, coef_stop).all():
-            yield t
-
+    for klass, mode in zip([WA.l1norm, WA.supnorm], ['lagrange', 'bound']):
+        factory = WeightedSolverFactory(klass, mode)
+        for solver in factory:
+            for t in solver.all_tests():
+                yield t
 
 def test_weighted_l1():
     a =rr.weighted_l1norm(10, 2*np.ones(10), lagrange=0.5)

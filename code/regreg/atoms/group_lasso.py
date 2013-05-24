@@ -41,7 +41,8 @@ class group_lasso(seminorm):
                  quadratic=None,
                  initial=None):
 
-        shape = np.asarray(groups).shape
+        self.groups = np.asarray(groups)
+        shape = self.groups.shape
         seminorm.__init__(self, shape, offset=offset,
                           quadratic=quadratic,
                           initial=initial,
@@ -49,15 +50,14 @@ class group_lasso(seminorm):
                           bound=bound)
 
         self.weights = weights
-        self.groups = np.asarray(groups)
-        self._groups = np.zeros(shape, np.int)
+        self._group_array = np.zeros(shape, np.int)
 
-        sg = sorted(np.unique(groups))
+        sg = sorted(np.unique(self.groups))
         self._weight_array = np.ones(len(sg))
         
-        for i, g in enumerate(sorted(np.unique(groups))):
+        for i, g in enumerate(sg):
             group = self.groups == g
-            self._groups[group] = i
+            self._group_array[group] = i
             self._weight_array[i] = self.weights.get(g, np.sqrt(group.sum()))
             self.weights[g] = self._weight_array[i]
 
@@ -143,7 +143,7 @@ class group_lasso(seminorm):
                                     np.array([], np.int),
                                     np.array([], np.int),
                                     np.array([], np.int),
-                                    self._groups,
+                                    self._group_array,
                                     self._weight_array,
                                     False)
 
@@ -158,7 +158,7 @@ class group_lasso(seminorm):
                                          np.array([], np.int),
                                          np.array([], np.int),
                                          np.array([], np.int),
-                                         self._groups,
+                                         self._group_array,
                                          self._weight_array)
 
     @doc_template_user
@@ -170,7 +170,7 @@ class group_lasso(seminorm):
                                       np.array([], np.int),
                                       np.array([], np.int),
                                       np.array([], np.int),
-                                      self._groups,
+                                      self._group_array,
                                       self._weight_array)
 
     @doc_template_user
@@ -204,7 +204,7 @@ class group_lasso_dual(group_lasso):
                                     np.array([], np.int),
                                     np.array([], np.int),
                                     np.array([], np.int),
-                                    self._groups,
+                                    self._group_array,
                                     self._weight_array,
                                     False)
 
@@ -217,7 +217,7 @@ class group_lasso_dual(group_lasso):
                                            np.array([], np.int),
                                            np.array([], np.int),
                                            np.array([], np.int),
-                                           self._groups,
+                                           self._group_array,
                                            self._weight_array)
 
     @doc_template_user
@@ -229,7 +229,7 @@ class group_lasso_dual(group_lasso):
                                    np.array([], np.int),
                                    np.array([], np.int),
                                    np.array([], np.int),
-                                   self._groups,
+                                   self._group_array,
                                    self._weight_array)
         return arg - r
 
@@ -302,8 +302,8 @@ class group_lasso_cone(cone):
         return self.snorm.groups
 
     @doc_template_user
-    def constraint(self, x):
-        incone = self.snorm.seminorm(x[:-1], lagrange=1) <= (1 + self.tol) * x[-1]
+    def constraint(self, arg):
+        incone = self.snorm.seminorm(arg[:-1], lagrange=1) <= (1 + self.tol) * arg[-1]
         if incone:
             return 0
         return np.inf
@@ -321,12 +321,13 @@ class group_lasso_epigraph(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
+        arg = np.asarray(arg, np.float)
         return mixed_lasso_epigraph(arg,
                                     np.array([], np.int),
                                     np.array([], np.int),
                                     np.array([], np.int),
                                     np.array([], np.int),
-                                    self.snorm._groups,
+                                    self.snorm._group_array,
                                     self.snorm._weight_array)
 
 @objective_doc_templater()
@@ -342,14 +343,21 @@ class group_lasso_epigraph_polar(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
+        arg = np.asarray(arg, np.float)
         return arg - mixed_lasso_epigraph(arg,
                                           np.array([], np.int),
                                           np.array([], np.int),
                                           np.array([], np.int),
                                           np.array([], np.int),
-                                          self.snorm._groups,
+                                          self.snorm._group_array,
                                           self.snorm._weight_array)
 
+    @doc_template_user
+    def constraint(self, arg):
+        incone = self.snorm.seminorm(arg[:-1], lagrange=1) <= (1 + self.tol) * (-arg[-1])
+        if incone:
+            return 0
+        return np.inf
 
 @objective_doc_templater()
 class group_lasso_dual_epigraph(group_lasso_cone):
@@ -365,13 +373,14 @@ class group_lasso_dual_epigraph(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
+        arg = np.asarray(arg, np.float)
         return arg + mixed_lasso_epigraph(-arg,
-                                         np.array([], np.int),
-                                         np.array([], np.int),
-                                         np.array([], np.int),
-                                         np.array([], np.int),
-                                         self.snorm._groups,
-                                         self.snorm._weight_array)
+                                           np.array([], np.int),
+                                           np.array([], np.int),
+                                           np.array([], np.int),
+                                           np.array([], np.int),
+                                           self.snorm._group_array,
+                                           self.snorm._weight_array)
 
 @objective_doc_templater()
 class group_lasso_dual_epigraph_polar(group_lasso_cone):
@@ -390,8 +399,15 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
                                        np.array([], np.int),
                                        np.array([], np.int),
                                        np.array([], np.int),
-                                       self.snorm._groups,
+                                       self.snorm._group_array,
                                        self.snorm._weight_array)
+
+    @doc_template_user
+    def constraint(self, arg):
+        incone = self.snorm.seminorm(arg[:-1], lagrange=1) <= (1 + self.tol) * (-arg[-1])
+        if incone:
+            return 0
+        return np.inf
 
 conjugate_seminorm_pairs = {}
 conjugate_seminorm_pairs[group_lasso_dual] = group_lasso

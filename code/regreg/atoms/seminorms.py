@@ -453,12 +453,12 @@ class seminorm(atom):
         U = atom.proximal(q)
         dual = atom.conjugate
         if atom.bound is not None: # atom is bound mode
-            if not np.allclose(atom.seminorm(U, lagrange=1), atom.bound):
-                raise ValueError('expecting residual to have norm equal to bound parameter')
+            if not atom.seminorm(U, lagrange=1) <= (1 + 1.e-5) * atom.bound:
+                raise ValueError('expecting residual to have norm less than or equal to bound parameter')
             return ((prox_center - U) * U).sum() / atom.bound, dual.seminorm(prox_center-U, lagrange=1)
         else:
-            if not np.allclose(dual.seminorm(prox_center - U, lagrange=1), atom.lagrange):
-                raise ValueError('expecting residual to have norm equal to lagrange parameter')
+            if not dual.seminorm(prox_center - U, lagrange=1) <= (1 + 1.e-5) * atom.lagrange:
+                raise ValueError('expecting residual to have norm less than equal to lagrange parameter')
             return ((prox_center - U) * U).sum() / atom.lagrange, atom.seminorm(U, lagrange=1)
 
 @objective_doc_templater()
