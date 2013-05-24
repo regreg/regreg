@@ -43,34 +43,34 @@ def test_proximal_maps(interactive=False):
         nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
         nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
 
-        for t in Solver(penalty, Z, L, FISTA, coef_stop, interactive=interactive).all():
-            yield t
-
-        bound = atom(G, bound=0.3, quadratic=q)
-        if offset:
-            bound.offset = 0.02 * np.random.standard_normal(bound.shape)
-        if q is not None:
-            bound.quadratic.linear_term = 0.02 * np.random.standard_normal(bound.shape)
-
-        for t in Solver(bound, Z, L, FISTA, coef_stop, interactive=interactive).all():
-            yield t
-
-#     for L, atom, q, offset, FISTA, coef_stop in itertools.product( 
-#         [0.5,1,0.1], 
-#         sorted(GL.conjugate_cone_pairs.keys()),
-#         [None, quadratic],
-#         [True, False],
-#         [False, True],
-#         [False, True]):
-
-#         cone_instance = atom(G, quadratic=q)
-#         Z = np.random.standard_normal(cone_instance.shape)
-
-#         if offset:
-#             cone_instance.offset = 0.02 * np.random.standard_normal(cone_instance.shape)
-#         if q is not None:
-#             cone_instance.quadratic.linear_term = 0.02 * np.random.standard_normal(cone_instance.shape)
-#         for t in Solver(cone_instance, Z, L, FISTA, coef_stop).all():
+#         for t in Solver(penalty, Z, L, FISTA, coef_stop, interactive=interactive).all():
 #             yield t
+
+#         bound = atom(G, bound=0.3, quadratic=q)
+#         if offset:
+#             bound.offset = 0.02 * np.random.standard_normal(bound.shape)
+#         if q is not None:
+#             bound.quadratic.linear_term = 0.02 * np.random.standard_normal(bound.shape)
+
+#         for t in Solver(bound, Z, L, FISTA, coef_stop, interactive=interactive).all():
+#             yield t
+
+    for L, atom, q, offset, FISTA, coef_stop in itertools.product( 
+        [0.5,1,0.1], 
+        sorted(GL.conjugate_cone_pairs.keys()),
+        [None, quadratic],
+        [True, False],
+        [False, True],
+        [False, True]):
+
+        cone_instance = atom(G, quadratic=q)
+        Z = np.random.standard_normal(cone_instance.shape)
+
+        if offset:
+            cone_instance.offset = 0.02 * np.random.standard_normal(cone_instance.shape)
+        if q is not None:
+            cone_instance.quadratic.linear_term = 0.02 * np.random.standard_normal(cone_instance.shape)
+        for t in Solver(cone_instance, Z, L, FISTA, coef_stop).all():
+            yield t
 
 
