@@ -189,6 +189,9 @@ class Solver(object):
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop)
 
+        gg = rr.gengrad(problem, 2.) # this lipschitz constant is based on knowing our loss...
+        tests.append((atom.proximal(q), gg, 'solving prox with gengrad\n %s ' % str(self)))
+
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with monotonicity\n %s ' % str(self)))
 
         # use the solve method
