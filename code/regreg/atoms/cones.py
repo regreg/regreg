@@ -159,6 +159,8 @@ class cone(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         cone = cls(l.output_shape, 
                    offset=-offset,
                    quadratic=quadratic)
@@ -171,6 +173,8 @@ class cone(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         cone = cls(l.output_shape, 
                    offset=-offset,
                    quadratic=quadratic)
@@ -412,6 +416,7 @@ class linf_epigraph(cone):
 
     @doc_template_user
     def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float)
         return arg + projl1_epigraph(-arg)
 
 class linf_epigraph_polar(cone):
@@ -425,13 +430,14 @@ class linf_epigraph_polar(cone):
 
     @doc_template_user
     def constraint(self, x):
-        incone = np.fabs(-x[:-1]).sum() <= (1 + self.tol) * (-x[-1])
+        incone = np.fabs(x[:-1]).sum() <= (1 + self.tol) * (-x[-1])
         if incone:
             return 0
         return np.inf
 
     @doc_template_user
     def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float)
         return -projl1_epigraph(-arg)
 
 
