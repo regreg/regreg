@@ -59,6 +59,17 @@ def test_proximal_maps(interactive=False):
             nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
             nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
 
+            # call these to ensure coverage at least
+
+            repr(penalty)
+            repr(dual)
+
+            penalty.seminorm(Z, lagrange=1)
+            penalty.constraint(Z, bound=1)
+
+            dual.seminorm(Z, lagrange=1)
+            dual.constraint(Z, bound=1)
+
             for t in solver.all_tests():
                 yield t
 
