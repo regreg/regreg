@@ -13,7 +13,7 @@ def all_close(x, y, msg, solver):
     Check to see if x and y are close
     """
     try:
-        v = np.linalg.norm(x-y) <= 1.0e-04 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
+        v = np.linalg.norm(x-y) <= 1.0e-03 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
     except:
         print("""
 check_failed
@@ -26,8 +26,8 @@ y: %s
     v = v or np.allclose(x,y)
     if not v:
         print("""
-FAIL
-====
+summary
+=======
 msg: %s
 comparison: %0.3f
 x : %s
@@ -139,17 +139,21 @@ class Solver(object):
             yield solver
 
     def __repr__(self):
-        return 'Solver(%s)' % repr(self.atom)
+        return 'Solver(%s, L=%f, prox_center=%s)' % (repr(self.atom), self.L, repr(self.prox_center))
 
     def __init__(self, atom, interactive=False, coef_stop=False,
-                 FISTA=True, L=1):
+                 FISTA=True, L=1, prox_center=None):
         self.atom = atom
         self.interactive = interactive
         self.coef_stop = coef_stop
         self.FISTA = FISTA
         self.L = L
 
-        self.prox_center = np.random.standard_normal(atom.shape)
+        if prox_center is None:
+            self.prox_center = np.random.standard_normal(atom.shape)
+        else:
+            self.prox_center = prox_center
+
         self.q = rr.identity_quadratic(L, self.prox_center, 0, 0)
         self.loss = rr.quadratic.shift(self.prox_center, coef=L)
 

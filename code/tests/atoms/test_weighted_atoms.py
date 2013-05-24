@@ -34,9 +34,9 @@ class WeightedSolverFactory(SolverFactory):
             self.L = L
 
             if self.mode == 'lagrange':
-                atom = self.klass(self.shape, w, lagrange=self.lagrange)
+                atom = self.klass(w, lagrange=self.lagrange)
             else:
-                atom = self.klass(self.shape, w, bound=self.bound)
+                atom = self.klass(w, bound=self.bound)
 
             if q: 
                 atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
@@ -59,7 +59,7 @@ def test_proximal_maps():
                 yield t
 
 def test_weighted_l1():
-    a =rr.weighted_l1norm(10, 2*np.ones(10), lagrange=0.5)
+    a =rr.weighted_l1norm(2*np.ones(10), lagrange=0.5)
     b= rr.l1norm(10, lagrange=1)
     z = np.random.standard_normal(10)
     npt.assert_equal(b.lagrange_prox(z), a.lagrange_prox(z))
@@ -67,7 +67,7 @@ def test_weighted_l1():
 
 def test_weighted_l1_with_zero():
     z = np.random.standard_normal(5)
-    a=rr.weighted_l1norm(5, weights=[0,1,1,1,1], lagrange=0.5)
+    a=rr.weighted_l1norm([0,1,1,1,1], lagrange=0.5)
     b=a.dual[1]
     c=rr.l1norm(4, lagrange=0.5)
     npt.assert_equal(a.lagrange_prox(z), z-b.bound_prox(z))
