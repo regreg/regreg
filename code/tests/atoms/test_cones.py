@@ -9,7 +9,6 @@ from test_seminorms import Solver
 
 @np.testing.dec.slow
 def test_proximal_maps():
-    shape = 20
 
     quadratic = rr.identity_quadratic(0,0,0,0)
 
@@ -20,6 +19,14 @@ def test_proximal_maps():
         [True, False],
         [False, True],
         [False, True]):
+
+        if atom in [C_SVD.nuclear_norm_epigraph,
+                    C_SVD.nuclear_norm_epigraph_polar,
+                    C_SVD.operator_norm_epigraph,
+                    C_SVD.operator_norm_epigraph_polar]:
+            shape = (5,4)
+        else:
+            shape = 20
 
         cone_instance = atom(shape, quadratic=q)
         Z = np.random.standard_normal(cone_instance.shape)
