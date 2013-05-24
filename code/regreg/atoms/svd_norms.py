@@ -240,7 +240,7 @@ class nuclear_norm_epigraph(svd_cone):
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
 
-        incone = np.fabs(D[1:]).sum() / norm <= 1 + self.tol
+        incone = np.fabs(D[1:]).sum() <= (1 + self.tol) * norm
         if incone:
             return 0
         return np.inf
@@ -271,7 +271,7 @@ class nuclear_norm_epigraph_polar(svd_cone):
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
 
-        incone = D.max() / -norm <= 1 + self.tol
+        incone = D.max() <= (1 + self.tol) * (-norm)
         if incone:
             return 0
         return np.inf
@@ -299,7 +299,7 @@ class operator_norm_epigraph(svd_cone):
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
 
-        incone = D.max() / norm <= 1 + self.tol
+        incone = D.max() <= (1 + self.tol) * norm
         if incone:
             return 0
         return np.inf
@@ -327,7 +327,7 @@ class operator_norm_epigraph_polar(svd_cone):
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
 
-        incone = D.sum() / -norm <= 1 + self.tol
+        incone = D.sum() <= (1 + self.tol) * (-norm)
         if incone:
             return 0
         return np.inf
