@@ -5,7 +5,7 @@ from numpy import testing as npt
 
 import regreg.atoms.weighted_atoms as WA
 
-from test_seminorms import solveit
+from test_seminorms import Solver
 
 def test_proximal_maps():
     shape = 20
@@ -16,7 +16,7 @@ def test_proximal_maps():
     Z = np.random.standard_normal(shape) * 2
     W = 0.02 * np.random.standard_normal(shape)
     U = 0.02 * np.random.standard_normal(shape)
-    linq = rr.identity_quadratic(0,0,W,0)
+    quadratic = rr.identity_quadratic(0,0,W,0)
 
     basis = np.linalg.svd(np.random.standard_normal((4,20)), full_matrices=0)[2]
 
@@ -24,10 +24,10 @@ def test_proximal_maps():
     w2 = w1 * 0
     w2[:10] = 2.
 
-    for L, atom, q, offset, FISTA, coef_stop, w in itertools.product([0.5,1,0.1], 
-                                               sorted(WA.conjugate_weighted_pairs.keys()),
-                                              [None, linq],
-                                              [None, U],
+    for L, atom, q, offset, FISTA, coef_stop, weights in itertools.product([0.5,1,0.1], \
+                                              sorted(WA.conjugate_weighted_pairs.keys()),
+                                              [None, quadratic],
+                                              [True,False],
                                               [False, True],
                                               [False, True],
                                               [w1, w2]):
@@ -35,15 +35,21 @@ def test_proximal_maps():
         # we only have two weighted atoms,
         # l1 in lagrange and supnorm in bound
 
-        print 'w: ', w.shape
+        print 'weights: ', weights.shape
         if atom == WA.l1norm:
-            p = atom(shape, w, quadratic=q,
-                     offset=offset, lagrange=lagrange)
+            penalty = atom(shape, weights, quadratic=q,
+                           offset=offset, lagrange=lagrange)
         else:
-            p = atom(shape, w, quadratic=q,
-                     offset=offset, bound=bound)
+            penalty = atom(shape, weights, quadratic=q,
+                           offset=offset, bound=bound)
             
-        for t in solveit(p, Z, W, U, linq, L, FISTA, coef_stop):
+        Z = np.random.standard_normal(penalty.shape)
+
+        if offset:
+            penalty.offset = 0.02 * np.random.standard_normal(penalty.shape)
+        if q is not None:
+            penalty.quadratic.linear_term = 0.02 * np.random.standard_normal(penalty.shape)
+        for t in Solver(penalty, Z, L, FISTA, coef_stop).all():
             yield t
 
 
