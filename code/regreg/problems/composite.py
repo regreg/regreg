@@ -1,5 +1,5 @@
 from numpy.linalg import norm
-from numpy import zeros, array, any as npany
+from numpy import zeros, asarray, any as npany
 import new
 from copy import copy
 
@@ -24,8 +24,6 @@ class composite(object):
                  quadratic=None, initial=None):
 
         self.offset = offset
-        if offset is not None:
-            self.offset = array(offset)
 
         if type(shape) == type(1):
             self.shape = (shape,)
@@ -41,6 +39,20 @@ class composite(object):
             self.coefs = zeros(self.shape)
         else:
             self.coefs = initial.copy()
+
+    def set_offset(self, value):
+        if value is not None:
+            value = asarray(value)
+            if npany(value != 0):
+                self._offset = value
+        else:
+            self._offset = None
+
+    def get_offset(self):
+        if not hasattr(self, "_offset"):
+            self._offset = None
+        return self._offset
+    offset = property(get_offset, set_offset)
 
     def latexify(self, var=None, idx=''):
         template_dict = self.objective_vars.copy()
@@ -58,7 +70,7 @@ class composite(object):
         return obj
 
     def _repr_latex_(self):
-        return self.latexify('x')
+        return r'$$' + self.latexify() + r'$$'
 
     def nonsmooth_objective(self, x, check_feasibility=False):
         return self.quadratic.objective(x, 'func')
@@ -149,6 +161,7 @@ class composite(object):
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
         raise NotImplementedError('subclasses must implement their own solve methods')
 
+@objective_doc_templater()
 class nonsmooth(composite):
     """
     A composite subclass that explicitly returns 0
@@ -173,6 +186,7 @@ class nonsmooth(composite):
         else:
             return self.coefs
 
+@objective_doc_templater()
 class smooth(composite):
 
     """
@@ -241,44 +255,44 @@ class smooth_conjugate(smooth):
 
         self.shape = atom.shape
 
-    # A smooth conjugate is the conjugate of some $f$ with an identity quadratic added to it, or
-    # $$
-    # h(u) = \sup_x \left( u^Tx - \frac{\kappa}{2} \|x\|^2_2 - \beta^Tx-c-f(x) \right).
-    # $$
-    # Suppose we add a quadratic to $h$ to get
-    # $$
-    # \tilde{h}(u) = \frac{r}{2} \|u\|^2_2 + u^T\gamma + a + h(u)$$
-    # and take the conjugate again:
-    # $$
-    # \begin{aligned}
-    # g(v) &= \sup_{u} u^Tv - \tilde{h}(u) \\
-    # &= \sup_u u^Tv -  \frac{r}{2} \|u\|^2_2 - u^T\gamma-a - h(u) \\
-    # &=  \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a  - \sup_x \left( u^Tx - \frac{\kappa}{2} \|x\|^2_2 - \beta^Tx-c-f(x)  \right)\\
-    # &= \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a + \inf_x \left(  \frac{\kappa}{2} \|x\|^2_2  +\beta^Tx + c +f(x) - u^Tx  \right)\\
-    # &= \sup_u \inf_x u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x) - u^Tx \\
-    # &=  \inf_x \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2  + \beta^Tx + c +f(x) - u^Tx \\
-    # &=  \inf_x \sup_u \left(u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma- u^Tx\right)-a +  \frac{\kappa}{2} \|x\|^2_2 +   \beta^Tx + c +f(x)  \\
-    # &=  \inf_x \frac{1}{2r} \|x+\gamma-v\|^2_2 -a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x)  \\
-    # &= c-a + \frac{1}{2r} \|\gamma-v\|^2_2 - \sup_x \left((v/r)^Tx - \left(\frac{1}{r} + \kappa\right) \|x\|^2_2 - x^T(\beta+\gamma/r) - f(x) \right) \\
-    # \end{aligned}
-    # $$
+        # A smooth conjugate is the conjugate of some $f$ with an identity quadratic added to it, or
+        # $$
+        # h(u) = \sup_x \left( u^Tx - \frac{\kappa}{2} \|x\|^2_2 - \beta^Tx-c-f(x) \right).
+        # $$
+        # Suppose we add a quadratic to $h$ to get
+        # $$
+        # \tilde{h}(u) = \frac{r}{2} \|u\|^2_2 + u^T\gamma + a + h(u)$$
+        # and take the conjugate again:
+        # $$
+        # \begin{aligned}
+        # g(v) &= \sup_{u} u^Tv - \tilde{h}(u) \\
+        # &= \sup_u u^Tv -  \frac{r}{2} \|u\|^2_2 - u^T\gamma-a - h(u) \\
+        # &=  \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a  - \sup_x \left( u^Tx - \frac{\kappa}{2} \|x\|^2_2 - \beta^Tx-c-f(x)  \right)\\
+        # &= \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a + \inf_x \left(  \frac{\kappa}{2} \|x\|^2_2  +\beta^Tx + c +f(x) - u^Tx  \right)\\
+        # &= \sup_u \inf_x u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x) - u^Tx \\
+        # &=  \inf_x \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2  + \beta^Tx + c +f(x) - u^Tx \\
+        # &=  \inf_x \sup_u \left(u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma- u^Tx\right)-a +  \frac{\kappa}{2} \|x\|^2_2 +   \beta^Tx + c +f(x)  \\
+        # &=  \inf_x \frac{1}{2r} \|x+\gamma-v\|^2_2 -a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x)  \\
+        # &= c-a + \frac{1}{2r} \|\gamma-v\|^2_2 - \sup_x \left((v/r)^Tx - \left(\frac{1}{r} + \kappa\right) \|x\|^2_2 - x^T(\beta+\gamma/r) - f(x) \right) \\
+        # \end{aligned}
+        # $$
 
-    # This says that for $r > 0$ the conjugate of a smooth conjugate with a quadratic added to it is a quadratic plus a modified smooth conjugate evaluated at $v/r$.
+        # This says that for $r > 0$ the conjugate of a smooth conjugate with a quadratic added to it is a quadratic plus a modified smooth conjugate evaluated at $v/r$.
 
-    # What if $r=0$? Well,
-    # then 
-    # $$
-    # \begin{aligned}
-    # g(v) &= \sup_{u} u^Tv - \tilde{h}(u) \\
-    # &= \sup_u u^Tv  - u^T\gamma-a - h(u) \\
-    # &=  \sup_u u^Tv  - u^T\gamma-a  - \sup_x \left( u^Tx - \frac{\kappa}{2} \|x\|^2_2 - \beta^Tx-c-f(x)  \right)\\
-    # &= \sup_u u^Tv - u^T\gamma-a + \inf_x \left(  \frac{\kappa}{2} \|x\|^2_2  +\beta^Tx + c +f(x) - u^Tx  \right)\\
-    # &= \sup_u \inf_x u^Tv - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x) - u^Tx \\
-    # &= \inf_x \sup_u u^Tv - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x) - u^Tx \\
-    # &=   \frac{\kappa}{2} \|v-\gamma\|^2_2 + \beta^T(v-\gamma) + c-a +f(v-\gamma) \\
-    # \end{aligned}
-    # $$
-    # where, in the last line we have used the fact that the $\sup$ over $u$ in the second to last line is infinite unless $x=v-\gamma$.
+        # What if $r=0$? Well,
+        # then 
+        # $$
+        # \begin{aligned}
+        # g(v) &= \sup_{u} u^Tv - \tilde{h}(u) \\
+        # &= \sup_u u^Tv  - u^T\gamma-a - h(u) \\
+        # &=  \sup_u u^Tv  - u^T\gamma-a  - \sup_x \left( u^Tx - \frac{\kappa}{2} \|x\|^2_2 - \beta^Tx-c-f(x)  \right)\\
+        # &= \sup_u u^Tv - u^T\gamma-a + \inf_x \left(  \frac{\kappa}{2} \|x\|^2_2  +\beta^Tx + c +f(x) - u^Tx  \right)\\
+        # &= \sup_u \inf_x u^Tv - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x) - u^Tx \\
+        # &= \inf_x \sup_u u^Tv - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x) - u^Tx \\
+        # &=   \frac{\kappa}{2} \|v-\gamma\|^2_2 + \beta^T(v-\gamma) + c-a +f(v-\gamma) \\
+        # \end{aligned}
+        # $$
+        # where, in the last line we have used the fact that the $\sup$ over $u$ in the second to last line is infinite unless $x=v-\gamma$.
 
     def get_conjugate(self):
         if self.quadratic.iszero:
@@ -295,9 +309,9 @@ class smooth_conjugate(smooth):
                 newq.constant_term -= q.constant_term
                 offset = -q.linear_term
                 if atom.offset is not None:
-                    offset += atom.offset
+                    offset -= atom.offset
                 atom = copy(atom)
-                atom.offset = offset
+                atom.offset = -offset
                 atom.quadratic=newq
                 return atom
             if q.coef != 0:
@@ -339,8 +353,19 @@ class smooth_conjugate(smooth):
                 return output
     conjugate = property(get_conjugate)
 
+    def latexify(self, var=None, idx=''):
+        template_dict = self.atom.objective_vars.copy()
+        template_dict['idx'] = idx
+        if var is not None:
+            template_dict['var'] = var
+
+        template_dict['f'] = self.atom.latexify(var='u', idx=idx)
+
+        objective = r' \sup_{u \in \mathbb{R}^{%(shape)s} } \left[ \langle %(var)s, u \rangle - \left(%(f)s \right) \right]' % template_dict
+        return objective
+
     def __repr__(self):
-        return 'smooth_conjugate(%s,%s)' % (str(self.atom), str(self.quadratic))
+        return 'smooth_conjugate(%s,%s)' % (repr(self.atom), repr(self.quadratic))
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """

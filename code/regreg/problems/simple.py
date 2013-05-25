@@ -199,7 +199,7 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
 
     >>> X = np.random.standard_normal((n, p))
     >>> beta = np.zeros(p)
-    >>> beta[:10] = 10
+    >>> beta[:10] = np.arange(10)+1
     >>> Y = np.dot(X, beta)
     >>> 
 
@@ -217,12 +217,8 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
 
     >>> transform, zero = constraint.dual
     >>> primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, zero)
-    >>> primal_tfocs[:20]
-    array([ 10.00000055,  10.00000043,  10.00000038,  10.00000073,
-             9.99999991,  10.00000058,   9.99999946,  10.00000004,
-             9.99999981,  10.00000028,   0.        ,  -0.        ,
-            -0.        ,   0.        ,   0.        ,  -0.        ,
-             0.        ,   0.        ,  -0.        ,   0.        ])
+    >>> np.allclose(primal_tfocs, beta)
+    True
     >>> np.linalg.norm(primal_tfocs[10:])
     0.0
     >>> 

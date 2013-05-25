@@ -1,12 +1,11 @@
 import numpy as np
 from numpy import testing as npt
-from numpy.testing import *
 
 from scipy import sparse
 
 import regreg.api as R
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_l1_seminorm():
     """
     Test using the l1norm in lagrange form
@@ -29,7 +28,7 @@ def test_l1_seminorm():
 
     npt.assert_array_almost_equal(solution, np.maximum(np.fabs(Y) - sparsity.lagrange,0.)*np.sign(Y), 3)
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_l1_constraint():
     """
     Test using the l1norm in bound form
@@ -49,7 +48,7 @@ def test_l1_constraint():
 
     npt.assert_almost_equal(np.fabs(solution).sum(), sparsity.bound, 3)
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_lasso_via_dual_split():
     """
     Test the lasso by breaking it up into multiple l1 atoms over the range of beta
@@ -68,7 +67,7 @@ def test_lasso_via_dual_split():
     npt.assert_array_almost_equal(np.maximum(np.fabs(x)-0.2, 0) * np.sign(x), solver.composite.coefs, 3)
 
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_multiple_lasso():
 
     """
@@ -92,7 +91,7 @@ def test_multiple_lasso():
     npt.assert_array_almost_equal(soln, st, 3)
     
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_1d_fused_lasso():
 
     """
@@ -132,7 +131,7 @@ def test_1d_fused_lasso():
     npt.assert_array_almost_equal(soln1, soln2, 3)
 
 
-@dec.slow
+@np.testing.dec.slow()
 def test_conjugate_solver():
 
     # Solve Lagrange problem 
@@ -191,7 +190,7 @@ def test_conjugate_solver():
     npt.assert_array_less(d3, 0.01)
 
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_admm_l1_seminorm():
     """
     Test ADMM using the l1norm in lagrange form
@@ -210,7 +209,7 @@ def test_admm_l1_seminorm():
 
     npt.assert_array_almost_equal(solution, np.maximum(np.fabs(Y) - sparsity.lagrange,0.)*np.sign(Y), 3)
 
-@dec.setastest(True)
+@np.testing.dec.skipif(True)
 def test_admm_l1_constraint():
     """
     Test ADMM using the l1norm in bound form

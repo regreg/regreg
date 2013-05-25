@@ -2,20 +2,39 @@ import numpy as np
 import itertools
 from copy import copy
 
+np.random.seed(0)
+
 import regreg.atoms.seminorms as S
 import regreg.api as rr
 import nose.tools as nt
 
-def ac(x,y, msg=None):
+def all_close(x, y, msg, solver):
+    """
+    Check to see if x and y are close
+    """
     try:
         v = np.linalg.norm(x-y) <= 1.0e-04 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
     except:
-        print 'check failed for msg: ', msg, x, y
-        stop
+        print("""
+check_failed
+============
+msg: %s
+x: %s
+y: %s
+""" % (msg, x, y))
         return False
-    if not (v or np.allclose(x,y)):
-        print 'msg: ', msg, np.linalg.norm(x-y) / max([1, np.linalg.norm(x), np.linalg.norm(y)]), x, y
-    nt.assert_true(v)
+    v = v or np.allclose(x,y)
+    if not v:
+        print("""
+FAIL
+====
+msg: %s
+comparison: %0.3f
+x : %s
+y : %s
+""" % (msg, np.linalg.norm(x-y) / max([1, np.linalg.norm(x), np.linalg.norm(y)]), x, y))
+    if not hasattr(solver, 'interactive') or not solver.interactive:
+        nt.assert_true(v)
 
 @np.testing.dec.slow
 def test_proximal_maps():
@@ -26,20 +45,21 @@ def test_proximal_maps():
     Z = np.random.standard_normal(shape) * 4
     W = 0.02 * np.random.standard_normal(shape)
     U = 0.02 * np.random.standard_normal(shape)
-    linq = rr.identity_quadratic(0,0,W,0)
+    quadratic = rr.identity_quadratic(0,0,W,0)
 
+    counter = 0
     for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
                      [S.l1norm, S.supnorm, S.l2norm,
                       S.positive_part, S.constrained_max],
-                                              [None, linq],
-                                              [None, U],
-                                              [False, True],
-                                              [True, False]):
+                     [None, quadratic],
+                     [U, None],
+                     [False, True],
+                     [True, False]):
 
         p = atom(shape, lagrange=lagrange, quadratic=q,
                    offset=offset)
         d = p.conjugate 
-        yield ac, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom
+        yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % atom, None
         # some arguments of the constructor
 
         nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
@@ -48,20 +68,19 @@ def test_proximal_maps():
         nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
         nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
 
-        for t in solveit(p, Z, W, U, linq, L, FISTA, coef_stop):
+        for t in Solver(p, Z, L, FISTA, coef_stop).all():
             yield t
 
         b = atom(shape, bound=bound, quadratic=q,
                  offset=offset)
 
-        for t in solveit(b, Z, W, U, linq, L, FISTA, coef_stop):
+        for t in Solver(b, Z, L, FISTA, coef_stop).all():
             yield t
-
 
     lagrange = 0.1
     for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
                      sorted(S.nonpaired_atoms),
-                                              [None, linq],
+                                              [None, quadratic],
                                               [None, U],
                                               [False, True],
                                               [False, True]):
@@ -69,7 +88,7 @@ def test_proximal_maps():
         p = atom(shape, lagrange=lagrange, quadratic=q,
                    offset=offset)
         d = p.conjugate 
-        yield ac, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s ' % atom
+        yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % atom, None
         # some arguments of the constructor
 
         nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
@@ -78,132 +97,226 @@ def test_proximal_maps():
         nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
         nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
 
-        for t in solveit(p, Z, W, U, linq, L, FISTA, coef_stop):
+        for t in Solver(p, Z, L, FISTA, coef_stop).all():
             yield t
 
 
-def solveit(atom, Z, W, U, linq, L, FISTA, coef_stop):
+class Solver(object):
 
-    p2 = copy(atom)
-    p2.quadratic = rr.identity_quadratic(L, Z, 0, 0)
+    def __repr__(self):
+        return 'Solver(%s)' % repr(self.atom)
 
-    d = atom.conjugate
+    def __init__(self, atom, Z, L, FISTA=True, coef_stop=True, container=True, interactive=False):
+        self.interactive = interactive
+        self.coef_stop = coef_stop
+        self.atom = atom
+        self.Z = Z
+        self.L = L
+        self.FISTA = FISTA
+        self.do_container = container
+        self.q = rr.identity_quadratic(L, Z, 0, 0)
+        self.loss = rr.quadratic.shift(Z, coef=L)
 
-    q = rr.identity_quadratic(1, Z, 0, 0)
-    yield ac, Z-atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom %s ' % atom
-    q = rr.identity_quadratic(L, Z, 0, 0)
+    def test_duality_of_projections(self):
+        if self.atom.quadratic == rr.identity_quadratic(0,0,0,0):
 
-    # use simple_problem.nonsmooth
+            tests = []
 
-    p2 = copy(atom)
-    p2.quadratic = atom.quadratic + q
-    problem = rr.simple_problem.nonsmooth(p2)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-14, FISTA=FISTA, coef_stop=coef_stop)
+            d = self.atom.conjugate
+            q = rr.identity_quadratic(1, self.Z, 0, 0)
+            tests.append((self.Z-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
 
-    yield ac, atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with monotonicity %s ' % atom
+            if not self.interactive:
+                for test in tests:
+                    yield (all_close,) + test + (self,)
+            else:
+                for test in tests:
+                    yield all_close(*((test + (self,))))
 
-    # use the solve method
+    def test_simple_problem_nonsmooth(self):
+        tests = []
+        atom, q = self.atom, self.q
+        loss = self.loss
 
-    p2.coefs *= 0
-    p2.quadratic = atom.quadratic + q
-    soln = p2.solve()
+        p2 = copy(atom)
+        p2.quadratic = atom.quadratic + q
+        problem = rr.simple_problem.nonsmooth(p2)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop)
 
-    yield ac, atom.proximal(q), soln, 'solving prox with solve method %s ' % atom
+        tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with monotonicity\n %s ' % str(self)))
 
-    loss = rr.quadratic.shift(-Z, coef=L)
-    problem = rr.simple_problem(loss, atom)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, FISTA=FISTA, coef_stop=coef_stop)
+        # use the solve method
 
-    yield ac, atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem with monotonicity %s ' % atom
+        p3 = copy(atom)
+        p3.quadratic = atom.quadratic + q
+        soln = p3.solve(tol=1.e-14, min_its=10)
+        tests.append((atom.proximal(q), soln, 'solving prox with solve method\n %s ' % str(self)))
+        print 'stop'
 
-    dproblem2 = rr.dual_problem(loss.conjugate, 
-                                rr.identity(loss.shape),
-                                atom.conjugate)
-    dcoef2 = dproblem2.solve(coef_stop=coef_stop, tol=1.e-14)
-    yield ac, atom.proximal(q), dcoef2, 'solving prox with dual_problem with monotonicity %s ' % atom
+        p4 = copy(atom)
+        p4.quadratic = atom.quadratic + q
+        problem = rr.simple_problem.nonsmooth(p4)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-14, monotonicity_restart=False, coef_stop=self.coef_stop,
+                   FISTA=self.FISTA)
 
-    dproblem = rr.dual_problem.fromprimal(loss, atom)
-    dcoef = dproblem.solve(coef_stop=coef_stop, tol=1.0e-14)
-    yield ac, atom.proximal(q), dcoef, 'solving prox with dual_problem.fromprimal with monotonicity %s ' % atom
+        tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with no monotonocity\n %s ' % str(self)))
 
-    # write the loss in terms of a quadratic for the smooth loss and a smooth function...
+        if not self.interactive:
+            for test in tests:
+                yield (all_close,) + test + (self,)
+        else:
+            for test in tests:
+                yield all_close(*((test + (self,))))
 
-    lossq = rr.quadratic.shift(-Z, coef=0.6*L)
-    lossq.quadratic = rr.identity_quadratic(0.4 * L, Z, 0, 0)
-    problem = rr.simple_problem(lossq, atom)
+    def test_simple_problem(self):
+        tests = []
+        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        loss = self.loss
 
-    yield ac, atom.proximal(q), problem.solve(coef_stop=coef_stop, FISTA=FISTA, 
-                                              tol=1.0e-12), 'solving prox with simple_problem with monotonicity  but loss has identity_quadratic %s ' % atom
+        problem = rr.simple_problem(loss, atom)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
 
-    problem = rr.simple_problem.nonsmooth(p2)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-14, monotonicity_restart=False, coef_stop=coef_stop,
-               FISTA=FISTA)
+        tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem with monotonicity\n %s' % str(self)))
 
-    yield ac, atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with no monotonocity %s ' % atom
+        # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
-    loss = rr.quadratic.shift(-Z, coef=L)
-    problem = rr.simple_problem(loss, atom)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, monotonicity_restart=False,
-               coef_stop=coef_stop, FISTA=FISTA)
+        q = rr.identity_quadratic(L, Z, 0, 0)
+        lossq = rr.quadratic.shift(Z.copy(), coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, Z.copy(), 0, 0)
+        problem = rr.simple_problem(lossq, atom)
 
-    yield ac, atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem %s no monotonicity_restart' % atom
+        tests.append((atom.proximal(q), 
+              problem.solve(coef_stop=self.coef_stop, 
+                            FISTA=self.FISTA, 
+                            tol=1.0e-12), 
+               'solving prox with simple_problem ' +
+               'with monotonicity  but loss has identity_quadratic %s\n ' % str(self)))
 
-    loss = rr.quadratic.shift(-Z, coef=L)
-    problem = rr.separable_problem.singleton(atom, loss)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, 
-               coef_stop=coef_stop, FISTA=FISTA)
+        problem = rr.simple_problem(loss, atom)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, monotonicity_restart=False,
+                   coef_stop=self.coef_stop, FISTA=self.FISTA)
 
-    yield ac, atom.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton %s ' % atom
+        tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem no monotonicity_restart\n %s' % str(self)))
 
-    loss = rr.quadratic.shift(-Z, coef=L)
-    problem = rr.container(loss, atom)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, 
-               coef_stop=coef_stop, FISTA=FISTA)
+        d = atom.conjugate
+        problem = rr.simple_problem(loss, d)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, monotonicity_restart=False, 
+                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+        tests.append((d.proximal(q), problem.solve(tol=1.e-12,
+                                                FISTA=self.FISTA,
+                                                coef_stop=self.coef_stop,
+                                                monotonicity_restart=False), 
+               'solving dual prox with simple_problem no monotonocity\n %s ' % str(self)))
 
-    yield ac, atom.proximal(q), solver.composite.coefs, 'solving atom prox with container %s ' % atom
+        if not self.interactive:
+            for test in tests:
+                yield (all_close,) + test + (self,)
+        else:
+            for test in tests:
+                yield all_close(*((test + (self,))))
 
-    # write the loss in terms of a quadratic for the smooth loss and a smooth function...
+    def test_dual_problem(self):
+        tests = []
+        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        loss = self.loss
 
-    lossq = rr.quadratic.shift(-Z, coef=0.6*L)
-    lossq.quadratic = rr.identity_quadratic(0.4 * L, Z, 0, 0)
-    problem = rr.container(lossq, atom)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, FISTA=FISTA, coef_stop=coef_stop)
+        dproblem = rr.dual_problem.fromprimal(loss, atom)
+        dcoef = dproblem.solve(coef_stop=self.coef_stop, tol=1.0e-14)
+        tests.append((atom.proximal(q), dcoef, 'solving prox with dual_problem.fromprimal with monotonicity \n %s ' % str(self)))
 
-    yield (ac, atom.proximal(q), 
-           problem.solve(tol=1.e-12,FISTA=FISTA,coef_stop=coef_stop), 
-           'solving prox with container with monotonicity  but loss has identity_quadratic %s ' % atom)
+        dproblem2 = rr.dual_problem(loss.conjugate, 
+                                    rr.identity(loss.shape),
+                                    atom.conjugate)
+        dcoef2 = dproblem2.solve(coef_stop=self.coef_stop, tol=1.e-14)
+        tests.append((atom.proximal(q), dcoef2, 'solving prox with dual_problem with monotonicity %s \n' % str(self)))
 
-    loss = rr.quadratic.shift(-Z, coef=L)
-    problem = rr.simple_problem(loss, d)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, monotonicity_restart=False, 
-               coef_stop=coef_stop, FISTA=FISTA)
-    # ac(d.proximal(q), solver.composite.coefs, 'solving dual prox with simple_problem no monotonocity %s ' % atom)
-    yield (ac, d.proximal(q), problem.solve(tol=1.e-12,
-                                            FISTA=FISTA,
-                                            coef_stop=coef_stop,
-                                            monotonicity_restart=False), 
-           'solving dual prox with simple_problem no monotonocity %s ' % atom)
+        if not self.interactive:
+            for test in tests:
+                yield (all_close,) + test + (self,)
+        else:
+            for test in tests:
+                yield all_close(*((test + (self,))))
 
-    problem = rr.container(d, loss)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, 
-               coef_stop=coef_stop, FISTA=FISTA)
-    yield ac, d.proximal(q), solver.composite.coefs, 'solving dual prox with container %s ' % atom
+    def test_separable(self):
+        tests = []
+        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        loss = self.loss
 
-    loss = rr.quadratic.shift(-Z, coef=L)
-    problem = rr.separable_problem.singleton(d, loss)
-    solver = rr.FISTA(problem)
-    solver.fit(tol=1.0e-12, 
-               coef_stop=coef_stop, FISTA=FISTA)
+        problem = rr.separable_problem.singleton(atom, loss)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, 
+                   coef_stop=self.coef_stop, FISTA=self.FISTA)
 
-    yield ac, d.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton %s ' % atom
+        tests.append((atom.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton \n%s ' % str(self)))
 
+
+        d = atom.conjugate
+        problem = rr.separable_problem.singleton(d, loss)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, 
+                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+
+        tests.append((d.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton \n%s ' % str(self)))
+
+        if not self.interactive:
+            for test in tests:
+                yield (all_close,) + test + (self,)
+        else:
+            for test in tests:
+                yield all_close(*((test + (self,))))
+
+    def test_container(self):
+        tests = []
+        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        loss = self.loss
+
+        problem = rr.container(loss, atom)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, 
+                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+
+        tests.append((atom.proximal(q), solver.composite.coefs, 'solving atom prox with container\n %s ' % str(self)))
+
+        # write the loss in terms of a quadratic for the smooth loss and a smooth function...
+
+        lossq = rr.quadratic.shift(Z, coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, Z, 0, 0)
+        problem = rr.container(lossq, atom)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
+
+        tests.append((atom.proximal(q), 
+               problem.solve(tol=1.e-12,FISTA=self.FISTA,coef_stop=self.coef_stop), 
+               'solving prox with container with monotonicity but loss has identity_quadratic\n %s ' % str(self)))
+
+        d = atom.conjugate
+        problem = rr.container(d, loss)
+        solver = rr.FISTA(problem)
+        solver.fit(tol=1.0e-12, 
+                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+        tests.append((d.proximal(q), solver.composite.coefs, 'solving dual prox with container\n %s ' % str(self)))
+
+        if not self.interactive:
+            for test in tests:
+                yield (all_close,) + test + (self,)
+        else:
+            for test in tests:
+                yield all_close(*((test + (self,))))
+
+    def all(self):
+        for group in [self.test_simple_problem,
+                      self.test_separable,
+                      #self.test_dual_problem,
+                      #self.test_container,
+                      self.test_simple_problem_nonsmooth,
+                      self.test_duality_of_projections,
+                      ]:
+            for t in group():
+                yield t
+                  
 

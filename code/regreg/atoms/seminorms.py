@@ -25,8 +25,8 @@ class seminorm(atom):
         template_dict['idx'] = idx
         if var is not None:
             template_dict['var'] = var
-        if self.offset is not None and np.any(self.offset == 0):
-            template_dict['var'] = (r'%(offset)s_{%(idx)s}' % template_dict) + var
+        if self.offset is not None and np.any(self.offset != 0):
+            template_dict['var'] = template_dict['var'] + (r' - %(offset)s_{%(idx)s}' % template_dict) 
 
         obj = self.objective_template % template_dict
         template_dict['obj'] = obj
@@ -36,7 +36,7 @@ class seminorm(atom):
             obj = r'I^{\infty}(%(obj)s \leq \delta_{%(idx)s})' % template_dict
 
         if not self.quadratic.iszero:
-            return ' + '.join([self.quadratic.latexify(var=var, idx=idx), obj])
+            return ' + '.join([obj, self.quadratic.latexify(var=var, idx=idx)])
         return obj
 
     def __init__(self, shape, lagrange=None, bound=None,
@@ -122,14 +122,14 @@ class seminorm(atom):
                     (self.__class__.__name__,
                      repr(self.shape), 
                      self.lagrange,
-                     str(self.offset))
+                     repr(self.offset))
             else:
                 return "%s(%s, lagrange=%f, offset=%s, quadratic=%s)" % \
                     (self.__class__.__name__,
                      repr(self.shape), 
                      self.lagrange,
-                     str(self.offset),
-                     str(self.quadratic))
+                     repr(self.offset),
+                     repr(self.quadratic))
 
         else:
             if self.quadratic.iszero:
@@ -137,15 +137,15 @@ class seminorm(atom):
                     (self.__class__.__name__,
                      repr(self.shape), 
                      self.bound,
-                     str(self.offset))
+                     repr(self.offset))
 
             else:
                 return "%s(%s, bound=%f, offset=%s, quadratic=%s)" % \
                     (self.__class__.__name__,
                      repr(self.shape), 
                      self.bound,
-                     str(self.offset),
-                     str(self.quadratic))
+                     repr(self.offset),
+                     repr(self.quadratic))
 
     def get_conjugate(self):
         """
@@ -270,6 +270,7 @@ class seminorm(atom):
 
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
+
         if totalq.coef == 0:
             raise ValueError('lipschitz + quadratic coef must be positive')
 
@@ -282,6 +283,7 @@ class seminorm(atom):
             print 'proxq: ', proxq
             print 'proxarg: ', prox_arg
             print 'totalq: ', totalq
+            print 'offset: ', offset
 
         if self.bound is not None:
             eta = self.bound_prox(prox_arg, 
@@ -294,7 +296,7 @@ class seminorm(atom):
         if offset is None:
             return eta
         else:
-            return eta - offset
+            return eta + offset
 
     @doc_template_provider
     def lagrange_prox(self, arg, lipschitz=1, lagrange=None):
@@ -364,7 +366,6 @@ class seminorm(atom):
         Abstract method: subclasses must implement.
         """
         x_offset = self.apply_offset(arg)
-
         if self.bound is not None:
             if check_feasibility:
                 v = self.constraint(x_offset)
@@ -386,9 +387,17 @@ class seminorm(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
-        new_atom = cls(l.output_shape, lagrange=lagrange, bound=bound,
-                   offset=offset,
-                   quadratic=quadratic)
+        # the minus signs below for offset is there until affine transforms SUBTRACT 
+        # their offset until add. 
+        # for atoms, the offset is really the "center"
+
+        if offset is None:
+            offset = 0
+        new_atom = cls(l.output_shape, 
+                       lagrange=lagrange, 
+                       bound=bound,
+                       offset=-offset,
+                       quadratic=quadratic)
         return affine_atom(new_atom, l)
 
     @classmethod
@@ -398,8 +407,10 @@ class seminorm(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         new_atom = cls(l.output_shape, lagrange=lagrange, bound=bound,
-                   quadratic=quadratic, offset=offset)
+                   quadratic=quadratic, offset=-offset)
         return affine_atom(new_atom, l)
 
 
@@ -407,7 +418,7 @@ class seminorm(atom):
     def shift(cls, offset, lagrange=None, diag=False,
               bound=None, quadratic=None):
         new_atom = cls(offset.shape, lagrange=lagrange, bound=bound,
-                   quadratic=quadratic, offset=offset)
+                       quadratic=quadratic, offset=-offset)
         return new_atom
 
 
@@ -577,7 +588,7 @@ class positive_part(seminorm):
     @doc_template_user
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
-        inside = np.maximum(x, 0).sum() <= bound * (1 + self.tol)
+        inside = np.maximum(arg, 0).sum() <= bound * (1 + self.tol)
         if inside:
             return 0
         else:
@@ -597,7 +608,7 @@ class positive_part(seminorm):
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg)
-        v = x.copy().astype(np.float)
+        v = arg.copy().astype(np.float)
         v = np.atleast_1d(v)
         pos = v > 0
         if np.any(pos):
@@ -638,8 +649,8 @@ class constrained_max(seminorm):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
-        x = np.asarray(x)
-        v = x.copy().astype(np.float)
+        arg = np.asarray(arg)
+        v = arg.copy().astype(np.float)
         v = np.atleast_1d(v)
         pos = v > 0
         if np.any(pos):
