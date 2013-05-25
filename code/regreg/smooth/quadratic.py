@@ -9,8 +9,8 @@ from ..affine import affine_transform
 from ..smooth import smooth_atom
 from ..problems.composite import smooth_conjugate
 from ..atoms.cones import zero
+from ..atoms import _work_out_conjugate
 from ..identity_quadratic import identity_quadratic
-
 
 class quadratic(smooth_atom):
     """
@@ -23,7 +23,7 @@ class quadratic(smooth_atom):
 
     objective_vars = smooth_atom.objective_vars.copy()
     objective_vars['Q'] = 'Q'
-    objective_template = r"""%(coef)s \cdot %(var)s^T %(Q)s %(var)s"""
+    objective_template = r"""\frac{%(coef)s}{2} \cdot %(var)s^T %(Q)s %(var)s"""
 
     def __init__(self, shape, coef=1., Q=None, Qdiag=False,
                  offset=None,
@@ -37,8 +37,28 @@ class quadratic(smooth_atom):
                              initial=initial)
         
         self.Q = Q
+        self.Qdiag = Qdiag
         if self.Q is not None:
             self.Q_transform = affine_transform(Q, None, Qdiag)
+
+    def __repr__(self):
+        if self.quadratic.iszero:
+            return "%s(%s, coef=%s, Q=%s, Qdiag=%s, offset=%s)" % \
+                (self.__class__.__name__,
+                 repr(self.shape), 
+                 repr(self.coef),
+                 repr(self.Q),
+                 repr(self.Qdiag),
+                 str(self.offset))
+        else:
+            return "%s(%s, coef=%s, Q=%s, Qdiag=%s, offset=%s, quadratic=%s)" % \
+                (self.__class__.__name__,
+                 repr(self.shape), 
+                 repr(self.coef),
+                 repr(self.Q),
+                 repr(self.Qdiag),
+                 str(self.offset),
+                 self.quadratic)
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
@@ -76,24 +96,16 @@ class quadratic(smooth_atom):
                 raise ValueError("mode incorrectly specified")
 
 
-    def get_conjugate(self, factor=False, as_quadratic=False):
+    def get_conjugate(self, factor=False):
 
         if self.Q is None:
-            q = identity_quadratic(self.coef, -self.offset, 0, 0).collapsed()
-            totalq = q + self.quadratic
-            totalq_conj = totalq.conjugate.collapsed()
-            if as_quadratic:
-                return quadratic(self.shape, 
-                                 offset=totalq_conj.linear_term/totalq_conj.coef,
-                                 coef=totalq_conj.coef,
-                                 quadratic=identity_quadratic(0,0,0,-totalq.constant_term))
-            else:
-                return smooth_conjugate(zero(self.shape,
-                                             quadratic=totalq))
+            as_quad = (identity_quadratic(self.coef, self.offset, 0, 0) + self.quadratic).collapsed()
+            return smooth_conjugate(zero(self.shape,quadratic=as_quad))
         else:
+            #XXX this needs to be tested
             sq = self.quadratic.collapsed()
             if self.offset is not None:
-                sq.linear_term += self.scale(self.Q_transform.linear_map(self.offset))
+                sq.linear_term -= self.scale(self.Q_transform.linear_map(self.offset))
             if self.Q_transform.diagD:
                 return quadratic(self.shape,
                                  Q=1./(self.coef*self.Q_transform.linear_operator + sq.coef),
@@ -155,14 +167,30 @@ class cholesky(object):
 
 def squared_error(X, Y, coef=1):
     """
-    
+    Least squares with design $X$
+
+    .. math::
+
+       \frac{C}{2} \|X\beta-Y\|^2_2
+
     """
     atom = quadratic.affine(X, -Y, coef=coef)
-
-    atom.sm_atom.objective_vars['offset'] = 'Y'
-    atom.sm_atom.objective_template = r"""%(coef)s\left\|%(var)s\right\|^2_2"""
+    atom.atom.objective_vars['offset'] = 'Y'
+    atom.atom.objective_template = r"""\frac{%(coef)s}{2}\left\|%(var)s\right\|^2_2"""
     return atom
 
 def signal_approximator(signal, coef=1):
-    return quadratic.shift(-signal, coef=coef)
+    """
+    Least squares with design $I$
+
+    .. math::
+
+       \frac{C}{2} \|\beta-Y\|^2_2
+
+    """
+    atom = quadratic.shift(signal, coef=coef)    
+    atom.objective_vars['offset'] = 'Y'
+    atom.objective_template = r"""\frac{%(coef)s}{2}\left\|%(var)s\right\|^2_2"""
+    return atom
+
 
