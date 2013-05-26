@@ -342,15 +342,17 @@ class Solver(object):
 
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
-        lossq = rr.quadratic.shift(prox_center, coef=0.6*L)
-        lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center, 0, 0)
+        q = rr.identity_quadratic(L, prox_center, 0, 0)
+        lossq = rr.quadratic.shift(prox_center.copy(), coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center.copy(), 0, 0)
         problem = rr.container(lossq, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
 
         tests.append((atom.proximal(q), 
-               problem.solve(tol=1.e-12,FISTA=self.FISTA,coef_stop=self.coef_stop), 
-               'solving prox with container with monotonicity but loss has identity_quadratic\n %s ' % str(self)))
+                      problem.solve(tol=1.e-12,FISTA=self.FISTA,coef_stop=self.coef_stop), 
+                      'solving prox with container with monotonicity ' + 
+                      'but loss has identity_quadratic\n %s ' % str(self)))
 
         d = atom.conjugate
         problem = rr.container(d, loss)
@@ -371,7 +373,8 @@ class Solver(object):
                       self.test_simple_problem,
                       self.test_separable,
                       self.test_dual_problem,
-                      #self.test_container,
-                      self.test_simple_problem_nonsmooth]:
+                      self.test_container,
+                      self.test_simple_problem_nonsmooth
+                      ]:
             for t in group():
                 yield t
