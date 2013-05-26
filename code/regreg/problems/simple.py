@@ -103,7 +103,7 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
     while True:
         vnew, g = simple_problem.smooth_objective(coef, 'both')
         vnew += simple_problem.nonsmooth_objective(coef)
-        newcoef = simple_problem.proximal(identity_quadratic(lipschitz, coef, g, 0))
+        newcoef = simple_problem.solve(identity_quadratic(lipschitz, coef, g, 0))
         if coef_stop:
             coef_stop_check = (np.linalg.norm(coef-newcoef) <= tol * 
                                np.max([np.linalg.norm(coef),
