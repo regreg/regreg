@@ -8,6 +8,13 @@ import numpy as np
 import warnings
 from ..affine import (linear_transform, composition, affine_sum, 
                       power_L, astransform, adjoint)
+from ..atoms.svd_norms import (svd_atom, nuclear_norm as nuclear_norm_atom,
+                               operator_norm as operator_norm_atom)
+from ..atoms.seminorms import l1norm, _work_out_conjugate
+
+from ..objdoctemplates import objective_doc_templater
+from ..doctemplates import (doc_template_user, doc_template_provider)
+
 
 class factored_matrix(object):
 
@@ -36,53 +43,55 @@ class factored_matrix(object):
         else:
             raise ValueError("Minimum singular value must be non-negative")
         
-        if type(linear_operator) in type([],()) and len(linear_operator) == 3:
-            self.SVD = linear_operator
+        if type(linear_operator) in [type([]),type(())] and len(linear_operator) == 3:
+            U, D, VT = linear_operator
+            self.factors = U, D, VT
         else:
-            self.X = linear_operator
+            self.X = astransform(linear_operator)
 
     def copy(self):
-        return factored_matrix([self.SVD[0].copy(), self.SVD[1].copy(), self.SVD[2].copy()])
+        return factored_matrix([self.factors[0].copy(), self.factors[1].copy(), self.factors[2].copy()])
 
     def _setX(self,transform):
         transform = astransform(transform)
         self.input_shape = transform.input_shape
         self.output_shape = transform.output_shape
         U, D, VT = compute_iterative_svd(transform, min_singular=self.min_singular, tol=self.tol, initial_rank = self.initial_rank, initial=self.initial, debug=self.debug)
-        self.SVD = [U,D,VT]
+        self.factors = [U,D,VT]
 
     def _getX(self):
         if not self.rankone:
-            return np.dot(self.SVD[0], np.dot(np.diag(self.SVD[1]), self.SVD[2]))
+            return np.dot(self.factors[0], np.dot(np.diag(self.factors[1]), self.factors[2]))
         else:
-            return self.SVD[1][0,0] * np.dot(self.SVD[0], self.SVD[2])
+            return self.factors[1][0,0] * np.dot(self.factors[0], self.factors[2])
     X = property(_getX, _setX)
 
-    def _getSVD(self):
-        return self._SVD
-    def _setSVD(self, SVD):
+    def _get_factors(self):
+        return self._factors
+    def _set_factors(self, factors):
+        U, D, VT = factors
         self.rankone = False
-        if len(SVD[1].flatten()) == 1:
-            SVD[0] = SVD[0].reshape((SVD[0].flatten().shape[0],1))
-            SVD[1] = SVD[1].reshape((1,1))
-            SVD[2] = SVD[2].reshape((1,SVD[2].flatten().shape[0]))
+        if D.reshape(-1).shape == (1,):
+            U = U.reshape((U.shape[0],1))
+            D = D.reshape((1,1))
+            VT = VT.reshape((1,VT.shape[-1]))
             self.rankone = True
-        self.input_shape = (SVD[2].shape[1],)
-        self.output_shape = (SVD[0].shape[0],)
-        self._SVD = SVD
-    SVD = property(_getSVD, _setSVD)
+        self.input_shape = (VT.shape[1],)
+        self.output_shape = (U.shape[0],)
+        self._factors = U, D, VT
+    factors = property(_get_factors, _set_factors)
 
     def linear_map(self, x):
         if self.rankone:
-            return self.SVD[1][0,0] * np.dot(self.SVD[0], np.dot(self.SVD[2], x))
+            return self.factors[1][0,0] * np.dot(self.factors[0], np.dot(self.factors[2], x))
         else:
-            return np.dot(self.SVD[0], np.dot(np.diag(self.SVD[1]), np.dot(self.SVD[2], x)))
+            return np.dot(self.factors[0], np.dot(np.diag(self.factors[1]), np.dot(self.factors[2], x)))
 
     def adjoint_map(self, x):
         if self.rankone:
-            return self.SVD[1][0,0] * np.dot(self.SVD[2].T, np.dot(self.SVD[0].T, x))
+            return self.factors[1][0,0] * np.dot(self.factors[2].T, np.dot(self.factors[0].T, x))
         else:
-            return np.dot(self.SVD[2].T, np.dot(np.diag(self.SVD[1]), np.dot(self.SVD[0].T, x)))
+            return np.dot(self.factors[2].T, np.dot(np.diag(self.factors[1]), np.dot(self.factors[0].T, x)))
 
     def affine_map(self,x):
         if self.affine_offset is None:
@@ -98,10 +107,11 @@ class factored_matrix(object):
 
 def compute_iterative_svd(transform,
                           initial_rank = None,
-                          initial = None,
+                          initialU = None,
                           min_singular = 1e-16,
                           tol = 1e-5,
-                          debug=False):
+                          debug=False,
+                          stopping_rule=None):
 
     """
     Compute the SVD of a matrix using partial_svd. If no initial
@@ -119,7 +129,7 @@ def compute_iterative_svd(transform,
     initial_rank : None or int, optional
         A guess at the rank of the matrix.
 
-    initial : np.ndarray(np.float), optional
+    initialU : np.ndarray(np.float), optional
         A guess at the left singular vectors of the matrix.
 
     min_singular : np.float, optional 
@@ -164,16 +174,29 @@ def compute_iterative_svd(transform,
     else:
         rank = np.max([initial_rank,1])
 
+    # for warm start
+    if initialU is not None:
+        U = initialU
+    else:
+        U = None
+
     min_so_far = 1.
     D = [np.inf]
     while D[-1] >= min_singular * np.max(D):
         if debug:
             print "Trying rank", rank
-        U, D, VT = partial_svd(transform, rank=rank, padding=5, tol=tol, initial=initial, return_full=True, debug=debug)
+        U, D, VT = partial_svd(transform, rank=rank, 
+                               padding=10, tol=tol, 
+                               initialU=U, 
+                               return_full=True, debug=debug)
         if D[0] < min_singular:
             return U[:,0], np.zeros((1,1)), VT[0,:]
         if len(D) < rank:
             break
+
+        if stopping_rule is not None and stopping_rule(np.fabs(D)):
+            break
+
         initial = 1. * U 
         rank *= 2
 
@@ -188,9 +211,10 @@ def partial_svd(transform,
                 padding=2,
                 max_its = 1000,
                 tol = 1e-8,
-                initial=None,
+                initialU=None,
                 return_full = False,
-                debug=False):
+                debug=False,
+                stopping_rule = None):
 
     """
     Compute the partial SVD of the linear_transform X using the Mazumder/Hastie 
@@ -217,7 +241,7 @@ def partial_svd(transform,
         Tolerance at which the norm of the singular values are deemed
         to have converged.
 
-    initial : np.ndarray(np.float), optional
+    initialU : np.ndarray(np.float), optional
         A guess at the left singular vectors of the matrix.
 
     return_full: bool, optional
@@ -256,13 +280,13 @@ def partial_svd(transform,
 
     rank = np.int(np.min([rank,p]))
     q = np.min([rank + padding, p])
-    if initial is not None:
-        if initial.shape == (n,q):
-            U = initial
-        elif len(initial.shape) == 1:
-            U = np.hstack([initial.reshape((initial.shape[0],1)), np.random.standard_normal((n,q-1))])            
+    if initialU is not None:
+        if initialU.shape == (n,q):
+            U = initialU
+        elif len(initialU.shape) == 1:
+            U = np.hstack([initialU.reshape((initialU.shape[0],1)), np.random.standard_normal((n,q-1))])            
         else:
-            U = np.hstack([initial, np.random.standard_normal((n,q-initial.shape[1]))])            
+            U = np.hstack([initialU, np.random.standard_normal((n,q-initialU.shape[1]))])            
     else:
         U = np.random.standard_normal((n,q))
 
@@ -270,6 +294,7 @@ def partial_svd(transform,
         ind = np.arange(q)
     else:
         ind = np.arange(rank)
+
     old_singular_values = np.zeros(rank)
     change_ind = np.arange(rank)
 
@@ -286,6 +311,10 @@ def partial_svd(transform,
         singular_rel_change = np.linalg.norm(singular_values - old_singular_values)/np.linalg.norm(singular_values)
         old_singular_values[:] = singular_values
         itercount += 1
+
+        if stopping_rule is not None and stopping_rule(np.fabs(singular_values)):
+            break
+            
     singular_values = np.diagonal(R)[ind]
 
     nonzero = np.where(np.fabs(singular_values) > 1e-12)[0]
@@ -294,21 +323,179 @@ def partial_svd(transform,
     else:
         return U[:,ind[0]], np.zeros((1,1)),  V[:,ind[0]].T
 
-def soft_threshold_svd(X, c=0.):
+@objective_doc_templater()
+class nuclear_norm(nuclear_norm_atom):
 
     """
-    Soft-treshold the singular values of a matrix X
+    The nuclear norm
     """
-    if not isinstance(X, factored_matrix):
-        X = factored_matrix(X)
+    prox_tol = 1.0e-10
+    objective_template = r"""\|%(var)s\|_*"""
 
-    singular_values = X.SVD[1]
-    ind = np.where(singular_values >= c)[0]
-    if len(ind) == 0:
-        X.SVD = [np.zeros(X.output_shape[0]), np.zeros(1), np.zeros(X.input_shape[0])]
-    else:
-        X.SVD = [X.SVD[0][:,ind], np.maximum(singular_values[ind] - c,0), X.SVD[2][ind,:]]
+    def __init__(self, shape, lagrange=None, bound=None,
+                 offset=None, quadratic=None, initial=None,
+                 initial_rank=10,
+                 U=None):
 
-    return X
+        nuclear_norm_atom.__init__(self,
+                                   shape,
+                                   lagrange=lagrange,
+                                   bound=bound,
+                                   offset=offset,
+                                   quadratic=quadratic,
+                                   initial=initial)
+
+        self.initial_rank = initial_rank
+        if U is None:
+            self.U = np.random.standard_normal((self.shape[0], self.initial_rank))
+        else:
+            self.U = U
+            if U.shape != (self.shape[0], self.initial_rank):
+                raise ValueError('expecting U to have shape %s' % (self.shape[0], self.initial_rank))
+
+    @doc_template_user
+    def seminorm(self, X, check_feasibility=False,
+                 lagrange=None):
+        raise NotImplementedError('too expensive to compute')
+
+    @doc_template_user
+    def constraint(self, X, bound=None):
+        raise NotImplementedError('too expensive to compute')
+
+    @doc_template_user
+    def lagrange_prox(self, X,  lipschitz=1, lagrange=None):
+        lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
+
+        def soft_threshold_rule(L):
+            return lambda D: np.fabs(D).min() <= L
+
+        svt_rule = soft_threshold_rule(lagrange)
+        U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank, 
+                                         initialU=self.U,
+                                         stopping_rule=svt_rule, 
+                                         tol=1.e-6)
+
+        self.U = U
+        self.initial_rank = U.shape[1]
+
+        D_proj = D - lagrange
+        keep = D_proj > 0
+
+        return factored_matrix((U[:,keep], D_proj[keep], VT[keep,:]))
+
+    @doc_template_user
+    def bound_prox(self, X, bound=None):
+        bound = svd_atom.bound_prox(self, X, bound)
+
+        def bound_rule(B):
+            return lambda D: np.fabs(D).sum() > B
+
+        U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank,
+                                         initialU=self.U,
+                                         stopping_rule=bound_rule(bound),
+                                         tol=1.e-6)
+
+        self.U = U
+        self.initial_rank = U.shape[1]
+
+        l1atom = l1norm(np.product(self.shape), bound=bound)
+        D_projected = l1atom.bound_prox(D)
+        keep = D_projected > 0
+        return factored_matrix((U[:,keep], D_projected[keep], VT[keep,:]))
+
+    @property
+    def conjugate(self):
+        if self.quadratic.coef == 0:
+            offset, outq = _work_out_conjugate(self.offset, 
+                                               self.quadratic)
+
+            cls = operator_norm
+            atom = cls(self.shape,
+                       bound=self.lagrange, 
+                       lagrange=self.bound,
+                       quadratic=outq,
+                       offset=offset,
+                       initial_rank=self.initial_rank,
+                       U=self.U)
+        else:
+            atom = smooth_conjugate(self)
+        self._conjugate = atom
+        self._conjugate._conjugate = self
+        return self._conjugate
 
 
+
+@objective_doc_templater()
+class operator_norm(operator_norm_atom):
+
+    def __init__(self, shape, lagrange=None, bound=None,
+                 offset=None, quadratic=None, initial=None,
+                 initial_rank=10, U=None):
+
+        operator_norm_atom.__init__(self,
+                                    shape,
+                                    lagrange=lagrange,
+                                    bound=bound,
+                                    offset=offset,
+                                    quadratic=quadratic,
+                                    initial=initial)
+
+        self.initial_rank = initial_rank
+        if U is None:
+            self.U = np.random.standard_normal((self.shape[0], self.initial_rank))
+        else:
+            self.U = U
+            if U.shape != (self.shape[0], self.initial_rank):
+                raise ValueError('expecting U to have shape %s' % (self.shape[0], self.initial_rank))
+
+        self._nuclear_atom = nuclear_norm(shape,
+                                          lagrange=lagrange,
+                                          bound=bound,
+                                          initial=initial,
+                                          initial_rank=initial_rank,
+                                          U=U)
+
+    @doc_template_user
+    def seminorm(self, X, check_feasibility=False,
+                 lagrange=None):
+        raise NotImplementedError('too expensive to compute')
+
+    @doc_template_user
+    def constraint(self, X, bound=None):
+        raise NotImplementedError('too expensive to compute')
+
+    @doc_template_user
+    def lagrange_prox(self, X,  lipschitz=1, lagrange=None):
+        lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
+
+        bound = lagrange / lipschitz
+        dual_proj = self._nuclear_atom.bound_prox(X, bound=bound)
+        return affine_sum([X,dual_proj],[1.,-1.])
+
+    @doc_template_user
+    def bound_prox(self, X,  bound=None):
+        bound = svd_atom.bound_prox(self, X, bound)
+
+        lagrange = bound
+        dual_lagrange = self._nuclear_atom.lagrange_prox(X, lagrange=lagrange)
+        return affine_sum([X,dual_lagrange],[1.,-1.])
+
+    @property
+    def conjugate(self):
+        if self.quadratic.coef == 0:
+            offset, outq = _work_out_conjugate(self.offset, 
+                                               self.quadratic)
+
+            cls = nuclear_norm
+            atom = cls(self.shape,
+                       bound=self.lagrange, 
+                       lagrange=self.bound,
+                       quadratic=outq,
+                       offset=offset,
+                       initial_rank=self.initial_rank,
+                       U=self.U)
+        else:
+            atom = smooth_conjugate(self)
+        self._conjugate = atom
+        self._conjugate._conjugate = self
+        return self._conjugate

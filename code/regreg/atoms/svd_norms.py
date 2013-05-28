@@ -4,7 +4,6 @@ matrix completion problems and other low-rank factorization
 problems.
 
 """
-from md5 import md5
 from copy import copy
 
 import numpy as np
@@ -92,8 +91,6 @@ class nuclear_norm(svd_atom):
     @doc_template_user
     def seminorm(self, X, check_feasibility=False,
                  lagrange=None):
-        # This will compute an svd of X
-        # if the md5 hash of X doesn't match.
         lagrange = seminorm.seminorm(self, X, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
         U, D, V = np.linalg.svd(X, full_matrices=0)
@@ -101,8 +98,6 @@ class nuclear_norm(svd_atom):
 
     @doc_template_user
     def constraint(self, X, bound=None):
-        # This will compute an svd of X
-        # if the md5 hash of X doesn't match.
         bound = seminorm.constraint(self, X, bound=bound)
         U, D, V = np.linalg.svd(X, full_matrices=0)
         inbox = np.fabs(D).sum() <= bound * (1 + self.tol)
@@ -130,7 +125,6 @@ class nuclear_norm(svd_atom):
         keepD = D_projected > 0
         U_new, D_new, V_new = U[:,keepD], D_projected[keepD], V[keepD]
         return np.dot(U_new, D_new[:,np.newaxis] * V_new)
-        return np.dot(U, D_projected[:,np.newaxis] * V)
 
 @objective_doc_templater()
 class operator_norm(svd_atom):
@@ -144,8 +138,6 @@ class operator_norm(svd_atom):
 
     @doc_template_user
     def seminorm(self, X, lagrange=None, check_feasibility=False):
-        # This will compute an svd of X
-        # if the md5 hash of X doesn't match.
         lagrange = seminorm.seminorm(self, X, lagrange=lagrange,
                                  check_feasibility=check_feasibility)
         U, D, V = np.linalg.svd(X, full_matrices=0)
@@ -153,8 +145,6 @@ class operator_norm(svd_atom):
 
     @doc_template_user
     def constraint(self, X, bound=None):
-        # This will compute an svd of X
-        # if the md5 hash of X doesn't match.
         bound = seminorm.constraint(self, X, bound=bound)
         U, D, V = np.linalg.svd(X, full_matrices=0)
         inbox = np.max(D) <= bound * (1 + self.tol)

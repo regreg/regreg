@@ -935,15 +935,15 @@ class affine_sum(object):
     """
 
     def __init__(self, transforms, weights=None):
-        self.transforms = transforms
+        self.transforms = [astransform(T) for T in transforms]
         if weights is None:
             self.weights = np.ones(len(self.transforms))
         else:
             if not len(self.transforms) == len(weights):
                 raise ValueError("Must specify a weight for each transform")
             self.weights = weights
-        self.input_shape = transforms[0].input_shape
-        self.output_shape = transforms[0].output_shape
+        self.input_shape = self.transforms[0].input_shape
+        self.output_shape = self.transforms[0].output_shape
 
         # compute the affine_offset
         affine_offset = self.affine_map(np.zeros(self.input_shape))
@@ -1033,3 +1033,14 @@ class posneg(affine_transform):
         u[0] = self.linear_transform.adjoint_map(x)
         u[1] = -u[0]
         return u
+
+def _todense(transform):
+    """
+    Return a dense array representation of a transform -- use
+    carefully -- it could be large.
+    """
+    if len(transform.input_shape) == 1:
+        I = np.identity(np.product(transform.input_shape))
+        return transform.linear_map(I)
+    else:
+        raise NotImplementedError('expecting a 1D shape as input')

@@ -28,7 +28,9 @@ from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
 
 from affine import (identity, selector, affine_transform, normalize, linear_transform, composition as affine_composition, affine_sum,
                     power_L)
-from affine.factored_matrix import (factored_matrix, compute_iterative_svd, soft_threshold_svd)
+from affine.factored_matrix import (factored_matrix, compute_iterative_svd,
+                                    nuclear_norm as factored_nuclear_norm,
+                                    operator_norm as factored_operator_norm)
 
 # Smooth imports
 

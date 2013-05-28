@@ -6,8 +6,6 @@ import regreg.atoms.seminorms as S
 import regreg.api as rr
 import nose.tools as nt
 
-#np.random.seed(0)
-
 def all_close(x, y, msg, solver):
     """
     Check to see if x and y are close
