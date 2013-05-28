@@ -169,7 +169,7 @@ def compute_iterative_svd(transform,
     while D[-1] >= min_singular * np.max(D):
         if debug:
             print "Trying rank", rank
-        U, D, VT = partial_svd(transform, rank=rank, extra_rank=5, tol=tol, initial=initial, return_full=True, debug=debug)
+        U, D, VT = partial_svd(transform, rank=rank, padding=5, tol=tol, initial=initial, return_full=True, debug=debug)
         if D[0] < min_singular:
             return U[:,0], np.zeros((1,1)), VT[0,:]
         if len(D) < rank:
@@ -185,7 +185,7 @@ def compute_iterative_svd(transform,
 
 def partial_svd(transform,
                 rank=1,
-                extra_rank=2,
+                padding=2,
                 max_its = 1000,
                 tol = 1e-8,
                 initial=None,

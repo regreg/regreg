@@ -160,7 +160,6 @@ class seminorm(atom):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, self.quadratic)
 
-            
             cls = conjugate_seminorm_pairs[self.__class__]
             conjugate_atom = cls(self.shape,  \
                        bound=self.lagrange, 

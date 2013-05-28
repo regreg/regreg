@@ -193,7 +193,8 @@ class affine_atom(object):
         conjugate_atom.quadratic = total_q
         smoothed_atom = conjugate_atom.conjugate
         value = affine_smooth(smoothed_atom, ltransform)
-        value.total_quadratic = smoothed_atom.total_quadratic
+        value.total_quadratic = (smoothed_atom.smoothing_quadratic +
+                                 smoothed_atom.atom.quadratic)
         return value
 
 def _work_out_conjugate(offset, quadratic):

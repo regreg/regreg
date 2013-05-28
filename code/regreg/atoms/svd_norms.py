@@ -118,10 +118,6 @@ class nuclear_norm(svd_atom):
         l1atom = l1norm(np.product(self.shape), lagrange=lagrange)
         D_soft_thresholded = l1atom.lagrange_prox(D, lipschitz=lipschitz, lagrange=lagrange)
         keepD = D_soft_thresholded > 0
-        print 'subgrad', l1atom.check_subgradient(l1atom, D)
-        print 'now', D, D_soft_thresholded
-        print 'shape', U.shape, D.shape, V.shape
-        print 'norm', np.linalg.norm(X - np.dot(U, D[:,np.newaxis] * V))
         U_new, D_new, V_new = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
         return np.dot(U, D_soft_thresholded[:,np.newaxis] * V)
 
