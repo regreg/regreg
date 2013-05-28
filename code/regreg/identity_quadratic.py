@@ -194,11 +194,10 @@ class identity_quadratic(object):
         self.zeroify()
         terms = []
         if self.coef != 0:
-            terms.append(r'\frac{L_{%s}}{2}' % idx)
             if not all(self.center == 0):
-                terms.append(r'\|%s-\mu_{%s}\|^2_2' % (var, idx))
+                terms.append(r'\frac{L_{%s}}{2}' % idx + r'\|%s-\mu_{%s}\|^2_2' % (var, idx))
             else:
-                terms.append(r'\|%s\|^2_2' % var)
+                terms.append(r'\frac{L_{%s}}{2}' % idx + r'\|%s\|^2_2' % var)
         if self.linear_term is not None and not all(self.linear_term == 0):
             terms.append(r'\left \langle \eta_{%s}, %s \right \rangle' % (idx, var))
         if self.constant_term is not None and self.constant_term != 0:
