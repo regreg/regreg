@@ -3,7 +3,6 @@ from numpy import testing as npt
 from numpy.testing import *
 import regreg.api as rr
 
-@dec.setastest(True)
 def test_multinomial_vs_logistic():
 
     """
@@ -15,7 +14,7 @@ def test_multinomial_vs_logistic():
     J = 2
 
     X = np.random.standard_normal(n*p).reshape((n,p))
-    counts = np.random.randint(0,10,n*J).reshape((n,J)) 
+    counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
 
     mult_x = rr.linear_transform(X, input_shape=(p,J-1))
     loss = rr.multinomial_deviance.linear(mult_x, counts=counts)
