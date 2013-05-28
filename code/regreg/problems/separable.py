@@ -67,9 +67,6 @@ class separable(atom):
             self.coefs = np.zeros(shape)
 
     def latexify(self, var=None, idx=''):
-        value = ''
-        for i in range(len(self.atoms)):
-            value +=
         template_dict = self.atom.objective_vars.copy()
         template_dict['linear'] = self.objective_vars['linear']
         if var is not None:
