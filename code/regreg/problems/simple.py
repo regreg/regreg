@@ -3,7 +3,7 @@ This module has a class for specifying a problem from just
 a smooth function and a single penalty.
 
 """
-import numpy as np
+import numpy as np, warnings
 
 from ..problems.composite import composite
 from ..affine import identity, scalar_multiply, astransform, adjoint
@@ -99,7 +99,7 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
     """
     itercount = 0
     coef = simple_problem.coefs
-    v = np.inf
+    value = np.inf
     while True:
         vnew, g = simple_problem.smooth_objective(coef, 'both')
         vnew += simple_problem.nonsmooth_objective(coef)
@@ -118,17 +118,18 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
         if itercount == max_its:
             break
         if debug:
-            print itercount, vnew, v, (vnew - v) / vnew
-        v = vnew
+            print itercount, vnew, value, (vnew - value) / vnew
+        value = vnew
         itercount += 1
         coef = newcoef
     return coef
 
 def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
-          tol=1.e-06):
+          tol=1.e-06, max_iters=100,
+          coef_tol=1.e-6):
     '''
     Parameters
-    ==========
+    ----------
 
     smooth_atom: smooth_composite
         A smooth function, i.e. having a smooth_objective method.
@@ -146,8 +147,15 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
     tol: np.float
         Tolerance to which each problem is solved is max(tol, epsilon)
     
+    max_iters: int
+        Maximum number of iterations. If epsilon is not supplied,
+        it is taken to be [1]*max_iters
+
+    coef_tol : float
+        Tolerance for assessing convergence of coefficients.
+
     Returns
-    =======
+    -------
 
     primal: np.array
         Primal coefficients.
@@ -157,11 +165,12 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
 
     '''
     if epsilon is None:
-        epsilon = 2.**(-np.arange(20))
+        epsilon = [1]*max_iters # 2.**(-np.arange(20))
 
     transform, conjugate = conjugate_atom.dual
-    dual_coef = np.zeros(transform.output_shape)
-    for eps in epsilon:
+    dual_coef = np.zeros(transform.output_shape) 
+    primal_old = np.zeros(transform.output_shape)
+    for idx, eps in enumerate(epsilon):
         smoothed = conjugate_atom.smoothed(identity_quadratic(eps, dual_coef, 0, 0))
         if smooth_atom is not None:
             final_smooth = smooth_sum([smooth_atom, smoothed])
@@ -169,13 +178,21 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
             final_smooth = smoothed
         problem = simple_problem(final_smooth, proximal_atom)
         primal_coef = problem.solve(tol=max(eps,tol))
+
+        # should we have a better convergence criterion?
+        if np.linalg.norm(dual_coef - smoothed.grad) < coef_tol * max(np.linalg.norm(smoothed.grad),1):
+            break
+
         # when there's an affine transform involved
-        dual_coef[:] = smoothed.grad
-    
+        dual_coef[:] = smoothed.grad + idx / (idx + 3.) * (smoothed.grad - dual_coef)
+        if idx == max_iters-1:
+            warnings.warn('problem not solved after %d iterations' % max_iters)
+
     return primal_coef, dual_coef
 
 def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
-          tol=1.e-06):
+          tol=1.e-06,
+          coef_tol=1.e-6):
     '''
 
     This function is based on the setup of problems
@@ -224,7 +241,7 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     >>> 
 
     Parameters
-    ==========
+    ----------
 
     primal_atom: atom
         An atom that will be smoothed,
@@ -242,8 +259,15 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     tol: np.float
         Tolerance to which each problem is solved is max(tol, epsilon)
     
+    max_iters: int
+        Maximum number of iterations. If epsilon is not supplied,
+        it is taken to be [1]*max_iters
+
+    coef_tol : float
+        Tolerance for assessing convergence of coefficients.
+
     Returns
-    =======
+    -------
 
     primal: np.array
         Primal coefficients.
@@ -260,7 +284,7 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     conjugate_atom = primal_atom.conjugate
 
     if epsilon is None:
-        epsilon = 2.**(-np.arange(20))
+        epsilon = [1]*max_iters # 2.**(-np.arange(20))
 
     offset = transform.affine_offset
     if offset is not None:
@@ -269,12 +293,20 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
         dual_sq = identity_quadratic(0,0,0,0)
         
     primal_coef = np.zeros(conjugate_atom.shape)
-    for eps in epsilon:
+    for idx, eps in enumerate(epsilon):
         smoothed = conjugate_atom.smoothed(identity_quadratic(eps, primal_coef, 0, 0))
         final_smooth = affine_smooth(smoothed, scalar_multiply(adjoint(transform), -1))
         problem = simple_problem(final_smooth, dual_proximal_atom)
-        dual_coef = problem.solve(dual_sq, tol=max(eps,tol))
+        problem.solve(dual_sq, tol=max(eps,tol))
+
+        # should we have a better convergence criterion?
+        if (np.linalg.norm(primal_coef - final_smooth.grad) < 
+            coef_tol * max(np.linalg.norm(final_smooth.grad),1)):
+            break
+
         # when there's an affine transform involved
-        primal_coef[:] = final_smooth.grad
+        primal_coef[:] = final_smooth.grad + idx / (idx + 3.) * (final_smooth.grad - primal_coef)
+        if idx == max_iters-1:
+            warnings.warn('problem not solved after %d iterations' % max_iters)
     
     return primal_coef, dual_coef
