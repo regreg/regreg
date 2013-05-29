@@ -5,7 +5,7 @@ from copy import copy
 import scipy.optimize
 
 import regreg.api as rr
-from test_seminorms import all_close 
+from atoms.test_seminorms import all_close 
 
 def test_lasso():
     '''
@@ -61,14 +61,14 @@ def test_quadratic_for_smooth():
     atom = rr.l1norm(40, quadratic=atomq, lagrange=0.12)
 
     # specifying in this way should be the same as if we put 0.5*L below
-    loss = rr.quadratic.shift(-Z, coef=0.6*L)
+    loss = rr.quadratic.shift(Z, coef=0.6*L)
     lq = rr.identity_quadratic(0.4*L, Z, 0, 0)
     loss.quadratic = lq 
 
     ww = np.random.standard_normal(40)
 
     # specifying in this way should be the same as if we put 0.5*L below
-    loss2 = rr.quadratic.shift(-Z, coef=L)
+    loss2 = rr.quadratic.shift(Z, coef=L)
     yield all_close, loss2.objective(ww), loss.objective(ww), 'checking objective', None
 
     yield all_close, lq.objective(ww, 'func'), loss.nonsmooth_objective(ww), 'checking nonsmooth objective', None
@@ -83,7 +83,7 @@ def test_quadratic_for_smooth():
     solver3 = rr.FISTA(problem3)
     solver3.fit(tol=1.0e-12, coef_stop=True)
 
-    loss4 = rr.quadratic.shift(-Z, coef=0.6*L)
+    loss4 = rr.quadratic.shift(Z, coef=0.6*L)
     problem4 = rr.simple_problem(loss4, atom)
     problem4.quadratic = lq
     solver4 = rr.FISTA(problem4)
@@ -91,7 +91,7 @@ def test_quadratic_for_smooth():
 
     gg_soln = rr.gengrad(problem4, L)
 
-    loss6 = rr.quadratic.shift(-Z, coef=0.6*L)
+    loss6 = rr.quadratic.shift(Z, coef=0.6*L)
     loss6.quadratic = lq + atom.quadratic
     atomcp = copy(atom)
     atomcp.quadratic = rr.identity_quadratic(0,0,0,0)
@@ -140,14 +140,14 @@ def test_quadratic_for_smooth2():
     atom = rr.l1norm(5, quadratic=atomq, lagrange=0.1)
 
     # specifying in this way should be the same as if we put 0.5*L below
-    loss = rr.quadratic.shift(-Z, coef=0.6*L)
+    loss = rr.quadratic.shift(Z, coef=0.6*L)
     lq = rr.identity_quadratic(0.4*L, Z, 0, 0)
     loss.quadratic = lq 
 
     ww = np.ones(5)
 
     # specifying in this way should be the same as if we put 0.5*L below
-    loss2 = rr.quadratic.shift(-Z, coef=L)
+    loss2 = rr.quadratic.shift(Z, coef=L)
     np.testing.assert_allclose(loss2.objective(ww), loss.objective(ww))
     np.testing.assert_allclose(lq.objective(ww, 'func'), loss.nonsmooth_objective(ww))
     np.testing.assert_allclose(loss2.smooth_objective(ww, 'func'), 0.5 / 0.3 * loss.smooth_objective(ww, 'func'))
@@ -161,7 +161,7 @@ def test_quadratic_for_smooth2():
     solver3 = rr.FISTA(problem3)
     solver3.fit(tol=1.0e-12, coef_stop=True)
 
-    loss4 = rr.quadratic.shift(-Z, coef=0.6*L)
+    loss4 = rr.quadratic.shift(Z, coef=0.6*L)
     problem4 = rr.simple_problem(loss4, atom)
     problem4.quadratic = lq
     solver4 = rr.FISTA(problem4)
@@ -169,7 +169,7 @@ def test_quadratic_for_smooth2():
 
     gg_soln = rr.gengrad(problem4, L)
 
-    loss6 = rr.quadratic.shift(-Z, coef=0.6*L)
+    loss6 = rr.quadratic.shift(Z, coef=0.6*L)
     loss6.quadratic = lq + atom.quadratic
     atomcp = copy(atom)
     atomcp.quadratic = rr.identity_quadratic(0,0,0,0)
