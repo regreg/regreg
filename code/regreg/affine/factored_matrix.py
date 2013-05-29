@@ -6,7 +6,8 @@ problems.
 """
 import numpy as np
 import warnings
-from ..affine import (linear_transform, composition, affine_sum, 
+from ..affine import (linear_transform, astransform, 
+                      composition, affine_sum, 
                       power_L, astransform, adjoint)
 from ..atoms.svd_norms import (svd_atom, nuclear_norm as nuclear_norm_atom,
                                operator_norm as operator_norm_atom)
@@ -111,7 +112,9 @@ def compute_iterative_svd(transform,
                           min_singular = 1e-16,
                           tol = 1e-5,
                           debug=False,
-                          stopping_rule=None):
+                          stopping_rule=None,
+                          padding=5,
+                          update_rank = lambda R: 2*R):
 
     """
     Compute the SVD of a matrix using partial_svd. If no initial
@@ -158,8 +161,7 @@ def compute_iterative_svd(transform,
 
     """
 
-    if isinstance(transform, np.ndarray):
-        transform = linear_transform(transform)
+    transform = astransform(transform)
 
     n = transform.output_shape[0]
     p = transform.input_shape[0]
@@ -186,7 +188,7 @@ def compute_iterative_svd(transform,
         if debug:
             print "Trying rank", rank
         U, D, VT = partial_svd(transform, rank=rank, 
-                               padding=10, tol=tol, 
+                               padding=padding, tol=tol, 
                                initialU=U, 
                                return_full=True, debug=debug)
         if D[0] < min_singular:
@@ -198,7 +200,7 @@ def compute_iterative_svd(transform,
             break
 
         initial = 1. * U 
-        rank *= 2
+        rank = update_rank(rank)
 
     ind = np.where(D >= min_singular)[0]
     if not need_to_transpose:
@@ -272,8 +274,7 @@ def partial_svd(transform,
 
     """
 
-    if isinstance(transform, np.ndarray):
-        transform = linear_transform(transform)
+    transform = astransform(transform)
 
     n = np.product(transform.output_shape)
     p = np.product(transform.input_shape)
@@ -329,7 +330,8 @@ class nuclear_norm(nuclear_norm_atom):
     """
     The nuclear norm
     """
-    prox_tol = 1.0e-10
+    prox_tol = 1.0e-5
+    svd_tol = 1.e-5
     objective_template = r"""\|%(var)s\|_*"""
 
     def __init__(self, shape, lagrange=None, bound=None,
@@ -343,7 +345,7 @@ class nuclear_norm(nuclear_norm_atom):
                                    bound=bound,
                                    offset=offset,
                                    quadratic=quadratic,
-                                   initial=initial)
+                                   initial=0)
 
         self.initial_rank = initial_rank
         if U is None:
@@ -373,7 +375,7 @@ class nuclear_norm(nuclear_norm_atom):
         U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank, 
                                          initialU=self.U,
                                          stopping_rule=svt_rule, 
-                                         tol=1.e-6)
+                                         tol=self.svd_tol)
 
         self.U = U
         self.initial_rank = U.shape[1]
@@ -388,17 +390,17 @@ class nuclear_norm(nuclear_norm_atom):
         bound = svd_atom.bound_prox(self, X, bound)
 
         def bound_rule(B):
-            return lambda D: np.fabs(D).sum() > B
+            return lambda D: (np.fabs(D) - np.fabs(D).min()).sum() > B
 
         U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank,
                                          initialU=self.U,
                                          stopping_rule=bound_rule(bound),
-                                         tol=1.e-6)
+                                         tol=self.svd_tol)
 
         self.U = U
         self.initial_rank = U.shape[1]
 
-        l1atom = l1norm(np.product(self.shape), bound=bound)
+        l1atom = l1norm(D.shape, bound=bound)
         D_projected = l1atom.bound_prox(D)
         keep = D_projected > 0
         return factored_matrix((U[:,keep], D_projected[keep], VT[keep,:]))
@@ -427,6 +429,8 @@ class nuclear_norm(nuclear_norm_atom):
 
 @objective_doc_templater()
 class operator_norm(operator_norm_atom):
+    prox_tol = 1.0e-5
+    svd_tol = 1.e-4
 
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
@@ -438,7 +442,7 @@ class operator_norm(operator_norm_atom):
                                     bound=bound,
                                     offset=offset,
                                     quadratic=quadratic,
-                                    initial=initial)
+                                    initial=0)
 
         self.initial_rank = initial_rank
         if U is None:

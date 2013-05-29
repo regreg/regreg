@@ -38,7 +38,7 @@ class composite(object):
         if initial is None:
             self.coefs = zeros(self.shape)
         else:
-            self.coefs = initial.copy()
+            self.coefs = copy(initial)
 
     def set_offset(self, value):
         if value is not None:
@@ -55,7 +55,7 @@ class composite(object):
     offset = property(get_offset, set_offset)
 
     def latexify(self, var=None, idx=''):
-        template_dict = self.objective_vars.copy()
+        template_dict = copy(self.objective_vars)
         template_dict['idx'] = idx
         if var is not None:
             template_dict['var'] = var
@@ -195,7 +195,7 @@ class smooth(composite):
     is a null-op.
     """
 
-    objective_vars = composite.objective_vars.copy()
+    objective_vars = copy(composite.objective_vars)
     objective_vars['coef'] = 'C'
 
     def get_lipschitz(self):
@@ -356,7 +356,7 @@ class smooth_conjugate(smooth):
     conjugate = property(get_conjugate)
 
     def latexify(self, var=None, idx=''):
-        template_dict = self.atom.objective_vars.copy()
+        template_dict = copy(self.atom.objective_vars)
         template_dict['idx'] = idx
         if var is not None:
             template_dict['var'] = var
