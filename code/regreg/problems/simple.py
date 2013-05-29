@@ -112,7 +112,7 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
             if coef_stop_check:
                 break
         else:
-            obj_stop_check = np.fabs(v - vnew) <= tol * np.max([vnew, 1])
+            obj_stop_check = np.fabs(value - vnew) <= tol * np.max([vnew, 1])
             if obj_stop_check:
                 break
         if itercount == max_its:
@@ -192,6 +192,7 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
 
 def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
           tol=1.e-06,
+          max_iters=100,
           coef_tol=1.e-6):
     '''
 
@@ -297,7 +298,7 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
         smoothed = conjugate_atom.smoothed(identity_quadratic(eps, primal_coef, 0, 0))
         final_smooth = affine_smooth(smoothed, scalar_multiply(adjoint(transform), -1))
         problem = simple_problem(final_smooth, dual_proximal_atom)
-        problem.solve(dual_sq, tol=max(eps,tol))
+        dual_coef = problem.solve(dual_sq, tol=max(eps,tol))
 
         # should we have a better convergence criterion?
         if (np.linalg.norm(primal_coef - final_smooth.grad) < 

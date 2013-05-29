@@ -246,8 +246,8 @@ class smooth_conjugate(smooth):
 
         self.atom = atom
         if smoothing_quadratic is None:
-            quadratic = sq(0,0,0,0)
-        self.smoothing_quadratic = quadratic
+            smoothing_quadratic = sq(0,0,0,0)
+        self.smoothing_quadratic = smoothing_quadratic
         total_quadratic = self.atom.quadratic + self.smoothing_quadratic
 
         if total_quadratic.coef in [0,None]:
