@@ -8,12 +8,6 @@ from .cones import cone, affine_cone
 from ..identity_quadratic import identity_quadratic
 from ..atoms import _work_out_conjugate
 
-try:
-    from projl1_cython import projl1
-except:
-    warnings.warn('Cython version of projl1 not available. Using slower python version')
-    from projl1_python import projl1
-
 class linear_constraint(cone):
 
     """
