@@ -35,7 +35,7 @@ def test_lasso_path():
     newbeta3[3:] = -beta3[6:]
     nt.assert_true(np.linalg.norm(beta1-newbeta3) < 1.e-3 * np.linalg.norm(beta1))
 
-@np.testing.dec.skipif(True)
+@np.testing.dec.knownfailureif(True)
 def test_nesta_path():
 
     def atom_factory(candidate_set):

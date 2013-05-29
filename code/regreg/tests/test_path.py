@@ -168,7 +168,7 @@ def test_path_group_lasso():
     sols_sep = []
     for l in sol['lagrange']:
         loss = rr.squared_error(Xn, Y, coef=1./n)
-        penalty = rr.group_lasso([rr.UNPENALIZED] + [0]*7 + [1]*3, l) # matrix contains an intercept...
+        penalty = rr.group_lasso([rr.UNPENALIZED] + [0]*7 + [1]*3, lagrange=l) # matrix contains an intercept...
         problem = rr.simple_problem(loss, penalty)
         sols.append(problem.solve(tol=1.e-12).copy())
 
