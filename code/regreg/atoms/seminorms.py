@@ -68,8 +68,8 @@ class seminorm(atom):
     @doc_template_provider
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         r"""
-        Return :math:`\lambda \cdot %(objective)s`, where
-        :math:`\lambda` is lagrange. If `check_feasibility`
+        Return $\lambda \cdot %(objective)s$, where
+        $\lambda$ is `lagrange`. If `check_feasibility`
         is True, and seminorm is unbounded, will return ``np.inf``
         if appropriate.
 
@@ -295,7 +295,7 @@ class seminorm(atom):
 
         .. math::
 
-           %(var)s^{\lambda}(u) =
+           \hat{%(var)s}^{\lambda}(u) =
            \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
            \frac{L}{2}
            \|u-%(var)s\|^2_2 + \lambda %(objective)s 
@@ -325,10 +325,10 @@ class seminorm(atom):
 
         .. math::
 
-           %(var)s^{\delta}(u) =
+           \hat{%(var)s}^{\delta}(u) =
            \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
            \frac{1}{2}
-           \|u-%(var)s\|^2_2 
+           \|u-%(var)s\|^2_2  \ 
            \text{s.t.} \   %(objective)s \leq \delta
 
         where :math:`\delta` is the bound parameter. 
@@ -413,13 +413,13 @@ class seminorm(atom):
 
     @staticmethod
     def check_subgradient(atom, prox_center):
-        """
+        r"""
         For a given seminorm, verify the KKT condition for
         the problem for the proximal problem
 
         .. math::
 
-           \text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)
+            \text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)
 
         where $z$ is the `prox_center` and $h$ is `atom`
         which may be in Lagrange or bound form.
@@ -661,7 +661,7 @@ class constrained_max(seminorm):
     """
 
     objective_template = (r"""\|%(var)s\|_{\infty} + \sum_{i=1}^{%(shape)s} """
-                          + r"""\delta_{[0,+\infty)}(%(var)s_i)) """)
+                          + r"""\delta_{[0,+\infty)}(%(var)s_i) """)
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
