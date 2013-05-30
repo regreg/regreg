@@ -153,7 +153,7 @@ class seminorm(atom):
 
         >>> penalty = l1norm(30, lagrange=3.4)
         >>> penalty.get_conjugate()
-        supnorm((30,), bound=3.400000, offset=0)
+        supnorm((30,), bound=3.400000, offset=None)
 
         """
 

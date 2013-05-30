@@ -34,4 +34,5 @@ script:
     - mkdir for_test
     - cd for_test
     - nosetests$PYSUF --with-doctest `$PYTHON -c "import os; import regreg; print(os.path.dirname(regreg.__file__))"`
-    - nosetests$PYSUF --with-doctest ../tests
+    - nosetests$PYSUF --with-doctest regreg.tests
+

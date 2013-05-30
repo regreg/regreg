@@ -211,6 +211,7 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     Here is an example for minimum :math:`\ell_1` norm reconstruction.
 
     >>> import numpy as np, regreg.api as rr
+    >>> np.random.seed(0)
     >>> n, p = 200, 5000
 
     The problem assumes Y=np.dot(X,beta) for some sparse beta.
@@ -234,12 +235,13 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     >>> constraint = rr.zero_constraint.affine(X,-Y)
 
     >>> transform, zero = constraint.dual
-    >>> primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, zero)
-    >>> np.allclose(primal_tfocs, beta)
+    >>> epsilon = [0.01]*50 + [0.001]*20
+    >>> primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, zero, epsilon=epsilon)
+    >>> np.linalg.norm(primal_tfocs - beta) < 1.e-3 * np.linalg.norm(beta)
     True
-    >>> np.linalg.norm(primal_tfocs[10:])
-    0.0
-    >>> 
+
+    >>> np.linalg.norm(primal_tfocs[10:]) < 1.e-3 * np.linalg.norm(primal_tfocs)
+    True
 
     Parameters
     ----------

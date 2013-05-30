@@ -290,7 +290,6 @@ class selector(linear_transform):
     array([ 30,  81, 132, 183, 234, 285])
 
     >>> apply_to_first5.adjoint_map(np.arange(6))
-
     array([ 275.,  290.,  305.,  320.,  335.,    0.,    0.,    0.,    0.,
               0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,
               0.,    0.])
@@ -562,7 +561,7 @@ class normalize(object):
         
         >>> X = np.array([1.2,3.4,5.6,7.8,1.3,4.5,5.6,7.8,1.1,3.4])
         >>> D = np.identity(X.shape[0]) - np.diag(np.ones(X.shape[0]-1),1)
-        >>> nD = ra.normalize(D)
+        >>> nD = normalize(D)
         >>> X_sliced = X.copy()
         >>> X_sliced[:4] = 0; X_sliced[6:] = 0
 
