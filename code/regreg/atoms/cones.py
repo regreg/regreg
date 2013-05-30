@@ -220,12 +220,14 @@ class cone(atom):
         return ((prox_center - U) * U).sum(), 0
 
 
+@objective_doc_templater()
 class affine_cone(affine_atom):
 
     def __repr__(self):
         return "affine_cone(%s, %s)" % (repr(self.atom),
                                         repr(self.linear_transform.linear_operator))
 
+@objective_doc_templater()
 class nonnegative(cone):
     """
     The non-negative cone constraint (which is the support
@@ -247,6 +249,7 @@ class nonnegative(cone):
         return np.maximum(x, 0)
 
 
+@objective_doc_templater()
 class nonpositive(nonnegative):
 
     """
@@ -269,6 +272,7 @@ class nonpositive(nonnegative):
         return np.minimum(x, 0)
 
 
+@objective_doc_templater()
 class zero(cone):
     """
     The zero seminorm, support function of :math:\{0\}
@@ -284,6 +288,7 @@ class zero(cone):
     def cone_prox(self, x):
         return x
 
+@objective_doc_templater()
 class zero_constraint(cone):
     """
     The zero constraint, support function of :math:`\mathbb{R}`^p
@@ -301,6 +306,7 @@ class zero_constraint(cone):
     def cone_prox(self, x):
         return np.zeros(np.asarray(x).shape)
 
+@objective_doc_templater()
 class l2_epigraph(cone):
 
     """
@@ -329,6 +335,7 @@ class l2_epigraph(cone):
         result[-1] = max(norm + thold, 0)
         return result
 
+@objective_doc_templater()
 class l2_epigraph_polar(cone):
 
     """
@@ -358,6 +365,7 @@ class l2_epigraph_polar(cone):
         return -result
 
 
+@objective_doc_templater()
 class l1_epigraph(cone):
 
     """
@@ -377,6 +385,7 @@ class l1_epigraph(cone):
     def cone_prox(self, x):
         return projl1_epigraph(x)
 
+@objective_doc_templater()
 class l1_epigraph_polar(cone):
 
     """
@@ -399,6 +408,7 @@ class l1_epigraph_polar(cone):
         arg = np.asarray(arg, np.float).copy()
         return arg - projl1_epigraph(arg)
 
+@objective_doc_templater()
 class linf_epigraph(cone):
 
     """
@@ -419,6 +429,7 @@ class linf_epigraph(cone):
         arg = np.asarray(arg, np.float)
         return arg + projl1_epigraph(-arg)
 
+@objective_doc_templater()
 class linf_epigraph_polar(cone):
 
     """
