@@ -168,7 +168,7 @@ def test_path_group_lasso():
     sols_sep = []
     for l in sol['lagrange']:
         loss = rr.squared_error(Xn, Y, coef=1./n)
-        penalty = rr.group_lasso([rr.UNPENALIZED] + [0]*7 + [1]*3, lagrange=l) # matrix contains an intercept...
+        penalty = rr.mixed_lasso([rr.UNPENALIZED] + [0]*7 + [1]*3, lagrange=l) # matrix contains an intercept...
         problem = rr.simple_problem(loss, penalty)
         sols.append(problem.solve(tol=1.e-12).copy())
 
@@ -187,7 +187,6 @@ def test_path_nonnegative():
     '''
     this test looks at the paths of three different parameterizations
     of the same problem
-
     '''
     X = np.random.standard_normal((100,5))
     U = np.random.standard_normal((100,2))
@@ -215,6 +214,6 @@ def test_path_nonnegative():
     beta2[6:8] = beta2[6:8] - beta2[8:10]
     beta2 = beta2[:8]
 
-    nt.assert_true(np.linalg.norm(beta1-beta2) / np.linalg.norm(beta1) < 1.e-5)
+    nt.assert_true(np.linalg.norm(beta1-beta2) / np.linalg.norm(beta1) < 1.e-3)
 
 
