@@ -45,12 +45,9 @@ class container(composite):
         self.transform, self.atom = stacked_dual(self.smooth_atoms[0].shape, *self.nonsmooth_atoms)
         self.coefs = np.zeros(self.transform.input_shape)
 
-        # add up all the smooth_atom quadratics
-        # to be added to nonsmoooth_objective
-
         self.smoothq = identity_quadratic(0,0,0,0)
         for atom in self.smooth_atoms:
-            self.smoothq = self.smoothq + atom.quadratic
+            self.smoothq += atom.quadratic
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
@@ -81,11 +78,9 @@ class container(composite):
 
     def nonsmooth_objective(self, x, check_feasibility=False):
         out = 0.
-        for atom in self.nonsmooth_atoms:
+        for atom in self.nonsmooth_atoms + self.smooth_atoms:
             out += atom.nonsmooth_objective(x,
                                             check_feasibility=check_feasibility)
-        # now add the smooth_atoms' quadratic
-        out += self.smoothq.objective(x, 'func')
         out += self.quadratic.objective(x, 'func')
         return out
 
@@ -112,7 +107,7 @@ class container(composite):
             prox_control = prox_defaults
 
             primal_objective = zero_nonsmooth(transform.input_shape)
-            primal_objective.quadratic = proxq + self.smoothq + self.quadratic
+            primal_objective.quadratic = proxq + self.quadratic + self.smoothq
             dual_objective = primal_objective.conjugate
             dualp = dual_problem(dual_objective,
                                  transform,
@@ -150,6 +145,7 @@ class container(composite):
                 return x - grad / lipschitz - transform.adjoint_map(dualopt.composite.coefs/lipschitz)
 
         else:
+            proxq = proxq + self.quadratic + self.smoothq
             primal = atom.conjugate
             if isinstance(transform, afselector):
                 z = x.copy()

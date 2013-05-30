@@ -13,13 +13,14 @@ DTYPE_int = np.int
 ctypedef np.int_t DTYPE_int_t
 
 def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center, 
-                     DTYPE_float_t lagrange, DTYPE_float_t lipschitz,
-                     np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                     np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                     np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                     np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                     np.ndarray[DTYPE_int_t, ndim=1] groups,
-                     np.ndarray[DTYPE_float_t, ndim=1] weights):
+                              DTYPE_float_t lagrange, 
+                              DTYPE_float_t lipschitz,
+                              np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
+                              np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
+                              np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
+                              np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
+                              np.ndarray[DTYPE_int_t, ndim=1] groups,
+                              np.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef np.ndarray norms = np.zeros_like(weights)
     cdef np.ndarray factors = np.zeros_like(weights)
@@ -27,7 +28,7 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
     cdef int i, j
     cdef int p = groups.shape[0]
     
-    cdef lf = lagrange / lipschitz
+    cdef implied_bound = lagrange / lipschitz
     
     for i in range(p):
         if groups[i] >= 0:
@@ -35,27 +36,27 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
     
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        factors[j] = min(1., lf * weights[j] / norms[j])
+        factors[j] = min(1., implied_bound * weights[j] / norms[j])
     
     for i in range(p):
         if groups[i] >= 0:
             projection[i] = prox_center[i] * factors[groups[i]]
 
-    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, lf / np.fabs(prox_center[l1_penalty]))
+    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, implied_bound / np.fabs(prox_center[l1_penalty]))
     projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(lf, prox_center[positive_part])
+    projection[positive_part] = np.minimum(implied_bound, prox_center[positive_part])
     projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
     return prox_center - projection
 
-def mixed_lasso_conjugate_bound_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center, 
-                     DTYPE_float_t bound, 
-                     np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                     np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                     np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                     np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                     np.ndarray[DTYPE_int_t, ndim=1] groups,
-                     np.ndarray[DTYPE_float_t, ndim=1] weights):
+def mixed_lasso_dual_bound_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center, 
+                                DTYPE_float_t bound, 
+                                np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
+                                np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
+                                np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
+                                np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
+                                np.ndarray[DTYPE_int_t, ndim=1] groups,
+                                np.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef np.ndarray norms = np.zeros_like(weights)
     cdef np.ndarray factors = np.zeros_like(weights)
@@ -257,15 +258,15 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
 
     return failing
    
-def seminorm_mixed_lasso_conjugate(np.ndarray[DTYPE_float_t, ndim=1] x, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                                   np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                                   np.ndarray[DTYPE_int_t, ndim=1] groups,
-                                   np.ndarray[DTYPE_float_t, ndim=1] weights,
-                                   DTYPE_float_t nntol=1.e-5,
-				   DTYPE_int_t check_feasibility=0):
+def seminorm_mixed_lasso_dual(np.ndarray[DTYPE_float_t, ndim=1] x, 
+                              np.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
+                              np.ndarray[DTYPE_int_t, ndim=1] unpenalized,
+                              np.ndarray[DTYPE_int_t, ndim=1] positive_part, 
+                              np.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
+                              np.ndarray[DTYPE_int_t, ndim=1] groups,
+                              np.ndarray[DTYPE_float_t, ndim=1] weights,
+                              DTYPE_float_t nntol=1.e-5,
+                              DTYPE_int_t check_feasibility=0):
     
     cdef np.ndarray norms = np.zeros_like(weights)
     cdef int i
@@ -363,7 +364,6 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                          np.ndarray[DTYPE_float_t, ndim=1] weights):
 
     cdef np.ndarray[DTYPE_float_t, ndim=1] x = center[:-1]
-    cdef np.ndarray[DTYPE_float_t, ndim=1] result = np.zeros_like(center)
     cdef DTYPE_float_t norm = center[-1]
 
     cdef int p = groups.shape[0]
@@ -399,21 +399,24 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                                                      fnorms,
                                                      fweights)
 
+    cdef np.ndarray[DTYPE_float_t, ndim=1] result = np.zeros_like(center)
     if cut < np.inf:
-        for j in range(weights.shape[0]):
-            factors[j] = min(1., cut * weights[j] / norms[j])
+        if norm + cut >= 0:
+            for j in range(weights.shape[0]):
+                factors[j] = min(1., cut * weights[j] / norms[j])
 
-        for i in range(p):
-            if groups[i] >= 0:
-                projection[i] = x[i] * factors[groups[i]]
+            for i in range(p):
+                if groups[i] >= 0:
+                    projection[i] = x[i] * factors[groups[i]]
 
-        projection[l1_penalty] = x[l1_penalty] * np.minimum(1., cut / np.fabs(x[l1_penalty]))
-        projection[unpenalized] = 0
-        projection[positive_part] = np.minimum(cut, x[positive_part])
-        projection[nonnegative] = np.minimum(x[nonnegative], 0)
+            projection[l1_penalty] = x[l1_penalty] * np.minimum(1., cut / np.fabs(x[l1_penalty]))
+            projection[unpenalized] = 0
+            projection[positive_part] = np.minimum(cut, x[positive_part])
+            projection[nonnegative] = np.minimum(x[nonnegative], 0)
 
-        result[:-1] = x - projection
-        result[-1] = norm + cut
+            result[:-1] = x - projection
+            result[-1] = norm + cut
+        # else, it is zero from initialization
     else:
         result[:] = center
 

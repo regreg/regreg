@@ -19,8 +19,8 @@ from .atoms.svd_norms import (nuclear_norm, operator_norm,
                              nuclear_norm_epigraph,
                              operator_norm_epigraph)
 from .atoms.linear_constraints import (projection, projection_complement)
-from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_conjugate
-from .atoms.group_lasso import group_lasso, group_lasso_dual
+from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_dual
+from .atoms.group_lasso import (group_lasso, group_lasso_dual, group_lasso_epigraph, group_lasso_dual_epigraph)
 from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
                                    supnorm as weighted_supnorm)
 
@@ -28,7 +28,9 @@ from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
 
 from affine import (identity, selector, affine_transform, normalize, linear_transform, composition as affine_composition, affine_sum,
                     power_L)
-from affine.factored_matrix import (factored_matrix, compute_iterative_svd, soft_threshold_svd)
+from affine.factored_matrix import (factored_matrix, compute_iterative_svd,
+                                    nuclear_norm as factored_nuclear_norm,
+                                    operator_norm as factored_operator_norm)
 
 # Smooth imports
 

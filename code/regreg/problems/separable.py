@@ -12,6 +12,7 @@ from ..affine import selector
 from ..atoms import atom
 from ..problems.simple import simple_problem
 from ..atoms.cones import zero
+from .composite import smooth_conjugate
 
 def has_overlap(shape, groups):
     """
@@ -65,6 +66,14 @@ class separable(atom):
         if initial is None:
             self.coefs = np.zeros(shape)
 
+    def latexify(self, var=None, idx=''):
+        template_dict = self.atom.objective_vars.copy()
+        template_dict['linear'] = self.objective_vars['linear']
+        if var is not None:
+            template_dict['var'] = var
+        template_dict['idx'] = idx
+        return self.atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=idx)
+
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         value = 0.
         for atom, group in zip(self.atoms, self.groups):
@@ -93,10 +102,16 @@ class separable(atom):
 
     @property
     def conjugate(self):
-        penalty = separable(self.shape,
-                            [atom.conjugate for atom in self.atoms],
-                            self.groups)
-        return penalty
+        if self.quadratic.coef == 0:
+            conjugate_atom = separable(self.shape,
+                                       [atom.conjugate 
+                                        for atom in self.atoms],
+                                       self.groups)
+        else:
+            conjugate_atom = smooth_conjugate(self)
+        self._conjugate = conjugate_atom
+        self._conjugate._conjugate = self
+        return self._conjugate
 
     def __repr__(self):
         return "separable(%s, %s, %s)" % (repr(self.shape),

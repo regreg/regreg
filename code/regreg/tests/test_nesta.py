@@ -10,18 +10,22 @@ def test_nesta_nonnegative():
 
     n, p, q = 1000, 20, 5
     X = np.random.standard_normal((n, p))
-    beta = np.zeros(p)
-    beta[:4] = 3
-    Y = np.random.standard_normal(n) + np.dot(X, beta)
     A = np.random.standard_normal((q,p))
+
+    coef = 10 * np.fabs(np.random.standard_normal(q)) + 1
+    coef[:2] = -0.2
+    beta = np.dot(np.linalg.pinv(A), coef)
+
+    Y = np.random.standard_normal(n) + np.dot(X, beta)
 
     loss = rr.squared_error(X,Y)
     penalty = rr.l1norm(p, lagrange=0.2)
     constraint = rr.nonnegative.linear(A)
 
-    primal, dual = rr.nesta(loss, penalty, constraint)
+    primal, dual = rr.nesta(loss, penalty, constraint, max_iters=300, coef_tol=1.e-4, tol=1.e-4)
 
-    assert_almost_nonnegative(np.dot(A,primal))
+    print np.dot(A, primal)
+    assert_almost_nonnegative(np.dot(A,primal), tol=1.e-3)
 
 def test_nesta_lasso():
 
@@ -32,7 +36,7 @@ def test_nesta_lasso():
     Y = np.random.standard_normal(n) + np.dot(X, beta)
 
     loss = rr.squared_error(X,Y)
-    penalty = rr.l1norm(p, lagrange=4.)
+    penalty = rr.l1norm(p, lagrange=2.)
 
     # using nesta
     z = rr.zero(p)
@@ -45,8 +49,6 @@ def test_nesta_lasso():
     problem.solve()
     nt.assert_true(np.linalg.norm(primal - problem.coefs) / np.linalg.norm(problem.coefs) < 1.e-3)
 
-    
-
-def assert_almost_nonnegative(b):
-    return np.testing.assert_almost_equal(b[b < 0], 0)
+def assert_almost_nonnegative(b, tol=1.e-6):
+    nt.assert_true(np.linalg.norm(b[b<0]) <= tol * np.linalg.norm(b))
 

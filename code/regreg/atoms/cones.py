@@ -31,8 +31,8 @@ class cone(atom):
     def __copy__(self):
         return self.__class__(copy(self.shape),
                               offset=copy(self.offset),
-                              initial=self.coefs,
-                              quadratic=self.quadratic)
+                              initial=copy(self.coefs),
+                              quadratic=copy(self.quadratic))
     
     def __repr__(self):
         if self.quadratic.iszero:
@@ -159,6 +159,8 @@ class cone(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         cone = cls(l.output_shape, 
                    offset=-offset,
                    quadratic=quadratic)
@@ -171,10 +173,51 @@ class cone(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         cone = cls(l.output_shape, 
                    offset=-offset,
                    quadratic=quadratic)
         return affine_cone(cone, l)
+
+    @staticmethod
+    def check_subgradient(atom, prox_center):
+        """
+        For a given seminorm, verify the KKT condition for
+        the problem for the proximal problem
+
+        .. math::
+
+           \text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)
+
+        where $z$ is the `prox_center` and $h$ is `atom`.
+
+        This should return two values that are 0, 
+        one is the inner product of the minimizer and the residual, the
+        other is just 0.
+
+        Parameters
+        ----------
+
+        atom : `cone`
+             A cone instance with a `proximal` method.
+
+        prox_center : np.ndarray(np.float)
+             Center for the proximal map.
+
+        Returns
+        -------
+
+        v1, v2 : float
+             Two values that should be equal if the proximal map is correct.
+
+        """
+        atom = copy(atom)
+        atom.quadratic = identity_quadratic(0,0,0,0)
+        atom.offset = None
+        q = identity_quadratic(1, prox_center, 0, 0)
+        U = atom.proximal(q)
+        return ((prox_center - U) * U).sum(), 0
 
 
 class affine_cone(affine_atom):
@@ -302,17 +345,17 @@ class l2_epigraph_polar(cone):
             return 0
         return np.inf
 
-
     @doc_template_user
-    def cone_prox(self, x):
-        norm = -x[-1]
-        coef = -x[:-1]
+    def cone_prox(self, arg):
+        arg = -arg
+        norm = arg[-1]
+        coef = arg[:-1]
         norm_coef = np.linalg.norm(coef)
         thold = (norm_coef - norm) / 2.
-        result = np.zeros_like(x)
+        result = np.zeros_like(arg)
         result[:-1] = coef / norm_coef * max(norm_coef - thold, 0)
         result[-1] = max(norm + thold, 0)
-        return x + result
+        return -result
 
 
 class l1_epigraph(cone):
@@ -352,8 +395,9 @@ class l1_epigraph_polar(cone):
 
 
     @doc_template_user
-    def cone_prox(self, x):
-        return x - projl1_epigraph(x)
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float).copy()
+        return arg - projl1_epigraph(arg)
 
 class linf_epigraph(cone):
 
@@ -365,15 +409,15 @@ class linf_epigraph(cone):
 
     @doc_template_user
     def constraint(self, x):
-
         incone = np.fabs(x[:-1]).max() <= (1 + self.tol) * x[-1]
         if incone:
             return 0
         return np.inf
 
     @doc_template_user
-    def cone_prox(self, x):
-        return x + projl1_epigraph(-x)
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float)
+        return arg + projl1_epigraph(-arg)
 
 class linf_epigraph_polar(cone):
 
@@ -386,14 +430,15 @@ class linf_epigraph_polar(cone):
 
     @doc_template_user
     def constraint(self, x):
-        incone = np.fabs(-x[:-1]).sum() <= (1 + self.tol) * (-x[-1])
+        incone = np.fabs(x[:-1]).sum() <= (1 + self.tol) * (-x[-1])
         if incone:
             return 0
         return np.inf
 
     @doc_template_user
-    def cone_prox(self, x):
-        return -projl1_epigraph(-x)
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float)
+        return -projl1_epigraph(-arg)
 
 
 conjugate_cone_pairs = {}
@@ -405,3 +450,4 @@ for n1, n2 in [(nonnegative,nonpositive),
                ]:
     conjugate_cone_pairs[n1] = n2
     conjugate_cone_pairs[n2] = n1
+

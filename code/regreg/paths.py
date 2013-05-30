@@ -409,10 +409,12 @@ class nesta(lasso):
 
     def __init__(self, loss_factory, X, atom_factory, epsilon=None,
                  **lasso_keywords):
+        lasso.__init__(self, loss_factory, X, **lasso_keywords)
         self.atom_factory = atom_factory 
+        if epsilon is None:
+            epsilon = [1] * 200
         self.epsilon_values = epsilon
         self.epsilon = self.epsilon_values[0]
-        lasso.__init__(self, loss_factory, X, **lasso_keywords)
 
     def construct_loss(self, candidate_set, lagrange):
         Xslice = self.slice_columns(candidate_set)
@@ -420,13 +422,14 @@ class nesta(lasso):
         atom = self.atom_factory(candidate_set)
         dual_term = self.get_dual_term(lagrange)
         if dual_term is None:
-            nesta_loss = atom.smoothed(iq(self.epsilon, 0, 0, 0))
-            nesta_loss.smooth_objective(np.zeros(Xslice.input_shape), mode='grad')
-            self.dual_term = nesta_loss.grad
+            self.nesta_loss = atom.smoothed(iq(self.epsilon, 0, 0, 0))
+            self.nesta_loss.smooth_objective(np.zeros(Xslice.input_shape), mode='grad')
+            self.dual_term = self.nesta_loss.grad
+            self.set_dual_term(lagrange, self.dual_term)
         else:
             self.dual_term = dual_term
-            nesta_loss = atom.smoothed(iq(self.epsilon, self.dual_term, 0, 0))
-        loss = smooth_sum([loss, nesta_loss])
+            self.nesta_loss = atom.smoothed(iq(self.epsilon, self.dual_term, 0, 0))
+        loss = smooth_sum([loss, self.nesta_loss])
 
         if self.intercept:
             Xslice.intercept_column = 0
@@ -439,19 +442,21 @@ class nesta(lasso):
         self._dual_term_lookup[lagrange] = dual_term
 
     def get_dual_term(self, lagrange):
+        if not hasattr(self, "_dual_term_lookup"):
+            self._dual_term_lookup = {}
         return self._dual_term_lookup.get(lagrange, None)
 
     @property
     def problem(self):
         if not hasattr(self, '_problem'):
             self.epsilon = self.epsilon_values[0]
-            self._problem = self.restricted_problem(np.ones(self.shape[1]),
+            self._problem = self.restricted_problem(np.ones(self.shape[1], np.bool),
                                                     self.lagrange_max)[0]
         return self._problem
 
     def set_epsilon(self, epsilon):
         self._epsilon = epsilon
-        self._problem = self.restricted_problem(np.ones(self.shape[1]),
+        self._problem = self.restricted_problem(np.ones(self.shape[1], np.bool),
                                                 self.lagrange_max)[0]
     def get_epsilon(self):
         return self._epsilon
@@ -473,16 +478,25 @@ class nesta(lasso):
 
     def solve_subproblem(self, candidate_set, lagrange_new, **solve_args):
     
+        tol = 1.e-4
         # try to solve the problem with the active set
         for epsilon in self.epsilon_values:
-            print 'epsilon:', epsilon
             self.epsilon = epsilon
             subproblem, selector, penalty_structure = self.restricted_problem(candidate_set, lagrange_new)
             subproblem.coefs[:] = selector.linear_map(self.solution)
             sub_soln = subproblem.solve(**solve_args)
-            self.solution[:] = selector.adjoint_map(sub_soln)
-            print 'DUALDUAL: ', self.dual_term
-            self.final_inv_step = nesta_problem.final_inv_step
+            self.final_inv_step = subproblem.final_inv_step
+
+            candidate = selector.adjoint_map(sub_soln)
+            print np.linalg.norm(self.solution - candidate) / max(np.linalg.norm(candidate), 1)
+            if np.linalg.norm(self.solution - candidate) < tol * max(np.linalg.norm(candidate),1):
+                print 'breaking'
+                break
+            self.solution[:] = candidate
+            self.dual_term = self.nesta_loss.grad
+            print self._dual_term_lookup
+            self.set_dual_term(self.lagrange, self.dual_term)
+
         grad = subproblem.smooth_objective(sub_soln, mode='grad') 
         return self.final_inv_step, grad, sub_soln, penalty_structure
 
