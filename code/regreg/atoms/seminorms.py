@@ -36,7 +36,7 @@ class seminorm(atom):
             obj = r'I^{\infty}(%(obj)s \leq \delta_{%(idx)s})' % template_dict
 
         if not self.quadratic.iszero:
-            return ' + '.join([obj, self.quadratic.latexify(var=var, idx=idx)])
+            return ' + '.join([obj, self.quadratic.latexify(var=template_dict['var'], idx=idx)])
         return obj
 
     def __init__(self, shape, lagrange=None, bound=None,
