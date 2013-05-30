@@ -44,11 +44,11 @@ def test_lasso():
     yield all_close, ans, solver2.composite.coefs, 'singleton solver', None
     yield all_close, solver1.composite.coefs, solver2.composite.coefs, 'container solver', None
 
+#@np.testing.dec.knownfailureif(True)
 def test_quadratic_for_smooth():
     '''
-    this test is a check to ensure that the
-    quadratic part of the smooth functions are being used in the proximal step
-
+    this test is a check to ensure that the quadratic part 
+    of the smooth functions are being used in the proximal step
     '''
 
     L = 0.45
@@ -89,7 +89,7 @@ def test_quadratic_for_smooth():
     solver4 = rr.FISTA(problem4)
     solver4.fit(tol=1.0e-12)
 
-    gg_soln = rr.gengrad(problem4, L)
+    gg_soln = rr.gengrad(problem, L)
 
     loss6 = rr.quadratic.shift(Z, coef=0.6*L)
     loss6.quadratic = lq + atom.quadratic
@@ -108,21 +108,23 @@ def test_quadratic_for_smooth():
 
     yield all_close, problem.objective(ww), atom.nonsmooth_objective(ww) + q.objective(ww,'func'), '', None
 
+    atom = rr.l1norm(40, quadratic=atomq, lagrange=0.12)
     aq = atom.solve(q)
     for p, msg in zip([solver3.composite.coefs,
                        gg_soln,
                        solver2.composite.coefs,
-                       solver4.composite.coefs,
                        dsoln2,
-                       solver.composite.coefs],
+                       solver.composite.coefs,
+                       solver4.composite.coefs],
                       ['simple_problem with loss having no quadratic',
                        'gen grad',
                        'container with loss having no quadratic',
-                       'simple_problem container with quadratic',
                        'dual problem with loss having a quadratic',
-                       'container with loss having a quadratic']):
+                       'container with loss having a quadratic',
+                       'simple_problem having a quadratic']):
         yield all_close, aq, p, msg, None
 
+#@np.testing.dec.knownfailureif(True)
 def test_quadratic_for_smooth2():
     '''
     this test is a check to ensure that the
@@ -167,7 +169,7 @@ def test_quadratic_for_smooth2():
     solver4 = rr.FISTA(problem4)
     solver4.fit(tol=1.0e-12)
 
-    gg_soln = rr.gengrad(problem4, L)
+    gg_soln = rr.gengrad(problem, L)
 
     loss6 = rr.quadratic.shift(Z, coef=0.6*L)
     loss6.quadratic = lq + atom.quadratic
@@ -190,13 +192,13 @@ def test_quadratic_for_smooth2():
     for p, msg in zip([solver3.composite.coefs,
                        gg_soln,
                        solver2.composite.coefs,
-                       solver4.composite.coefs,
                        dsoln2,
-                       solver.composite.coefs],
+                       solver.composite.coefs,
+                       solver4.composite.coefs],
                       ['simple_problem with loss having no quadratic',
                        'gen grad',
                        'container with loss having no quadratic',
-                       'simple_problem container with quadratic',
                        'dual problem with loss having a quadratic',
-                       'container with loss having a quadratic']):
+                       'container with loss having a quadratic',
+                       'simple_problem having a quadratic']):
         yield all_close, aq, p, msg, None
