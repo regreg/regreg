@@ -68,38 +68,28 @@ class seminorm(atom):
     @doc_template_provider
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         r"""
-        Return $\lambda \cdot %(objective)s$, where
-        $\lambda$ is `lagrange`. If `check_feasibility`
-        is True, and seminorm is unbounded, will return ``np.inf``
+        Return :math:`\lambda \cdot %(objective)s`, where
+        :math:`\lambda` is `lagrange`. If `check_feasibility`
+        is `True`, and seminorm is unbounded, will return `np.inf`
         if appropriate.
 
         The class seminorm's seminorm just returns the appropriate lagrange
         parameter for use by the subclasses.
         """
-        if lagrange is None:
-            lagrange = self.lagrange
-        if lagrange is None:
-            raise ValueError('either atom must be in Lagrange mode or a ' + 
-                             'keyword "lagrange" argument must be supplied')
-        return lagrange
+        return get_lagrange(self, lagrange)
 
     @doc_template_provider
     def constraint(self, arg, bound=None):
         r"""
         Verify :math:`%(objective)s \leq \delta`, where :math:`\delta`
-        is bound.
+        is `bound`.
 
-        If True, returns 0, else returns np.inf.
+        If the result is `True`, returns 0, else returns `np.inf`.
 
         The class seminorm's constraint just returns the appropriate bound
         parameter for use by the subclasses.
         """
-        if bound is None:
-            bound = self.bound
-        if bound is None:
-            raise ValueError('either atom must be in bound mode' 
-                             + 'or a keyword "bound" argument must be supplied')
-        return bound
+        return get_bound(self, bound)
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
@@ -310,13 +300,7 @@ class seminorm(atom):
         The class atom's lagrange_prox just returns the appropriate lagrange
         parameter for use by the subclasses.
         """
-        if lagrange is None:
-            lagrange = self.lagrange
-        if lagrange is None:
-            raise ValueError('either atom must be in Lagrange '
-                             + 'mode or a keyword "lagrange" '
-                             + 'argument must be supplied')
-        return lagrange
+        return get_lagrange(self, lagrange)
 
     @doc_template_provider
     def bound_prox(self, arg, bound=None):
@@ -340,13 +324,7 @@ class seminorm(atom):
         The class atom's bound_prox just returns the appropriate bound
         parameter for use by the subclasses.
         """
-        if bound is None:
-            bound = self.bound
-        if bound is None:
-            raise ValueError('either atom must be in bound mode or '
-                             + 'a keyword "bound" argument must be supplied')
-        return bound
-
+        return get_bound(self, bound)
 
     def nonsmooth_objective(self, arg, check_feasibility=False):
         """
@@ -473,8 +451,8 @@ class l1norm(seminorm):
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, arg, 
-                                 check_feasibility=check_feasibility, 
-                                 lagrange=lagrange)
+                                     check_feasibility=check_feasibility, 
+                                     lagrange=lagrange)
         return lagrange * np.fabs(arg).sum()
 
     @doc_template_user
@@ -804,3 +782,26 @@ for n1, n2 in [(l1norm,supnorm),
 
 nonpaired_atoms = [positive_part_lagrange]
 
+def get_lagrange(atom, lagrange=None):
+    """
+    Return appropriate `lagrange` parameter.
+    """
+    if lagrange is None:
+        lagrange = atom.lagrange
+    if lagrange is None:
+        raise ValueError('either atom must be in Lagrange '
+                         + 'mode or a keyword "lagrange" '
+                         + 'argument must be supplied')
+    return lagrange
+
+def get_bound(atom, bound=None):
+    """
+    Return appropriate `bound` parameter.
+    """
+    if bound is None:
+        bound = atom.bound
+    if bound is None:
+        raise ValueError('either atom must be in bound '
+                         + 'mode or a keyword "bound" '
+                         + 'argument must be supplied')
+    return bound
