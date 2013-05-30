@@ -36,8 +36,8 @@ def test_l1prox():
 
     ac = a.primal
 
-    np.testing.assert_array_almost_equal(ac, ab)
-    np.testing.assert_array_almost_equal(ac, ad)
+    np.testing.assert_allclose(ac, ab, rtol=1.e-4)
+    np.testing.assert_allclose(ac, ad, rtol=1.e-4)
 
 
 def test_l1prox_bound():
@@ -136,5 +136,5 @@ def test_lasso():
     ans = scipy.optimize.fmin_powell(f, np.zeros(4), ftol=1.0e-12)
 
     print f(solver2.composite.coefs), f(ans)
-    np.testing.assert_array_almost_equal(ans, solver2.composite.coefs)
+    np.testing.assert_allclose(ans, solver2.composite.coefs, rtol=1.e-4)
 
