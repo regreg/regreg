@@ -136,11 +136,25 @@ class group_lasso(seminorm):
         """
         Return the args that are summed
         in computing the seminorm.
+
+        >>> groups = [1,1,2,2,2]
+        >>> penalty = group_lasso(groups, lagrange=1.)
+        >>> arg = [2,4,5,3,4]
+        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        [6.3245..., 12.2474...]
+        >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+        18.5720...
+        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        (6.3245..., 12.2474...)
+        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        18.5720...
+        
         """
+        arg = np.asarray(arg)
         norms = []
         for g in np.unique(self.groups):
             group = self.groups == g
-            norms.append(np.linalg.norm(arg[group]) / self.weights[g])
+            norms.append(np.linalg.norm(arg[group]) * self.weights[g])
         return norms
 
     @doc_template_user
@@ -209,7 +223,20 @@ class group_lasso_dual(group_lasso):
         """
         Return the args that are maximized
         in computing the seminorm.
+
+        >>> groups = [1,1,2,2,2]
+        >>> penalty = group_lasso_dual(groups, lagrange=1.)
+        >>> arg = [2,4,5,3,4]
+        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        [3.1622..., 4.0824...]
+        >>> import numpy as np
+        >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
+        (3.1622..., 4.0824...)
+        >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+        4.0824...
+
         """
+        arg = np.asarray(arg)
         norms = []
         for g in np.unique(self.groups):
             group = self.groups == g
