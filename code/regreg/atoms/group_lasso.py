@@ -132,6 +132,17 @@ class group_lasso(seminorm):
         self._conjugate._conjugate = self
         return self._conjugate
 
+    def terms(self, arg):
+        """
+        Return the args that are summed
+        in computing the seminorm.
+        """
+        norms = []
+        for g in np.unique(self.groups):
+            group = self.groups == g
+            norms.append(np.linalg.norm(arg[group]) / self.weights[g])
+        return norms
+
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, arg, 
@@ -193,6 +204,17 @@ class group_lasso_dual(group_lasso):
     objective_template = r"""\max_g \|%(var)s[g]\|_2 / w_g"""
 
     tol = 1.0e-05
+
+    def terms(self, arg):
+        """
+        Return the args that are maximized
+        in computing the seminorm.
+        """
+        norms = []
+        for g in np.unique(self.groups):
+            group = self.groups == g
+            norms.append(np.linalg.norm(arg[group]) / self.weights[g])
+        return norms
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
