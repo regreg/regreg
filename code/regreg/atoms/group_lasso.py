@@ -29,7 +29,7 @@ class group_lasso(seminorm):
     The group lasso seminorm.
     """
 
-    objective_template = r"""\sum_g \|%(var)s[g]\|_2"""
+    objective_template = r"""\sum_g w_g \|%(var)s[g]\|_2"""
 
     tol = 1.0e-05
 
@@ -190,7 +190,7 @@ class group_lasso_dual(group_lasso):
     The dual of the group lasso seminorm.
     """
 
-    objective_template = r"""\max_g \|%(var)s[g]\|_2"""
+    objective_template = r"""\max_g \|%(var)s[g]\|_2 / w_g"""
 
     tol = 1.0e-05
 
