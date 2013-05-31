@@ -87,31 +87,23 @@ class composite(object):
     @doc_template_provider
     def proximal_optimum(self, quadratic):
         r"""
-        Returns
-
-        .. math::
-
-           \inf_{x \in \mathbb{R}^p} Q(x)
-            + h(x)
-
-        where $p$ = ``x.shape[0]``, $Q(x)=$ `self.quadratic` and
-
-        .. math::
-        
-            h(%(var)s) = %(ns_objective)s
-
+        Compute a proximal step, and return the minimizer
+        and nonsmooth objective the value.
         """
         argmin = self.proximal(quadratic)
         if self.quadratic is None:
-            return argmin, lipschitz * norm(x-argmin)**2 / 2. + self.nonsmooth_objective(argmin)  
-        else:
-            return argmin, lipschitz * norm(x-argmin)**2 / 2. + self.nonsmooth_objective(argmin) + self.quadratic.objective(argmin, 'func') 
+            return argmin, quadratic.objective(argmin) + self.nonsmooth_objective(argmin) 
+        else: 
+            return argmin, quadratic.objective(argmin) + self.nonsmooth_objective(argmin) + self.quadratic.objective(argmin, 'func') 
 
     def proximal_step(self, quadratic, prox_control=None):
         """
         Compute the proximal optimization
 
-        prox_control: If not None, then a dictionary of parameters for the prox procedure
+        Parameters
+        ----------
+        prox_control: [None, dict]
+            If not None, then a dictionary of parameters for the prox procedure
         """
         # This seems like a null op -- if all proximals accept optional prox_control
         if prox_control is None:
@@ -169,6 +161,10 @@ class nonsmooth(composite):
     """
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
+        '''
+        The zero function.
+        '''
+
         if mode == 'both':
             return 0., zeros(x.shape)
         elif mode == 'func':

@@ -18,26 +18,10 @@ class seminorm(atom):
     An atom that can be in lagrange or bound form.
     """
 
-    objective_vars = {'var': r'\beta', 'shape':'p', 'linear':'D', 'offset':r'\alpha'}
-
-    def latexify(self, var=None, idx=''):
-        template_dict = self.objective_vars.copy()
-        template_dict['idx'] = idx
-        if var is not None:
-            template_dict['var'] = var
-        if self.offset is not None and np.any(self.offset != 0):
-            template_dict['var'] = template_dict['var'] + (r' - %(offset)s_{%(idx)s}' % template_dict) 
-
-        obj = self.objective_template % template_dict
-        template_dict['obj'] = obj
-        if self.lagrange is not None:
-            obj = r'\lambda_{%(idx)s} %(obj)s' % template_dict
-        else:
-            obj = r'I^{\infty}(%(obj)s \leq \delta_{%(idx)s})' % template_dict
-
-        if not self.quadratic.iszero:
-            return ' + '.join([obj, self.quadratic.latexify(var=template_dict['var'], idx=idx)])
-        return obj
+    objective_vars = {'var': r'\beta', 
+                      'shape':'p', 
+                      'linear':'D', 
+                      'offset':r'\alpha'}
 
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None):
@@ -64,6 +48,48 @@ class seminorm(atom):
         if bound is not None:
             self._bound = bound
             self._lagrange = None
+    
+    def latexify(self, var=None, idx=''):
+        '''
+        Return a LaTeX representation of the object.
+
+        >>> penalty = l1norm(10, lagrange=0.9)
+        >>> penalty.latexify(var=r'\beta') 
+        '\\lambda_{} \\|\\gamma\\|_1'
+
+        Parameters
+        ----------
+
+        var : `string`
+            Argument of the functions
+
+        idx : `string`
+            Optional subscript index.
+
+        Returns
+        -------
+
+        L : `string`
+            A LaTeX representation of the atom.
+
+        '''
+        template_dict = self.objective_vars.copy()
+        template_dict['idx'] = idx
+        if var is not None:
+            template_dict['var'] = var
+        if self.offset is not None and np.any(self.offset != 0):
+            template_dict['var'] = template_dict['var'] + (r' - %(offset)s_{%(idx)s}' % template_dict) 
+
+        obj = self.objective_template % template_dict
+        template_dict['obj'] = obj
+        if self.lagrange is not None:
+            obj = r'\lambda_{%(idx)s} %(obj)s' % template_dict
+        else:
+            obj = r'I^{\infty}(%(obj)s \leq \delta_{%(idx)s})' % template_dict
+
+        if not self.quadratic.iszero:
+            return ' + '.join([obj, self.quadratic.latexify(var=template_dict['var'], idx=idx)])
+        return obj
 
     @doc_template_provider
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -137,13 +163,14 @@ class seminorm(atom):
                      repr(self.offset),
                      repr(self.quadratic))
 
+    @doc_template_provider
     def get_conjugate(self):
         """
         Return the conjugate of an given atom.
 
-        >>> penalty = l1norm(30, lagrange=3.4)
+        >>> penalty = %(klass)s(30, lagrange=3.4)
         >>> penalty.get_conjugate()
-        supnorm((30,), bound=3.400000, offset=None)
+        %(dualklass)s((30,), bound=3.400000, offset=None)
 
         """
 
@@ -163,21 +190,24 @@ class seminorm(atom):
         return self._conjugate
     conjugate = property(get_conjugate)
 
+    @doc_template_provider
     def get_lagrange(self):
         """
         Get method of the lagrange property.
 
-        >>> penalty = l1norm(30, lagrange=3.4)
+        >>> penalty = %(klass)s(30, lagrange=3.4)
         >>> penalty.lagrange
         3.4
 
         """
         return self._lagrange
+
+    @doc_template_provider
     def set_lagrange(self, lagrange):
         """
         Set method of the lagrange property.
 
-        >>> penalty = l1norm(30, lagrange=3.4)
+        >>> penalty = %(klass)s(30, lagrange=3.4)
         >>> penalty.lagrange
         3.4
         >>> penalty.lagrange = 2.3
@@ -192,22 +222,24 @@ class seminorm(atom):
             raise AttributeError("atom is in bound mode")
     lagrange = property(get_lagrange, set_lagrange)
 
+    @doc_template_provider
     def get_bound(self):
         """
         Get method of the bound property.
 
-        >>> penalty = l1norm(30, bound=2.3)
+        >>> penalty = %(klass)s(30, bound=2.3)
         >>> penalty.bound
         2.3
 
         """
         return self._bound
 
+    @doc_template_provider
     def set_bound(self, bound):
         """
         Set method of the lagrange property.
 
-        >>> penalty = l1norm(30, bound=3.4)
+        >>> penalty = %(klass)s(30, bound=3.4)
         >>> penalty.bound
         3.4
         >>> penalty.bound = 2.3
@@ -222,7 +254,6 @@ class seminorm(atom):
             raise AttributeError("atom is in bound mode")
     bound = property(get_bound, set_bound)
 
-    #XXX why does this docstring not get formatted?
     @doc_template_provider
     def proximal(self, proxq, prox_control=None):
         r"""
@@ -245,9 +276,31 @@ class seminorm(atom):
 
         .. math::
 
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
+           v^{\delta}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
            \|x-v\|^2_2 + \langle v, \eta \rangle \  \text{s.t.} \   
            h(v - \alpha) \leq \delta
+
+        >>> penalty = rr.l1norm(4, lagrange=2)
+        >>> Q = rr.identity_quadratic(1.5, [3,-4,-1,1],0,0)
+        >>> penalty.proximal(Q)
+        array([ 1.66666667, -2.66666667, -0.        ,  0.        ])
+
+        Parameters
+        ----------
+
+        proxq : `regreg.identity_quadratic.identity_quadratic`
+            A quadratic added to the atom before minimizing.
+
+        prox_control : `[None, dict]`
+            This argument is ignored for seminorms, but otherwise
+            is passed to `regreg.algorithms.FISTA` if the atom
+            needs to be solved iteratively.
+
+        Returns
+        -------
+
+        Z : `np.ndarray(np.float)`
+            The proximal map of the implied center of `proxq`.
 
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
@@ -286,7 +339,7 @@ class seminorm(atom):
 
         .. math::
 
-           \hat{%(var)s}^{\lambda}(u) =
+           {%(var)s}^{\lambda}(u) =
            \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
            \frac{L}{2}
            \|u-%(var)s\|^2_2 + \lambda %(objective)s 
@@ -300,6 +353,26 @@ class seminorm(atom):
 
         The class atom's lagrange_prox just returns the appropriate lagrange
         parameter for use by the subclasses.
+
+        Parameters
+        ----------
+
+        arg : `np.ndarray(np.float)`
+            Argument of the proximal map.
+
+        lipschitz : `float`
+            Coefficient in front of the quadratic.
+
+        lagrange : `float` (optional)
+            Lagrange factor in front of the seminorm. 
+            Defaults to `self.lagrange`.
+
+        Returns
+        -------
+
+        Z : `np.ndarray(np.float)`
+            The proximal map of `arg`.
+
         """
         return get_lagrange(self, lagrange)
 
@@ -324,16 +397,56 @@ class seminorm(atom):
 
         The class atom's bound_prox just returns the appropriate bound
         parameter for use by the subclasses.
+
+        Parameters
+        ----------
+
+        arg : `np.ndarray(np.float)`
+            Argument of the proximal map.
+
+        bound : `float` (optional)
+            Bound for the constraint on the seminorm.
+            Defaults to `self.bound`.
+
+        Returns
+        -------
+
+        Z : `np.ndarray(np.float)`
+            The proximal map of `arg`.
+
         """
         return get_bound(self, bound)
 
     def nonsmooth_objective(self, arg, check_feasibility=False):
         """
         The nonsmooth objective function of the atom.
-        Includes the quadratic term of the atom.
+        Includes `self.quadratic.objective(arg)`.
 
-        Abstract method: subclasses must implement.
+        >>> penalty = l1norm(4, lagrange=2)
+        >>> penalty.nonsmooth_objective([3,4,5,7])
+        38.0
+        >>> 2*sum([3,4,5,7])
+        38
+
+
+        Parameters
+        ----------
+
+        arg : `np.ndarray(np.float)`
+            Argument of the seminorm.
+
+        check_feasibility : `bool`
+            If `True`, then return `np.inf` if appropriate.
+
+        Returns
+        -------
+
+        valueZ : `np.float`
+            The seminorm of `arg`.
+
+
         """
+        arg = np.asarray(arg)
         x_offset = self.apply_offset(arg)
         if self.bound is not None:
             if check_feasibility:
@@ -345,6 +458,36 @@ class seminorm(atom):
         v += self.quadratic.objective(arg, 'func')
         return v
 
+    @doc_template_provider
+    def get_dual(self):
+        """
+        Return the dual of an atom. This dual is formed by making the a substitution
+        of the form v=Ax where A is the self.linear_transform.
+
+        >>> from regreg.api import %(klass)s
+        >>> import numpy as np
+        >>> penalty = %(klass)s(30, lagrange=2.3)
+        >>> penalty
+        %(klass)s((30,), lagrange=2.300000, offset=None)
+        >>> penalty.dual # doctest: +ELLIPSIS
+        (<regreg.affine.identity object at 0x...>, %(dualklass)s((30,), bound=2.300000, offset=None))
+
+        If there is a linear part to the penalty, the linear_transform may not be identity:
+
+        >>> D = (np.identity(4) + np.diag(-np.ones(3),1))[:-1]
+        >>> D
+        array([[ 1., -1.,  0.,  0.],
+               [ 0.,  1., -1.,  0.],
+               [ 0.,  0.,  1., -1.]])
+        >>> linear_atom = %(klass)s.linear(D, lagrange=2.3)
+        >>> linear_atom
+        affine_atom(%(klass)s((3,), lagrange=2.300000, offset=None), array([[ 1., -1.,  0.,  0.],
+               [ 0.,  1., -1.,  0.],
+               [ 0.,  0.,  1., -1.]]))
+        >>> linear_atom.dual # doctest: +ELLIPSIS
+        (<regreg.affine.linear_transform object at 0x...>, %(dualklass)s((3,), bound=2.300000, offset=None))
+
+        """
 
     @classmethod
     def affine(cls, linear_operator, offset, lagrange=None, diag=False,
@@ -448,6 +591,9 @@ class l1norm(seminorm):
     prox_tol = 1.0e-10
 
     objective_template = r"""\|%(var)s\|_1"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'l1norm'
+    objective_vars['dualklass'] = 'supnorm'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -484,6 +630,30 @@ class l1norm(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
+
 @objective_doc_templater()
 class supnorm(seminorm):
 
@@ -492,6 +662,9 @@ class supnorm(seminorm):
     """
 
     objective_template = r"""\|%(var)s\|_{\infty}"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'supnorm'
+    objective_vars['dualklass'] = 'l1norm'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -530,6 +703,29 @@ class supnorm(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
 
 @objective_doc_templater()
 class l2norm(seminorm):
@@ -539,6 +735,9 @@ class l2norm(seminorm):
     """
 
     objective_template = r"""\|%(var)s\|_2"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'l2norm'
+    objective_vars['dualklass'] = 'l2norm'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -579,6 +778,29 @@ class l2norm(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
 
 def positive_part_lagrange(shape, lagrange,
                            offset=None, quadratic=None, initial=None):
@@ -597,7 +819,6 @@ def positive_part_lagrange(shape, lagrange,
                   offset=offset, quadratic=linq,
                   initial=initial)
 
-
 class positive_part(seminorm):
 
     """
@@ -606,6 +827,9 @@ class positive_part(seminorm):
     """
 
     objective_template = r"""\sum_{i=1}^{%(shape)s} %(var)s_i^+"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'positive_part'
+    objective_vars['dualklass'] = 'constrained_max'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -648,6 +872,29 @@ class positive_part(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
 
 @objective_doc_templater()
 class constrained_max(seminorm):
@@ -657,6 +904,9 @@ class constrained_max(seminorm):
 
     objective_template = (r"""\|%(var)s\|_{\infty} + \sum_{i=1}^{%(shape)s} """
                           + r"""\delta_{[0,+\infty)}(%(var)s_i) """)
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'constrained_max'
+    objective_vars['dualklass'] = 'positive_part'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -699,6 +949,29 @@ class constrained_max(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
 
 @objective_doc_templater()
 class constrained_positive_part(seminorm):
@@ -709,6 +982,9 @@ class constrained_positive_part(seminorm):
 
     objective_template = (r"""\|%(var)s\|_{1} + \sum_{i=1}^{%(shape)s} """
                           + r"""\delta_{[0,+\infty]}(%(var)s_i)""")
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'constrained_positive_part'
+    objective_vars['dualklass'] = 'max_positive_part'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -755,6 +1031,30 @@ class constrained_positive_part(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
+
 @objective_doc_templater()
 class max_positive_part(seminorm):
 
@@ -763,6 +1063,9 @@ class max_positive_part(seminorm):
     """
 
     objective_template = r"""\|%(var)s^+\|_{\infty}"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['klass'] = 'max_positive_part'
+    objective_vars['dualklass'] = 'constrained_positive_part'
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -799,6 +1102,29 @@ class max_positive_part(seminorm):
     def proximal(self, proxq, prox_control=None):
         return seminorm.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
 
 conjugate_seminorm_pairs = {}
 for n1, n2 in [(l1norm,supnorm),

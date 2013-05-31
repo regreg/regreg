@@ -20,48 +20,28 @@ class atom(nonsmooth):
     """
 
     objective_vars = nonsmooth.objective_vars.copy()
+    objective_vars['klass'] = 'norm'
+    objective_vars['dualklass'] = 'dualnorm'
 
     tol = 1.0e-05
 
+    @doc_template_provider
     def get_conjugate(self):
         """
         Return the conjugate of an given atom.
         Abstract method: subclasses must implement.
         """
         return None
-    conjugate = property(get_conjugate)
+    conjugate = property(get_conjugate, None, None, 'The conjugate of an atom.')
 
-    @property
-    def dual(self):
+    @doc_template_provider
+    def get_dual(self):
         """
-        Return the dual of an atom. This dual is formed by making the a substitution
-        of the form v=Ax where A is the self.linear_transform.
-
-        >>> from regreg.api import l1norm
-        >>> import numpy as np
-        >>> penalty = l1norm(30, lagrange=2.3)
-        >>> penalty
-        l1norm((30,), lagrange=2.300000, offset=None)
-        >>> penalty.dual # doctest: +ELLIPSIS
-        (<regreg.affine.identity object at 0x...>, supnorm((30,), bound=2.300000, offset=None))
-
-        If there is a linear part to the penalty, the linear_transform may not be identity:
-
-        >>> D = (np.identity(4) + np.diag(-np.ones(3),1))[:-1]
-        >>> D
-        array([[ 1., -1.,  0.,  0.],
-               [ 0.,  1., -1.,  0.],
-               [ 0.,  0.,  1., -1.]])
-        >>> fused_lasso = l1norm.linear(D, lagrange=2.3)
-        >>> fused_lasso
-        affine_atom(l1norm((3,), lagrange=2.300000, offset=None), array([[ 1., -1.,  0.,  0.],
-               [ 0.,  1., -1.,  0.],
-               [ 0.,  0.,  1., -1.]]))
-        >>> fused_lasso.dual # doctest: +ELLIPSIS
-        (<regreg.affine.linear_transform object at 0x...>, supnorm((3,), bound=2.300000, offset=None))
-
+        Get the dual of the atom. 
+        Abstract method.
         """
         return self.linear_transform, self.conjugate
+    dual = property(get_dual)
 
     @property
     def linear_transform(self):
@@ -208,12 +188,16 @@ def _work_out_conjugate(offset, quadratic):
         offset = 0
     else:
         offset = offset
+    if quadratic.linear_term is not None:
+        linear_term = quadratic.linear_term
+    else:
+        linear_term = 0
     outq = identity_quadratic(0,0,offset, \
           -quadratic.constant_term - 
-          np.sum(offset * quadratic.linear_term))
+          np.sum(offset * linear_term))
 
     if quadratic.linear_term is not None:
-        outoffset = quadratic.linear_term
+        outoffset = linear_term
     else:
         outoffset = None
     return outoffset, outq
