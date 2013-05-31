@@ -232,10 +232,10 @@ class seminorm(atom):
         .. math::
 
            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \lambda h(%(var)s+\alpha) + \langle v, \eta \rangle
+           \|x-v\|^2_2 + \lambda h(%(var)s-\alpha) + \langle v, \eta \rangle
 
-        where :math:`\alpha` is the offset of self.linear_transform,
-        :math:`\eta` is self.linear_term and 
+        where :math:`\alpha` is `self.offset`,
+        :math:`\eta` is `proxq.linear_term` and 
 
         .. math::
 
@@ -246,7 +246,8 @@ class seminorm(atom):
         .. math::
 
            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \langle v, \eta \rangle \text{s.t.} \   h(v+\alpha) \leq \lambda
+           \|x-v\|^2_2 + \langle v, \eta \rangle \  \text{s.t.} \   
+           h(v - \alpha) \leq \delta
 
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
@@ -479,6 +480,10 @@ class l1norm(seminorm):
             return np.sign(arg) * (absarg - cut) * (absarg > cut)
         return arg
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
+
 @objective_doc_templater()
 class supnorm(seminorm):
 
@@ -520,6 +525,10 @@ class supnorm(seminorm):
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         return np.clip(arg, -bound, bound)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 
 @objective_doc_templater()
@@ -565,6 +574,10 @@ class l2norm(seminorm):
             return arg
         else:
             return (bound / n) * arg
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 
 def positive_part_lagrange(shape, lagrange,
@@ -631,6 +644,10 @@ class positive_part(seminorm):
             v[pos] = projl1(v[pos], bound)
         return v.reshape(arg.shape)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
+
 
 @objective_doc_templater()
 class constrained_max(seminorm):
@@ -677,6 +694,10 @@ class constrained_max(seminorm):
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         return np.clip(arg, 0, bound)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 
 @objective_doc_templater()
@@ -730,6 +751,9 @@ class constrained_positive_part(seminorm):
             v[pos] = projl1(v[pos], bound)
         return v.reshape(arg.shape)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class max_positive_part(seminorm):
@@ -770,6 +794,10 @@ class max_positive_part(seminorm):
         if np.any(pos):
             v[pos] = projl1(v[pos], lagrange / lipschitz)
         return arg - v.reshape(arg.shape)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 
 conjugate_seminorm_pairs = {}

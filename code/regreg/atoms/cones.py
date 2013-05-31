@@ -103,13 +103,8 @@ class cone(atom):
            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^{%(shape)s}} \frac{L}{2}
            \|x-v\|^2_2 + %(objective)s + \langle v, \eta \rangle
 
-        where :math:`\alpha` is the offset of self.affine_transform and
-        :math:`\eta` is self.linear_term.
-
-        .. math::
-
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \langle v, \eta \rangle \text{s.t.} \   h(v+\alpha) \leq \lambda
+        where :math:`\alpha` is `self.offset`,
+        :math:`\eta` is `proxq.linear_term`.
 
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
@@ -248,6 +243,9 @@ class nonnegative(cone):
     def cone_prox(self, x):
         return np.maximum(x, 0)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class nonpositive(nonnegative):
@@ -271,6 +269,9 @@ class nonpositive(nonnegative):
     def cone_prox(self, x):
         return np.minimum(x, 0)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class zero(cone):
@@ -287,6 +288,10 @@ class zero(cone):
     @doc_template_user
     def cone_prox(self, x):
         return x
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class zero_constraint(cone):
@@ -306,6 +311,10 @@ class zero_constraint(cone):
     def cone_prox(self, x):
         return np.zeros(np.asarray(x).shape)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
+
 @objective_doc_templater()
 class l2_epigraph(cone):
 
@@ -323,7 +332,6 @@ class l2_epigraph(cone):
             return 0
         return np.inf
 
-
     @doc_template_user
     def cone_prox(self, x):
         norm = x[-1]
@@ -334,6 +342,10 @@ class l2_epigraph(cone):
         result[:-1] = coef / norm_coef * max(norm_coef - thold, 0)
         result[-1] = max(norm + thold, 0)
         return result
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class l2_epigraph_polar(cone):
@@ -364,6 +376,9 @@ class l2_epigraph_polar(cone):
         result[-1] = max(norm + thold, 0)
         return -result
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class l1_epigraph(cone):
@@ -385,6 +400,10 @@ class l1_epigraph(cone):
     def cone_prox(self, x):
         return projl1_epigraph(x)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
+
 @objective_doc_templater()
 class l1_epigraph_polar(cone):
 
@@ -402,11 +421,14 @@ class l1_epigraph_polar(cone):
             return 0
         return np.inf
 
-
     @doc_template_user
     def cone_prox(self, arg):
         arg = np.asarray(arg, np.float).copy()
         return arg - projl1_epigraph(arg)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class linf_epigraph(cone):
@@ -428,6 +450,10 @@ class linf_epigraph(cone):
     def cone_prox(self, arg):
         arg = np.asarray(arg, np.float)
         return arg + projl1_epigraph(-arg)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 @objective_doc_templater()
 class linf_epigraph_polar(cone):
@@ -451,6 +477,9 @@ class linf_epigraph_polar(cone):
         arg = np.asarray(arg, np.float)
         return -projl1_epigraph(-arg)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
 
 conjugate_cone_pairs = {}
 for n1, n2 in [(nonnegative,nonpositive),
