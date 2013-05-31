@@ -50,11 +50,11 @@ class seminorm(atom):
             self._lagrange = None
     
     def latexify(self, var=None, idx=''):
-        '''
+        r'''
         Return a LaTeX representation of the object.
 
         >>> penalty = l1norm(10, lagrange=0.9)
-        >>> penalty.latexify(var=r'\beta') 
+        >>> penalty.latexify(var=r'\gamma') 
         '\\lambda_{} \\|\\gamma\\|_1'
 
         Parameters
@@ -280,8 +280,8 @@ class seminorm(atom):
            \|x-v\|^2_2 + \langle v, \eta \rangle \  \text{s.t.} \   
            h(v - \alpha) \leq \delta
 
-        >>> penalty = rr.l1norm(4, lagrange=2)
-        >>> Q = rr.identity_quadratic(1.5, [3,-4,-1,1],0,0)
+        >>> penalty = l1norm(4, lagrange=2)
+        >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
         >>> penalty.proximal(Q)
         array([ 1.66666667, -2.66666667, -0.        ,  0.        ])
 

@@ -94,7 +94,7 @@ class cone(atom):
                [ 0.,  0.,  1., -1.]])
         >>> linear_atom = %(klass)s.linear(D)
         >>> linear_atom
-        affine_atom(%(klass)s((3,), offset=None), array([[ 1., -1.,  0.,  0.],
+        affine_cone(%(klass)s((3,), offset=None), array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]]))
         >>> linear_atom.dual # doctest: +ELLIPSIS
