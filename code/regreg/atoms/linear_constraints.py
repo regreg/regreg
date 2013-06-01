@@ -7,6 +7,7 @@ from ..problems.composite import composite, nonsmooth
 from .cones import cone, affine_cone
 from ..identity_quadratic import identity_quadratic
 from ..atoms import _work_out_conjugate
+from ..doctemplates import doc_template_user
 
 class linear_constraint(cone):
 
@@ -63,8 +64,8 @@ class linear_constraint(cone):
                  repr(self.offset),
                  self.quadratic)
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    def get_conjugate(self):
         if self.quadratic.coef == 0:
 
             offset, outq = _work_out_conjugate(self.offset, self.quadratic)
@@ -79,6 +80,7 @@ class linear_constraint(cone):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
 
     @classmethod
     def linear(cls, linear_operator, basis, diag=False,
@@ -130,6 +132,17 @@ class projection(linear_constraint):
         coefs = np.dot(self.basis, x)
         return np.dot(coefs, self.basis)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
 
 class projection_complement(linear_constraint):
 
@@ -167,6 +180,18 @@ class projection_complement(linear_constraint):
         """
         coefs = np.dot(self.basis, x)
         return x - np.dot(coefs, self.basis)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
 
 conjugate_cone_pairs = {}
 for n1, n2 in [(projection, projection_complement),

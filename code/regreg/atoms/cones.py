@@ -21,6 +21,15 @@ class cone(atom):
     A class that defines the API for cone constraints.
     """
 
+    objective_template = r'\|%(var)s\|'
+    objective_vars = {'var': r'\beta', 
+                      'shape':'p', 
+                      'linear':'D', 
+                      'offset':r'\alpha',
+                      'normklass':'nonnegative',
+                      'dualnormklass':'nonpositive',
+                      'initargs':'(30,)', # args need to construct penalty
+                      }
     tol = 1.0e-05
 
     def __eq__(self, other):
@@ -52,9 +61,9 @@ class cone(atom):
         """
         Return the conjugate of an given atom.
 
-        >>> penalty = %(klass)s((30,))
-        >>> penalty.get_conjugate()
-        %(dualklass)s((30,), offset=None)
+        >>> penalty = %(coneklass)s(%(initargs)s)
+        >>> penalty.get_conjugate() # doctest: +SKIP
+        %(dualconeklass)s(%(initargs)s, offset=None)
 
         """
         if self.quadratic.coef == 0:
@@ -77,28 +86,29 @@ class cone(atom):
         Return the dual of an atom. This dual is formed by making the  
         substitution $v=Ax$ where $A$ is the `self.linear_transform`.
 
-        >>> from regreg.api import %(klass)s
+        >>> from regreg.api import %(coneklass)s
         >>> import numpy as np
-        >>> penalty = %(klass)s(30)
-        >>> penalty
-        %(klass)s((30,), offset=None)
-        >>> penalty.dual # doctest: +ELLIPSIS
-        (<regreg.affine.identity object at 0x...>, %(dualklass)s((30,), offset=None))
+        >>> penalty = %(coneklass)s(%(initargs)s)
+        >>> penalty # doctest: +SKIP
+        %(coneklass)s(%(initargs)s, offset=None)
+        >>> penalty.dual # doctest: +SKIP
+        (<regreg.affine.identity object at 0x...>, %(dualconeklass)s(%(initargs)s, offset=None))
 
         If there is a linear part to the penalty, the linear_transform may not be identity:
 
+        >>> from regreg.api import nonnegative
         >>> D = (np.identity(4) + np.diag(-np.ones(3),1))[:-1]
         >>> D
         array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]])
-        >>> linear_atom = %(klass)s.linear(D)
+        >>> linear_atom = nonnegative.linear(D)
         >>> linear_atom
-        affine_cone(%(klass)s((3,), offset=None), array([[ 1., -1.,  0.,  0.],
+        affine_cone(nonnegative((3,), offset=None), array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]]))
         >>> linear_atom.dual # doctest: +ELLIPSIS
-        (<regreg.affine.linear_transform object at 0x...>, %(dualklass)s((3,), offset=None))
+        (<regreg.affine.linear_transform object at 0x...>, nonpositive((3,), offset=None))
 
         """
         return self.linear_transform, self.conjugate
@@ -268,8 +278,8 @@ class nonnegative(cone):
 
     objective_template = r"""I^{\infty}(%(var)s \succeq 0)"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'nonnegative'
-    objective_vars['dualklass'] = 'nonpositive'
+    objective_vars['coneklass'] = 'nonnegative'
+    objective_vars['dualconeklass'] = 'nonpositive'
 
     @doc_template_user
     def constraint(self, x):
@@ -287,6 +297,14 @@ class nonnegative(cone):
     def proximal(self, proxq, prox_control=None):
         return cone.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
 @objective_doc_templater()
 class nonpositive(nonnegative):
 
@@ -297,8 +315,8 @@ class nonpositive(nonnegative):
 
     objective_template = r"""I^{\infty}(%(var)s \preceq 0)"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['dualklass'] = 'nonnegative'
-    objective_vars['klass'] = 'nonpositive'
+    objective_vars['dualconeklass'] = 'nonnegative'
+    objective_vars['coneklass'] = 'nonpositive'
 
     @doc_template_user
     def constraint(self, x):
@@ -332,8 +350,8 @@ class zero(cone):
 
     objective_template = r"""{\cal Z}(%(var)s)"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'zero'
-    objective_vars['dualklass'] = 'zero_constraint'
+    objective_vars['coneklass'] = 'zero'
+    objective_vars['dualconeklass'] = 'zero_constraint'
 
     @doc_template_user
     def constraint(self, x):
@@ -363,8 +381,8 @@ class zero_constraint(cone):
 
     objective_template = r"""I^{\infty}(%(var)s = 0)"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'zero_constraint'
-    objective_vars['dualklass'] = 'zero'
+    objective_vars['coneklass'] = 'zero_constraint'
+    objective_vars['dualconeklass'] = 'zero'
 
     @doc_template_user
     def constraint(self, x):
@@ -397,8 +415,8 @@ class l2_epigraph(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_2 \leq %(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'l2_epigraph'
-    objective_vars['dualklass'] = 'l2_epigraph_polar'
+    objective_vars['coneklass'] = 'l2_epigraph'
+    objective_vars['dualconeklass'] = 'l2_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -441,8 +459,8 @@ class l2_epigraph_polar(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_2 \in -%(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['dualklass'] = 'l2_epigraph'
-    objective_vars['klass'] = 'l2_epigraph_polar'
+    objective_vars['dualconeklass'] = 'l2_epigraph'
+    objective_vars['coneklass'] = 'l2_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -484,8 +502,8 @@ class l1_epigraph(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_1 \leq %(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['dualklass'] = 'l1_epigraph'
-    objective_vars['klass'] = 'l1_epigraph_polar'
+    objective_vars['dualconeklass'] = 'l1_epigraph'
+    objective_vars['coneklass'] = 'l1_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -519,8 +537,8 @@ class l1_epigraph_polar(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{\infty} \leq - %(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'l1_epigraph_polar'
-    objective_vars['dualklass'] = 'l1_epigraph'
+    objective_vars['coneklass'] = 'l1_epigraph_polar'
+    objective_vars['dualconeklass'] = 'l1_epigraph'
 
     @doc_template_user
     def constraint(self, x):
@@ -556,8 +574,8 @@ class linf_epigraph(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{\infty} \leq %(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'linf_epigraph'
-    objective_vars['dualklass'] = 'linf_epigraph_polar'
+    objective_vars['coneklass'] = 'linf_epigraph'
+    objective_vars['dualconeklass'] = 'linf_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -593,8 +611,8 @@ class linf_epigraph_polar(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_1 \leq -%(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['klass'] = 'linf_epigraph_polar'
-    objective_vars['dualklass'] = 'linf_epigraph'
+    objective_vars['coneklass'] = 'linf_epigraph_polar'
+    objective_vars['dualconeklass'] = 'linf_epigraph'
 
     @doc_template_user
     def constraint(self, x):
