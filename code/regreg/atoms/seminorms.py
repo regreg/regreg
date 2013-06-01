@@ -441,7 +441,7 @@ class seminorm(atom):
         Returns
         -------
 
-        valueZ : `np.float`
+        value : `np.float`
             The seminorm of `arg`.
 
 
@@ -450,13 +450,13 @@ class seminorm(atom):
         x_offset = self.apply_offset(arg)
         if self.bound is not None:
             if check_feasibility:
-                v = self.constraint(x_offset)
+                value = self.constraint(x_offset)
             else:
-                v = 0
+                value = 0
         else:
-            v = self.seminorm(x_offset, check_feasibility=check_feasibility)
-        v += self.quadratic.objective(arg, 'func')
-        return v
+            value = self.seminorm(x_offset, check_feasibility=check_feasibility)
+        value += self.quadratic.objective(arg, 'func')
+        return value
 
     @doc_template_provider
     def get_dual(self):
