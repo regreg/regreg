@@ -132,7 +132,7 @@ class composite(object):
         if not hasattr(self, "_quadratic"):
             self._quadratic = sq(None, None, None, None)
         return self._quadratic
-    quadratic = property(get_quadratic, set_quadratic)
+    quadratic = property(get_quadratic, set_quadratic, doc='Quadratic part of the object, instance of `regreg.identity_quadratic.identity_quadratic`.')
 
     def smoothed(self, smoothing_quadratic):
         '''
