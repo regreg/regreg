@@ -20,7 +20,13 @@ from .atoms.svd_norms import (nuclear_norm, operator_norm,
                              operator_norm_epigraph)
 from .atoms.linear_constraints import (projection, projection_complement)
 from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_dual
-from .atoms.group_lasso import (group_lasso, group_lasso_dual, group_lasso_epigraph, group_lasso_dual_epigraph)
+
+from .atoms.group_lasso import (group_lasso, group_lasso_dual, 
+                                group_lasso_epigraph, 
+                                group_lasso_epigraph_polar, 
+                                group_lasso_dual_epigraph,
+                                group_lasso_dual_epigraph_polar)
+
 from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
                                    supnorm as weighted_supnorm)
 

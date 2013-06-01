@@ -30,6 +30,10 @@ class group_lasso(seminorm):
     """
 
     objective_template = r"""\sum_g w_g \|%(var)s[g]\|_2"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['normklass'] = 'group_lasso'
+    objective_vars['dualnormklass'] = 'group_lasso_dual'
+    objective_vars['initargs'] = '[1,1,2,2,2]'
 
     tol = 1.0e-05
 
@@ -113,8 +117,17 @@ class group_lasso(seminorm):
                      repr(self.offset),
                      repr(self.quadratic))
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    @doc_template_provider
+    def get_conjugate(self):
+        """
+        Return the conjugate of an given atom.
+
+        >>> penalty = %(normklass)s([1,1,2,2,2], lagrange=3.4)
+        >>> penalty.get_conjugate() # doctest: +SKIP
+        %(dualnormklass)s([1,1,2,2,2], bound=3.4..., offset=None)
+
+        """
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
@@ -131,6 +144,7 @@ class group_lasso(seminorm):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
 
     def terms(self, arg):
         """
@@ -207,6 +221,29 @@ class group_lasso(seminorm):
         else:
             return np.inf
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
 
 @objective_doc_templater()
 class group_lasso_dual(group_lasso):
@@ -216,6 +253,9 @@ class group_lasso_dual(group_lasso):
     """
 
     objective_template = r"""\max_g \|%(var)s[g]\|_2 / w_g"""
+    objective_vars = seminorm.objective_vars.copy()
+    objective_vars['normklass'] = 'group_lasso_dual'
+    objective_vars['dualnormklass'] = 'group_lasso'
 
     tol = 1.0e-05
 
@@ -282,6 +322,35 @@ class group_lasso_dual(group_lasso):
                                    self._weight_array)
         return arg - r
 
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return seminorm.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return group_lasso.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
+
 @objective_doc_templater()
 class group_lasso_cone(cone):
     
@@ -333,8 +402,7 @@ class group_lasso_cone(cone):
                  repr(self.offset),
                  repr(self.quadratic))
 
-    @property
-    def conjugate(self):
+    def get_conjugate(self):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
@@ -348,6 +416,7 @@ class group_lasso_cone(cone):
         self._conjugate = new_atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
 
     @property
     def weights(self):
@@ -374,6 +443,10 @@ class group_lasso_epigraph(group_lasso_cone):
 
     objective_template = (r"""I^{\infty}\left(\sum_g \|%(var)s[g]\|_2 """
                           + r"""\leq %(var)s[-1]\right)""")
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'group_lasso_epigraph'
+    objective_vars['dualconeklass'] = 'group_lasso_epigraph_polar'
+    objective_vars['initargs'] = '[1,1,2,2,2]'
 
     seminorm_class = group_lasso
 
@@ -388,6 +461,18 @@ class group_lasso_epigraph(group_lasso_cone):
                                     self.snorm._group_array,
                                     self.snorm._weight_array)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return group_lasso_cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
 @objective_doc_templater()
 class group_lasso_epigraph_polar(group_lasso_cone):
 
@@ -397,6 +482,10 @@ class group_lasso_epigraph_polar(group_lasso_cone):
 
     objective_template = (r"""I^{\infty}(\max_g \|%(var)s[g]\|_2 \leq """
                           + r"""-%(var)s[-1]\)""")
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'group_lasso_epigraph_polar'
+    objective_vars['dualconeklass'] = 'group_lasso_epigraph'
+    objective_vars['initargs'] = '[1,1,2,2,2]'
 
     seminorm_class = group_lasso_dual
 
@@ -418,6 +507,18 @@ class group_lasso_epigraph_polar(group_lasso_cone):
             return 0
         return np.inf
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return group_lasso_cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
 @objective_doc_templater()
 class group_lasso_dual_epigraph(group_lasso_cone):
 
@@ -427,6 +528,11 @@ class group_lasso_dual_epigraph(group_lasso_cone):
 
     objective_template = (r"""I^{\infty}(%(var)s: \max_g """ + 
                           r"""\|%(var)s[1:][g]\|_2 \leq %(var)s[0])""")
+
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'group_lasso_dual_epigraph'
+    objective_vars['dualconeklass'] = 'group_lasso_dual_epigraph_polar'
+    objective_vars['initargs'] = '[1,1,2,2,2]'
 
     seminorm_class = group_lasso_dual
 
@@ -448,6 +554,18 @@ class group_lasso_dual_epigraph(group_lasso_cone):
             return 0
         return np.inf
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return group_lasso_cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
 @objective_doc_templater()
 class group_lasso_dual_epigraph_polar(group_lasso_cone):
 
@@ -457,6 +575,12 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
 
     objective_template = (r"""I^{\infty}(%(var)s: \sum_g \|%(var)s[g]\|_2 \leq """
                           + r"""-%(var)s[-1]\}}""")
+
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'group_lasso_dual_epigraph_polar'
+    objective_vars['dualconeklass'] = 'group_lasso_dual_epigraph'
+    objective_vars['initargs'] = '[1,1,2,2,2]'
+
 
     seminorm_class = group_lasso
 
@@ -477,6 +601,18 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
         if incone:
             return 0
         return np.inf
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return group_lasso_cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
 
 conjugate_seminorm_pairs = {}
 conjugate_seminorm_pairs[group_lasso_dual] = group_lasso

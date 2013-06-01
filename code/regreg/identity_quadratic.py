@@ -25,10 +25,21 @@ class identity_quadratic(object):
                     allclose(self.constant_term, other.constant_term))
 
     def __init__(self, coef, center, linear_term, constant_term=0):
+
+        if center is not None:
+            center = asarray(center)
+            if center.shape == ():
+                center = float(center)
+        if linear_term is not None:
+            linear_term = asarray(linear_term)
+            if linear_term.shape == ():
+                linear_term = float(linear_term)
+
         if coef is None:
-            self.coef = 0
+            self.coef = 0.
         else:
             self.coef = coef
+
         self.center = center
         self.linear_term = linear_term
         if constant_term is None:
