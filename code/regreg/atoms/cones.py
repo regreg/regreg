@@ -141,7 +141,7 @@ class cone(atom):
         return v
 
     @doc_template_provider
-    def proximal(self, proxq, prox_control=None):
+    def proximal(self, quadratic, prox_control=None):
         r"""
         The proximal operator. 
 
@@ -151,10 +151,35 @@ class cone(atom):
            \|x-\alpha - v\|^2_2 + %(objective)s + \langle v, \eta \rangle
 
         where :math:`\alpha` is `self.offset`,
-        :math:`\eta` is `proxq.linear_term`.
+        :math:`\eta` is `quadratic.linear_term`.
+
+        >>> from regreg.api import nonnegative
+        >>> cone = nonnegative((4,))
+        >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
+        >>> cone.proximal(Q) # doctest: +ELLIPSIS
+        array([ 3.,  0.,  0.,  1.])
+
+        Parameters
+        ----------
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic`
+
+            A quadratic added to the atom before minimizing.
+
+        prox_control : `[None, dict]`
+
+            This argument is ignored for seminorms, but otherwise
+            is passed to `regreg.algorithms.FISTA` if the atom
+            needs to be solved iteratively.
+
+        Returns
+        -------
+
+        Z : `np.ndarray(np.float)`
+            The proximal map of the implied center of `quadratic`.
 
         """
-        offset, totalq = (self.quadratic + proxq).recenter(self.offset)
+        offset, totalq = (self.quadratic + quadratic).recenter(self.offset)
         if totalq.coef == 0:
             raise ValueError('lipschitz + quadratic coef must be positive')
 
@@ -166,7 +191,7 @@ class cone(atom):
             print 'x :', x
             print 'grad: ', grad
             print 'cone: ', self
-            print 'proxq: ', proxq
+            print 'quadratic: ', quadratic
             print 'proxarg: ', prox_arg
             print 'totalq: ', totalq
 
@@ -224,7 +249,7 @@ class cone(atom):
 
     @staticmethod
     def check_subgradient(atom, prox_center):
-        """
+        r"""
         For a given seminorm, verify the KKT condition for
         the problem for the proximal problem
 
@@ -294,8 +319,8 @@ class nonnegative(cone):
         return np.maximum(x, 0)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -331,8 +356,8 @@ class nonpositive(nonnegative):
         return np.minimum(x, 0)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -362,8 +387,8 @@ class zero(cone):
         return x
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -395,8 +420,8 @@ class zero_constraint(cone):
         return np.zeros(np.asarray(x).shape)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -438,8 +463,8 @@ class l2_epigraph(cone):
         return result
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -482,8 +507,8 @@ class l2_epigraph_polar(cone):
         return -result
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -517,8 +542,8 @@ class l1_epigraph(cone):
         return projl1_epigraph(x)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -554,8 +579,8 @@ class l1_epigraph_polar(cone):
         return arg - projl1_epigraph(arg)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -590,8 +615,8 @@ class linf_epigraph(cone):
         return arg + projl1_epigraph(-arg)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -627,8 +652,8 @@ class linf_epigraph_polar(cone):
         return -projl1_epigraph(-arg)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):

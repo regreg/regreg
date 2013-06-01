@@ -15,10 +15,19 @@ from ..doctemplates import (doc_template_user, doc_template_provider)
 from ..atoms import _work_out_conjugate
 from .piecewise_linear import find_solution_piecewise_linear_c
 
+# for the docstring, we need l1norm
+l1norm = seminorms.l1norm
+
 @objective_doc_templater()
 class block_sum(seminorms.seminorm):
 
-    objective_template = r"""\|%(var)s\|_{1,h}"""
+    objective_template = r"""\|%(var)s\|_{1,\|\cdot\|}"""
+    objective_vars = seminorms.seminorm.objective_vars.copy()
+    objective_vars['var'] = 'B'
+    objective_vars['normklass'] = 'block_sum'
+    objective_vars['dualnormklass'] = 'block_max'
+    objective_vars['initargs'] = 'l1norm, (5,4)'
+    objective_vars['shape'] = r'n \times p'
 
     def __init__(self, atom_cls, shape,
                  lagrange=None,
@@ -47,6 +56,7 @@ class block_sum(seminorms.seminorm):
                                           check_feasibility=False)
         return value
 
+    @doc_template_user
     def seminorm(self, x, check_feasibility=False,
                  lagrange=None):
         x = x.reshape(self.shape)
@@ -56,6 +66,7 @@ class block_sum(seminorms.seminorm):
             self.seminorms(x, check_feasibility=check_feasibility,
                            lagrange=1.))
 
+    @doc_template_user
     def constraint(self, x):
         # XXX should we check feasibility here?
         x = x.reshape(self.shape)
@@ -64,6 +75,7 @@ class block_sum(seminorms.seminorm):
             return 0
         return np.inf
 
+    @doc_template_user
     def lagrange_prox(self, x, lipschitz=1, lagrange=None):
         x = x.reshape(self.shape)
         lagrange = seminorms.seminorm.lagrange_prox(self, x, lipschitz, lagrange)
@@ -73,25 +85,30 @@ class block_sum(seminorms.seminorm):
                                            lagrange=lagrange)
         return v
 
+    @doc_template_user
     def bound_prox(self, x, bound=None):
         x = x.reshape(self.shape)
         warnings.warn('bound_prox of block_sum requires a little thought -- should be like l1prox')
         return 0 * x
 
+    @doc_template_user
     def get_lagrange(self):
-        return self.atom.lagrange
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
     def set_lagrange(self, lagrange):
-        self.atom.lagrange = lagrange
-    lagrange = property(get_lagrange, set_lagrange)
+        return seminorms.seminorm.set_lagrange(self)
 
+    @doc_template_user
     def get_bound(self):
-        return self.atom.bound
-    def set_bound(self, bound):
-        self.atom.bound = bound
-    bound = property(get_bound, set_bound)
+        return seminorms.seminorm.get_bound(self)
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def get_conjugate(self):
         if self.quadratic.coef == 0:
 
             offset, outq = _work_out_conjugate(self.offset, 
@@ -113,13 +130,42 @@ class block_sum(seminorms.seminorm):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
+
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorms.seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorms.seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
 
 
 @objective_doc_templater()
 class block_max(block_sum):
 
-    objective_template = r"""\|%(var)s\|_{\infty,h}"""
+    objective_template = r"""\|%(var)s\|_{\infty,\| \cdot\|}"""
+    objective_vars = block_sum.objective_vars.copy()
+    objective_vars['normklass'] = 'block_max'
+    objective_vars['dualnormklass'] = 'block_sum'
 
+    @doc_template_user
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         x = x.reshape(self.shape)
         lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
@@ -128,6 +174,7 @@ class block_max(block_sum):
                                                 lagrange=1.,
                                                 check_feasibility=check_feasibility))
 
+    @doc_template_user
     def constraint(self, x, bound=None):
         x = x.reshape(self.shape)
         bound = seminorms.seminorm.constraint(self, x, bound=bound)
@@ -137,9 +184,11 @@ class block_max(block_sum):
             return 0
         return np.inf
 
+    @doc_template_user
     def lagrange_prox(self, x, lipschitz=1, lagrange=None):
         raise ValueError('lagrange_prox of block_max requires a little thought -- should be like l1prox')
 
+    @doc_template_user
     def bound_prox(self, x, bound=None):
         x = x.reshape(self.shape)
         bound = seminorms.seminorm.bound_prox(self, x,
@@ -150,12 +199,43 @@ class block_max(block_sum):
                                         bound=bound)
         return v
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorms.seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorms.seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return block_sum.get_conjugate(self)
+
 
 @objective_doc_templater()
 class linf_l2(block_max):
 
     objective_template = r"""\|%(var)s\|_{\infty,2}"""
-    objective_vars = {'var': r'X + A'}
+    objective_vars = block_sum.objective_vars.copy()
+    objective_vars['normklass'] = 'linf_l2'
+    objective_vars['dualnormklass'] = 'l1_l2'
+    objective_vars['initargs'] = '(5,4)'
 
     def __init__(self, shape,
                  lagrange=None,
@@ -212,8 +292,8 @@ class linf_l2(block_max):
         v *= factor[:,np.newaxis]
         return v
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    def get_conjugate(self):
 
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
@@ -233,13 +313,40 @@ class linf_l2(block_max):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
+
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorms.seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorms.seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
 
 
 @objective_doc_templater()
 class linf_linf(linf_l2):
 
     objective_template = r"""\|%(var)s\|_{\infty,\infty}"""
-    objective_vars = {'var': r'X + A'}
+    objective_vars = linf_l2.objective_vars.copy()
+    objective_vars['normklass'] = 'linf_linf'
+    objective_vars['dualnormklass'] = 'l1_l1'
 
     def __init__(self, shape,
                  lagrange=None,
@@ -247,7 +354,7 @@ class linf_linf(linf_l2):
                  offset=None,
                  quadratic=None,
                  initial=None):
-        block_max.__init__(self, seminorms.l2norm,
+        block_max.__init__(self, seminorms.supnorm,
                            shape,
                            lagrange=lagrange,
                            bound=bound,
@@ -275,7 +382,7 @@ class linf_linf(linf_l2):
     def bound_prox(self, arg, bound=None):
         arg = arg.reshape(self.shape)
         bound = seminorms.seminorm.bound_prox(self, arg,
-                                      bound=bound)
+                                              bound=bound)
         return np.clip(arg, -bound, bound).reshape(self.shape)
 
     @doc_template_user
@@ -290,11 +397,46 @@ class linf_linf(linf_l2):
             proj = arg
         return (arg - proj).reshape(self.shape)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorms.seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorms.seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return linf_l2.get_conjugate(self)
+
+
 @objective_doc_templater()
 class l1_l2(block_sum):
 
     objective_template = r"""\|%(var)s\|_{1,2}"""
-    objective_vars = {'var': r'X + A'}
+    objective_vars = linf_l2.objective_vars.copy()
+    objective_vars['normklass'] = 'l1_l2'
+    objective_vars['dualnormklass'] = 'linf_l2'
 
     def __init__(self, shape,
                  lagrange=None,
@@ -309,7 +451,6 @@ class l1_l2(block_sum):
                            offset=offset,
                            quadratic=quadratic,
                            initial=initial)
-
 
     @doc_template_user
     def lagrange_prox(self, arg, lipschitz=1, lagrange=None):
@@ -335,9 +476,52 @@ class l1_l2(block_sum):
         v *= factor[:,np.newaxis]
         return v
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    def constraint(self, x):
+        x = x.reshape(self.shape)
+        norm_sum = np.sqrt((x**2).sum(1)).sum()
+        if norm_sum <= self.bound * (1 + self.tol):
+            return 0
+        return np.inf
 
+    @doc_template_user
+    def seminorm(self, x, lagrange=None, check_feasibility=False):
+        x = x.reshape(self.shape)
+        lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
+                                 check_feasibility=check_feasibility)
+        norm_sum = np.sum(np.sqrt((x**2).sum(1)))
+        return lagrange * norm_sum
+
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorms.seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorms.seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
@@ -356,29 +540,15 @@ class l1_l2(block_sum):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-
-    @doc_template_user
-    def constraint(self, x):
-        x = x.reshape(self.shape)
-        norm_sum = np.sqrt((x**2).sum(1)).sum()
-        if norm_sum <= self.bound * (1 + self.tol):
-            return 0
-        return np.inf
-
-    @doc_template_user
-    def seminorm(self, x, lagrange=None, check_feasibility=False):
-        x = x.reshape(self.shape)
-        lagrange = seminorms.seminorm.seminorm(self, x, lagrange=lagrange,
-                                 check_feasibility=check_feasibility)
-        norm_sum = np.sum(np.sqrt((x**2).sum(1)))
-        return lagrange * norm_sum
-
+    conjugate = property(get_conjugate)
 
 @objective_doc_templater()
 class l1_l1(l1_l2):
 
     objective_template = r"""\|%(var)s\|_{1,1}"""
-    objective_vars = {'var': r'X + A'}
+    objective_vars = l1_l2.objective_vars.copy()
+    objective_vars['normklass'] = 'l1_l1'
+    objective_vars['dualnormklass'] = 'linf_linf'
 
     def __init__(self, shape,
                  lagrange=None,
@@ -386,7 +556,7 @@ class l1_l1(l1_l2):
                  offset=None,
                  quadratic=None,
                  initial=None):
-        block_sum.__init__(self, seminorms.l2norm,
+        block_sum.__init__(self, seminorms.l1norm,
                            shape,
                            lagrange=lagrange,
                            bound=bound,
@@ -427,6 +597,37 @@ class l1_l1(l1_l2):
             value = np.sign(arg) * (absarg - cut) * (absarg > cut)
         return value.reshape(self.shape)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorms.seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorms.seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorms.seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorms.seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorms.seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorms.seminorm.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return l1_l2.get_conjugate(self)
 
 conjugate_block_pairs = {}
 for n1, n2 in [(block_max, block_sum),

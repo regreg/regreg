@@ -14,10 +14,15 @@ from .atoms.cones import (nonnegative, nonpositive,
                    l2_epigraph, l2_epigraph_polar,
                    linf_epigraph, linf_epigraph_polar,
                    affine_cone as linear_cone)
-from .atoms.block_norms import l1_l2, linf_l2, l1_l1, linf_linf
+from .atoms.block_norms import (l1_l2, linf_l2, 
+                                l1_l1, linf_linf,
+                                block_sum, block_max)
+
 from .atoms.svd_norms import (nuclear_norm, operator_norm,
-                             nuclear_norm_epigraph,
-                             operator_norm_epigraph)
+                              nuclear_norm_epigraph,
+                              nuclear_norm_epigraph_polar,
+                              operator_norm_epigraph,
+                              operator_norm_epigraph_polar)
 from .atoms.linear_constraints import (projection, projection_complement)
 from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_dual
 

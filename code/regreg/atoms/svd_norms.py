@@ -17,65 +17,18 @@ from .piecewise_linear import find_solution_piecewise_linear_c
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 
+# for doctests
+from ..identity_quadratic import identity_quadratic
+
 @objective_doc_templater()
 class svd_atom(seminorm):
+
     objective_vars = seminorm.objective_vars.copy()
-    objective_vars['var'] = 'X'
+    objective_vars['var'] = 'B'
+    objective_vars['normklass'] = 'nuclear_norm'
+    objective_vars['dualnormklass'] = 'operator_norm'
+    objective_vars['initargs'] = '(5,4)'
     objective_vars['shape'] = r'n \times p'
-
-    @doc_template_provider
-    def lagrange_prox(self, X, lipschitz=1, lagrange=None):
-        r""" Return unique minimizer
-
-        .. math::
-
-           %(var)s^{\lambda}(U) =
-           \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
-           \frac{L}{2}
-           \|U-%(var)s\|^2_F
-            + \lambda   %(objective)s 
-
-        Above, :math:`\lambda` is the Lagrange parameter.
-
-        If the argument `lagrange` is None and the atom is in lagrange mode,
-        self.lagrange is used as the lagrange parameter, else an exception is
-        raised.
-
-        The class atom's lagrange_prox just returns the appropriate lagrange
-        parameter for use by the subclasses.
-        """
-        if lagrange is None:
-            lagrange = self.lagrange
-        if lagrange is None:
-            raise ValueError('either atom must be in Lagrange mode or a keyword "lagrange" argument must be supplied')
-        return lagrange
-
-    @doc_template_provider
-    def bound_prox(self, X, bound=None):
-        r"""
-        Return unique minimizer
-
-        .. math::
-
-           %(var)s^{\lambda}(U) \in 
-           \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
-           \frac{1}{2}
-           \|U-%(var)s\|^2_F 
-           \text{s.t.} \   %(objective)s \leq \delta
-
-        Above, :math:`\delta` is the bound parameter.
-
-        If the argument `bound` is None and the atom is in bound mode,
-        self.bound is used as the bound parameter, else an exception is raised.
-
-        The class atom's bound_prox just returns the appropriate bound
-        parameter for use by the subclasses.
-        """
-        if bound is None:
-            bound = self.bound
-        if bound is None:
-            raise ValueError('either atom must be in bound mode or a keyword "bound" argument must be supplied')
-        return bound
 
 
 @objective_doc_templater()
@@ -87,6 +40,7 @@ class nuclear_norm(svd_atom):
     prox_tol = 1.0e-10
 
     objective_template = r"""\|%(var)s\|_*"""
+    objective_vars = svd_atom.objective_vars.copy()
 
     @doc_template_user
     def seminorm(self, X, check_feasibility=False,
@@ -126,6 +80,34 @@ class nuclear_norm(svd_atom):
         U_new, D_new, V_new = U[:,keepD], D_projected[keepD], V[keepD]
         return np.dot(U_new, D_new[:,np.newaxis] * V_new)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
+
 @objective_doc_templater()
 class operator_norm(svd_atom):
 
@@ -135,6 +117,9 @@ class operator_norm(svd_atom):
     prox_tol = 1.0e-10
 
     objective_template = r"""\|%(var)s\|_{\text{op}}"""
+    objective_vars = svd_atom.objective_vars.copy()
+    objective_vars['normklass'] = 'operator_norm'
+    objective_vars['dualnormklass'] = 'nuclear_norm'
 
     @doc_template_user
     def seminorm(self, X, lagrange=None, check_feasibility=False):
@@ -169,8 +154,40 @@ class operator_norm(svd_atom):
         D_new = supatom.bound_prox(D)
         return np.dot(U, D_new[:,np.newaxis] * V)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_bound(self):
+        return seminorm.get_bound(self)
+
+    @doc_template_user
+    def set_bound(self, bound):
+        return seminorm.set_bound(self, bound)
+
+    @doc_template_user
+    def get_lagrange(self):
+        return seminorm.get_lagrange(self)
+
+    @doc_template_user
+    def set_lagrange(self, lagrange):
+        return seminorm.set_lagrange(self, lagrange)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return seminorm.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return seminorm.dual(self)
+
 @objective_doc_templater()
 class svd_cone(cone):
+
+    objective_vars = svd_atom.objective_vars.copy()
+    objective_vars['coneklass'] = 'nuclear_norm_epigraph'
+    objective_vars['dualconeklass'] = 'nuclear_norm_epigraph_polar'
 
     def __copy__(self):
         return self.__class__(copy(self.matrix_shape),
@@ -203,8 +220,8 @@ class svd_cone(cone):
                       initial=initial)
         self.matrix_shape = input_shape
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    def get_conjugate(self):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
@@ -217,10 +234,24 @@ class svd_cone(cone):
         self._conjugate = new_atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
+
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
 
 @objective_doc_templater()
 class nuclear_norm_epigraph(svd_cone):
 
+    objective_vars = svd_cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'nuclear_norm_epigraph'
+    objective_vars['dualconeklass'] = 'nuclear_norm_epigraph_polar'
+
+    @doc_template_user
     def constraint(self, normX):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -231,6 +262,7 @@ class nuclear_norm_epigraph(svd_cone):
             return 0
         return np.inf
 
+    @doc_template_user
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -245,14 +277,27 @@ class nuclear_norm_epigraph(svd_cone):
         result[:-1] = newX.reshape(-1)
         return result
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return svd_cone.get_conjugate(self)
+
 @objective_doc_templater()
 class nuclear_norm_epigraph_polar(svd_cone):
     
+    objective_vars = svd_cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'nuclear_norm_epigraph_polar'
+    objective_vars['dualconeklass'] = 'nuclear_norm_epigraph'
+
+    @doc_template_user
     def constraint(self, normX):
-        """
-        The non-negative constraint of x.
-        """
-        
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
@@ -262,6 +307,7 @@ class nuclear_norm_epigraph_polar(svd_cone):
             return 0
         return np.inf
 
+    @doc_template_user
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -277,9 +323,26 @@ class nuclear_norm_epigraph_polar(svd_cone):
         result[:-1] = newX.reshape(-1)
         return result
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return svd_cone.get_conjugate(self)
+
 @objective_doc_templater()
 class operator_norm_epigraph(svd_cone):
     
+    objective_vars = svd_cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'operator_norm_epigraph'
+    objective_vars['dualconeklass'] = 'operator_norm_epigraph_polar'
+
+    @doc_template_user
     def constraint(self, normX):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -290,6 +353,7 @@ class operator_norm_epigraph(svd_cone):
             return 0
         return np.inf
 
+    @doc_template_user
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -305,9 +369,26 @@ class operator_norm_epigraph(svd_cone):
         result[:-1] = newX.reshape(-1)
         return result
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return svd_cone.get_conjugate(self)
+
 @objective_doc_templater()
 class operator_norm_epigraph_polar(svd_cone):
     
+    objective_vars = svd_cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'operator_norm_epigraph_polar'
+    objective_vars['dualconeklass'] = 'operator_norm_epigraph'
+
+    @doc_template_user
     def constraint(self, normX):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -318,6 +399,7 @@ class operator_norm_epigraph_polar(svd_cone):
             return 0
         return np.inf
 
+    @doc_template_user
     def cone_prox(self, normX,  lipschitz=1):
         norm = normX[-1]
         X = normX[:-1].reshape(self.matrix_shape)
@@ -332,6 +414,17 @@ class operator_norm_epigraph_polar(svd_cone):
         result[:-1] = newX.reshape(-1)
         return result
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return svd_cone.get_conjugate(self)
 
 conjugate_svd_pairs = {}
 conjugate_svd_pairs[nuclear_norm] = operator_norm

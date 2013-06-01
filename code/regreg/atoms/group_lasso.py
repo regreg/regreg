@@ -222,8 +222,8 @@ class group_lasso(seminorm):
             return np.inf
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -324,8 +324,8 @@ class group_lasso_dual(group_lasso):
 
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -462,8 +462,8 @@ class group_lasso_epigraph(group_lasso_cone):
                                     self.snorm._weight_array)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -508,8 +508,8 @@ class group_lasso_epigraph_polar(group_lasso_cone):
         return np.inf
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -555,8 +555,8 @@ class group_lasso_dual_epigraph(group_lasso_cone):
         return np.inf
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):
@@ -603,8 +603,8 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
         return np.inf
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return cone.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_conjugate(self):

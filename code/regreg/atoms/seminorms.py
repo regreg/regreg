@@ -275,18 +275,18 @@ class seminorm(atom):
 
     @doc_template_user
     @doc_template_provider
-    def proximal(self, proxq, prox_control=None):
+    def proximal(self, quadratic, prox_control=None):
         r"""
         The proximal operator. If the atom is in
         Lagrange mode, this has the form
 
         .. math::
 
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \lambda h(%(var)s-\alpha) + \langle v, \eta \rangle
+           %(var)s^{\lambda}(\theta) = \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} \frac{L}{2}
+           \|\theta-%(var)s\|^2_2 + \lambda h(%(var)s-\alpha) + \langle %(var)s, \eta \rangle
 
         where :math:`\alpha` is `self.offset`,
-        :math:`\eta` is `proxq.linear_term` and 
+        :math:`\eta` is `quadratic.linear_term`, $\theta$ is `quadratic.center` and 
 
         .. math::
 
@@ -296,9 +296,9 @@ class seminorm(atom):
 
         .. math::
 
-           v^{\delta}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \langle v, \eta \rangle \  \text{s.t.} \   
-           h(v - \alpha) \leq \delta
+           %(var)s^{\delta}(\theta) = \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} \frac{L}{2}
+           \|\theta-%(var)s\|^2_2 + \langle %(var)s, \eta \rangle \  \text{s.t.} \   
+           h(%(var)s - \alpha) \leq \delta
 
         >>> from regreg.api import l1norm
         >>> penalty = l1norm(4, lagrange=2)
@@ -309,10 +309,12 @@ class seminorm(atom):
         Parameters
         ----------
 
-        proxq : `regreg.identity_quadratic.identity_quadratic`
+        quadratic : `regreg.identity_quadratic.identity_quadratic`
+
             A quadratic added to the atom before minimizing.
 
         prox_control : `[None, dict]`
+
             This argument is ignored for seminorms, but otherwise
             is passed to `regreg.algorithms.FISTA` if the atom
             needs to be solved iteratively.
@@ -321,10 +323,10 @@ class seminorm(atom):
         -------
 
         Z : `np.ndarray(np.float)`
-            The proximal map of the implied center of `proxq`.
+            The proximal map of the implied center of `quadratic`.
 
         """
-        offset, totalq = (self.quadratic + proxq).recenter(self.offset)
+        offset, totalq = (self.quadratic + quadratic).recenter(self.offset)
 
         if totalq.coef == 0:
             raise ValueError('lipschitz + quadratic coef must be positive')
@@ -335,7 +337,7 @@ class seminorm(atom):
         if debug:
             print '='*80
             print 'atom: ', self
-            print 'proxq: ', proxq
+            print 'quadratic: ', quadratic
             print 'proxarg: ', prox_arg
             print 'totalq: ', totalq
             print 'offset: ', offset
@@ -360,13 +362,13 @@ class seminorm(atom):
 
         .. math::
 
-           {%(var)s}^{\lambda}(u) =
+           {%(var)s}^{\lambda}(\theta) =
            \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
            \frac{L}{2}
-           \|u-%(var)s\|^2_2 + \lambda %(objective)s 
+           \|\theta-%(var)s\|^2_2 + \lambda %(objective)s 
 
         Above, :math:`\lambda` is the Lagrange parameter and :math:`L`
-        is the Lipschitz parameter.
+        is the Lipschitz parameter and $\theta$ is `arg`.
 
         If the argument `lagrange` is None and the atom is in lagrange mode,
         ``self.lagrange`` is used as the lagrange parameter, else an exception
@@ -404,13 +406,13 @@ class seminorm(atom):
 
         .. math::
 
-           \hat{%(var)s}^{\delta}(u) =
+           {%(var)s}^{\delta}(\theta) =
            \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} 
            \frac{1}{2}
-           \|u-%(var)s\|^2_2  \ 
+           \|\theta-%(var)s\|^2_2  \ 
            \text{s.t.} \   %(objective)s \leq \delta
 
-        where :math:`\delta` is the bound parameter. 
+        where :math:`\delta` is the bound parameter and $\theta$ is `arg`. 
 
         If the argument `bound` is None and the atom is in bound mode,
         ``self.bound`` is used as the bound parameter, else an exception is
@@ -483,8 +485,8 @@ class seminorm(atom):
     @doc_template_provider
     def get_dual(self):
         """
-        Return the dual of an atom. This dual is formed by making the a substitution
-        of the form v=Ax where A is the self.linear_transform.
+        Return the dual of an atom. This dual is formed by making introducing
+        new variables $v=Ax$ where $A$ is `self.linear_transform`. 
 
         >>> from regreg.api import %(normklass)s
         >>> import numpy as np
@@ -652,8 +654,8 @@ class l1norm(seminorm):
         return arg
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -725,8 +727,8 @@ class supnorm(seminorm):
         return np.clip(arg, -bound, bound)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -800,8 +802,8 @@ class l2norm(seminorm):
             return (bound / n) * arg
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -894,8 +896,8 @@ class positive_part(seminorm):
         return v.reshape(arg.shape)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -971,8 +973,8 @@ class constrained_max(seminorm):
         return np.clip(arg, 0, bound)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -1053,8 +1055,8 @@ class constrained_positive_part(seminorm):
         return v.reshape(arg.shape)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
@@ -1124,8 +1126,8 @@ class max_positive_part(seminorm):
         return arg - v.reshape(arg.shape)
 
     @doc_template_user
-    def proximal(self, proxq, prox_control=None):
-        return seminorm.proximal(self, proxq, prox_control)
+    def proximal(self, quadratic, prox_control=None):
+        return seminorm.proximal(self, quadratic, prox_control)
 
     @doc_template_user
     def get_bound(self):
