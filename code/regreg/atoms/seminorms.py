@@ -56,7 +56,7 @@ class seminorm(atom):
     
     def latexify(self, var=None, idx=''):
         r'''
-        Return a LaTeX representation of the object.
+        Return a LaTeX representation of an object.
 
         >>> from regreg.api import l1norm
         >>> penalty = l1norm(10, lagrange=0.9)

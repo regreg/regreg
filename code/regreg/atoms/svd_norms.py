@@ -28,7 +28,7 @@ class svd_atom(seminorm):
     objective_vars['normklass'] = 'nuclear_norm'
     objective_vars['dualnormklass'] = 'operator_norm'
     objective_vars['initargs'] = '(5,4)'
-    objective_vars['shape'] = r'n \times p'
+    objective_vars['shape'] = r'{n \times p}'
 
 
 @objective_doc_templater()
@@ -188,6 +188,7 @@ class svd_cone(cone):
     objective_vars = svd_atom.objective_vars.copy()
     objective_vars['coneklass'] = 'nuclear_norm_epigraph'
     objective_vars['dualconeklass'] = 'nuclear_norm_epigraph_polar'
+    objective_vars['shape'] = r'{n \times p + 1}'
 
     def __copy__(self):
         return self.__class__(copy(self.matrix_shape),
@@ -247,6 +248,7 @@ class svd_cone(cone):
 @objective_doc_templater()
 class nuclear_norm_epigraph(svd_cone):
 
+    objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_* \leq %(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'nuclear_norm_epigraph'
     objective_vars['dualconeklass'] = 'nuclear_norm_epigraph_polar'
@@ -292,6 +294,7 @@ class nuclear_norm_epigraph(svd_cone):
 @objective_doc_templater()
 class nuclear_norm_epigraph_polar(svd_cone):
     
+    objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{op} \leq -%(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'nuclear_norm_epigraph_polar'
     objective_vars['dualconeklass'] = 'nuclear_norm_epigraph'
@@ -338,6 +341,7 @@ class nuclear_norm_epigraph_polar(svd_cone):
 @objective_doc_templater()
 class operator_norm_epigraph(svd_cone):
     
+    objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{op} \leq %(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'operator_norm_epigraph'
     objective_vars['dualconeklass'] = 'operator_norm_epigraph_polar'
@@ -384,6 +388,7 @@ class operator_norm_epigraph(svd_cone):
 @objective_doc_templater()
 class operator_norm_epigraph_polar(svd_cone):
     
+    objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{*} \leq -%(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'operator_norm_epigraph_polar'
     objective_vars['dualconeklass'] = 'operator_norm_epigraph'

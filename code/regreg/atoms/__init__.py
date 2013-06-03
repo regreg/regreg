@@ -133,6 +133,30 @@ class affine_atom(object):
         return r'$$' + self.latexify() + r'$$'
 
     def latexify(self, var=None, idx=''):
+        r'''
+        Return a LaTeX representation of an object.
+
+        >>> from regreg.api import l1norm
+        >>> penalty = l1norm(10, lagrange=0.9)
+        >>> penalty.latexify(var=r'\gamma') 
+        '\\lambda_{} \\|\\gamma\\|_1'
+
+        Parameters
+        ----------
+
+        var : `string`
+            Argument of the functions
+
+        idx : `string`
+            Optional subscript index.
+
+        Returns
+        -------
+
+        L : `string`
+            A LaTeX representation of the atom.
+
+        '''
         template_dict = self.atom.objective_vars.copy()
         template_dict['linear'] = self.objective_vars['linear']
         if var is not None:
