@@ -57,7 +57,7 @@ class factored_matrix(object):
         transform = astransform(transform)
         self.input_shape = transform.input_shape
         self.output_shape = transform.output_shape
-        U, D, VT = compute_iterative_svd(transform, min_singular=self.min_singular, tol=self.tol, initial_rank = self.initial_rank, initial=self.initial, debug=self.debug)
+        U, D, VT, _ = compute_iterative_svd(transform, min_singular=self.min_singular, tol=self.tol, initial_rank = self.initial_rank, initial=self.initial, debug=self.debug)
         self.factors = [U,D,VT]
 
     def _getX(self):
@@ -108,7 +108,7 @@ class factored_matrix(object):
 
 def compute_iterative_svd(transform,
                           initial_rank = None,
-                          initialU = None,
+                          warm_start = None,
                           min_singular = 1e-16,
                           tol = 1e-5,
                           debug=False,
@@ -132,8 +132,10 @@ def compute_iterative_svd(transform,
     initial_rank : None or int, optional
         A guess at the rank of the matrix.
 
-    initialU : np.ndarray(np.float), optional
+    warm_start : np.ndarray(np.float), optional
         A guess at the left singular vectors of the matrix.
+        For fat matrices, these should be right singular vectors,
+        while for tall matrices these should be left singular vectors.
 
     min_singular : np.float, optional 
         Stop when the singular value has this relative tolerance.    
@@ -148,12 +150,13 @@ def compute_iterative_svd(transform,
     Returns
     -------
 
-    U, D, VT : np.ndarray(np.float)
-        An SVD of the transform.
+    U, D, VT, Ufull : np.ndarray(np.float)
+        An SVD of the transform. Ufull is the full set of 
+        left singular vectors found.
 
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
-    >>> U, D, VT = compute_iterative_svd(X)
+    >>> U, D, VT = compute_iterative_svd(X)[:3]
     >>> np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
     True
     >>> np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
@@ -177,8 +180,8 @@ def compute_iterative_svd(transform,
         rank = np.max([initial_rank,1])
 
     # for warm start
-    if initialU is not None:
-        U = initialU
+    if warm_start is not None:
+        U = warm_start
     else:
         U = None
 
@@ -189,7 +192,7 @@ def compute_iterative_svd(transform,
             print "Trying rank", rank
         U, D, VT = partial_svd(transform, rank=rank, 
                                padding=padding, tol=tol, 
-                               initialU=U, 
+                               warm_start=U,
                                return_full=True, debug=debug)
         if D[0] < min_singular:
             return U[:,0], np.zeros((1,1)), VT[0,:]
@@ -199,7 +202,6 @@ def compute_iterative_svd(transform,
         if stopping_rule is not None and stopping_rule(np.fabs(D)):
             break
 
-        initial = 1. * U 
         rank = update_rank(rank)
 
     ind = np.where(D >= min_singular)[0]
@@ -210,13 +212,13 @@ def compute_iterative_svd(transform,
 
 def partial_svd(transform,
                 rank=1,
-                padding=2,
+                padding=5,
                 max_its = 1000,
                 tol = 1e-8,
-                initialU=None,
-                return_full = False,
+                warm_start=None,
+                return_full=False,
                 debug=False,
-                stopping_rule = None):
+                stopping_rule=None):
 
     """
     Compute the partial SVD of the linear_transform X using the Mazumder/Hastie 
@@ -243,8 +245,10 @@ def partial_svd(transform,
         Tolerance at which the norm of the singular values are deemed
         to have converged.
 
-    initialU : np.ndarray(np.float), optional
-        A guess at the left singular vectors of the matrix.
+    warm_start : np.ndarray(np.float), optional
+        A guess at the singular vectors of the matrix. 
+        For fat matrices, these should be right singular vectors,
+        while for tall matrices these should be left singular vectors.
 
     return_full: bool, optional
         Return a singular values / vectors from padding?
@@ -255,12 +259,13 @@ def partial_svd(transform,
     Returns
     -------
 
-    U, D, VT : np.ndarray(np.float)
+    U, D, VT, Ufull : np.ndarray(np.float)
         An SVD up to `rank` of the transform.
+        Ufull is the full set of left singular vectors found.
 
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
-    >>> U, D, VT = partial_svd(X, rank=10)
+    >>> U, D, VT = partial_svd(X, rank=10)[:3]
     >>> np.linalg.norm(np.dot(U.T, U) - np.identity(10)) < 1.e-4
     True
     >>> np.linalg.norm(np.dot(VT, VT.T) - np.identity(10)) < 1.e-4
@@ -281,13 +286,13 @@ def partial_svd(transform,
 
     rank = np.int(np.min([rank,p]))
     q = np.min([rank + padding, p])
-    if initialU is not None:
-        if initialU.shape == (n,q):
-            U = initialU
-        elif len(initialU.shape) == 1:
-            U = np.hstack([initialU.reshape((initialU.shape[0],1)), np.random.standard_normal((n,q-1))])            
+    if warm_start is not None:
+        if warm_start.shape == (n,q):
+            U = warm_start
+        elif len(warm_start.shape) == 1:
+            U = np.hstack([warm_start.reshape((warm_start.shape[0],1)), np.random.standard_normal((n,q-1))])            
         else:
-            U = np.hstack([initialU, np.random.standard_normal((n,q-initialU.shape[1]))])            
+            U = np.hstack([warm_start, np.random.standard_normal((n,q-warm_start.shape[1]))])            
     else:
         U = np.random.standard_normal((n,q))
 
@@ -337,7 +342,7 @@ class nuclear_norm(nuclear_norm_atom):
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
                  initial_rank=10,
-                 U=None):
+                 warm_start=None):
 
         nuclear_norm_atom.__init__(self,
                                    shape,
@@ -348,12 +353,15 @@ class nuclear_norm(nuclear_norm_atom):
                                    initial=0)
 
         self.initial_rank = initial_rank
-        if U is None:
-            self.U = np.random.standard_normal((self.shape[0], self.initial_rank))
+        # the warm start should be of whichever side has largest
+        # dimension
+        m = max(self.shape)
+        if warm_start is None:
+            self.warm_start = np.random.standard_normal((m, self.initial_rank))
         else:
-            self.U = U
-            if U.shape != (self.shape[0], self.initial_rank):
-                raise ValueError('expecting U to have shape %s' % (self.shape[0], self.initial_rank))
+            self.warm_start = warm_start
+            if warm_start.shape != (m, self.initial_rank):
+                raise ValueError('expecting warm_start to have shape %s' % (m, self.initial_rank))
 
     @doc_template_user
     def seminorm(self, X, check_feasibility=False,
@@ -372,12 +380,22 @@ class nuclear_norm(nuclear_norm_atom):
             return lambda D: np.fabs(D).min() <= L
 
         svt_rule = soft_threshold_rule(lagrange)
-        U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank, 
-                                         initialU=self.U,
-                                         stopping_rule=svt_rule, 
-                                         tol=self.svd_tol)
+        if self.warm_start is not None:
+            padding = 0
+        else:
+            padding = 5
 
-        self.U = U
+        U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank, 
+                                         warm_start=self.warm_start,
+                                         stopping_rule=svt_rule, 
+                                         tol=self.svd_tol,
+                                         padding=padding)
+
+        if self.shape[0] < self.shape[1]:
+            self.warm_start = VT.T
+        else:
+            self.warm_start = U
+
         self.initial_rank = U.shape[1]
 
         D_proj = D - lagrange
@@ -392,12 +410,22 @@ class nuclear_norm(nuclear_norm_atom):
         def bound_rule(B):
             return lambda D: (np.fabs(D) - np.fabs(D).min()).sum() > B
 
-        U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank,
-                                         initialU=self.U,
-                                         stopping_rule=bound_rule(bound),
-                                         tol=self.svd_tol)
+        if self.warm_start is not None:
+            padding = 0
+        else:
+            padding = 5
 
-        self.U = U
+        U, D, VT = compute_iterative_svd(X, initial_rank=self.initial_rank,
+                                         warm_start=self.warm_start,
+                                         stopping_rule=bound_rule(bound),
+                                         tol=self.svd_tol,
+                                         padding=padding)
+
+        if self.shape[0] < self.shape[1]:
+            self.warm_start = VT.T
+        else:
+            self.warm_start = U
+
         self.initial_rank = U.shape[1]
 
         l1atom = l1norm(D.shape, bound=bound)
@@ -418,7 +446,7 @@ class nuclear_norm(nuclear_norm_atom):
                        quadratic=outq,
                        offset=offset,
                        initial_rank=self.initial_rank,
-                       U=self.U)
+                       warm_start=self.warm_start)
         else:
             atom = smooth_conjugate(self)
         self._conjugate = atom
@@ -434,7 +462,7 @@ class operator_norm(operator_norm_atom):
 
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
-                 initial_rank=10, U=None):
+                 initial_rank=10, warm_start=None):
 
         operator_norm_atom.__init__(self,
                                     shape,
@@ -446,9 +474,9 @@ class operator_norm(operator_norm_atom):
 
         self.initial_rank = initial_rank
         if U is None:
-            self.U = np.random.standard_normal((self.shape[0], self.initial_rank))
+            self.warm_start = np.random.standard_normal((self.shape[0], self.initial_rank))
         else:
-            self.U = U
+            self.warm_start = U
             if U.shape != (self.shape[0], self.initial_rank):
                 raise ValueError('expecting U to have shape %s' % (self.shape[0], self.initial_rank))
 
@@ -457,7 +485,7 @@ class operator_norm(operator_norm_atom):
                                           bound=bound,
                                           initial=initial,
                                           initial_rank=initial_rank,
-                                          U=U)
+                                          warm_start=self.warm_start)
 
     @doc_template_user
     def seminorm(self, X, check_feasibility=False,
@@ -497,7 +525,7 @@ class operator_norm(operator_norm_atom):
                        quadratic=outq,
                        offset=offset,
                        initial_rank=self.initial_rank,
-                       U=self.U)
+                       warm_start=self.warm_start)
         else:
             atom = smooth_conjugate(self)
         self._conjugate = atom
