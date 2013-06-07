@@ -252,6 +252,7 @@ class smooth_conjugate(smooth):
         self.lipschitz = 1. / total_quadratic.coef
 
         self.shape = atom.shape
+        self.coefs = zeros(self.shape)
 
         # A smooth conjugate is the conjugate of some $f$ with an identity quadratic added to it, or
         # $$

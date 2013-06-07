@@ -126,7 +126,12 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
 
 def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
           tol=1.e-06, max_iters=100,
-          coef_tol=1.e-6):
+          min_iters=5, 
+          coef_tol=1.e-6,
+          initial_primal=None,
+          initial_dual=None,
+          coef_stop=False,
+          quadratic=None):
     '''
     Parameters
     ----------
@@ -144,15 +149,21 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
     epsilon: np.array
         A decreasing array of positive constants for Moreau-Yosida smoothing.
         
-    tol: np.float
+    tol : np.float
         Tolerance to which each problem is solved is max(tol, epsilon)
     
-    max_iters: int
+    max_iter s: int
         Maximum number of iterations. If epsilon is not supplied,
         it is taken to be [1]*max_iters
 
+    initial_primal, initial_dual : `np.ndarray(np.float)`
+        Initial conditions for both primal and dual variables.
+
     coef_tol : float
         Tolerance for assessing convergence of coefficients.
+
+    quadratic : `regreg.identity_quadratic`
+        A quadratic term that is added to the total objective.
 
     Returns
     -------
@@ -168,20 +179,43 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
         epsilon = [1]*max_iters # 2.**(-np.arange(20))
 
     transform, conjugate = conjugate_atom.dual
-    dual_coef = np.zeros(transform.output_shape) 
+    if initial_dual is None:
+        dual_coef = np.zeros(transform.output_shape) 
+    else:
+        dual_coef = initial_dual.copy()
+
+    if quadratic is None:
+        quadratic = identity_quadratic(0,0,0,0)
+
     primal_old = np.zeros(transform.output_shape)
+    value = np.inf
     for idx, eps in enumerate(epsilon):
         smoothed = conjugate_atom.smoothed(identity_quadratic(eps, dual_coef, 0, 0))
         if smooth_atom is not None:
             final_smooth = smooth_sum([smooth_atom, smoothed])
         else:
             final_smooth = smoothed
-        problem = simple_problem(final_smooth, proximal_atom)
-        primal_coef = problem.solve(tol=max(eps,tol))
+        if proximal_atom is not None:
+            problem = simple_problem(final_smooth, proximal_atom)
+        else:
+            problem = simple_problem.smooth(final_smooth)
+
+        if idx == 0 and initial_primal is not None:
+            problem.coefs[:] = initial_primal
+
+        primal_coef = problem.solve(quadratic,tol=max(eps,tol))
+        updated = problem.objective(primal_coef) + quadratic.objective(primal_coef, 'func')
 
         # should we have a better convergence criterion?
-        if np.linalg.norm(dual_coef - smoothed.grad) < coef_tol * max(np.linalg.norm(smoothed.grad),1):
-            break
+        if coef_stop:
+            if (np.linalg.norm(dual_coef - smoothed.grad) < coef_tol * (np.linalg.norm(smoothed.grad) + 1)
+                and idx >= min_iters):
+                break
+        else:
+            if (np.fabs(updated - value) < coef_tol * (np.fabs(updated) + 1) and
+                idx >= min_iters):
+                break
+        value = updated
 
         # when there's an affine transform involved
         dual_coef[:] = smoothed.grad + idx / (idx + 3.) * (smoothed.grad - dual_coef)
@@ -266,8 +300,14 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
         Maximum number of iterations. If epsilon is not supplied,
         it is taken to be [1]*max_iters
 
+    initial_primal, initial_dual : `np.ndarray(np.float)`
+        Initial conditions for both primal and dual variables.
+
     coef_tol : float
         Tolerance for assessing convergence of coefficients.
+
+    quadratic : `regreg.identity_quadratic`
+        A quadratic term that is added to the total objective.
 
     Returns
     -------
@@ -295,9 +335,12 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     else:
         dual_sq = identity_quadratic(0,0,0,0)
         
+    if quadratic is None:
+        quadratic = identity_quadratic(0,0,0,0)
+
     primal_coef = np.zeros(conjugate_atom.shape)
     for idx, eps in enumerate(epsilon):
-        smoothed = conjugate_atom.smoothed(identity_quadratic(eps, primal_coef, 0, 0))
+        smoothed = conjugate_atom.smoothed(identity_quadratic(eps, primal_coef, 0, 0) + quadratic)
         final_smooth = affine_smooth(smoothed, scalar_multiply(adjoint(transform), -1))
         problem = simple_problem(final_smooth, dual_proximal_atom)
         dual_coef = problem.solve(dual_sq, tol=max(eps,tol))
