@@ -384,7 +384,7 @@ class zero(cone):
 
     @doc_template_user
     def cone_prox(self, x):
-        return x
+        return np.asarray(x)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):

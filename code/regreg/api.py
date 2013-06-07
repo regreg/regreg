@@ -38,7 +38,7 @@ from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
 # Affine imports
 
 from affine import (identity, selector, affine_transform, normalize, linear_transform, composition as affine_composition, affine_sum,
-                    power_L)
+                    power_L, astransform)
 from affine.factored_matrix import (factored_matrix, compute_iterative_svd,
                                     nuclear_norm as factored_nuclear_norm,
                                     operator_norm as factored_operator_norm)
