@@ -114,7 +114,8 @@ def compute_iterative_svd(transform,
                           debug=False,
                           stopping_rule=None,
                           padding=5,
-                          update_rank = lambda R: 2*R):
+                          update_rank = lambda R: 2*R,
+                          max_rank = 100):
 
     """
     Compute the SVD of a matrix using partial_svd. If no initial
@@ -146,6 +147,19 @@ def compute_iterative_svd(transform,
 
     debug: bool, optional
         Print debugging statements.
+
+    stopping_rule : callable
+        Function of the singular values used to determine whether to stop.
+
+    padding : int
+        How many more singular vectors are found.
+
+    update_rank : callable
+        A rule to update rank, defaults to doubling the rank.
+
+    max_rank : int
+        Largest rank considered -- exception is raised if
+        higher rank is attempted.
 
     Returns
     -------
@@ -203,6 +217,8 @@ def compute_iterative_svd(transform,
             break
 
         rank = update_rank(rank)
+        if rank > max_rank:
+            raise ValueError('maximum rank exceeded')
 
     ind = np.where(D >= min_singular)[0]
     if not need_to_transpose:
@@ -255,6 +271,9 @@ def partial_svd(transform,
     
     debug: bool, optional
         Print debugging statements.
+
+    stopping_rule : callable
+        Function of the singular values used to determine whether to stop.
 
     Returns
     -------
@@ -473,12 +492,12 @@ class operator_norm(operator_norm_atom):
                                     initial=0)
 
         self.initial_rank = initial_rank
-        if U is None:
+        if warm_start is None:
             self.warm_start = np.random.standard_normal((self.shape[0], self.initial_rank))
         else:
-            self.warm_start = U
-            if U.shape != (self.shape[0], self.initial_rank):
-                raise ValueError('expecting U to have shape %s' % (self.shape[0], self.initial_rank))
+            self.warm_start = warm_start
+            if warm_start.shape != (self.shape[0], self.initial_rank):
+                raise ValueError('expecting warm_start to have shape %s' % (self.shape[0], self.initial_rank))
 
         self._nuclear_atom = nuclear_norm(shape,
                                           lagrange=lagrange,
