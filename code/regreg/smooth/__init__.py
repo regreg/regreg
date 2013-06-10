@@ -118,7 +118,8 @@ class affine_smooth(smooth_atom):
     # smooth_obj(*args, **keywords)
     # else, it is assumed to be an instance of smooth_function
  
-    
+    force_reshape = True
+
     objective_vars = {'linear':'X'}
 
     def __init__(self, smooth_atom, atransform, store_grad=True, diag=False):
@@ -143,13 +144,15 @@ class affine_smooth(smooth_atom):
             v, g = self.atom.smooth_objective(eta, mode='both')
             if self.store_grad:
                 self.grad = g
-            g = self.affine_transform.adjoint_map(g).reshape(self.shape)
+            if self.force_reshape:
+                g = self.affine_transform.adjoint_map(g).reshape(self.shape)
             return v, g
         elif mode == 'grad':
             g = self.atom.smooth_objective(eta, mode='grad')
             if self.store_grad:
                 self.grad = g
-            g = self.affine_transform.adjoint_map(g).reshape(self.shape)
+            if self.force_reshape:
+                g = self.affine_transform.adjoint_map(g).reshape(self.shape)
             return g 
         elif mode == 'func':
             v = self.atom.smooth_objective(eta, mode='func')
