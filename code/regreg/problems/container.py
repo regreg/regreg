@@ -99,8 +99,7 @@ class container(composite):
                              'min_its': 5,
                              'return_objective_hist': False,
                              'tol': 1e-14,
-                             'debug':False,
-                             'backtrack':False}
+                             'debug':False}
 
             if prox_control is not None:
                 prox_defaults.update(prox_control)
@@ -122,11 +121,12 @@ class container(composite):
                 prox_control.pop('dual_reference_lipschitz')
                 
             dualopt = container.default_solver(dualp)
+            dualopt.perform_backtrack = False
             dualopt.debug = prox_control['debug']
 
-            if prox_control['backtrack']:
-                #If backtracking set start_inv_step
-                prox_control['start_inv_step'] = self.dual_reference_lipschitz / proxq.coef
+            if dualopt.perform_backtrack:
+                #If backtracking set start_step
+                prox_control['start_step'] = proxq.coef / self.dual_reference_lipschitz 
 
             # the lipschitz estimate comes from the
             # fact that the conjugate of a quadratic

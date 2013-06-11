@@ -82,7 +82,7 @@ class simple_problem(composite):
         solver = FISTA(self)
         solver.composite.coefs[:] = self.coefs
         self.solver_results = solver.fit(**fit_args)
-        self.final_inv_step = solver.inv_step
+        self.final_step = solver.step
 
         if return_optimum:
             value = (self.objective(self.coefs), self.coefs)
@@ -227,7 +227,8 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
 def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
           tol=1.e-06,
           max_iters=100,
-          coef_tol=1.e-6):
+          coef_tol=1.e-6,
+          quadratic=None):
     '''
 
     This function is based on the setup of problems
