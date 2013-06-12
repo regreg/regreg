@@ -20,7 +20,7 @@ def test_conjugate_l1norm():
     np.testing.assert_approx_equal(u11, u21)
     np.testing.assert_allclose(u12, u22, rtol=1.0e-05)
 
-@np.testing.dec.knownfailureif(True)
+@np.testing.dec.skipif(True)
 def test_conjugate_sqerror():
     """
     This verifies the conjugate class can compute the conjugate
