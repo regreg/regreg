@@ -1,7 +1,7 @@
 import nose.tools as nt
 import numpy as np
 import regreg.affine.factored_matrix as FM
-from regreg.affine import power_L, _todense
+from regreg.affine import power_L, todense
 from regreg.atoms.projl1_cython import projl1
 from regreg.api import identity_quadratic
 from atoms.test_seminorms import all_close
@@ -43,16 +43,16 @@ def test_stopping_rule():
 def test_proximal_maps():
 
     P = FM.nuclear_norm(X.shape, lagrange=1)
-    RP = _todense(P.lagrange_prox(X))
+    RP = todense(P.lagrange_prox(X))
 
     B = FM.nuclear_norm(X.shape, bound=1)
-    RB = _todense(B.bound_prox(X))
+    RB = todense(B.bound_prox(X))
 
     BO = FM.operator_norm(X.shape, bound=1)
     PO = FM.operator_norm(X.shape, lagrange=1)
 
-    RPO = _todense(PO.lagrange_prox(X))
-    RBO = _todense(BO.bound_prox(X))
+    RPO = todense(PO.lagrange_prox(X))
+    RBO = todense(BO.bound_prox(X))
 
     D = np.linalg.svd(X, full_matrices=0)[1]
     lD = np.linalg.svd(RP, full_matrices=0)[1]
@@ -71,16 +71,16 @@ def test_proximal_method():
 
     qX = identity_quadratic(1,X,0,0)
     P = FM.nuclear_norm(X.shape, lagrange=1)
-    RP = _todense(P.proximal(qX))
+    RP = todense(P.proximal(qX))
 
     B = FM.nuclear_norm(X.shape, bound=1)
-    RB = _todense(B.proximal(qX))
+    RB = todense(B.proximal(qX))
 
     BO = FM.operator_norm(X.shape, bound=1)
     PO = FM.operator_norm(X.shape, lagrange=1)
 
-    RPO = _todense(PO.proximal(qX))
-    RBO = _todense(BO.proximal(qX))
+    RPO = todense(PO.proximal(qX))
+    RBO = todense(BO.proximal(qX))
 
     D = np.linalg.svd(X, full_matrices=0)[1]
     lD = np.linalg.svd(RP, full_matrices=0)[1]

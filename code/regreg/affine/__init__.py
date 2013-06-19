@@ -1115,7 +1115,7 @@ class posneg(affine_transform):
         u[1] = -u[0]
         return u
 
-def _todense(transform):
+def todense(transform):
     """
     Return a dense array representation of a transform -- use
     carefully -- it could be large.
