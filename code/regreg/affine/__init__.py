@@ -120,7 +120,7 @@ class affine_transform(object):
                 self.diagD = False
                 self.affineD = False
 
-    def linear_map(self, x, copy=True):
+    def linear_map(self, x, copy=False):
         r"""Apply linear part of transform to `x`
 
         Return :math:`Dx`
@@ -159,7 +159,7 @@ class affine_transform(object):
             return broadcast_first(self.linear_operator, x, mul)
         return np.dot(self.linear_operator, x)
 
-    def affine_map(self, x, copy=True):
+    def affine_map(self, x, copy=False):
         r"""Apply linear and affine offset to `x`
 
         Return :math:`Dx+\alpha`
@@ -217,7 +217,7 @@ class affine_transform(object):
             return broadcast_first(self.affine_offset, v, add)
         return v
 
-    def adjoint_map(self, u, copy=True):
+    def adjoint_map(self, u, copy=False):
         r"""Apply transpose of linear component to `u`
 
         Return :math:`D^Tu`
@@ -350,7 +350,7 @@ class reshape(linear_transform):
             x = x.copy()
         return x
 
-    def adjoint_map(self, u, copy=True):
+    def adjoint_map(self, u, copy=False):
         if copy:
             u = u.copy()
         return u.reshape(self.output_shape)
@@ -617,22 +617,22 @@ class identity(object):
         self.affine_offset = None
         self.linear_operator = None
 
-    def affine_map(self, x, copy=True):
+    def affine_map(self, x, copy=False):
         return self.linear_map(x, copy)
 
-    def offset_map(self, x, copy=True):
+    def offset_map(self, x, copy=False):
         if copy:
             return x.copy()
         else:
             return x
 
-    def linear_map(self, x, copy=True):
+    def linear_map(self, x, copy=False):
         if copy:
             return x.copy()
         else:
             return x
 
-    def adjoint_map(self, x, copy=True):
+    def adjoint_map(self, x, copy=False):
         return self.linear_map(x, copy)
 
 class vstack(object):
@@ -1064,26 +1064,26 @@ class scalar_multiply(object):
         self.affine_offset = None
         self._atransform = atransform
 
-    def affine_map(self, x, copy=True):
+    def affine_map(self, x, copy=False):
         if self.scalar != 1.:
             return self._atransform.linear_map(x, copy) * self.scalar
         else:
             return self._atransform.linear_map(x, copy)
 
-    def offset_map(self, x, copy=True):
+    def offset_map(self, x, copy=False):
         if self.scalar != 1.:
             return self._atransform.offset_map(x, copy) * self.scalar # is this correct -- what is offset_map again?
         else:
             return self._atransform.offset_map(x, copy)
 
-    def linear_map(self, x, copy=True):
+    def linear_map(self, x, copy=False):
         if self.scalar != 1.:
             return self._atransform.linear_map(x, copy) * self.scalar 
         else:
             return self._atransform.linear_map(x, copy)
 
 
-    def adjoint_map(self, x, copy=True):
+    def adjoint_map(self, x, copy=False):
         if self.scalar != 1.:
             return self._atransform.adjoint_map(x, copy) * self.scalar 
         else:
