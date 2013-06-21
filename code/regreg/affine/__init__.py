@@ -186,31 +186,6 @@ class affine_transform(object):
             return broadcast_first(self.affine_offset, v, add)
         return v
 
-    def offset_map(self, x):
-        r"""Apply affine offset to `x`
-
-        Return :math:`x+\alpha`
-
-        Parameters
-        ----------
-        x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
-
-        Returns
-        -------
-        x_a : ndarray
-            `x` transformed with offset components
-
-        """
-        if self.affineD:
-            v = self.linear_operator.offset_map(x)
-        else:
-            v = x
-        if self.affine_offset is not None:
-            # Deal with 1D and 2D input, affine_offset cases
-            return broadcast_first(self.affine_offset, v, add)
-        return v
-
     def adjoint_map(self, u):
         r"""Apply transpose of linear component to `u`
 
@@ -305,10 +280,6 @@ class selector(linear_transform):
         x_indexed = x[self.index_obj]
         return self.affine_transform.affine_map(x_indexed)
 
-    def offset_map(self, x):
-        x_indexed = x[self.index_obj]
-        return self.affine_transform.offset_map(x_indexed)
-
     def adjoint_map(self, u):
         if not hasattr(self, "_output"):
             self._output = np.zeros(self.initial_shape)
@@ -331,9 +302,6 @@ class reshape(linear_transform):
 
     def affine_map(self, x):
         return self.linear_map(x)
-
-    def offset_map(self, x):
-        return x
 
     def adjoint_map(self, u):
         return u.reshape(self.output_shape)
@@ -494,9 +462,6 @@ class normalize(object):
     def affine_map(self, x):
         return self.linear_map(x)
 
-    def offset_map(self, x):
-        return x
-
     def adjoint_map(self, u):
         v = np.empty(self.input_shape)
         if self.center:
@@ -603,9 +568,6 @@ class identity(object):
     def affine_map(self, x):
         return self.linear_map(x)
 
-    def offset_map(self, x):
-        return x
-
     def linear_map(self, x):
         return x
 
@@ -665,12 +627,6 @@ class vstack(object):
             return result + self.affine_offset
         else:
             return result
-
-    def offset_map(self, x):
-        if self.affine_offset is not None:
-            return x + self.affine_offset
-        else:
-            return x
 
     def adjoint_map(self, u):
         result = np.zeros(self.input_shape)
@@ -734,12 +690,6 @@ class hstack(object):
             return result + self.affine_offset
         else:
             return result
-
-    def offset_map(self, x):
-        if self.affine_offset is not None:
-            return x + self.affine_offset
-        else:
-            return x
 
     def adjoint_map(self, u):
         result = np.empty(self.input_shape)
@@ -817,12 +767,6 @@ class product(object):
         else:
             return result
 
-    def offset_map(self, x):
-        if self.affine_offset is not None:
-            return x + self.affine_offset
-        else:
-            return x
-
     def adjoint_map(self, u):
         result = np.empty(self.input_shape)
         for og, ig, t, s in zip(self.output_slices,
@@ -884,9 +828,6 @@ class adjoint(object):
     def affine_map(self, x):
         return self.linear_map(x)
 
-    def offset_map(self, x):
-        return x
-
     def adjoint_map(self, x):
         return self.transform.linear_map(x)
 
@@ -914,9 +855,6 @@ class tensorize(object):
         if self.affine_offset is not None:
             return v + self.affine_offset[:, np.newaxis]
         return v
-
-    def offset_map(self, x):
-        return x
 
     def adjoint_map(self, x):
         return self.transform.adjoint_map(x)
@@ -974,12 +912,6 @@ class composition(object):
             output = transform.affine_map(output)
         return output
 
-    def offset_map(self, x):
-        output = x
-        for transform in self.transforms[::-1]:
-            output = transform.offset_map(output)
-        return output
-
     def adjoint_map(self, x):
         output = x
         for transform in self.transforms:
@@ -1022,10 +954,6 @@ class affine_sum(object):
             output += weight * transform.affine_map(x)
         return output
 
-
-    def offset_map(self, x):
-        return self.affine_offset
-
     def adjoint_map(self, x):
         output = 0
         for transform, weight in zip(self.transforms[::-1], self.weights[::-1]):
@@ -1046,12 +974,6 @@ class scalar_multiply(object):
             return self._atransform.linear_map(x) * self.scalar
         else:
             return self._atransform.linear_map(x)
-
-    def offset_map(self, x):
-        if self.scalar != 1.:
-            return self._atransform.offset_map(x) * self.scalar # is this correct -- what is offset_map again?
-        else:
-            return self._atransform.offset_map(x)
 
     def linear_map(self, x):
         if self.scalar != 1.:
@@ -1082,9 +1004,6 @@ class posneg(affine_transform):
 
     def affine_map(self, x):
         return self.linear_map(x)
-
-    def offset_map(self, x):
-        return x
 
     def adjoint_map(self, x):
         u = self._adjoint_output
