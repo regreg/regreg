@@ -91,7 +91,7 @@ class FISTA(algorithm):
             self.debug = debug
         self.prox_control = {}
 
-        objective_hist = np.zeros(self.max_its)
+        objective_hist = np.zeros(max_its)
         
         if self.perform_backtrack and self.step is None:
             #If self.step is not available from last fit use start_step
@@ -107,7 +107,7 @@ class FISTA(algorithm):
         
         itercount = 0
         badstep = 0
-        while itercount < self.max_its:
+        while itercount < max_its:
 
             #Restart every 'restart' iterations
 
@@ -147,7 +147,7 @@ class FISTA(algorithm):
                 else:
                     print "%i    obj: %.6e    step: %.2e    rel_obj_change: %.2e    tol: %.1e" % (itercount, working_obj, self.step, obj_rel_change, tol)
 
-            if itercount >= self.min_its:
+            if itercount >= min_its:
                 if coef_stop:
                     if coef_rel_change < tol:
                         self.working_coefs = proposed_coefs
@@ -190,9 +190,9 @@ class FISTA(algorithm):
                 working_obj = proposed_obj
 
         if self.debug:
-            if itercount == self.max_its:
+            if itercount == max_its:
                 print "Optimization stopped because iteration limit was reached"
-            print "FISTA used", itercount, "of", self.max_its, "iterations"
+            print "FISTA used", itercount, "of", max_its, "iterations"
         if return_objective_hist:
             return objective_hist[:itercount]
 
