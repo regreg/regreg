@@ -61,7 +61,8 @@ Building from source code
 -------------------------
 
 Unpack the source tarball and change into the source directory.  Once in the
-source directory, you can build the neuroimaging package using::
+source directory, you can build the regreg package within the code
+directory using::
 
     python setup.py build
 
@@ -78,7 +79,7 @@ To install, simply do::
     mearly a preference, nothing will go wrong if you install using the
     *sudo* method.  To install in a local directory, use the **--prefix**
     option.  For example, if you created a ``local`` directory in your
-    home directory, you would install nipy like this::
+    home directory, you would install regreg like this::
 
 	python setup.py install --prefix=$HOME/local
 
