@@ -17,6 +17,17 @@ from numpy import all, asarray, allclose
 
 class identity_quadratic(object):
 
+    r"""
+    This object is a quadratic function
+
+    .. math::
+
+        x \mapsto \frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma
+
+    used in the proximal methods of all atoms.
+
+    """
+
     def __eq__(self, other):
         if isinstance(other, identity_quadratic):
             return (allclose(self.coef, other.coef) and

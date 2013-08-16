@@ -166,12 +166,20 @@ class cholesky(object):
         return self.linear_map(x)
 
 def squared_error(X, Y, coef=1):
-    """
+    r"""
     Least squares with design $X$
 
     .. math::
 
        \frac{C}{2} \|X\beta-Y\|^2_2
+
+    Parameters
+    ----------
+
+    X : affine_transform
+        Design matrix
+
+    Y : np.array
 
     """
     atom = quadratic.affine(X, -Y, coef=coef)
