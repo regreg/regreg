@@ -2,8 +2,6 @@ import numpy as np
 import itertools
 from copy import copy
 
-np.random.seed(0)
-
 import regreg.atoms.seminorms as S
 import regreg.api as rr
 import nose.tools as nt
@@ -13,7 +11,7 @@ def all_close(x, y, msg, solver):
     Check to see if x and y are close
     """
     try:
-        v = np.linalg.norm(x-y) <= 1.0e-04 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
+        v = np.linalg.norm(x-y) <= 1.0e-03 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
     except:
         print("""
 check_failed
@@ -26,8 +24,8 @@ y: %s
     v = v or np.allclose(x,y)
     if not v:
         print("""
-FAIL
-====
+summary
+=======
 msg: %s
 comparison: %0.3f
 x : %s
@@ -35,96 +33,152 @@ y : %s
 """ % (msg, np.linalg.norm(x-y) / max([1, np.linalg.norm(x), np.linalg.norm(y)]), x, y))
     if not hasattr(solver, 'interactive') or not solver.interactive:
         nt.assert_true(v)
+    else:
+        print msg.split('\n')[0]
 
 @np.testing.dec.slow
-def test_proximal_maps():
-    bound = 0.14
+def test_proximal_maps(interactive=False):
+    for klass in [S.l1norm, S.supnorm, S.l2norm,
+                  S.positive_part, S.constrained_max]:
+        factory = SolverFactory(klass, 'lagrange')
+        for solver in factory:
+            penalty = solver.atom
+            dual = penalty.conjugate 
+            Z = solver.prox_center
+            L = solver.L
+
+            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % klass, None
+
+            # some arguments of the constructor
+
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+        
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+
+            # call these to ensure coverage at least
+
+            repr(penalty)
+            repr(dual)
+
+            penalty.seminorm(Z, lagrange=1)
+            penalty.constraint(Z, bound=1)
+
+            dual.seminorm(Z, lagrange=1)
+            dual.constraint(Z, bound=1)
+
+            for t in solver.all_tests():
+                yield t
+
+        factory = SolverFactory(klass, 'bound')
+        for solver in factory:
+            for t in solver.all_tests():
+                yield t
+
+    for klass in sorted(S.nonpaired_atoms):
+        factory = SolverFactory(klass, 'lagrange')
+        for solver in factory:
+
+            penalty = solver.atom
+            dual = penalty.conjugate 
+            Z = solver.prox_center
+            L = solver.L
+
+            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % klass, None
+
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+        
+            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
+            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+
+            for t in solver.all_tests():
+                yield t
+
+class SolverFactory(object):
+
+    offset_choices = [True, False]
+    FISTA_choices =[True,False]
+    coef_stop_choices = [True,False]
     lagrange = 0.13
-    shape = 20
+    bound = 0.14
+    L_choices = [0.1,0.5,1]
+    quadratic_choices = [True, False]
+    shape = (20,)
+    interactive = False
 
-    Z = np.random.standard_normal(shape) * 4
-    W = 0.02 * np.random.standard_normal(shape)
-    U = 0.02 * np.random.standard_normal(shape)
-    quadratic = rr.identity_quadratic(0,0,W,0)
+    def __init__(self, klass, mode):
+        self.klass = klass
+        self.mode = mode
 
-    counter = 0
-    for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
-                     [S.l1norm, S.supnorm, S.l2norm,
-                      S.positive_part, S.constrained_max],
-                     [None, quadratic],
-                     [U, None],
-                     [False, True],
-                     [True, False]):
+    def __iter__(self):
+        for offset, FISTA, coef_stop, L, q in itertools.product(self.offset_choices,
+                                                                self.FISTA_choices,
+                                                                self.coef_stop_choices,
+                                                                self.L_choices,
+                                                                self.quadratic_choices):
+            self.FISTA = FISTA
+            self.coef_stop = coef_stop
+            self.L = L
 
-        p = atom(shape, lagrange=lagrange, quadratic=q,
-                   offset=offset)
-        d = p.conjugate 
-        yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % atom, None
-        # some arguments of the constructor
+            if self.mode == 'lagrange':
+                atom = self.klass(self.shape, lagrange=self.lagrange)
+            else:
+                atom = self.klass(self.shape, bound=self.bound)
 
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
-        
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
+            if q: 
+                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
 
-        for t in Solver(p, Z, L, FISTA, coef_stop).all():
-            yield t
+            if offset:
+                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
 
-        b = atom(shape, bound=bound, quadratic=q,
-                 offset=offset)
-
-        for t in Solver(b, Z, L, FISTA, coef_stop).all():
-            yield t
-
-    lagrange = 0.1
-    for L, atom, q, offset, FISTA, coef_stop in itertools.product([0.5,1,0.1], \
-                     sorted(S.nonpaired_atoms),
-                                              [None, quadratic],
-                                              [None, U],
-                                              [False, True],
-                                              [False, True]):
-
-        p = atom(shape, lagrange=lagrange, quadratic=q,
-                   offset=offset)
-        d = p.conjugate 
-        yield all_close, p.lagrange_prox(Z, lipschitz=L), Z-d.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % atom, None
-        # some arguments of the constructor
-
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
-        
-        nt.assert_raises(AttributeError, setattr, p, 'bound', 4.)
-        nt.assert_raises(AttributeError, setattr, d, 'lagrange', 4.)
-
-        for t in Solver(p, Z, L, FISTA, coef_stop).all():
-            yield t
+            solver = Solver(atom, interactive=self.interactive, 
+                            coef_stop=coef_stop,
+                            FISTA=FISTA,
+                            L=L)
+            yield solver
 
 
 class Solver(object):
 
-    def __repr__(self):
-        return 'Solver(%s)' % repr(self.atom)
+    def __iter__(self):
+        factory = SolverFactory(self.atom.__class__)
+        for solver in factory:
+            yield solver
 
-    def __init__(self, atom, Z, L, FISTA=True, coef_stop=True, container=True, interactive=False):
+    def __repr__(self):
+        return 'Solver(%s, L=%f, prox_center=%s)' % (repr(self.atom), self.L, repr(self.prox_center))
+
+    def __init__(self, atom, interactive=False, coef_stop=False,
+                 FISTA=True, L=1, prox_center=None):
+        self.atom = atom
         self.interactive = interactive
         self.coef_stop = coef_stop
-        self.atom = atom
-        self.Z = Z
-        self.L = L
         self.FISTA = FISTA
-        self.do_container = container
-        self.q = rr.identity_quadratic(L, Z, 0, 0)
-        self.loss = rr.quadratic.shift(Z, coef=L)
+        self.L = L
+
+        if prox_center is None:
+            self.prox_center = np.random.standard_normal(atom.shape)
+        else:
+            self.prox_center = prox_center
+
+        self.q = rr.identity_quadratic(L, self.prox_center, 0, 0)
+        self.loss = rr.quadratic.shift(self.prox_center, coef=L)
 
     def test_duality_of_projections(self):
-        if self.atom.quadratic == rr.identity_quadratic(0,0,0,0):
+        if self.atom.quadratic == rr.identity_quadratic(0,0,0,0) or self.atom.quadratic is None:
 
             tests = []
 
             d = self.atom.conjugate
-            q = rr.identity_quadratic(1, self.Z, 0, 0)
-            tests.append((self.Z-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
+            q = rr.identity_quadratic(1, self.prox_center, 0, 0)
+            tests.append((self.prox_center-self.atom.proximal(q), d.proximal(q), 'testing duality of projections starting from atom\n %s ' % str(self)))
+
+            if hasattr(self.atom, 'check_subgradient') and self.atom.offset is None:
+                # check subgradient condition
+                v1, v2 = self.atom.check_subgradient(self.atom, self.prox_center)
+                tests.append((v1, v2, 'checking subgradient condition\n %s' % str(self)))
 
             if not self.interactive:
                 for test in tests:
@@ -144,6 +198,11 @@ class Solver(object):
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop)
 
+        gg = rr.gengrad(problem, 2.) # this lipschitz constant is based on knowing our loss...
+        tests.append((atom.proximal(q), gg, 'solving prox with gengrad\n %s ' % str(self)))
+
+        tests.append((atom.proximal(q), atom.solve(q), 'solving prox with solve method\n %s ' % str(self)))
+
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with monotonicity\n %s ' % str(self)))
 
         # use the solve method
@@ -152,7 +211,6 @@ class Solver(object):
         p3.quadratic = atom.quadratic + q
         soln = p3.solve(tol=1.e-14, min_its=10)
         tests.append((atom.proximal(q), soln, 'solving prox with solve method\n %s ' % str(self)))
-        print 'stop'
 
         p4 = copy(atom)
         p4.quadratic = atom.quadratic + q
@@ -172,7 +230,7 @@ class Solver(object):
 
     def test_simple_problem(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         problem = rr.simple_problem(loss, atom)
@@ -183,9 +241,9 @@ class Solver(object):
 
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
-        q = rr.identity_quadratic(L, Z, 0, 0)
-        lossq = rr.quadratic.shift(Z.copy(), coef=0.6*L)
-        lossq.quadratic = rr.identity_quadratic(0.4*L, Z.copy(), 0, 0)
+        q = rr.identity_quadratic(L, prox_center, 0, 0)
+        lossq = rr.quadratic.shift(prox_center.copy(), coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center.copy(), 0, 0)
         problem = rr.simple_problem(lossq, atom)
 
         tests.append((atom.proximal(q), 
@@ -222,7 +280,7 @@ class Solver(object):
 
     def test_dual_problem(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         dproblem = rr.dual_problem.fromprimal(loss, atom)
@@ -244,7 +302,7 @@ class Solver(object):
 
     def test_separable(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         problem = rr.separable_problem.singleton(atom, loss)
@@ -272,7 +330,7 @@ class Solver(object):
 
     def test_container(self):
         tests = []
-        atom, q, Z, L = self.atom, self.q, self.Z, self.L
+        atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
         loss = self.loss
 
         problem = rr.container(loss, atom)
@@ -284,15 +342,17 @@ class Solver(object):
 
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
-        lossq = rr.quadratic.shift(Z, coef=0.6*L)
-        lossq.quadratic = rr.identity_quadratic(0.4*L, Z, 0, 0)
+        q = rr.identity_quadratic(L, prox_center, 0, 0)
+        lossq = rr.quadratic.shift(prox_center.copy(), coef=0.6*L)
+        lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center.copy(), 0, 0)
         problem = rr.container(lossq, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
 
         tests.append((atom.proximal(q), 
-               problem.solve(tol=1.e-12,FISTA=self.FISTA,coef_stop=self.coef_stop), 
-               'solving prox with container with monotonicity but loss has identity_quadratic\n %s ' % str(self)))
+                      problem.solve(tol=1.e-12,FISTA=self.FISTA,coef_stop=self.coef_stop), 
+                      'solving prox with container with monotonicity ' + 
+                      'but loss has identity_quadratic\n %s ' % str(self)))
 
         d = atom.conjugate
         problem = rr.container(d, loss)
@@ -308,15 +368,13 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
-    def all(self):
-        for group in [self.test_simple_problem,
+    def all_tests(self):
+        for group in [self.test_duality_of_projections,
+                      self.test_simple_problem,
                       self.test_separable,
-                      #self.test_dual_problem,
-                      #self.test_container,
-                      self.test_simple_problem_nonsmooth,
-                      self.test_duality_of_projections,
+                      self.test_dual_problem,
+                      self.test_container,
+                      self.test_simple_problem_nonsmooth
                       ]:
             for t in group():
                 yield t
-                  
-

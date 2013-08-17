@@ -24,10 +24,10 @@ reserved = [UNPENALIZED, L1_PENALTY, POSITIVE_PART,
 
 try:
     from .mixed_lasso_cython import (mixed_lasso_lagrange_prox, 
-                                     mixed_lasso_conjugate_bound_prox,
+                                     mixed_lasso_dual_bound_prox,
                                      mixed_lasso_bound_prox, 
                                      seminorm_mixed_lasso,
-                                     seminorm_mixed_lasso_conjugate,
+                                     seminorm_mixed_lasso_dual,
                                      strong_set_mixed_lasso,
                                      check_KKT_mixed_lasso)
 except ImportError:
@@ -107,7 +107,7 @@ class mixed_lasso(atom):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
-            cls = mixed_lasso_conjugate
+            cls = mixed_lasso_dual
             atom = cls(self.penalty_structure,
                        self.lagrange,
                        weights=self.weights,
@@ -204,7 +204,7 @@ class mixed_lasso(atom):
 
 
 @objective_doc_templater()
-class mixed_lasso_conjugate(mixed_lasso):
+class mixed_lasso_dual(mixed_lasso):
 
     _doc_dict = {'linear':r' + \langle \eta, x \rangle',
                  'constant':r' + \tau',
@@ -306,7 +306,7 @@ class mixed_lasso_conjugate(mixed_lasso):
 
     def seminorm(self, x, lagrange=1, check_feasibility=False):
         x_offset = self.apply_offset(x)
-        v = seminorm_mixed_lasso_conjugate(x_offset,
+        v = seminorm_mixed_lasso_dual(x_offset,
                                  self._l1_penalty,
                                  self._unpenalized,
                                  self._positive_part,
@@ -340,7 +340,7 @@ class mixed_lasso_conjugate(mixed_lasso):
 
         prox_arg = -totalq.linear_term / totalq.coef
 
-        eta = mixed_lasso_conjugate_bound_prox(prox_arg, self.bound, 
+        eta = mixed_lasso_dual_bound_prox(prox_arg, self.bound, 
                                   self._l1_penalty,
                                   self._unpenalized,
                                   self._positive_part,

@@ -21,6 +21,15 @@ class cone(atom):
     A class that defines the API for cone constraints.
     """
 
+    objective_template = r'\|%(var)s\|'
+    objective_vars = {'var': r'\beta', 
+                      'shape':'p', 
+                      'linear':'D', 
+                      'offset':r'\alpha',
+                      'normklass':'nonnegative',
+                      'dualnormklass':'nonpositive',
+                      'initargs':'(30,)', # args need to construct penalty
+                      }
     tol = 1.0e-05
 
     def __eq__(self, other):
@@ -31,8 +40,8 @@ class cone(atom):
     def __copy__(self):
         return self.__class__(copy(self.shape),
                               offset=copy(self.offset),
-                              initial=self.coefs,
-                              quadratic=self.quadratic)
+                              initial=copy(self.coefs),
+                              quadratic=copy(self.quadratic))
     
     def __repr__(self):
         if self.quadratic.iszero:
@@ -47,8 +56,16 @@ class cone(atom):
                  repr(self.offset),
                  repr(self.quadratic))
 
-    @property
-    def conjugate(self):
+    @doc_template_provider
+    def get_conjugate(self):
+        """
+        Return the conjugate of an given atom.
+
+        >>> penalty = %(coneklass)s(%(initargs)s)
+        >>> penalty.get_conjugate() # doctest: +SKIP
+        %(dualconeklass)s(%(initargs)s, offset=None)
+
+        """
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
@@ -61,9 +78,39 @@ class cone(atom):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
 
-    @property
-    def dual(self):
+    @doc_template_provider
+    def get_dual(self):
+        r"""
+        Return the dual of an atom. This dual is formed by making the  
+        substitution $v=Ax$ where $A$ is the `self.linear_transform`.
+
+        >>> from regreg.api import %(coneklass)s
+        >>> import numpy as np
+        >>> penalty = %(coneklass)s(%(initargs)s)
+        >>> penalty # doctest: +SKIP
+        %(coneklass)s(%(initargs)s, offset=None)
+        >>> penalty.dual # doctest: +SKIP
+        (<regreg.affine.identity object at 0x...>, %(dualconeklass)s(%(initargs)s, offset=None))
+
+        If there is a linear part to the penalty, the linear_transform may not be identity:
+
+        >>> from regreg.api import nonnegative
+        >>> D = (np.identity(4) + np.diag(-np.ones(3),1))[:-1]
+        >>> D
+        array([[ 1., -1.,  0.,  0.],
+               [ 0.,  1., -1.,  0.],
+               [ 0.,  0.,  1., -1.]])
+        >>> linear_atom = nonnegative.linear(D)
+        >>> linear_atom
+        affine_cone(nonnegative((3,), offset=None), array([[ 1., -1.,  0.,  0.],
+               [ 0.,  1., -1.,  0.],
+               [ 0.,  0.,  1., -1.]]))
+        >>> linear_atom.dual # doctest: +ELLIPSIS
+        (<regreg.affine.linear_transform object at 0x...>, nonpositive((3,), offset=None))
+
+        """
         return self.linear_transform, self.conjugate
 
     @property
@@ -94,25 +141,45 @@ class cone(atom):
         return v
 
     @doc_template_provider
-    def proximal(self, proxq, prox_control=None):
+    def proximal(self, quadratic, prox_control=None):
         r"""
         The proximal operator. 
 
         .. math::
 
            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^{%(shape)s}} \frac{L}{2}
-           \|x-v\|^2_2 + %(objective)s + \langle v, \eta \rangle
+           \|x-\alpha - v\|^2_2 + %(objective)s + \langle v, \eta \rangle
 
-        where :math:`\alpha` is the offset of self.affine_transform and
-        :math:`\eta` is self.linear_term.
+        where :math:`\alpha` is `self.offset`,
+        :math:`\eta` is `quadratic.linear_term`.
 
-        .. math::
+        >>> from regreg.api import nonnegative
+        >>> cone = nonnegative((4,))
+        >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
+        >>> cone.proximal(Q) # doctest: +ELLIPSIS
+        array([ 3.,  0.,  0.,  1.])
 
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \langle v, \eta \rangle \text{s.t.} \   h(v+\alpha) \leq \lambda
+        Parameters
+        ----------
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic`
+
+            A quadratic added to the atom before minimizing.
+
+        prox_control : `[None, dict]`
+
+            This argument is ignored for seminorms, but otherwise
+            is passed to `regreg.algorithms.FISTA` if the atom
+            needs to be solved iteratively.
+
+        Returns
+        -------
+
+        Z : `np.ndarray(np.float)`
+            The proximal map of the implied center of `quadratic`.
 
         """
-        offset, totalq = (self.quadratic + proxq).recenter(self.offset)
+        offset, totalq = (self.quadratic + quadratic).recenter(self.offset)
         if totalq.coef == 0:
             raise ValueError('lipschitz + quadratic coef must be positive')
 
@@ -124,7 +191,7 @@ class cone(atom):
             print 'x :', x
             print 'grad: ', grad
             print 'cone: ', self
-            print 'proxq: ', proxq
+            print 'quadratic: ', quadratic
             print 'proxarg: ', prox_arg
             print 'totalq: ', totalq
 
@@ -159,6 +226,8 @@ class cone(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         cone = cls(l.output_shape, 
                    offset=-offset,
                    quadratic=quadratic)
@@ -171,18 +240,61 @@ class cone(atom):
             l = linear_transform(linear_operator, diag=diag)
         else:
             l = linear_operator
+        if offset is None:
+            offset = 0
         cone = cls(l.output_shape, 
                    offset=-offset,
                    quadratic=quadratic)
         return affine_cone(cone, l)
 
+    @staticmethod
+    def check_subgradient(atom, prox_center):
+        r"""
+        For a given seminorm, verify the KKT condition for
+        the problem for the proximal problem
 
+        .. math::
+
+           \text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)
+
+        where $z$ is the `prox_center` and $h$ is `atom`.
+
+        This should return two values that are 0, 
+        one is the inner product of the minimizer and the residual, the
+        other is just 0.
+
+        Parameters
+        ----------
+
+        atom : `cone`
+             A cone instance with a `proximal` method.
+
+        prox_center : np.ndarray(np.float)
+             Center for the proximal map.
+
+        Returns
+        -------
+
+        v1, v2 : float
+             Two values that should be equal if the proximal map is correct.
+
+        """
+        atom = copy(atom)
+        atom.quadratic = identity_quadratic(0,0,0,0)
+        atom.offset = None
+        q = identity_quadratic(1, prox_center, 0, 0)
+        U = atom.proximal(q)
+        return ((prox_center - U) * U).sum(), 0
+
+
+@objective_doc_templater()
 class affine_cone(affine_atom):
 
     def __repr__(self):
         return "affine_cone(%s, %s)" % (repr(self.atom),
                                         repr(self.linear_transform.linear_operator))
 
+@objective_doc_templater()
 class nonnegative(cone):
     """
     The non-negative cone constraint (which is the support
@@ -190,6 +302,9 @@ class nonnegative(cone):
     """
 
     objective_template = r"""I^{\infty}(%(var)s \succeq 0)"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'nonnegative'
+    objective_vars['dualconeklass'] = 'nonpositive'
 
     @doc_template_user
     def constraint(self, x):
@@ -203,7 +318,19 @@ class nonnegative(cone):
     def cone_prox(self, x):
         return np.maximum(x, 0)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class nonpositive(nonnegative):
 
     """
@@ -212,6 +339,9 @@ class nonpositive(nonnegative):
     """
 
     objective_template = r"""I^{\infty}(%(var)s \preceq 0)"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['dualconeklass'] = 'nonnegative'
+    objective_vars['coneklass'] = 'nonpositive'
 
     @doc_template_user
     def constraint(self, x):
@@ -225,13 +355,28 @@ class nonpositive(nonnegative):
     def cone_prox(self, x):
         return np.minimum(x, 0)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class zero(cone):
     """
     The zero seminorm, support function of :math:\{0\}
     """
 
     objective_template = r"""{\cal Z}(%(var)s)"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'zero'
+    objective_vars['dualconeklass'] = 'zero_constraint'
 
     @doc_template_user
     def constraint(self, x):
@@ -239,14 +384,30 @@ class zero(cone):
 
     @doc_template_user
     def cone_prox(self, x):
-        return x
+        return np.asarray(x)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class zero_constraint(cone):
     """
     The zero constraint, support function of :math:`\mathbb{R}`^p
     """
 
     objective_template = r"""I^{\infty}(%(var)s = 0)"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'zero_constraint'
+    objective_vars['dualconeklass'] = 'zero'
 
     @doc_template_user
     def constraint(self, x):
@@ -258,6 +419,19 @@ class zero_constraint(cone):
     def cone_prox(self, x):
         return np.zeros(np.asarray(x).shape)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class l2_epigraph(cone):
 
     """
@@ -265,6 +439,9 @@ class l2_epigraph(cone):
     """
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_2 \leq %(var)s[-1])"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'l2_epigraph'
+    objective_vars['dualconeklass'] = 'l2_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -273,7 +450,6 @@ class l2_epigraph(cone):
         if incone:
             return 0
         return np.inf
-
 
     @doc_template_user
     def cone_prox(self, x):
@@ -286,6 +462,19 @@ class l2_epigraph(cone):
         result[-1] = max(norm + thold, 0)
         return result
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class l2_epigraph_polar(cone):
 
     """
@@ -294,6 +483,9 @@ class l2_epigraph_polar(cone):
     """
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_2 \in -%(var)s[-1])"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['dualconeklass'] = 'l2_epigraph'
+    objective_vars['coneklass'] = 'l2_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -302,19 +494,31 @@ class l2_epigraph_polar(cone):
             return 0
         return np.inf
 
-
     @doc_template_user
-    def cone_prox(self, x):
-        norm = -x[-1]
-        coef = -x[:-1]
+    def cone_prox(self, arg):
+        arg = -arg
+        norm = arg[-1]
+        coef = arg[:-1]
         norm_coef = np.linalg.norm(coef)
         thold = (norm_coef - norm) / 2.
-        result = np.zeros_like(x)
+        result = np.zeros_like(arg)
         result[:-1] = coef / norm_coef * max(norm_coef - thold, 0)
         result[-1] = max(norm + thold, 0)
-        return x + result
+        return -result
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class l1_epigraph(cone):
 
     """
@@ -322,6 +526,9 @@ class l1_epigraph(cone):
     """
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_1 \leq %(var)s[-1])"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['dualconeklass'] = 'l1_epigraph'
+    objective_vars['coneklass'] = 'l1_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
@@ -334,6 +541,19 @@ class l1_epigraph(cone):
     def cone_prox(self, x):
         return projl1_epigraph(x)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class l1_epigraph_polar(cone):
 
     """
@@ -341,6 +561,9 @@ class l1_epigraph_polar(cone):
     """
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{\infty} \leq - %(var)s[-1])"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'l1_epigraph_polar'
+    objective_vars['dualconeklass'] = 'l1_epigraph'
 
     @doc_template_user
     def constraint(self, x):
@@ -350,11 +573,24 @@ class l1_epigraph_polar(cone):
             return 0
         return np.inf
 
+    @doc_template_user
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float).copy()
+        return arg - projl1_epigraph(arg)
 
     @doc_template_user
-    def cone_prox(self, x):
-        return x - projl1_epigraph(x)
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
 
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class linf_epigraph(cone):
 
     """
@@ -362,19 +598,35 @@ class linf_epigraph(cone):
     """
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{\infty} \leq %(var)s[-1])"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'linf_epigraph'
+    objective_vars['dualconeklass'] = 'linf_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):
-
         incone = np.fabs(x[:-1]).max() <= (1 + self.tol) * x[-1]
         if incone:
             return 0
         return np.inf
 
     @doc_template_user
-    def cone_prox(self, x):
-        return x + projl1_epigraph(-x)
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float)
+        return arg + projl1_epigraph(-arg)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class linf_epigraph_polar(cone):
 
     """
@@ -383,18 +635,33 @@ class linf_epigraph_polar(cone):
     """
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_1 \leq -%(var)s[-1])"""
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'linf_epigraph_polar'
+    objective_vars['dualconeklass'] = 'linf_epigraph'
 
     @doc_template_user
     def constraint(self, x):
-        incone = np.fabs(-x[:-1]).sum() <= (1 + self.tol) * (-x[-1])
+        incone = np.fabs(x[:-1]).sum() <= (1 + self.tol) * (-x[-1])
         if incone:
             return 0
         return np.inf
 
     @doc_template_user
-    def cone_prox(self, x):
-        return -projl1_epigraph(-x)
+    def cone_prox(self, arg):
+        arg = np.asarray(arg, np.float)
+        return -projl1_epigraph(-arg)
 
+    @doc_template_user
+    def proximal(self, quadratic, prox_control=None):
+        return cone.proximal(self, quadratic, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
 
 conjugate_cone_pairs = {}
 for n1, n2 in [(nonnegative,nonpositive),
@@ -405,3 +672,4 @@ for n1, n2 in [(nonnegative,nonpositive),
                ]:
     conjugate_cone_pairs[n1] = n2
     conjugate_cone_pairs[n2] = n1
+

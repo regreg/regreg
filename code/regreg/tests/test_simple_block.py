@@ -4,7 +4,7 @@ import regreg.api as rr
 from regreg.problems.simple import gengrad
 import nose.tools as nt
 
-from test_seminorms import ac
+from atoms.test_seminorms import all_close
 
 
 from copy import copy
@@ -15,12 +15,12 @@ def test_simple():
     dual = p.conjugate
     L = 0.23
 
-    loss = rr.quadratic.shift(-Z, coef=L)
+    loss = rr.quadratic.shift(Z, coef=L)
     problem = rr.simple_problem(loss, p)
     solver = rr.FISTA(problem)
     solver.fit(tol=1.0e-10, debug=True)
-
     simple_coef = solver.composite.coefs
+
     q = rr.identity_quadratic(L, Z, 0, 0)
     prox_coef = p.proximal(q)
 
@@ -42,15 +42,10 @@ def test_simple():
     solver.fit(tol=1.0e-10)
     separable_coef = solver.composite.coefs
 
-    ac(prox_coef, Z-simple_coef, 'prox to simple')
-    ac(prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad')
-    ac(prox_coef, separable_coef, 'prox to separable')
-    ac(prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth')
-
-    # yield ac, prox_coef, Z - simple_dual_coef, 'prox to simple dual'
-#     yield ac, prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad'
-#     yield ac, prox_coef, separable_coef, 'prox to separable'
-#     yield ac, prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth'
+    yield (all_close, prox_coef, simple_coef, 'prox to simple', None)
+    yield (all_close, prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad', None)
+    yield (all_close, prox_coef, separable_coef, 'prox to separable', None)
+    yield (all_close, prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth', None)
 
 
 

@@ -14,21 +14,34 @@ from .atoms.cones import (nonnegative, nonpositive,
                    l2_epigraph, l2_epigraph_polar,
                    linf_epigraph, linf_epigraph_polar,
                    affine_cone as linear_cone)
-from .atoms.block_norms import l1_l2, linf_l2, l1_l1, linf_linf
+from .atoms.block_norms import (l1_l2, linf_l2, 
+                                l1_l1, linf_linf,
+                                block_sum, block_max)
+
 from .atoms.svd_norms import (nuclear_norm, operator_norm,
-                             nuclear_norm_epigraph,
-                             operator_norm_epigraph)
+                              nuclear_norm_epigraph,
+                              nuclear_norm_epigraph_polar,
+                              operator_norm_epigraph,
+                              operator_norm_epigraph_polar)
 from .atoms.linear_constraints import (projection, projection_complement)
-from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_conjugate
-from .atoms.group_lasso import group_lasso, group_lasso_dual
+from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_dual
+
+from .atoms.group_lasso import (group_lasso, group_lasso_dual, 
+                                group_lasso_epigraph, 
+                                group_lasso_epigraph_polar, 
+                                group_lasso_dual_epigraph,
+                                group_lasso_dual_epigraph_polar)
+
 from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
                                    supnorm as weighted_supnorm)
 
 # Affine imports
 
 from affine import (identity, selector, affine_transform, normalize, linear_transform, composition as affine_composition, affine_sum,
-                    power_L)
-from affine.factored_matrix import (factored_matrix, compute_iterative_svd, soft_threshold_svd)
+                    power_L, astransform)
+from affine.factored_matrix import (factored_matrix, compute_iterative_svd,
+                                    nuclear_norm as factored_nuclear_norm,
+                                    operator_norm as factored_operator_norm)
 
 # Smooth imports
 

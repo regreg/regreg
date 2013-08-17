@@ -45,7 +45,7 @@ class dual_problem(composite):
         self.affine_fc = affine_smooth(self.f_conjugate, scalar_multiply(adjoint(self.transform), -1))
         self.coefs = np.zeros(self.affine_fc.shape)
 
-    # the quadratic is delegated to 
+    # the quadratic is delegated to the individual parts
     @property
     def quadratic(self):
         return identity_quadratic(None,None,None,None)
@@ -85,6 +85,22 @@ class dual_problem(composite):
             return self.objective(self.primal), self.primal
         return self.primal
 
+    def latexify(self, var=None):
+        template_dict = self.objective_vars.copy()
+        template_dict['prox'] =  self.atom.latexify(var=var,idx='2')
+        template_dict['smooth'] = self.affine_fc.latexify(var=var,idx='1')
+        template_dict
+        result = r'''
+        \begin{aligned}
+        \text{minimize}_{%(var)s} & f(%(var)s) + g(%(var)s) \\
+        f(%(var)s) &= %(smooth)s \\
+        g(%(var)s) &= %(prox)s \\
+        \end{aligned}
+        ''' % template_dict
+        result = '\n'.join([s.strip() for s in result.split('\n')])
+        return result
+
+
 def stacked_dual(shape, *primary_atoms):
     r'''
     Computes a dual of
@@ -122,7 +138,7 @@ def stacked_dual(shape, *primary_atoms):
     if len(transforms) > 1:
         transform = afvstack(transforms)
         separable_atom = separable(transform.output_shape, dual_atoms,
-                                   transform.dual_slices)
+                                   transform.output_slices)
         _dual = transform, separable_atom
     else:
         _dual = (transforms[0], dual_atoms[0])

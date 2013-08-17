@@ -38,7 +38,7 @@ class composite(object):
         if initial is None:
             self.coefs = zeros(self.shape)
         else:
-            self.coefs = initial.copy()
+            self.coefs = copy(initial)
 
     def set_offset(self, value):
         if value is not None:
@@ -55,7 +55,7 @@ class composite(object):
     offset = property(get_offset, set_offset)
 
     def latexify(self, var=None, idx=''):
-        template_dict = self.objective_vars.copy()
+        template_dict = copy(self.objective_vars)
         template_dict['idx'] = idx
         if var is not None:
             template_dict['var'] = var
@@ -87,31 +87,23 @@ class composite(object):
     @doc_template_provider
     def proximal_optimum(self, quadratic):
         r"""
-        Returns
-
-        .. math::
-
-           \inf_{x \in \mathbb{R}^p} Q(x)
-            + h(x)
-
-        where $p$ = ``x.shape[0]``, $Q(x)=$ `self.quadratic` and
-
-        .. math::
-        
-            h(%(var)s) = %(ns_objective)s
-
+        Compute a proximal step, and return the minimizer
+        and nonsmooth objective the value.
         """
         argmin = self.proximal(quadratic)
         if self.quadratic is None:
-            return argmin, lipschitz * norm(x-argmin)**2 / 2. + self.nonsmooth_objective(argmin)  
-        else:
-            return argmin, lipschitz * norm(x-argmin)**2 / 2. + self.nonsmooth_objective(argmin) + self.quadratic.objective(argmin, 'func') 
+            return argmin, quadratic.objective(argmin) + self.nonsmooth_objective(argmin) 
+        else: 
+            return argmin, quadratic.objective(argmin) + self.nonsmooth_objective(argmin) + self.quadratic.objective(argmin, 'func') 
 
     def proximal_step(self, quadratic, prox_control=None):
         """
         Compute the proximal optimization
 
-        prox_control: If not None, then a dictionary of parameters for the prox procedure
+        Parameters
+        ----------
+        prox_control: [None, dict]
+            If not None, then a dictionary of parameters for the prox procedure
         """
         # This seems like a null op -- if all proximals accept optional prox_control
         if prox_control is None:
@@ -140,7 +132,7 @@ class composite(object):
         if not hasattr(self, "_quadratic"):
             self._quadratic = sq(None, None, None, None)
         return self._quadratic
-    quadratic = property(get_quadratic, set_quadratic)
+    quadratic = property(get_quadratic, set_quadratic, doc='Quadratic part of the object, instance of `regreg.identity_quadratic.identity_quadratic`.')
 
     def smoothed(self, smoothing_quadratic):
         '''
@@ -169,6 +161,10 @@ class nonsmooth(composite):
     """
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
+        '''
+        The zero function.
+        '''
+
         if mode == 'both':
             return 0., zeros(x.shape)
         elif mode == 'func':
@@ -195,7 +191,7 @@ class smooth(composite):
     is a null-op.
     """
 
-    objective_vars = composite.objective_vars.copy()
+    objective_vars = copy(composite.objective_vars)
     objective_vars['coef'] = 'C'
 
     def get_lipschitz(self):
@@ -231,7 +227,7 @@ class smooth(composite):
 
 class smooth_conjugate(smooth):
 
-    def __init__(self, atom, quadratic=None):
+    def __init__(self, atom, smoothing_quadratic=None):
         """
         Given an atom,
         compute the conjugate of this atom plus 
@@ -245,15 +241,18 @@ class smooth_conjugate(smooth):
         # but will be replaced later
 
         self.atom = atom
-        if quadratic is None:
-            quadratic = sq(0,0,0,0)
-        self.smoothing_quadratic = quadratic
-        self.total_quadratic = self.atom.quadratic + self.smoothing_quadratic
+        if smoothing_quadratic is None:
+            smoothing_quadratic = sq(0,0,0,0)
+        self.smoothing_quadratic = smoothing_quadratic
+        total_quadratic = self.atom.quadratic + self.smoothing_quadratic
 
-        if self.total_quadratic.coef in [0,None]:
+        if total_quadratic.coef in [0,None]:
             raise ValueError('the atom must have non-zero quadratic term to compute ensure smooth conjugate')
 
+        self.lipschitz = 1. / total_quadratic.coef
+
         self.shape = atom.shape
+        self.coefs = zeros(self.shape)
 
         # A smooth conjugate is the conjugate of some $f$ with an identity quadratic added to it, or
         # $$
@@ -311,8 +310,8 @@ class smooth_conjugate(smooth):
                 if atom.offset is not None:
                     offset -= atom.offset
                 atom = copy(atom)
-                atom.offset = -offset
-                atom.quadratic=newq
+                atom.offset = offset
+                atom.quadratic = newq
                 return atom
             if q.coef != 0:
                 r = q.coef
@@ -354,18 +353,22 @@ class smooth_conjugate(smooth):
     conjugate = property(get_conjugate)
 
     def latexify(self, var=None, idx=''):
-        template_dict = self.atom.objective_vars.copy()
+        template_dict = copy(self.atom.objective_vars)
         template_dict['idx'] = idx
         if var is not None:
             template_dict['var'] = var
 
         template_dict['f'] = self.atom.latexify(var='u', idx=idx)
+        quad_latex = self.smoothing_quadratic.latexify(var='u', idx=idx)
+        if quad_latex:
+            template_dict['f'] = ' + '.join([template_dict['f'],
+                                             quad_latex])
 
         objective = r' \sup_{u \in \mathbb{R}^{%(shape)s} } \left[ \langle %(var)s, u \rangle - \left(%(f)s \right) \right]' % template_dict
         return objective
 
     def __repr__(self):
-        return 'smooth_conjugate(%s,%s)' % (repr(self.atom), repr(self.quadratic))
+        return 'smooth_conjugate(%s,%s)' % (repr(self.atom), repr(self.smoothing_quadratic + self.atom.quadratic))
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """

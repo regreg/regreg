@@ -13,15 +13,44 @@ constant_term).
 from copy import copy
 
 from numpy.linalg import norm
-from numpy import all, asarray
+from numpy import all, asarray, allclose
 
 class identity_quadratic(object):
 
+    r"""
+    This object is a quadratic function
+
+    .. math::
+
+        x \mapsto \frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma
+
+    used in the proximal methods of all atoms.
+
+    """
+
+    def __eq__(self, other):
+        if isinstance(other, identity_quadratic):
+            return (allclose(self.coef, other.coef) and
+                    allclose(self.center, other.center) and
+                    allclose(self.linear_term, other.linear_term) and
+                    allclose(self.constant_term, other.constant_term))
+
     def __init__(self, coef, center, linear_term, constant_term=0):
+
+        if center is not None:
+            center = asarray(center)
+            if center.shape == ():
+                center = float(center)
+        if linear_term is not None:
+            linear_term = asarray(linear_term)
+            if linear_term.shape == ():
+                linear_term = float(linear_term)
+
         if coef is None:
-            self.coef = 0
+            self.coef = 0.
         else:
             self.coef = coef
+
         self.center = center
         self.linear_term = linear_term
         if constant_term is None:
@@ -185,18 +214,17 @@ class identity_quadratic(object):
 
     def latexify(self, var=r'\beta', idx=''):
         self.zeroify()
-        v = ' '
+        terms = []
         if self.coef != 0:
-            v += r'\frac{L_{%s}}{2} ' % idx
             if not all(self.center == 0):
-                v += r'\|%s-\mu_{%s}\|^2_2 + ' % (var, idx)
+                terms.append(r'\frac{L_{%s}}{2}' % idx + r'\|%s-\mu_{%s}\|^2_2' % (var, idx))
             else:
-                v += r'\|%s\|^2_2 + ' % var
-        if not all(self.linear_term == 0):
-            v += r' \left \langle \eta_{%s}, %s \right \rangle ' % (idx, var)
-        if self.constant_term != 0:
-            v += r' + \gamma_{%s} ' % idx
-        return v
+                terms.append(r'\frac{L_{%s}}{2}' % idx + r'\|%s\|^2_2' % var)
+        if self.linear_term is not None and not all(self.linear_term == 0):
+            terms.append(r'\left \langle \eta_{%s}, %s \right \rangle' % (idx, var))
+        if self.constant_term is not None and self.constant_term != 0:
+            terms.append(r'\gamma_{%s} ' % idx)
+        return ' + '.join(terms)
 
     def _repr_latex_(self):
         return r'''\begin{equation*} %s \end{equation*} ''' % self.latexify()

@@ -21,21 +21,26 @@ class seminorm(unweighted_seminorm):
     """
     tol = 1.0e-05
 
-    def __init__(self, shape, weights, lagrange=None, bound=None, 
+    def __init__(self, weights, lagrange=None, bound=None, 
                  offset=None, 
                  quadratic=None,
                  initial=None):
 
-        unweighted_seminorm.__init__(self, shape,
-                                 lagrange=lagrange,
-                                 bound=bound,
-                                 quadratic=quadratic,
-                                 initial=initial,
-                                 offset=offset)
+        self.weights = np.asarray(weights, np.float)
+        unweighted_seminorm.__init__(self, self.weights.shape,
+                                     lagrange=lagrange,
+                                     bound=bound,
+                                     quadratic=quadratic,
+                                     initial=initial,
+                                     offset=offset)
 
-        self.weights = np.asarray(weights)
-        if self.weights.shape != self.shape:
-            raise ValueError('weights should have same shape as shape')
+        self.invweights = np.zeros_like(self.weights)
+        zero_weight = self.weights == 0
+        self.invweights[~zero_weight] = 1. / self.weights[~zero_weight]
+        self.invweights[zero_weight] = np.inf
+        
+        if not np.all(self.weights >= 0):
+            raise ValueError('weights should be nonnegative')
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
@@ -46,8 +51,7 @@ class seminorm(unweighted_seminorm):
         return False
 
     def __copy__(self):
-        return self.__class__(copy(self.shape),
-                              self.weights.copy(),
+        return self.__class__(self.weights.copy(),
                               quadratic=self.quadratic,
                               initial=self.coefs,
                               bound=copy(self.bound),
@@ -57,32 +61,28 @@ class seminorm(unweighted_seminorm):
     def __repr__(self):
         if self.lagrange is not None:
             if not self.quadratic.iszero:
-                return "%s(%s, %s, lagrange=%f, offset=%s)" % \
+                return "%s(%s, lagrange=%f, offset=%s)" % \
                     (self.__class__.__name__,
-                     repr(self.shape), 
                      str(self.weights),
                      self.lagrange,
                      str(self.offset))
             else:
-                return "%s(%s, %s, lagrange=%f, offset=%s, quadratic=%s)" % \
-                    (self.__class__.__name__,
-                     repr(self.shape), 
+                return "%s(%s, lagrange=%f, offset=%s, quadratic=%s)" % \
+                    (self.__class__.__name__, 
                      str(self.weights),
                      self.lagrange,
                      str(self.offset),
                      self.quadratic)
         else:
             if not self.quadratic.iszero:
-                return "%s(%s, %s, bound=%f, offset=%s)" % \
+                return "%s(%s, bound=%f, offset=%s)" % \
                     (self.__class__.__name__,
-                     repr(self.shape),
                      str(self.weights),
                      self.bound,
                      str(self.offset))
             else:
-                return "%s(%s, %s, bound=%f, offset=%s, quadratic=%s)" % \
+                return "%s(%s, bound=%f, offset=%s, quadratic=%s)" % \
                     (self.__class__.__name__,
-                     repr(self.shape),
                      str(self.weights),
                      self.bound,
                      str(self.offset),
@@ -91,22 +91,19 @@ class seminorm(unweighted_seminorm):
 
     def get_conjugate(self):
         if self.quadratic.coef == 0:
-            inv_weights = 1./self.weights
 
             offset, outq = _work_out_conjugate(self.offset, self.quadratic)
 
             if self.bound is None:
                 cls = conjugate_weighted_pairs[self.__class__]
-                atom = cls(self.shape, 
-                           inv_weights, 
+                atom = cls(self.invweights, 
                            bound=self.lagrange, 
                            lagrange=None,
                            offset=offset,
                            quadratic=outq)
             else:
                 cls = conjugate_weighted_pairs[self.__class__]
-                atom = cls(self.shape,
-                           inv_weights,
+                atom = cls(self.invweights,
                            lagrange=self.bound, 
                            bound=None,
                            offset=offset,
@@ -215,7 +212,7 @@ class supnorm(seminorm):
     @doc_template_user
     def bound_prox(self, x, bound=None):
         bound = seminorm.bound_prox(self, x, bound)
-        return np.clip(x, -bound/self.weights, bound/self.weights)
+        return np.clip(x, -bound * self.invweights, bound * self.invweights)
 
 
 conjugate_weighted_pairs = {}

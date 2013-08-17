@@ -7,13 +7,10 @@ from ..problems.composite import composite, nonsmooth
 from .cones import cone, affine_cone
 from ..identity_quadratic import identity_quadratic
 from ..atoms import _work_out_conjugate
+from ..objdoctemplates import objective_doc_templater
+from ..doctemplates import doc_template_user
 
-try:
-    from projl1_cython import projl1
-except:
-    warnings.warn('Cython version of projl1 not available. Using slower python version')
-    from projl1_python import projl1
-
+@objective_doc_templater()
 class linear_constraint(cone):
 
     """
@@ -27,6 +24,11 @@ class linear_constraint(cone):
     
     """
     tol = 1.0e-05
+
+    objective_vars = cone.objective_vars.copy()
+    objective_vars['coneklass'] = 'projection'
+    objective_vars['dualconeklass'] = 'projection_complement'
+    objective_vars['initargs'] = '(4,), [[1,0,0,0],[0,1,0,0]]'
 
     #XXX should basis by a linear operator instead?
     def __init__(self, shape, basis,
@@ -69,8 +71,8 @@ class linear_constraint(cone):
                  repr(self.offset),
                  self.quadratic)
 
-    @property
-    def conjugate(self):
+    @doc_template_user
+    def get_conjugate(self):
         if self.quadratic.coef == 0:
 
             offset, outq = _work_out_conjugate(self.offset, self.quadratic)
@@ -85,6 +87,7 @@ class linear_constraint(cone):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
+    conjugate = property(get_conjugate)
 
     @classmethod
     def linear(cls, linear_operator, basis, diag=False,
@@ -94,6 +97,7 @@ class linear_constraint(cone):
                    linear_term=linear_term, offset=offset)
         return affine_cone(cone, l)
 
+@objective_doc_templater()
 class projection(linear_constraint):
 
     """
@@ -109,34 +113,32 @@ class projection(linear_constraint):
     is simply np.dot(basis.T, np.dot(basis, x))
     """
 
+    @doc_template_user
     def constraint(self, x):
-        """
-        The non-positive constraint of x.
-        """
         projx = self.cone_prox(x)
         incone = np.linalg.norm(x-projx) / max([np.linalg.norm(x),1]) < self.tol
         if incone:
             return 0
         return np.inf
 
+    @doc_template_user
     def cone_prox(self, x,  lipschitz=1):
-        r"""
-        Return (unique) minimizer
-
-        .. math::
-
-            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-            \|x-v\|^2_2  \; \text{ s.t.} \; x \in \text{row}(L)
-
-        where $p$=x.shape[0], :math:`\lambda` = self.lagrange and self.basis is
-        an orthonormal basis for :math:`\text{row}(L)`
-
-        This is just projection onto :math:`\text{row}(L)`.
-        """
         coefs = np.dot(self.basis, x)
         return np.dot(coefs, self.basis)
 
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
 
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
+
+@objective_doc_templater()
 class projection_complement(linear_constraint):
 
     """
@@ -145,34 +147,34 @@ class projection_complement(linear_constraint):
     with an orthonormal basis for the complement
     """
 
+    objective_vars = linear_constraint.objective_vars.copy()
+    objective_vars['coneklass'] = 'projection_complement'
+    objective_vars['dualconeklass'] = 'projection'
+
+    @doc_template_user
     def constraint(self, x):
-        """
-        The non-positive constraint of x.
-        """
         projx = self.cone_prox(x)
         incone = np.linalg.norm(projx) / max([np.linalg.norm(x),1]) < self.tol
         if incone:
             return 0
         return np.inf
 
+    @doc_template_user
     def cone_prox(self, x,  lipschitz=1):
-        r"""
-        Return (unique) minimizer
-
-        .. math::
-
-            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-            \|x-v\|^2_2  \; \text{ s.t.} \; Lx=0
-
-        where $p$ = x.shape[0], :math:`\lambda` = self.lagrange and self.basis
-        is an orthonormal basis for the orthogonal complement of
-        :math:`\text{row}(L)`
-
-        This is just projection onto the orthogonal complement of
-        :math:`\text{row}(L)`
-        """
         coefs = np.dot(self.basis, x)
         return x - np.dot(coefs, self.basis)
+
+    @doc_template_user
+    def proximal(self, proxq, prox_control=None):
+        return cone.proximal(self, proxq, prox_control)
+
+    @doc_template_user
+    def get_conjugate(self):
+        return cone.get_conjugate(self)
+
+    @doc_template_user
+    def get_dual(self):
+        return cone.dual(self)
 
 conjugate_cone_pairs = {}
 for n1, n2 in [(projection, projection_complement),

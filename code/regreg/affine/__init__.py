@@ -109,7 +109,7 @@ class affine_transform(object):
                 self.input_shape = (linear_operator.shape[0],)
                 self.output_shape = (linear_operator.shape[0],)
             elif not input_shape is None and (len(input_shape) == 2):
-                #Primal shape is a matrix
+                #Input shape is a matrix
                 self.input_shape = input_shape
                 self.output_shape = (linear_operator.shape[0],input_shape[1])
                 self.diagD = False
@@ -120,7 +120,7 @@ class affine_transform(object):
                 self.diagD = False
                 self.affineD = False
 
-    def linear_map(self, x, copy=True):
+    def linear_map(self, x):
         r"""Apply linear part of transform to `x`
 
         Return :math:`Dx`
@@ -144,11 +144,6 @@ class affine_transform(object):
         but could also call FFTs if D is a DFT matrix, in a subclass.
         """
         if self.noneD:
-            # this sometimes has to be a copy
-            # because the array can later be modified
-            # in place -- see the smoothed_seminorm
-            if copy:
-                return x.copy()
             return x
         elif self.affineD:
             return self.linear_operator.linear_map(x)
@@ -159,7 +154,7 @@ class affine_transform(object):
             return broadcast_first(self.linear_operator, x, mul)
         return np.dot(self.linear_operator, x)
 
-    def affine_map(self, x, copy=True):
+    def affine_map(self, x):
         r"""Apply linear and affine offset to `x`
 
         Return :math:`Dx+\alpha`
@@ -185,39 +180,13 @@ class affine_transform(object):
         if self.affineD:
             v = self.linear_operator.affine_map(x)
         else:
-            v = self.linear_map(x, copy)
-        if self.affine_offset is not None:
-            # Deal with 1D and 2D input, affine_offset cases
-            return broadcast_first(self.affine_offset, v, add)
-        # if copy is True, v will already be a copy, so no need to check again
-        return v
-
-    def offset_map(self, x):
-        r"""Apply affine offset to `x`
-
-        Return :math:`x+\alpha`
-
-        Parameters
-        ----------
-        x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
-
-        Returns
-        -------
-        x_a : ndarray
-            `x` transformed with offset components
-
-        """
-        if self.affineD:
-            v = self.linear_operator.offset_map(x)
-        else:
-            v = x
+            v = self.linear_map(x)
         if self.affine_offset is not None:
             # Deal with 1D and 2D input, affine_offset cases
             return broadcast_first(self.affine_offset, v, add)
         return v
 
-    def adjoint_map(self, u, copy=True):
+    def adjoint_map(self, u):
         r"""Apply transpose of linear component to `u`
 
         Return :math:`D^Tu`
@@ -242,11 +211,6 @@ class affine_transform(object):
         also call FFTs if D is a DFT matrix, in a subclass.
         """
         if self.noneD:
-            # this might have to be a copy but we only multiply by D.T when
-            # computing gradient -- this currently doesn't happen in seminorm or
-            # smoothed_seminorm
-            if copy:
-                return u.copy()
             return u
         if self.sparseD_csr:
             return self.linear_operator_T * u
@@ -290,7 +254,6 @@ class selector(linear_transform):
     array([ 30,  81, 132, 183, 234, 285])
 
     >>> apply_to_first5.adjoint_map(np.arange(6))
-
     array([ 275.,  290.,  305.,  320.,  335.,    0.,    0.,    0.,    0.,
               0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,
               0.,    0.])
@@ -309,19 +272,15 @@ class selector(linear_transform):
         self.input_shape = initial_shape
         self.output_shape = self.affine_transform.output_shape
 
-    def linear_map(self, x, copy=False):
+    def linear_map(self, x):
         x_indexed = x[self.index_obj]
         return self.affine_transform.linear_map(x_indexed)
 
-    def affine_map(self, x, copy=False):
+    def affine_map(self, x):
         x_indexed = x[self.index_obj]
         return self.affine_transform.affine_map(x_indexed)
 
-    def offset_map(self, x, copy=False):
-        x_indexed = x[self.index_obj]
-        return self.affine_transform.offset_map(x_indexed)
-
-    def adjoint_map(self, u, copy=False):
+    def adjoint_map(self, u):
         if not hasattr(self, "_output"):
             self._output = np.zeros(self.initial_shape)
         self._output[self.index_obj] = self.affine_transform.adjoint_map(u)
@@ -338,33 +297,24 @@ class reshape(linear_transform):
         self.input_shape = input_shape
         self.output_shape = output_shape
 
-    def linear_map(self, x, copy=False):
-        if copy:
-            x = x.copy()
+    def linear_map(self, x):
         return x.reshape(self.output_shape)
 
-    def affine_map(self, x, copy=False):
-        return self.linear_map(x, copy)
+    def affine_map(self, x):
+        return self.linear_map(x)
 
-    def offset_map(self, x, copy=False):
-        if copy:
-            x = x.copy()
-        return x
-
-    def adjoint_map(self, u, copy=True):
-        if copy:
-            u = u.copy()
+    def adjoint_map(self, u):
         return u.reshape(self.output_shape)
 
-def tensor(T, first_primal_index):
-    input_shape = T.shape[first_primal_index:]
-    output_shape = T.shape[:first_primal_index]
+def tensor(T, first_input_index):
+    input_shape = T.shape[first_input_index:]
+    output_shape = T.shape[:first_input_index]
 
     Tm = T.reshape((np.product(output_shape),
                     np.product(input_shape)))
-    reshape_primal = reshape(input_shape, Tm.shape[1])
-    reshape_dual = reshape(Tm.shape[0], output_shape)
-    return composition(reshape_dual, Tm, reshape_primal)
+    reshape_input = reshape(input_shape, Tm.shape[1])
+    reshape_output = reshape(Tm.shape[0], output_shape)
+    return composition(reshape_output, Tm, reshape_input)
 
 class normalize(object):
 
@@ -512,9 +462,6 @@ class normalize(object):
     def affine_map(self, x):
         return self.linear_map(x)
 
-    def offset_map(self, x):
-        return x
-
     def adjoint_map(self, u):
         v = np.empty(self.input_shape)
         if self.center:
@@ -562,7 +509,7 @@ class normalize(object):
         
         >>> X = np.array([1.2,3.4,5.6,7.8,1.3,4.5,5.6,7.8,1.1,3.4])
         >>> D = np.identity(X.shape[0]) - np.diag(np.ones(X.shape[0]-1),1)
-        >>> nD = ra.normalize(D)
+        >>> nD = normalize(D)
         >>> X_sliced = X.copy()
         >>> X_sliced[:4] = 0; X_sliced[6:] = 0
 
@@ -618,23 +565,14 @@ class identity(object):
         self.affine_offset = None
         self.linear_operator = None
 
-    def affine_map(self, x, copy=True):
-        return self.linear_map(x, copy)
+    def affine_map(self, x):
+        return self.linear_map(x)
 
-    def offset_map(self, x, copy=True):
-        if copy:
-            return x.copy()
-        else:
-            return x
+    def linear_map(self, x):
+        return x
 
-    def linear_map(self, x, copy=True):
-        if copy:
-            return x.copy()
-        else:
-            return x
-
-    def adjoint_map(self, x, copy=True):
-        return self.linear_map(x, copy)
+    def adjoint_map(self, x):
+        return self.linear_map(x)
 
 class vstack(object):
     """
@@ -647,58 +585,52 @@ class vstack(object):
         self.input_shape = -1
         self.output_shapes = []
         self.transforms = []
-        self.dual_slices = []
-        total_dual = 0
+        self.output_slices = []
+        total_output = 0
         for transform in transforms:
             transform = astransform(transform)
             if self.input_shape == -1:
                 self.input_shape = transform.input_shape
             else:
                 if transform.input_shape != self.input_shape:
-                    raise ValueError("primal dimensions don't agree")
+                    raise ValueError("input dimensions don't agree")
             self.transforms.append(transform)
             self.output_shapes.append(transform.output_shape)
             increment = np.product(transform.output_shape)
-            self.dual_slices.append(slice(total_dual, total_dual + increment))
-            total_dual += increment
+            self.output_slices.append(slice(total_output, total_output + increment))
+            total_output += increment
 
-        self.output_shape = (total_dual,)
+        self.output_shape = (total_output,)
         self.group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
                                      for i, shape in enumerate(self.output_shapes)])
-        self.dual_groups = self.group_dtype.names 
+        self.output_groups = self.group_dtype.names 
 
         # figure out the affine offset
         self.affine_offset = np.empty(self.output_shape)
         x = np.zeros(self.input_shape)
-        for g, t in zip(self.dual_slices, self.transforms):
+        for g, t in zip(self.output_slices, self.transforms):
             self.affine_offset[g] = t.affine_map(x)
         if np.all(np.equal(self.affine_offset, 0)):
             self.affine_offset = None
             
-    def linear_map(self, x, copy=False):
+    def linear_map(self, x):
         result = np.empty(self.output_shape)
-        for g, t in zip(self.dual_slices, self.transforms):
+        for g, t in zip(self.output_slices, self.transforms):
             result[g] = t.linear_map(x)
         return result
 
-    def affine_map(self, x, copy=False):
+    def affine_map(self, x):
         result = np.empty(self.output_shape)
-        for g, t in zip(self.dual_slices, self.transforms):
+        for g, t in zip(self.output_slices, self.transforms):
             result[g] = t.linear_map(x)
         if self.affine_offset is not None:
             return result + self.affine_offset
         else:
             return result
 
-    def offset_map(self, x, copy=False):
-        if self.affine_offset is not None:
-            return x + self.affine_offset
-        else:
-            return x
-
-    def adjoint_map(self, u, copy=False):
+    def adjoint_map(self, u):
         result = np.zeros(self.input_shape)
-        for g, t, s in zip(self.dual_slices, self.transforms,
+        for g, t, s in zip(self.output_slices, self.transforms,
                            self.output_shapes):
             result += t.adjoint_map(u[g].reshape(s))
         return result
@@ -714,44 +646,44 @@ class hstack(object):
         self.output_shape = -1
         self.input_shapes = []
         self.transforms = []
-        self.primal_slices = []
-        total_primal = 0
+        self.input_slices = []
+        total_input = 0
         for transform in transforms:
             transform = astransform(transform)
             if self.output_shape == -1:
                 self.output_shape = transform.output_shape
             else:
                 if transform.output_shape != self.output_shape:
-                    raise ValueError("dual dimensions don't agree")
+                    raise ValueError("output dimensions don't agree")
             self.transforms.append(transform)
             self.input_shapes.append(transform.input_shape)
             increment = np.product(transform.input_shape)
-            self.primal_slices.append(slice(total_primal, total_primal + increment))
-            total_primal += increment
+            self.input_slices.append(slice(total_input, total_input + increment))
+            total_input += increment
 
-        self.input_shape = (total_primal,)
+        self.input_shape = (total_input,)
         self.group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
                                      for i, shape in enumerate(self.input_shapes)])
-        self.primal_groups = self.group_dtype.names 
+        self.input_groups = self.group_dtype.names 
 
         # figure out the affine offset
         self.affine_offset = np.zeros(self.output_shape)
-        for g, s, t in zip(self.primal_slices, self.input_shapes,
+        for g, s, t in zip(self.input_slices, self.input_shapes,
                            self.transforms):
             self.affine_offset += t.affine_map(np.zeros(s))
         if np.all(np.equal(self.affine_offset, 0)):
             self.affine_offset = None
 
-    def linear_map(self, x, copy=False):
+    def linear_map(self, x):
         result = np.zeros(self.output_shape)
-        for g, t, s in zip(self.primal_slices, self.transforms,
+        for g, t, s in zip(self.input_slices, self.transforms,
                            self.input_shapes):
             result += t.linear_map(x[g].reshape(s))
         return result
 
-    def affine_map(self, x, copy=False):
+    def affine_map(self, x):
         result = np.zeros(self.output_shape)
-        for g, t, s in zip(self.primal_slices, self.transforms,
+        for g, t, s in zip(self.input_slices, self.transforms,
                         self.input_shapes):
             result += t.linear_map(x[g].reshape(s))
         if self.affine_offset is not None:
@@ -759,21 +691,91 @@ class hstack(object):
         else:
             return result
 
-    def offset_map(self, x, copy=False):
-        if self.affine_offset is not None:
-            return x + self.affine_offset
-        else:
-            return x
-
-    def adjoint_map(self, u, copy=False):
+    def adjoint_map(self, u):
         result = np.empty(self.input_shape)
         #XXX this reshaping will fail for shapes that aren't
         # 1D, would have to view as self.group_dtype to
         # take advantange of different shapes
-        for g, t, s in zip(self.primal_slices, self.transforms,
+        for g, t, s in zip(self.input_slices, self.transforms,
                            self.input_shapes):
             result[g] = t.adjoint_map(u).reshape(-1)
         return result
+
+class product(object):
+    """
+    Create a transform that maps the product of the inputs
+    to the product of the outputs.
+   
+    """
+
+    def __init__(self, transforms):
+        self.output_shapes = []
+        self.input_shapes = []
+        self.transforms = []
+        self.input_slices = []
+        self.output_slices = []
+        total_input = 0
+        total_output = 0
+        for transform in transforms:
+            transform = astransform(transform)
+            self.transforms.append(transform)
+            self.input_shapes.append(transform.input_shape)
+            self.output_shapes.append(transform.output_shape)
+            input_increment = np.product(transform.input_shape)
+            output_increment = np.product(transform.output_shape)
+            self.input_slices.append(slice(total_input, total_input + input_increment))
+            self.output_slices.append(slice(total_output, total_output + output_increment))
+            total_input += input_increment
+            total_output += output_increment
+
+        self.input_shape = (total_input,)
+        self.output_shape = (total_output,)
+        self.input_group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
+                                           for i, shape in enumerate(self.input_shapes)])
+        self.input_groups = self.input_group_dtype.names 
+
+        self.output_group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
+                                           for i, shape in enumerate(self.input_shapes)])
+        self.output_groups = self.output_group_dtype.names 
+
+        # figure out the affine offset
+        self.affine_offset = np.zeros(self.output_shape)
+        for g, s, t in zip(self.output_slices, self.input_shapes,
+                           self.transforms):
+            self.affine_offset[g] = t.affine_map(np.zeros(s))
+        if np.all(np.equal(self.affine_offset, 0)):
+            self.affine_offset = None
+
+    def linear_map(self, x):
+        result = np.zeros(self.output_shape)
+        for og, ig, t, s in zip(self.output_slices,
+                                self.input_slices, 
+                                self.transforms,
+                                self.input_shapes):
+            result[og] = t.linear_map(x[g].reshape(s))
+        return result
+
+    def affine_map(self, x):
+        result = np.zeros(self.output_shape)
+        for og, ig, t, s in zip(self.output_slices,
+                                self.input_slices, 
+                                self.transforms,
+                                self.input_shapes):
+            result[og] = t.linear_map(x[ig].reshape(s))
+        if self.affine_offset is not None:
+            return result + self.affine_offset
+        else:
+            return result
+
+    def adjoint_map(self, u):
+        result = np.empty(self.input_shape)
+        for og, ig, t, s in zip(self.output_slices,
+                                self.input_slices, 
+                                self.transforms,
+                                self.input_shapes):
+            result[ig] = t.adjoint_map(u[og]).reshape(-1)
+        return result
+
 
 def power_L(transform, max_its=500,tol=1e-8, debug=False):
     """
@@ -820,17 +822,14 @@ class adjoint(object):
         self.input_shape = self.transform.output_shape
         self.output_shape = self.transform.input_shape
 
-    def linear_map(self, x, copy=False):
-        return self.transform.adjoint_map(x, copy)
+    def linear_map(self, x):
+        return self.transform.adjoint_map(x)
 
-    def affine_map(self, x, copy=False):
-        return self.linear_map(x, copy)
+    def affine_map(self, x):
+        return self.linear_map(x)
 
-    def offset_map(self, x, copy=False):
-        return x
-
-    def adjoint_map(self, x, copy=False):
-        return self.transform.linear_map(x, copy)
+    def adjoint_map(self, x):
+        return self.transform.linear_map(x)
 
 class tensorize(object):
 
@@ -857,9 +856,6 @@ class tensorize(object):
             return v + self.affine_offset[:, np.newaxis]
         return v
 
-    def offset_map(self, x):
-        return x
-
     def adjoint_map(self, x):
         return self.transform.adjoint_map(x)
 
@@ -875,7 +871,7 @@ class residual(object):
         self.output_shape = self.transform.output_shape
         self.affine_offset = None
         if not self.input_shape == self.output_shape:
-            raise ValueError('dual and primal shapes should be the same to compute residual')
+            raise ValueError('output and input shapes should be the same to compute residual')
 
     def linear_map(self, x):
         return x - self.transform.linear_map(x)
@@ -916,12 +912,6 @@ class composition(object):
             output = transform.affine_map(output)
         return output
 
-    def offset_map(self, x):
-        output = x
-        for transform in self.transforms[::-1]:
-            output = transform.offset_map(output)
-        return output
-
     def adjoint_map(self, x):
         output = x
         for transform in self.transforms:
@@ -935,15 +925,15 @@ class affine_sum(object):
     """
 
     def __init__(self, transforms, weights=None):
-        self.transforms = transforms
+        self.transforms = [astransform(T) for T in transforms]
         if weights is None:
             self.weights = np.ones(len(self.transforms))
         else:
             if not len(self.transforms) == len(weights):
                 raise ValueError("Must specify a weight for each transform")
             self.weights = weights
-        self.input_shape = transforms[0].input_shape
-        self.output_shape = transforms[0].output_shape
+        self.input_shape = self.transforms[0].input_shape
+        self.output_shape = self.transforms[0].output_shape
 
         # compute the affine_offset
         affine_offset = self.affine_map(np.zeros(self.input_shape))
@@ -964,10 +954,6 @@ class affine_sum(object):
             output += weight * transform.affine_map(x)
         return output
 
-
-    def offset_map(self, x):
-        return self.affine_offset
-
     def adjoint_map(self, x):
         output = 0
         for transform, weight in zip(self.transforms[::-1], self.weights[::-1]):
@@ -983,30 +969,24 @@ class scalar_multiply(object):
         self.affine_offset = None
         self._atransform = atransform
 
-    def affine_map(self, x, copy=True):
+    def affine_map(self, x):
         if self.scalar != 1.:
-            return self._atransform.linear_map(x, copy) * self.scalar
+            return self._atransform.linear_map(x) * self.scalar
         else:
-            return self._atransform.linear_map(x, copy)
+            return self._atransform.linear_map(x)
 
-    def offset_map(self, x, copy=True):
+    def linear_map(self, x):
         if self.scalar != 1.:
-            return self._atransform.offset_map(x, copy) * self.scalar # is this correct -- what is offset_map again?
+            return self._atransform.linear_map(x) * self.scalar 
         else:
-            return self._atransform.offset_map(x, copy)
-
-    def linear_map(self, x, copy=True):
-        if self.scalar != 1.:
-            return self._atransform.linear_map(x, copy) * self.scalar 
-        else:
-            return self._atransform.linear_map(x, copy)
+            return self._atransform.linear_map(x)
 
 
-    def adjoint_map(self, x, copy=True):
+    def adjoint_map(self, x):
         if self.scalar != 1.:
-            return self._atransform.adjoint_map(x, copy) * self.scalar 
+            return self._atransform.adjoint_map(x) * self.scalar 
         else:
-            return self._atransform.adjoint_map(x, copy)
+            return self._atransform.adjoint_map(x)
 
 class posneg(affine_transform):
 
@@ -1025,11 +1005,19 @@ class posneg(affine_transform):
     def affine_map(self, x):
         return self.linear_map(x)
 
-    def offset_map(self, x):
-        return x
-
     def adjoint_map(self, x):
         u = self._adjoint_output
         u[0] = self.linear_transform.adjoint_map(x)
         u[1] = -u[0]
         return u
+
+def todense(transform):
+    """
+    Return a dense array representation of a transform -- use
+    carefully -- it could be large.
+    """
+    if len(transform.input_shape) == 1:
+        I = np.identity(np.product(transform.input_shape))
+        return transform.linear_map(I)
+    else:
+        raise NotImplementedError('expecting a 1D shape as input')
