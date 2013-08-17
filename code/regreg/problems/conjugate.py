@@ -34,10 +34,9 @@ class conjugate(composite):
         #XXX we need a better way to pass around the Lipschitz constant
         # should go in the container class
         if hasattr(self.atom, "lipschitz"):
-            self._backtrack = False
-            # self._smooth_function_linear.lipschitz = atom.lipschitz + self.atom.quadratic.coef
+            self.perform_backtrack = False
         else:
-            self._backtrack = True
+            self.perform_backtrack = True
         self._have_solved_once = False
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
@@ -51,7 +50,8 @@ class conjugate(composite):
 
         self.solver.debug = False
         self.atom.quadratic.linear_term -= x.T
-        self.solver.fit(max_its=5000, tol=self.tol, backtrack=self._backtrack)
+        self.solver.perform_backtrack = self.perform_backtrack
+        self.solver.fit(max_its=5000, tol=self.tol)
         minimizer = self.atom.coefs
             
         # retain a reference

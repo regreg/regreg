@@ -44,7 +44,6 @@ def test_lasso():
     yield all_close, ans, solver2.composite.coefs, 'singleton solver', None
     yield all_close, solver1.composite.coefs, solver2.composite.coefs, 'container solver', None
 
-#@np.testing.dec.knownfailureif(True)
 def test_quadratic_for_smooth():
     '''
     this test is a check to ensure that the quadratic part 
@@ -124,7 +123,6 @@ def test_quadratic_for_smooth():
                        'simple_problem having a quadratic']):
         yield all_close, aq, p, msg, None
 
-#@np.testing.dec.knownfailureif(True)
 def test_quadratic_for_smooth2():
     '''
     this test is a check to ensure that the

@@ -6,7 +6,7 @@ from .identity_quadratic import identity_quadratic as sq
 class algorithm(object):
 
     perform_backtrack = True
-    inv_step = None
+    step = None
     alpha = 1.1
     debug = False
     max_its=10000
@@ -38,16 +38,18 @@ class FISTA(algorithm):
     The FISTA generalized gradient algorithm
     """
 
-    alpha = 1.1 # multiplicative factor for changing inv_step
+    alpha = 1.1 # multiplicative factor for changing step
 
     def fit(self,
             tol=None,
+            min_its=None,
+            max_its=None,
             FISTA=True,
-            start_inv_step=1.,
+            start_step=1.,
             restart=np.inf,
             coef_stop=False,
             return_objective_hist = True,
-            monotonicity_restart=True,
+            monotonicity_restart = True,
             debug = None,
             prox_control={}):
 
@@ -58,8 +60,8 @@ class FISTA(algorithm):
         ----------
         FISTA : bool
               use Nesterov weights? If False, this is just gradient descent
-        start_inv_step : float
-              used in backtracking. This is the starting value of self.inv_step
+        start_step : float
+              used in backtracking. This is the starting value of self.step
         restart : int
               Restart Nesterov weights every restart iterations. Default is never (np.inf)
         coef_stop : bool
@@ -82,16 +84,18 @@ class FISTA(algorithm):
         """
 
         tol = tol or self.default_tol
+        min_its = min_its or self.min_its
+        max_its = max_its or self.max_its
 
         if debug is not None:
             self.debug = debug
         self.prox_control = {}
 
-        objective_hist = np.zeros(self.max_its)
+        objective_hist = np.zeros(max_its)
         
-        if self.perform_backtrack and self.inv_step is None:
-            #If inv_step is not available from last fit use start_inv_step
-            self.inv_step = start_inv_step
+        if self.perform_backtrack and self.step is None:
+            #If self.step is not available from last fit use start_step
+            self.step = start_step
 
         self.working_coefs = self.composite.coefs
 
@@ -103,7 +107,7 @@ class FISTA(algorithm):
         
         itercount = 0
         badstep = 0
-        while itercount < self.max_its:
+        while itercount < max_its:
 
             #Restart every 'restart' iterations
 
@@ -122,11 +126,12 @@ class FISTA(algorithm):
             else:
                 #Use specified Lipschitz constant
                 working_grad = self.composite.smooth_objective(self.working_coefs, mode='grad')
-                self.inv_step = self.composite.lipschitz
+                lipschitz = self.composite.lipschitz
+                self.step = 1. / lipschitz
                 if self.prox_control != {}:
-                    proposed_coefs = self.composite.proximal_step(sq(self.inv_step, self.working_coefs, working_grad, 0), prox_control=prox_control)
+                    proposed_coefs = self.composite.proximal_step(sq(lipschitz, self.working_coefs, working_grad, 0), prox_control=prox_control)
                 else:
-                    proposed_coefs = self.composite.proximal_step(sq(self.inv_step, self.working_coefs, working_grad, 0))
+                    proposed_coefs = self.composite.proximal_step(sq(lipschitz, self.working_coefs, working_grad, 0))
                 proposed_smooth = self.composite.smooth_objective(proposed_coefs, mode='func')
 
             proposed_obj = proposed_smooth + self.composite.nonsmooth_objective(proposed_coefs)
@@ -138,11 +143,11 @@ class FISTA(algorithm):
 
             if self.debug:
                 if coef_stop:
-                    print itercount, working_obj, self.inv_step, obj_rel_change, coef_rel_change, tol
+                    print itercount, working_obj, self.step, obj_rel_change, coef_rel_change, tol
                 else:
-                    print "%i    obj: %.6e    inv_step: %.2e    rel_obj_change: %.2e    tol: %.1e" % (itercount, working_obj, self.inv_step, obj_rel_change, tol)
+                    print "%i    obj: %.6e    step: %.2e    rel_obj_change: %.2e    tol: %.1e" % (itercount, working_obj, self.step, obj_rel_change, tol)
 
-            if itercount >= self.min_its:
+            if itercount >= min_its:
                 if coef_stop:
                     if coef_rel_change < tol:
                         self.working_coefs = proposed_coefs
@@ -185,9 +190,9 @@ class FISTA(algorithm):
                 working_obj = proposed_obj
 
         if self.debug:
-            if itercount == self.max_its:
+            if itercount == max_its:
                 print "Optimization stopped because iteration limit was reached"
-            print "FISTA used", itercount, "of", self.max_its, "iterations"
+            print "FISTA used", itercount, "of", max_its, "iterations"
         if return_objective_hist:
             return objective_hist[:itercount]
 
@@ -205,15 +210,14 @@ class FISTA(algorithm):
     def backtrack(self, itercount):
 
         if np.mod(itercount+1,100)==0 or self.attempt_decrease:
-            self.inv_step *= 1. / self.alpha
+            self.step *= self.alpha
             self.attempt_decrease = True
         working_smooth, working_grad = self.composite.smooth_objective(self.working_coefs, mode='both')
-        stop = False
-        while not stop:
+        while True:
             if self.prox_control != {}:
-                proposed_coefs = self.composite.proximal_step(sq(self.inv_step, self.working_coefs, working_grad, 0), prox_control=prox_control)
+                proposed_coefs = self.composite.proximal_step(sq(1. / self.step, self.working_coefs, working_grad, 0), prox_control=prox_control)
             else:
-                proposed_coefs = self.composite.proximal_step(sq(self.inv_step, self.working_coefs, working_grad, 0))
+                proposed_coefs = self.composite.proximal_step(sq(1. / self.step, self.working_coefs, working_grad, 0))
 
             proposed_smooth = self.composite.smooth_objective(proposed_coefs, mode='func')
 
@@ -222,17 +226,19 @@ class FISTA(algorithm):
             elif np.fabs(proposed_smooth - working_smooth)/np.max([1., proposed_smooth]) > 1e-10:
                 stop = (proposed_smooth <= working_smooth + np.dot((proposed_coefs - self.working_coefs).reshape(-1),
                                                                    working_grad.reshape(-1)) + \
-                            0.5*self.inv_step*np.linalg.norm(proposed_coefs-self.working_coefs)**2)
+                            (0.5/self.step)*np.linalg.norm(proposed_coefs-self.working_coefs)**2)
             else:
                 proposed_grad = self.composite.smooth_objective(proposed_coefs, mode='grad')
                 stop = (np.fabs(np.dot((proposed_coefs - self.working_coefs).reshape(-1),
                                        (working_grad - proposed_grad).reshape(-1))) <= 
-                        0.5*self.inv_step*np.linalg.norm(proposed_coefs-self.working_coefs)**2)
-            if not stop:
-                self.attempt_decrease = False
-                self.inv_step *= self.alpha
-                if not np.isfinite(self.inv_step):
-                    raise ValueError("inv_step overflowed")
-                if self.debug:
-                    print "%i    Increasing inv_step to" % itercount, self.inv_step
+                        (0.5/self.step)*np.linalg.norm(proposed_coefs-self.working_coefs)**2)
+            if stop:
+                break
+
+            self.attempt_decrease = False
+            self.step /= self.alpha
+            if not self.step > 0:
+                raise ValueError("stepsize zero reached")
+            if self.debug:
+                print "%i    Decreasing step to" % itercount, self.step
         return proposed_coefs, proposed_smooth

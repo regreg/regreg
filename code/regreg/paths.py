@@ -248,8 +248,8 @@ class lasso(object):
         self.solution[:] = selector.adjoint_map(sub_soln)
 
         grad = subproblem.smooth_objective(sub_soln, mode='grad') 
-        self.final_inv_step = subproblem.final_inv_step
-        return self.final_inv_step, grad, sub_soln, penalty_structure
+        self.final_step = subproblem.final_step
+        return self.final_step, grad, sub_soln, penalty_structure
 
     def main(self, inner_tol=1.e-5, verbose=False):
 
@@ -261,7 +261,7 @@ class lasso(object):
         scalings = self.nonzero.adjoint_map(scalings)
 
         # take a guess at the inverse step size
-        self.final_inv_step = self.lipschitz / 1000
+        self.final_step = 1000. / self.lipschitz 
         lseq = self.lagrange_sequence # shorthand
 
         # first solution corresponding to all zeros except intercept 
@@ -295,11 +295,11 @@ class lasso(object):
                                                           lagrange_new, grad=grad_solution)
 
                 subproblem_set = self.ever_active + all_failing
-                final_inv_step, grad, sub_soln, penalty_structure \
+                final_step, grad, sub_soln, penalty_structure \
                     = self.solve_subproblem(subproblem_set,
                                             lagrange_new,
                                             tol=tol,
-                                            start_inv_step=self.final_inv_step,
+                                            start_step=self.final_step,
                                             debug=debug and verbose,
                                             coef_stop=coef_stop)
 
@@ -326,7 +326,7 @@ class lasso(object):
 
                     if not all_failing.sum():
                         self.ever_active += self.solution != 0
-                        self.final_inv_step = final_inv_step
+                        self.final_step = final_step
                         break
                     else:
                         if verbose:
@@ -462,19 +462,19 @@ class nesta(lasso):
         return self._epsilon
     epsilon = property(get_epsilon, set_epsilon)
 
-    def set_final_inv_step(self, value):
-        if not hasattr(self, "_final_inv_step_lookup"):
-            self._final_inv_step_lookup = {}
-        self._final_inv_step_lookup[self.epsilon] = value
+    def set_final_step(self, value):
+        if not hasattr(self, "_final_step_lookup"):
+            self._final_step_lookup = {}
+        self._final_step_lookup[self.epsilon] = value
 
-    def get_final_inv_step(self):
-        if not hasattr(self, "_final_inv_step_lookup"):
-            self._final_inv_step_lookup = {}
-        if self.epsilon not in self._final_inv_step_lookup:
-            self._final_inv_step_lookup[self.epsilon] = \
-                max(self._final_inv_step_lookup.value())
-        return self._final_inv_step_lookup[self.epsilon]
-    final_inv_step = property(get_final_inv_step, set_final_inv_step)
+    def get_final_step(self):
+        if not hasattr(self, "_final_step_lookup"):
+            self._final_step_lookup = {}
+        if self.epsilon not in self._final_step_lookup:
+            self._final_step_lookup[self.epsilon] = \
+                max(self._final_step_lookup.value())
+        return self._final_step_lookup[self.epsilon]
+    final_step = property(get_final_step, set_final_step)
 
     def solve_subproblem(self, candidate_set, lagrange_new, **solve_args):
     
@@ -485,7 +485,7 @@ class nesta(lasso):
             subproblem, selector, penalty_structure = self.restricted_problem(candidate_set, lagrange_new)
             subproblem.coefs[:] = selector.linear_map(self.solution)
             sub_soln = subproblem.solve(**solve_args)
-            self.final_inv_step = subproblem.final_inv_step
+            self.final_step = subproblem.final_step
 
             candidate = selector.adjoint_map(sub_soln)
             print np.linalg.norm(self.solution - candidate) / max(np.linalg.norm(candidate), 1)
@@ -498,7 +498,7 @@ class nesta(lasso):
             self.set_dual_term(self.lagrange, self.dual_term)
 
         grad = subproblem.smooth_objective(sub_soln, mode='grad') 
-        return self.final_inv_step, grad, sub_soln, penalty_structure
+        return self.final_step, grad, sub_soln, penalty_structure
 
 def newsgroup():
     import scipy.io

@@ -138,7 +138,7 @@ def stacked_dual(shape, *primary_atoms):
     if len(transforms) > 1:
         transform = afvstack(transforms)
         separable_atom = separable(transform.output_shape, dual_atoms,
-                                   transform.dual_slices)
+                                   transform.output_slices)
         _dual = transform, separable_atom
     else:
         _dual = (transforms[0], dual_atoms[0])
