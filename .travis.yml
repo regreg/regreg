@@ -25,6 +25,7 @@ install:
     - cd Cython-0.18
     - sudo python$PYSUF setup.py install
     # Regreg
+    - cd ..
     - $PYTHON setup.py build
     - sudo $PYTHON setup.py install
 script:
