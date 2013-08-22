@@ -5,7 +5,7 @@ from copy import copy
 import scipy.optimize
 
 import regreg.api as rr
-from atoms.test_seminorms import all_close 
+from ..atoms.tests.test_seminorms import all_close
 
 def test_lasso():
     '''
