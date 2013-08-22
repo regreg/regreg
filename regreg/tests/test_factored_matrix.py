@@ -4,7 +4,7 @@ import regreg.affine.factored_matrix as FM
 from regreg.affine import power_L, todense
 from regreg.atoms.projl1_cython import projl1
 from regreg.api import identity_quadratic
-from atoms.test_seminorms import all_close
+from ..atoms.tests.test_seminorms import all_close
 
 X = np.random.standard_normal((100, 50))
 X[:,:7] *= 5

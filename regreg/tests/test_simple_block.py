@@ -1,13 +1,14 @@
+from copy import copy
+
 import numpy as np
 
 import regreg.api as rr
 from regreg.problems.simple import gengrad
+
 import nose.tools as nt
 
-from atoms.test_seminorms import all_close
+from ..atoms.tests.test_seminorms import all_close
 
-
-from copy import copy
 
 def test_simple():
     Z = np.random.standard_normal((10,10)) * 4
