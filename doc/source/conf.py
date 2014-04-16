@@ -27,7 +27,7 @@ exec(open(_info_fname, 'rt').read(), {}, rel)
 
 # Import support for ipython console session syntax highlighting (lives
 # in the sphinxext directory defined above)
-import ipython_console_highlighting
+import IPython.sphinxext.ipython_console_highlighting
 
 # General configuration
 # ---------------------
@@ -38,9 +38,9 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.pngmath',
               'sphinx.ext.autosummary',
-              'ipython_console_highlighting', 
-              'ipython_directive',
-              'inheritance_diagram',
+              'IPython.sphinxext.ipython_console_highlighting', 
+              'IPython.sphinxext.ipython_directive',
+              'sphinx.ext.inheritance_diagram',
               'math_dollar'
               ]
 
