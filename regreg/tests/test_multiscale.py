@@ -50,3 +50,27 @@ def test_changepoint():
     plt.scatter(np.arange(p), Y)
     plt.plot(np.arange(p), Yhat)
 
+def test_changepoint_scaled():
+
+    p = 150
+    M = multiscale(p)
+    M.minsize = 10
+    X = ra.adjoint(M)
+
+    Y = np.random.standard_normal(p)
+    Y[20:50] += 8
+    Y += 2
+    meanY = Y.mean()
+
+    lammax = np.fabs(X.adjoint_map(Y) / (1 + np.log(M.sizes))).max()
+
+    penalty = rr.weighted_l1norm((1 + np.log(M.sizes)), lagrange=0.5*lammax)
+    loss = rr.squared_error(X, Y - meanY)
+    problem = rr.simple_problem(loss, penalty)
+    soln = problem.solve()
+    Yhat = X.linear_map(soln)
+    Yhat += meanY
+
+    plt.scatter(np.arange(p), Y)
+    plt.plot(np.arange(p), Yhat)
+
