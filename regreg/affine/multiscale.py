@@ -1,7 +1,5 @@
 import numpy as np
-from scipy import sparse
-
-from ..affine import astransform, affine_transform
+from ..affine import affine_transform
 
 class multiscale(affine_transform):
 
@@ -28,7 +26,7 @@ class multiscale(affine_transform):
 
         """
         self.p = p
-        self.minsize = minsize or int(p**(1/3.))
+        self.minsize = minsize or int(np.around(p**(1/3.)))
         self._slices = []
         self._sizes = []
         for i in range(p):
@@ -85,10 +83,12 @@ class multiscale(affine_transform):
 
         v_scaled = v / self._sizes
         output = np.zeros(self.input_shape)
-        for k, ij in enumerate(self._slices):
-            i, j = ij
-            size = (j-i)
-            output[i:j] += v_scaled[k]
+        non0 = np.nonzero(v_scaled)[0]
+        if non0.shape != ():
+            for k in non0:
+                i, j = self._slices[k]
+                size = (j-i)
+                output[i:j] += v_scaled[k]
         return output - output.mean()
 
 
