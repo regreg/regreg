@@ -28,13 +28,13 @@ class multiscale(affine_transform):
         self.p = p
         self.minsize = minsize or int(np.around(p**(1/3.)))
         self._slices = []
-        self._sizes = []
+        _sizes = []
         for i in range(p):
             for j in range(i,p):
                 if j - i >= self.minsize:
                     self._slices.append((i,j))
-                    self._sizes.append(j-i)
-        self._sizes = np.array(self._sizes)
+                    _sizes.append(j-i)
+        self.sizes = np.array(_sizes)
         self.input_shape = (p,)
         self.output_shape = (len(self._slices),)
 
@@ -86,7 +86,7 @@ class multiscale(affine_transform):
         v : np.float(self.input_shape)
         """
 
-        v_scaled = v / self._sizes
+        v_scaled = v / self.sizes
         output = np.zeros(self.input_shape)
         non0 = np.nonzero(v_scaled)[0]
         if non0.shape != ():
