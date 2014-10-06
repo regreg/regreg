@@ -57,9 +57,14 @@ class multiscale(affine_transform):
         """
         x_centered = x - x.mean()
         output = np.zeros(self.output_shape)
+        cumsum = np.cumsum(x_centered)
         for k, ij in enumerate(self._slices):
             i, j = ij
-            output[k] = x_centered[i:j].mean()
+            if i >= 1:
+                output[k] = cumsum[j-1] - cumsum[i-1] 
+            else:
+                output[k] = cumsum[j-1]
+            output[k] /= j - i
         return output
 
     def affine_map(self, x):
