@@ -12,7 +12,11 @@ class multiscale(affine_transform):
     all intervals of a minimum size.
     """
 
-    def __init__(self, p, minsize=None):
+    dtype = np.dtype([('start', np.int),
+                      ('end', np.int)])
+
+    def __init__(self, p, minsize=None, slices=[],
+                 scaling=None):
         """
         Parameters
         ----------
@@ -24,19 +28,54 @@ class multiscale(affine_transform):
             Smallest interval to consider.
             Defaults to p**(1/3.)
 
+        slices : []
+            A list of intervals to use in the transform.
+            Will be coerced to have dtype([('start', np.int), ('end', np.int)])
+
+        scaling : np.float((slices.shape))
+            An optional scaling to apply after computing
+            mean over each interval.
+
         """
         self.p = p
         self.minsize = minsize or int(np.around(p**(1/3.)))
-        self._slices = []
-        _sizes = []
-        for i in range(p):
-            for j in range(i,p):
-                if j - i >= self.minsize:
-                    self._slices.append((i,j))
-                    _sizes.append(j-i)
-        self.sizes = np.array(_sizes)
+        self.slices = np.asarray(slices)
+        self.scaling = scaling
+        if self.slices.shape in [(), (0,)]:
+            S = np.indices((p,p)).reshape((2,-1))
+            slices = S[:,(S[1]-S[0] >= self.minsize)].T
+            self.slices = np.empty(slices.shape[0], self.dtype)
+            self.slices['start'] = slices[:,0]
+            self.slices['end'] = slices[:,1]
+
+        self.sizes = self.slices['end'] - self.slices['start'] * 1.
         self.input_shape = (p,)
-        self.output_shape = (len(self._slices),)
+        self.output_shape = (len(self.slices),)
+
+    def update_slices(self, slices, scaling=None):
+        """
+
+        Change the intervals computed by the multiscale
+        transform.
+
+        Parameters
+        ----------
+
+        slices : []
+            List of (i,j) intervals to compute.
+            Will be converted to have dtype([('start', np.int), ('end', np.int)])
+
+        """
+        slices = np.asarray(slices)
+        if slices.dtype != self.dtype:
+            self.slices = np.empty(slices.shape[0], self.dtype)
+            self.slices['start'] = slices[:,0]
+            self.slices['end'] = slices[:,1]
+        else:
+            self.slices = slices
+        self.sizes = self.slices['end'] - self.slices['start'] * 1.
+        self.output_shape = (len(self.slices),)
+        self.scaling = scaling
 
     def linear_map(self, x):
         """
@@ -58,13 +97,15 @@ class multiscale(affine_transform):
         x_centered = x - x.mean()
         output = np.zeros(self.output_shape)
         cumsum = np.cumsum(x_centered)
-        for k, ij in enumerate(self._slices):
+        for k, ij in enumerate(self.slices):
             i, j = ij
             if i >= 1:
                 output[k] = cumsum[j-1] - cumsum[i-1] 
             else:
                 output[k] = cumsum[j-1]
             output[k] /= j - i
+        if self.scaling is not None:
+            output *= self.scaling
         return output
 
     def affine_map(self, x):
@@ -87,12 +128,13 @@ class multiscale(affine_transform):
         """
 
         v_scaled = v / self.sizes
+        if self.scaling is not None:
+            v_scaled *= self.scaling
         output = np.zeros(self.input_shape)
         non0 = np.nonzero(v_scaled)[0]
         if non0.shape != ():
             for k in non0:
-                i, j = self._slices[k]
-                size = (j-i)
+                i, j = self.slices[k]
                 output[i:j] += v_scaled[k]
         return output - output.mean()
 
