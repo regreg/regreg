@@ -42,12 +42,15 @@ class multiscale(affine_transform):
         self.slices = np.asarray(slices)
         self.scaling = scaling
         if self.slices.shape in [(), (0,)]:
+            self._all = True # if computing all differences of a certain size things can be sped up
             S = np.indices((p,p)).reshape((2,-1))
-            slices = S[:,(S[1]-S[0] >= self.minsize)].T
+            self._mask = (S[1]-S[0] >= self.minsize)
+            slices = S[:,self._mask].T
             self.slices = np.empty(slices.shape[0], self.dtype)
             self.slices['start'] = slices[:,0]
             self.slices['end'] = slices[:,1]
-
+        else:
+            self._all = False
         self.sizes = self.slices['end'] - self.slices['start'] * 1.
         self.input_shape = (p,)
         self.output_shape = (len(self.slices),)
@@ -71,6 +74,7 @@ class multiscale(affine_transform):
             self.slices = np.empty(slices.shape[0], self.dtype)
             self.slices['start'] = slices[:,0]
             self.slices['end'] = slices[:,1]
+            self._all = False
         else:
             self.slices = slices
         self.sizes = self.slices['end'] - self.slices['start'] * 1.
@@ -97,13 +101,18 @@ class multiscale(affine_transform):
         x_centered = x - x.mean()
         output = np.zeros(self.output_shape)
         cumsum = np.cumsum(x_centered)
-        for k, ij in enumerate(self.slices):
-            i, j = ij
-            if i >= 1:
-                output[k] = cumsum[j-1] - cumsum[i-1] 
-            else:
-                output[k] = cumsum[j-1]
-            output[k] /= j - i
+        if not self._all:
+            for k, ij in enumerate(self.slices):
+                i, j = ij
+                if i >= 1:
+                    output[k] = cumsum[j-1] - cumsum[i-1] 
+                else:
+                    output[k] = cumsum[j-1]
+                output[k] /= j - i
+        else:
+            _cumsum = np.hstack([np.zeros(1), cumsum])
+            D = np.subtract.outer(_cumsum, _cumsum)[:-1,:-1].reshape(-1)[self._mask]
+            output = -D / self.sizes
         if self.scaling is not None:
             output *= self.scaling
         return output
@@ -130,13 +139,20 @@ class multiscale(affine_transform):
         v_scaled = v / self.sizes
         if self.scaling is not None:
             v_scaled *= self.scaling
-        output = np.zeros(self.input_shape)
-        non0 = np.nonzero(v_scaled)[0]
-        if non0.shape != ():
-            for k in non0:
-                i, j = self.slices[k]
-                output[i:j] += v_scaled[k]
+        if not self._all:
+            output = np.zeros(self.input_shape)
+            non0 = np.nonzero(v_scaled)[0]
+            if non0.shape != ():
+                for k in non0:
+                    i, j = self.slices[k]
+                    output[i:j] += v_scaled[k]
+        else:
+            _output1 = np.zeros((self.input_shape, self.input_shape)).reshape(-1)
+            _output1[self._mask] = v_scaled
+            _output1.shape = (self.input_shape, self.input_shape)
+            _output2 = _output1.sum(1) - _output1.sum(0)
+            output = np.cumsum(_output2[::-1])[::-1]
         return output - output.mean()
-
+        
 
 
