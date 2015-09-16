@@ -39,7 +39,7 @@ class multiscale(affine_transform):
         """
         self.p = p
         self.minsize = minsize or int(np.around(p**(1/3.)))
-        self.slices = np.asarray(slices)
+        self.slices = np.asarray(slices, self.dtype)
         self.scaling = scaling
         if self.slices.shape in [(), (0,)]:
             self._all = True # if computing all differences of a certain size things can be sped up
@@ -119,9 +119,6 @@ class multiscale(affine_transform):
 
     def affine_map(self, x):
         return self.linear_map(x)
-
-    def offset_map(self, x):
-        return x
 
     def adjoint_map(self, v):
         """

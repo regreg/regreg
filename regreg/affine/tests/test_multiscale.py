@@ -34,6 +34,14 @@ def test_multiscale():
     np.testing.assert_allclose(np.dot(M, V), Mtrans.linear_map(V))
     np.testing.assert_allclose(np.dot(M.T, W), Mtrans.adjoint_map(W))
     
+    Mtrans = multiscale(200, slices=[(s,e) for s, e in Mtrans.slices])
+    Mtrans.update_slices(Mtrans.slices)
+
+    Mtrans = multiscale(200, slices=[(s,e) for s, e in Mtrans.slices], scaling=2)
+    Mtrans.linear_map(V)
+    Mtrans.affine_map(V)
+    Mtrans.adjoint_map(W)
+
 def test_changepoint():
 
     p = 150
