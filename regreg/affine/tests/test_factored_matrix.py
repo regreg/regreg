@@ -4,10 +4,47 @@ import regreg.affine.factored_matrix as FM
 from regreg.affine import power_L, todense
 from regreg.atoms.projl1_cython import projl1
 from regreg.api import identity_quadratic
-from ..atoms.tests.test_seminorms import all_close
+from regreg.atoms.tests.test_seminorms import all_close
 
 X = np.random.standard_normal((100, 50))
 X[:,:7] *= 5
+
+def test_class():
+
+    for shape in [(100, 50), (50, 100)]:
+        n, p = shape
+        X = np.random.standard_normal((n,p))
+        fm = FM.factored_matrix(X, min_singular=1.e-2, affine_offset=0)
+        fm.X
+        fm.copy()
+
+        U = np.random.standard_normal((p, 10))
+        V = np.random.standard_normal((n, 20))
+        nt.assert_raises(ValueError, FM.factored_matrix, X, -1)
+
+        fm.linear_map(U)
+        fm.affine_map(U)
+        fm.adjoint_map(V)
+
+def test_rankone():
+    x1 = np.random.standard_normal(100)
+    x2 = np.random.standard_normal(50)
+    fm = FM.factored_matrix(np.multiply.outer(x1, x2), min_singular=1.e-2, affine_offset=0)
+    fm.X
+    fm.copy()
+
+    U = np.random.standard_normal((50, 10))
+    V = np.random.standard_normal((100, 20))
+    nt.assert_raises(ValueError, FM.factored_matrix, X, -1)
+
+    fm.linear_map(U)
+    fm.affine_map(U)
+    fm.adjoint_map(V)
+
+def test_zero():
+
+    fm = FM.factored_matrix(np.zeros((100, 50)))
+    fm.X
 
 def test_partial_svd():
     """
@@ -21,6 +58,9 @@ def test_partial_svd():
     nt.assert_true(np.linalg.norm(U - np.dot(U, np.dot(U_np.T[:rank], U_np[:,:rank]))) < 1.e-4)
     nt.assert_true(np.linalg.norm(VT - np.dot(VT, np.dot(VT_np[:rank].T, VT_np[:rank]))) < 1.e-4)
 
+    FM.partial_svd(X, rank=rank, padding=10, stopping_rule=lambda D: False, tol=1.e-12,
+                   warm_start=np.random.standard_normal(X.shape[0]))
+
 def test_stopping_rule():
     '''
     use a stopping rule in compute_iterative_svd
@@ -32,7 +72,7 @@ def test_stopping_rule():
     L = 30
     svt_rule = soft_threshold_rule(L)
 
-    U, D, VT = FM.compute_iterative_svd(X, initial_rank=3, stopping_rule=svt_rule, tol=1.e-12)
+    U, D, VT = FM.compute_iterative_svd(X, initial_rank=3, stopping_rule=svt_rule, tol=1.e-12, debug=True)
 
     D2 = (D - L) * (D > L)
     D1 = np.linalg.svd(X)[1]
@@ -66,6 +106,24 @@ def test_proximal_maps():
 
     nt.assert_true(np.linalg.norm(RPO+RB-X) / np.linalg.norm(X) < 0.01)
     nt.assert_true(np.linalg.norm(RBO+RP-X) / np.linalg.norm(X) < 0.01)
+
+    # running code to ensure it is tested
+
+    P.conjugate
+    P.quadratic = identity_quadratic(1, 0, 0, 0)
+    P.conjugate
+
+    BO.conjugate
+    BO.quadratic = identity_quadratic(1, 0, 0, 0)
+    BO.conjugate
+
+    B.conjugate
+    B.quadratic = identity_quadratic(1, 0, 0, 0)
+    B.conjugate
+
+    PO.conjugate
+    PO.quadratic = identity_quadratic(1, 0, 0, 0)
+    PO.conjugate
 
 def test_proximal_method():
 

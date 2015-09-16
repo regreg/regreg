@@ -12,6 +12,7 @@ from ..affine import (linear_transform, astransform,
 from ..atoms.svd_norms import (svd_atom, nuclear_norm as nuclear_norm_atom,
                                operator_norm as operator_norm_atom)
 from ..atoms.seminorms import l1norm, _work_out_conjugate
+from ..problems.composite import smooth_conjugate
 
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
@@ -57,7 +58,12 @@ class factored_matrix(object):
         transform = astransform(transform)
         self.input_shape = transform.input_shape
         self.output_shape = transform.output_shape
-        U, D, VT, _ = compute_iterative_svd(transform, min_singular=self.min_singular, tol=self.tol, initial_rank = self.initial_rank, initial=self.initial, debug=self.debug)
+        U, D, VT = compute_iterative_svd(transform, 
+                                         min_singular=self.min_singular, 
+                                         tol=self.tol, 
+                                         initial_rank=self.initial_rank, 
+                                         warm_start=self.initial, 
+                                         debug=self.debug)
         self.factors = [U,D,VT]
 
     def _getX(self):
@@ -107,15 +113,15 @@ class factored_matrix(object):
             return x
 
 def compute_iterative_svd(transform,
-                          initial_rank = None,
-                          warm_start = None,
-                          min_singular = 1e-16,
-                          tol = 1e-5,
+                          initial_rank=None,
+                          warm_start=None,
+                          min_singular=1e-16,
+                          tol=1e-5,
                           debug=False,
                           stopping_rule=None,
                           padding=5,
-                          update_rank = lambda R: 2*R,
-                          max_rank = 100):
+                          update_rank=lambda R: 2*R,
+                          max_rank=100):
 
     """
     Compute the SVD of a matrix using partial_svd. If no initial
@@ -200,16 +206,16 @@ def compute_iterative_svd(transform,
         U = None
 
     min_so_far = 1.
-    D = [np.inf]
+    D = [min_so_far]
     while D[-1] >= min_singular * np.max(D):
         if debug:
-            print "Trying rank", rank
+            print( "Trying rank", rank)
         U, D, VT = partial_svd(transform, rank=rank, 
                                padding=padding, tol=tol, 
                                warm_start=U,
                                return_full=True, debug=debug)
-        if D[0] < min_singular:
-            return U[:,0], np.zeros((1,1)), VT[0,:]
+        if debug:
+            print( "Singular values", D)
         if len(D) < rank:
             break
 
@@ -220,11 +226,20 @@ def compute_iterative_svd(transform,
         if rank > max_rank:
             raise ValueError('maximum rank exceeded')
 
+        if np.max(D) < 1.e-14:
+            break
+
     ind = np.where(D >= min_singular)[0]
     if not need_to_transpose:
-        return U[:,ind], D[ind],  VT[ind,:]
+        if U.ndim == 2:
+            return U[:,ind], D[ind],  VT[ind,:]
+        else:
+            return U.reshape((-1,1)), D[ind], VT.reshape((1,-1))
     else:
-        return VT[ind,:].T, D[ind],  U[:,ind].T
+        if U.ndim == 2:
+            return VT[ind,:].T, D[ind],  U[:,ind].T
+        else:
+            return VT.reshape((-1,1)), D[ind], U.reshape((1,-1))
 
 def partial_svd(transform,
                 rank=1,
