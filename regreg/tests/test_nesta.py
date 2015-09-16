@@ -9,6 +9,7 @@ import nose.tools as nt
 
 def test_nesta_nonnegative():
 
+    state = np.random.get_state()
     np.random.seed(10)
     n, p, q = 1000, 20, 5
     X = np.random.standard_normal((n, p))
@@ -30,6 +31,8 @@ def test_nesta_nonnegative():
 
     print r'A \hat{\beta}', np.dot(A, primal)
     assert_almost_nonnegative(np.dot(A,primal), tol=1.e-3)
+
+    np.random.set_state(state)
 
 def test_nesta_lasso():
 
