@@ -196,7 +196,7 @@ class Solver(object):
         p2.quadratic = atom.quadratic + q
         problem = rr.simple_problem.nonsmooth(p2)
         solver = rr.FISTA(problem)
-        solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop)
+        solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop, min_its=100)
 
         gg = rr.gengrad(problem, 2.) # this lipschitz constant is based on knowing our loss...
         tests.append((atom.proximal(q), gg, 'solving prox with gengrad\n %s ' % str(self)))
@@ -217,7 +217,8 @@ class Solver(object):
         problem = rr.simple_problem.nonsmooth(p4)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-14, monotonicity_restart=False, coef_stop=self.coef_stop,
-                   FISTA=self.FISTA)
+                   FISTA=self.FISTA,
+                   min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with no monotonocity\n %s ' % str(self)))
 
@@ -235,7 +236,7 @@ class Solver(object):
 
         problem = rr.simple_problem(loss, atom)
         solver = rr.FISTA(problem)
-        solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
+        solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem with monotonicity\n %s' % str(self)))
 
@@ -256,7 +257,7 @@ class Solver(object):
         problem = rr.simple_problem(loss, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, monotonicity_restart=False,
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem no monotonicity_restart\n %s' % str(self)))
 
@@ -264,7 +265,7 @@ class Solver(object):
         problem = rr.simple_problem(loss, d)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, monotonicity_restart=False, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
         tests.append((d.proximal(q), problem.solve(tol=1.e-12,
                                                 FISTA=self.FISTA,
                                                 coef_stop=self.coef_stop,

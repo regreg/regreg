@@ -30,6 +30,8 @@ class ConeSolverFactory(SolverFactory):
 
             atom = self.klass(self.shape)
 
+            assert(atom == atom)
+
             if q: 
                 atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
 

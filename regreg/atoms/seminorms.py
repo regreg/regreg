@@ -515,6 +515,7 @@ class seminorm(atom):
         (<regreg.affine.linear_transform object at 0x...>, supnorm((3,), bound=2.3...))
 
         """
+        return self.linear_transform, self.conjugate
 
     @classmethod
     def affine(cls, linear_operator, offset, lagrange=None, diag=False,
