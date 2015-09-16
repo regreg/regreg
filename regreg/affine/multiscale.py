@@ -147,11 +147,11 @@ class multiscale(affine_transform):
                     i, j = self.slices[k]
                     output[i:j] += v_scaled[k]
         else:
-            _output1 = np.zeros((self.input_shape, self.input_shape)).reshape(-1)
+            _output1 = np.zeros((self.input_shape[0], self.input_shape[0])).reshape(-1)
             _output1[self._mask] = v_scaled
-            _output1.shape = (self.input_shape, self.input_shape)
-            _output2 = _output1.sum(1) - _output1.sum(0)
-            output = np.cumsum(_output2[::-1])[::-1]
+            _output1.shape = (self.input_shape[0], self.input_shape[0])
+            _output2 = _output1.sum(0) - _output1.sum(1)
+            output = -np.cumsum(_output2)
         return output - output.mean()
         
 
