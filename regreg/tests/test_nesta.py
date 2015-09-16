@@ -6,8 +6,10 @@ import regreg.api as rr
 import numpy as np
 import nose.tools as nt
 
+
 def test_nesta_nonnegative():
 
+    np.random.seed(10)
     n, p, q = 1000, 20, 5
     X = np.random.standard_normal((n, p))
     A = np.random.standard_normal((q,p))
@@ -15,6 +17,8 @@ def test_nesta_nonnegative():
     coef = 10 * np.fabs(np.random.standard_normal(q)) + 1
     coef[:2] = -0.2
     beta = np.dot(np.linalg.pinv(A), coef)
+    print r'\beta', beta
+    print r'A\beta', np.dot(A, beta)
 
     Y = np.random.standard_normal(n) + np.dot(X, beta)
 
@@ -22,9 +26,9 @@ def test_nesta_nonnegative():
     penalty = rr.l1norm(p, lagrange=0.2)
     constraint = rr.nonnegative.linear(A)
 
-    primal, dual = rr.nesta(loss, penalty, constraint, max_iters=300, coef_tol=1.e-4, tol=1.e-4)
+    primal, dual = rr.nesta(loss, penalty, constraint, max_iters=300, coef_tol=1.e-10, tol=1.e-10)
 
-    print np.dot(A, primal)
+    print r'A \hat{\beta}', np.dot(A, primal)
     assert_almost_nonnegative(np.dot(A,primal), tol=1.e-3)
 
 def test_nesta_lasso():
