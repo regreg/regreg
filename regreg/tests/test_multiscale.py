@@ -3,10 +3,12 @@ from regreg.affine.multiscale import multiscale
 import regreg.api as rr
 import regreg.affine as ra
 
+INTERACTIVE = False
+
 import matplotlib.pyplot as plt
 
 def _multiscale_matrix(p, minsize=None):
-    minsize = minsize or int(p**(1/3.))
+    minsize = minsize or int(np.around(p**(1/3.)))
     rows = []
     for i in range(p):
         for j in range(i, p):
@@ -14,7 +16,9 @@ def _multiscale_matrix(p, minsize=None):
                 row = np.zeros(p)
                 row[i:j] = 1. / (j-i)
                 rows.append(row)
-    return np.array(rows)
+    A = np.array(rows)
+    A -= np.mean(A, 1)[:,None]
+    return A
 
 def test_multiscale():
 
@@ -25,7 +29,11 @@ def test_multiscale():
 
     np.testing.assert_allclose(np.dot(M, V), Mtrans.linear_map(V))
     np.testing.assert_allclose(np.dot(M.T, W), Mtrans.adjoint_map(W))
-
+    
+    Mtrans.update_slices([(s,e) for s, e in Mtrans.slices])
+    np.testing.assert_allclose(np.dot(M, V), Mtrans.linear_map(V))
+    np.testing.assert_allclose(np.dot(M.T, W), Mtrans.adjoint_map(W))
+    
 def test_changepoint():
 
     p = 150
@@ -47,9 +55,10 @@ def test_changepoint():
     Yhat = X.linear_map(soln)
     Yhat += meanY
 
-    plt.scatter(np.arange(p), Y)
-    plt.plot(np.arange(p), Yhat)
-    plt.show()
+    if INTERACTIVE:
+        plt.scatter(np.arange(p), Y)
+        plt.plot(np.arange(p), Yhat)
+        plt.show()
 
 def test_changepoint_scaled():
 
@@ -63,18 +72,17 @@ def test_changepoint_scaled():
     Y += 2
     meanY = Y.mean()
 
-    #lammax = np.fabs(X.adjoint_map(Y) / (1 + np.log(M._sizes))).max()
-    lammax = np.fabs(np.sqrt(M._sizes) * X.adjoint_map(Y) / (1 + np.sqrt(np.log(M._sizes)))).max()
+    lammax = np.fabs(np.sqrt(M.sizes) * X.adjoint_map(Y) / (1 + np.sqrt(np.log(M.sizes)))).max()
 
-    #penalty = rr.weighted_l1norm((1 + np.log(M._sizes)), lagrange=0.5*lammax)
-    penalty = rr.weighted_l1norm((1 + np.sqrt(np.log(M._sizes))) / np.sqrt(M._sizes), lagrange=0.5*lammax)
+    penalty = rr.weighted_l1norm((1 + np.sqrt(np.log(M.sizes))) / np.sqrt(M.sizes), lagrange=0.5*lammax)
     loss = rr.squared_error(X, Y - meanY)
     problem = rr.simple_problem(loss, penalty)
     soln = problem.solve()
     Yhat = X.linear_map(soln)
     Yhat += meanY
 
-    plt.scatter(np.arange(p), Y)
-    plt.plot(np.arange(p), Yhat)
-    plt.show()
+    if INTERACTIVE:
+        plt.scatter(np.arange(p), Y)
+        plt.plot(np.arange(p), Yhat)
+        plt.show()
 
