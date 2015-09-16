@@ -308,7 +308,7 @@ class Solver(object):
         problem = rr.separable_problem.singleton(atom, loss)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton \n%s ' % str(self)))
 
@@ -317,9 +317,9 @@ class Solver(object):
         problem = rr.separable_problem.singleton(d, loss)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
-        tests.append((d.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton \n%s ' % str(self)))
+        tests.append((d.proximal(q), solver.composite.coefs, 'solving dual atom prox with separable_atom.singleton \n%s ' % str(self)))
 
         if not self.interactive:
             for test in tests:
@@ -336,7 +336,7 @@ class Solver(object):
         problem = rr.container(loss, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving atom prox with container\n %s ' % str(self)))
 
@@ -358,7 +358,7 @@ class Solver(object):
         problem = rr.container(d, loss)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
         tests.append((d.proximal(q), solver.composite.coefs, 'solving dual prox with container\n %s ' % str(self)))
 
         if not self.interactive:
