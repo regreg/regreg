@@ -7,6 +7,12 @@ import itertools
 
 from test_seminorms import Solver, all_close, SolverFactory
 
+# fix the random state so tests don't fail because
+# of small tolerance
+
+state = np.random.get_state()
+np.random.seed(10)
+
 class MatrixSolverFactory(SolverFactory):
 
     FISTA_choices = [True]
@@ -44,3 +50,6 @@ def test_proximal_maps():
                     yield t
 
 
+# reset seed
+
+np.random.set_state(state)

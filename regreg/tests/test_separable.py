@@ -2,6 +2,12 @@ import numpy as np
 import regreg.api as rr
 import nose.tools as nt
 
+# fix the random state so tests don't fail because
+# of small tolerance
+
+state = np.random.get_state()
+np.random.seed(10)
+
 def test_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -140,3 +146,6 @@ def test_nonnegative_positive_part(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs_s) / np.linalg.norm(coefs) < 1.0e-02)
 
+# reset seed
+
+np.random.set_state(state)
