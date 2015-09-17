@@ -67,6 +67,7 @@ class separable(atom):
             self.coefs = np.zeros(shape)
 
     def latexify(self, var=None, idx=''):
+        # BUG idx is unused
         strs = []
         for i, atom in enumerate(self.atoms):
             template_dict = atom.objective_vars.copy()
@@ -77,9 +78,9 @@ class separable(atom):
                 template_dict['var'] = "%s[g%d]" % (template_dict['var'], i)
             template_dict['idx'] = idx
             if isinstance(atom, affine_atom):
-                strs.append(atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=idx))
+                strs.append(atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=i))
             else:
-                strs.append(atom.latexify(var='%(var)s' % template_dict, idx=idx))
+                strs.append(atom.latexify(var='%(var)s' % template_dict, idx=i))
         return ' + '.join(strs)
 
     def seminorm(self, x, lagrange=None, check_feasibility=False):
