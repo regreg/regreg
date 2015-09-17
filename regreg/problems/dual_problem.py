@@ -48,7 +48,7 @@ class dual_problem(composite):
     # the quadratic is delegated to the individual parts
     @property
     def quadratic(self):
-        return identity_quadratic(None,None,None,None)
+        return identity_quadratic(0,0,0,0)
 
     @staticmethod
     def fromprimal(f, *g):

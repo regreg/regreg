@@ -137,6 +137,11 @@ class SolverFactory(object):
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
+
+            # make sure certain lines of code are tested
+            assert(atom == atom)
+            atom.latexify(), atom.dual, atom.conjugate
+
             yield solver
 
 

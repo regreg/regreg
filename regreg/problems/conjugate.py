@@ -16,13 +16,11 @@ class conjugate(composite):
         # we copy the atom because we will modify its quadratic part
         self.atom = copy(atom)
 
-        if self.atom.quadratic is None:
-            self.atom.set_quadratic(0, 0, 0, 0)
-        
-        if quadratic is not None:
-            totalq = self.atom.quadratic + quadratic
-        else:
-            totalq = self.atom.quadratic
+        if quadratic is None:
+            quadratic = identity_quadratic(0, 0, 0, 0)
+        self.quadratic = quadratic
+
+        totalq = self.atom.quadratic + quadratic
         if totalq.coef in [0, None]:
             raise ValueError('quadratic coefficient must be non-zero')
 
@@ -39,7 +37,6 @@ class conjugate(composite):
 
         self._have_solved_once = False
         self.shape = atom.shape
-        self.quadratic = quadratic
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """

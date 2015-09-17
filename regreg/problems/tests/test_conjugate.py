@@ -1,4 +1,6 @@
+from copy import copy
 import numpy as np
+import nose.tools as nt
 import regreg.api as rr
 
 def test_conjugate_l1norm():
@@ -10,14 +12,25 @@ def test_conjugate_l1norm():
 
     q = rr.identity_quadratic(1.2,0,0,0)
     l1 = rr.l1norm(4, lagrange=0.3)
+    pen2 = copy(l1)
+    pen2.set_quadratic(q)
+
     v1 = rr.smooth_conjugate(l1, q)
     v2 = rr.conjugate(l1, q, tol=1.e-12, min_its=100)
+    v3 = rr.conjugate(pen2, None, tol=1.e-12, min_its=100)
     w = np.random.standard_normal(4)
 
     u11, u12 = v1.smooth_objective(w)
     u21, u22 = v2.smooth_objective(w)
+    u31, u32 = v3.smooth_objective(w)
     np.testing.assert_approx_equal(u11, u21)
     np.testing.assert_allclose(u12, u22, rtol=1.0e-05)
+    np.testing.assert_approx_equal(u11, u31)
+    np.testing.assert_allclose(u12, u32, rtol=1.0e-05)
+
+    v2.smooth_objective(w, mode='func')
+    v2.smooth_objective(w, mode='grad')
+    nt.assert_raises(ValueError, v2.smooth_objective, w, 'blah')
 
 def test_conjugate_sqerror():
     """

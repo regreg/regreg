@@ -31,6 +31,12 @@ def test_l1prox():
     l1c = copy(l1)
     l1c.quadratic = rr.identity_quadratic(0.5, ww, None, 0.)
     a = rr.dual_problem.fromprimal(l1c)
+
+    # to ensure code is tested
+    a.latexify()
+    a.quadratic
+    a.solve(return_optimum=True)
+
     solver = rr.FISTA(a)
     solver.fit(tol=1.0e-14, min_its=100)
 

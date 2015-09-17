@@ -1,3 +1,4 @@
+from copy import copy
 import numpy as np
 import regreg.api as rr
 import nose.tools as nt
@@ -21,7 +22,21 @@ def test_lasso_separable():
 
     penalty1 = rr.l1norm(10, lagrange=1.2)
     penalty2 = rr.l1norm(10, lagrange=1.2)
-    penalty = rr.separable((20,), [penalty1, penalty2], [slice(0,10), slice(10,20)])
+    penalty = rr.separable((20,), [penalty1, penalty2], [slice(0,10), slice(10,20)], test_for_overlap=True)
+
+    # ensure code is tested
+
+    print penalty1.latexify()
+    
+    print penalty.latexify()
+    print penalty.conjugate
+    print penalty.dual
+    print penalty.seminorm(np.ones(penalty.shape))
+    print penalty.constraint(np.ones(penalty.shape), bound=2.)
+
+    pencopy = copy(penalty)
+    pencopy.set_quadratic(rr.identity_quadratic(1,0,0,0))
+    pencopy.conjugate
 
     # solve using separable
     

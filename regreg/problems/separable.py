@@ -9,7 +9,7 @@ a sequence of slicing objects.
 import numpy as np
 
 from ..affine import selector
-from ..atoms import atom
+from ..atoms import atom, affine_atom
 from ..problems.simple import simple_problem
 from ..atoms.cones import zero
 from .composite import smooth_conjugate
@@ -67,12 +67,20 @@ class separable(atom):
             self.coefs = np.zeros(shape)
 
     def latexify(self, var=None, idx=''):
-        template_dict = self.atom.objective_vars.copy()
-        template_dict['linear'] = self.objective_vars['linear']
-        if var is not None:
-            template_dict['var'] = var
-        template_dict['idx'] = idx
-        return self.atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=idx)
+        strs = []
+        for i, atom in enumerate(self.atoms):
+            template_dict = atom.objective_vars.copy()
+            template_dict['linear'] = atom.objective_vars['linear']
+            if var is not None:
+                template_dict['var'] = "%s[g%d]" % (var, i)
+            else:
+                template_dict['var'] = "%s[g%d]" % (template_dict['var'], i)
+            template_dict['idx'] = idx
+            if isinstance(atom, affine_atom):
+                strs.append(atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=idx))
+            else:
+                strs.append(atom.latexify(var='%(var)s' % template_dict, idx=idx))
+        return ' + '.join(strs)
 
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         value = 0.
