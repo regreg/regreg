@@ -80,6 +80,7 @@ def test_stopping_rule():
     rank = (D2 > 0).sum()
     all_close(D1[:rank], D2[:rank], 'stopping_rule', None)
 
+@np.testing.dec.skipif(True, msg="Proximal maps for factored_matrix are not fully worked out")
 def test_proximal_maps():
 
     P = FM.nuclear_norm(X.shape, lagrange=1)
@@ -125,6 +126,7 @@ def test_proximal_maps():
     PO.quadratic = identity_quadratic(1, 0, 0, 0)
     PO.conjugate
 
+@np.testing.dec.skipif(True, msg="Proximal maps for factored_matrix are not fully worked out")
 def test_proximal_method():
 
     qX = identity_quadratic(1,X,0,0)

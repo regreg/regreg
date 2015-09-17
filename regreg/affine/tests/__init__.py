@@ -1,0 +1,6 @@
+import test_multiscale
+import test_image2d
+import test_fused_lasso
+import test_normalize
+import test_factored_matrix
+import test_affine
