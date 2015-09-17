@@ -2,7 +2,7 @@
 
 import os
 
-codedir = os.path.abspath((os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'code')))
+codedir = os.path.abspath((os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'regreg')))
 print codedir
 os.system("""
 cd %s; 
