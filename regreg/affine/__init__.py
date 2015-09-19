@@ -1,7 +1,10 @@
+from __future__ import print_function, division, absolute_import
+
 from operator import add, mul
+import warnings
+
 import numpy as np
 from scipy import sparse
-import warnings
 
 def broadcast_first(a, b, op):
     """ apply binary operation `op`, broadcast `a` over axis 1 if necessary
@@ -801,7 +804,7 @@ def power_L(transform, max_its=500,tol=1e-8, debug=False):
         norm = np.linalg.norm(v)
         v /= norm
         if debug:
-            print "L", norm
+            print("L", norm)
         itercount += 1
     return norm
 

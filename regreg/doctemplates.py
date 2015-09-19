@@ -78,7 +78,7 @@ def doc_template_user(m):
 
     If ``klass`` is the enclosing class of `m`, and ``klass`` is decorated with
     ``doc_templater``, then the docstring for `m` will be givem by
-    ``klass._doc_templates[m.func_name] % klass._doc_dict``
+    ``klass._doc_templates[m.__name__] % klass._doc_dict``
     """
     m._uses_doc_template = True
     return m
@@ -87,12 +87,12 @@ def doc_template_user(m):
 def doc_template_provider(m):
     """ Decorator to mark docstring from method `m` as being a doc template
 
-    We label the docstring of `m` (``m.func_doc``) to be put into the
+    We label the docstring of `m` (``m.__doc__``) to be put into the
     ``_doc_templates`` attribute of the enclosing class, when the klass is
     decorated with the ``doc_templater`` decorator.
     """
-    m._doc_template = m.func_doc
-    m.func_doc = None
+    m._doc_template = m.__doc__
+    m.__doc__ = None
     return m
 
 
@@ -128,15 +128,15 @@ def doc_templater(doc_dict=None, doc_error=True):
         else:
             klass_doc_dict = doc_dict
         for obj in klass.__dict__.values():
-            if hasattr(obj, '_doc_template') and hasattr(obj, 'func_name'):
-                klass._doc_templates[obj.func_name] = obj._doc_template
-            if hasattr(obj, '_uses_doc_template') and hasattr(obj, 'func_name'):
-                if doc_error and not obj.func_doc is None:
+            if hasattr(obj, '_doc_template') and hasattr(obj, '__name__'):
+                klass._doc_templates[obj.__name__] = obj._doc_template
+            if hasattr(obj, '_uses_doc_template') and hasattr(obj, '__name__'):
+                if doc_error and not obj.__doc__ is None:
                     raise ValueError("Refusing to discard unexpected docstring for %s" % repr(obj) +
                                      " - set `doc_error` to False if you want " + 
                                      "to allow this")
-                template = klass._doc_templates[obj.func_name]
-                obj.func_doc = template % klass_doc_dict
+                template = klass._doc_templates[obj.__name__]
+                obj.__doc__ = template % klass_doc_dict
         klass._doc_dict = klass_doc_dict
         return klass
     return kdec

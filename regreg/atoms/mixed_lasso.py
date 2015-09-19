@@ -88,18 +88,18 @@ class mixed_lasso(atom):
     
     def __repr__(self):
         if self.quadratic.iszero:
-            return "%s(%s, %s, weights=%s, offset=%s)" % \
+            return "%s(%s, %r, weights=%r, offset=%s)" % \
                 (self.__class__.__name__,
                  self.lagrange,
-                 `self.penalty_structure`,
-                 `self.weights`,
+                 self.penalty_structure,
+                 self.weights,
                  str(self.offset))
         else:
-            return "%s(%s, %s, weights=%s, offset=%s, quadratic=%s)" % \
+            return "%s(%s, %r, weights=%r, offset=%s, quadratic=%s)" % \
                 (self.__class__.__name__,
-                 self.lagrange, 
-                 `self.penalty_structure`,
-                 `self.weights`,
+                 self.lagrange,
+                 self.penalty_structure,
+                 self.weights,
                  str(self.quadratic))
 
     @property
@@ -249,18 +249,18 @@ class mixed_lasso_dual(mixed_lasso):
     
     def __repr__(self):
         if self.quadratic.iszero:
-            return "%s(%s, %s, weights=%s, offset=%s)" % \
+            return "%s(%s, %r, weights=%r, offset=%s)" % \
                 (self.__class__.__name__,
                  self.bound,
-                 `self.penalty_structure`,
-                 `self.weights`,
+                 self.penalty_structure,
+                 self.weights,
                  str(self.offset))
         else:
-            return "%s(%s, %s, weights=%s, offset=%s, quadratic=%s)" % \
+            return "%s(%s, %r, weights=%r, offset=%s, quadratic=%s)" % \
                 (self.__class__.__name__,
                  self.bound, 
-                 `self.penalty_structure`,
-                 `self.weights`,
+                 self.penalty_structure,
+                 self.weights,
                  str(self.quadratic))
 
     @property

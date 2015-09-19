@@ -1,5 +1,9 @@
-import numpy as np
+from __future__ import print_function, division, absolute_import
+
 from copy import copy
+
+import numpy as np
+
 import scipy.optimize
 
 import regreg.api as rr
@@ -104,6 +108,6 @@ def test_lasso():
     f = p2.objective
     ans = scipy.optimize.fmin_powell(f, np.zeros(4), ftol=1.0e-12, xtol=1.e-10)
 
-    print f(solver2.composite.coefs), f(ans)
+    print(f(solver2.composite.coefs), f(ans))
     np.testing.assert_allclose(ans + 0.1, solver2.composite.coefs + 0.1, rtol=1.e-3)
 

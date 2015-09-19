@@ -1,11 +1,17 @@
+from __future__ import print_function, division, absolute_import
+
 from copy import copy
+
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
+
+import nose.tools as nt
+
+
 def test_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -23,13 +29,13 @@ def test_lasso_separable():
 
     # ensure code is tested
 
-    print penalty1.latexify()
-    
-    print penalty.latexify()
-    print penalty.conjugate
-    print penalty.dual
-    print penalty.seminorm(np.ones(penalty.shape))
-    print penalty.constraint(np.ones(penalty.shape), bound=2.)
+    print(penalty1.latexify())
+
+    print(penalty.latexify())
+    print(penalty.conjugate)
+    print(penalty.dual)
+    print(penalty.seminorm(np.ones(penalty.shape)))
+    print(penalty.constraint(np.ones(penalty.shape), bound=2.))
 
     pencopy = copy(penalty)
     pencopy.set_quadratic(rr.identity_quadratic(1,0,0,0))

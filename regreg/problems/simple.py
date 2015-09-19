@@ -1,8 +1,9 @@
 """
 This module has a class for specifying a problem from just
 a smooth function and a single penalty.
-
 """
+from __future__ import print_function, division, absolute_import
+
 import numpy as np, warnings
 
 from ..problems.composite import composite
@@ -118,7 +119,7 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
         if itercount == max_its:
             break
         if debug:
-            print itercount, vnew, value, (vnew - value) / vnew
+            print(itercount, vnew, value, (vnew - value) / vnew)
         value = vnew
         itercount += 1
         coef = newcoef

@@ -4,8 +4,12 @@ matrix completion problems and other low-rank factorization
 problems.
 
 """
-import numpy as np
+from __future__ import print_function, division, absolute_import
+
 import warnings
+
+import numpy as np
+
 from ..affine import (linear_transform, astransform, 
                       composition, affine_sum, 
                       power_L, astransform, adjoint)
@@ -207,13 +211,13 @@ def compute_iterative_svd(transform,
     D = [min_so_far]
     while D[-1] >= min_singular * np.max(D):
         if debug:
-            print( "Trying rank", rank)
+            print("Trying rank", rank)
         U, D, VT = partial_svd(transform, rank=rank, 
                                padding=padding, tol=tol, 
                                warm_start=U,
                                return_full=True, debug=debug)
         if debug:
-            print( "Singular values", D)
+            print("Singular values", D)
         if len(D) < rank:
             break
 
@@ -342,7 +346,9 @@ def partial_svd(transform,
 
     while itercount < max_its and singular_rel_change > tol:
         if debug and itercount > 0:
-            print itercount, singular_rel_change, np.sum(np.fabs(singular_values)>1e-12), np.fabs(singular_values[range(np.min([5,len(singular_values)]))])
+            print(itercount, singular_rel_change,
+                  np.sum(np.fabs(singular_values)>1e-12),
+                  np.fabs(singular_values[range(np.min([5,len(singular_values)]))]))
         V, _ = np.linalg.qr(transform.adjoint_map(U))
         X_V = transform.linear_map(V)
         U, R = np.linalg.qr(X_V)
@@ -353,7 +359,7 @@ def partial_svd(transform,
 
         if stopping_rule is not None and stopping_rule(np.fabs(singular_values)):
             break
-            
+
     singular_values = np.diagonal(R)[ind]
 
     nonzero = np.where(np.fabs(singular_values) > 1e-12)[0]

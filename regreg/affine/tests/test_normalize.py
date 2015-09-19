@@ -591,7 +591,7 @@ def test_normalize_intercept():
             yield np.testing.assert_allclose, np.dot(Y.T, V), Xn.adjoint_map(V)
             yield nt.assert_raises, ValueError, Xn.linear_map, np.zeros((6,4,3))
 
-            X2 = Xn.slice_columns(range(3))
+            X2 = Xn.slice_columns(list(range(3)))
             Y2 = Y[:,:3]
             U2 = np.random.standard_normal((3,4))
             V2 = np.random.standard_normal(20)
@@ -602,7 +602,7 @@ def test_normalize_intercept():
             yield np.testing.assert_allclose, np.dot(Y2, U2[:,0]), X2.affine_map(np.array(U2[:,0]))
             yield np.testing.assert_allclose, np.dot(Y2.T, V2), X2.adjoint_map(V2)
 
-            X2 = Xn.slice_columns(range(3,6))
+            X2 = Xn.slice_columns(list(range(3,6)))
             Y2 = Y[:,3:]
             U2 = np.random.standard_normal((3,4))
             V2 = np.random.standard_normal(20)

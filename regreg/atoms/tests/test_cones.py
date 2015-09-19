@@ -1,12 +1,16 @@
+import itertools
+
 import numpy as np
+
 import regreg.api as rr
 import regreg.atoms.cones as C
 import regreg.atoms.svd_norms as C_SVD
 from regreg.tests.decorators import set_seed_for_test
-import nose.tools as nt
-import itertools
 
-from test_seminorms import Solver, SolverFactory
+import nose.tools as nt
+
+from .test_seminorms import Solver, SolverFactory
+
 
 class ConeSolverFactory(SolverFactory):
 
@@ -49,7 +53,7 @@ class ConeSolverFactory(SolverFactory):
 @set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps():
-    for klass in sorted(C.conjugate_cone_pairs.keys()):
+    for klass in sorted(C.conjugate_cone_pairs.keys(), key=str):
         if klass in [C_SVD.nuclear_norm_epigraph,
                      C_SVD.nuclear_norm_epigraph_polar,
                      C_SVD.operator_norm_epigraph,
