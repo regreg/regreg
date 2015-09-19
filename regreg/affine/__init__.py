@@ -515,15 +515,12 @@ class normalize(object):
         >>> nD = normalize(D)
         >>> X_sliced = X.copy()
         >>> X_sliced[:4] = 0; X_sliced[6:] = 0
-        >>> nD.linear_map(X_sliced)
-        array([  0.        ,   0.        ,   0.        ,  -2.90688837,
-                -7.15541753,  10.0623059 ,   0.        ,   0.        ,
-                 0.        ,   0.        ])
+        >>> expected = [0, 0, 0, -2.906888, -7.155417, 10.06230, 0, 0, 0, 0]
+        >>> np.allclose(nD.linear_map(X_sliced), expected)
+        True
         >>> nD_slice = nD.slice_columns(slice(4,6))
-        >>> nD_slice.linear_map(X[slice(4,6)])
-        array([  0.        ,   0.        ,   0.        ,  -2.90688837,
-                -7.15541753,  10.0623059 ,   0.        ,   0.        ,
-                 0.        ,   0.        ])
+        >>> np.allclose(nD_slice.linear_map(X[slice(4,6)]), expected)
+        True
         """
         if type(index_obj) not in [type(slice(0,4)), type([])]:
             # try to find nonzero indices if a boolean array
