@@ -15,7 +15,7 @@ class MatrixSolverFactory(SolverFactory):
     coef_stop_choices = [False]
     shape = (5,4)
 
-@set_seed_for_test
+@set_seed_for_test(seed=20)
 @np.testing.dec.slow
 def test_proximal_maps():
     for klass in B.conjugate_block_pairs.keys() + SVD.conjugate_svd_pairs.keys():

@@ -5,7 +5,7 @@ import nose.tools as nt
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test
+@set_seed_for_test()
 def test_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -65,7 +65,7 @@ def test_lasso_separable():
     np.testing.assert_almost_equal(coefs, coefs_s)
 
 
-@set_seed_for_test
+@set_seed_for_test()
 def test_group_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -100,7 +100,7 @@ def test_group_lasso_separable():
 
     np.testing.assert_almost_equal(coefs, coefs_s)
 
-@set_seed_for_test
+@set_seed_for_test()
 def test_nonnegative_positive_part(debug=False):
     """
     This test verifies that using nonnegative constraint

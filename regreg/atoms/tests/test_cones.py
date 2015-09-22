@@ -46,7 +46,7 @@ class ConeSolverFactory(SolverFactory):
             yield solver
 
 
-@set_seed_for_test
+@set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps():
     for klass in sorted(C.conjugate_cone_pairs.keys()):

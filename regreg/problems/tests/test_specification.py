@@ -5,6 +5,7 @@ import scipy.optimize
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_l1prox():
     '''
     this test verifies that the l1 prox in lagrange form can be solved
@@ -44,7 +45,7 @@ def test_l1prox():
     np.testing.assert_allclose(ac + 0.1, ab + 0.1, rtol=1.e-4)
     np.testing.assert_allclose(ac + 0.1, ad + 0.1, rtol=1.e-4)
 
-
+@set_seed_for_test()
 def test_l1prox_bound():
     '''
     this test verifies that the l1 prox in bound form can be solved
@@ -76,7 +77,7 @@ def test_l1prox_bound():
     np.testing.assert_allclose(ac + 0.1, ab + 0.1, rtol=1.e-4)
 
 
-@set_seed_for_test
+@set_seed_for_test()
 def test_lasso():
     '''
     this test verifies that the l1 prox can be solved
