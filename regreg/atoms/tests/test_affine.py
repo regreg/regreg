@@ -1,7 +1,11 @@
-import numpy as np
+from __future__ import print_function, division, absolute_import
+
 from copy import copy
 
+import numpy as np
+
 import regreg.api as rr
+
 import nose.tools as nt
 
 def test_class():
@@ -17,11 +21,12 @@ def test_class():
     pen_aff = cls(pen2, rr.affine_transform(D, v))
 
     for _pen in [pen, pen_aff]:
-        print _pen.dual
-        print _pen.latexify()
-        print str(_pen)
-        print repr(_pen)
-        print _pen._repr_latex_()
+        # Run to ensure code gets executed in tests (smoke test)
+        print(_pen.dual)
+        print(_pen.latexify())
+        print(str(_pen))
+        print(repr(_pen))
+        print(_pen._repr_latex_())
         _pen.nonsmooth_objective(np.random.standard_normal(p))
         q = rr.identity_quadratic(0.5,0,0,0)
         smoothed_pen = _pen.smoothed(q)
