@@ -2,16 +2,11 @@ import numpy as np
 import regreg.atoms.block_norms as B
 import regreg.atoms.svd_norms as SVD
 import regreg.api as rr
+from regreg.tests.decorators import set_seed_for_test
 import nose.tools as nt
 import itertools
 
 from test_seminorms import Solver, all_close, SolverFactory
-
-# fix the random state so tests don't fail because
-# of small tolerance
-
-state = np.random.get_state()
-np.random.seed(10)
 
 class MatrixSolverFactory(SolverFactory):
 
@@ -20,6 +15,7 @@ class MatrixSolverFactory(SolverFactory):
     coef_stop_choices = [False]
     shape = (5,4)
 
+@set_seed_for_test
 @np.testing.dec.slow
 def test_proximal_maps():
     for klass in B.conjugate_block_pairs.keys() + SVD.conjugate_svd_pairs.keys():
@@ -50,6 +46,3 @@ def test_proximal_maps():
                     yield t
 
 
-# reset seed
-
-np.random.set_state(state)

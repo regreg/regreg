@@ -1,10 +1,9 @@
-
 import numpy as np
-
 from copy import copy
 import scipy.optimize
 
 import regreg.api as rr
+from regreg.tests.decorators import set_seed_for_test
 
 def test_l1prox():
     '''
@@ -77,6 +76,7 @@ def test_l1prox_bound():
     np.testing.assert_allclose(ac + 0.1, ab + 0.1, rtol=1.e-4)
 
 
+@set_seed_for_test
 def test_lasso():
     '''
     this test verifies that the l1 prox can be solved
@@ -86,9 +86,6 @@ def test_lasso():
     but it verifies that specification is working correctly
 
     '''
-
-    state = np.random.get_state()
-    np.random.seed(10)
 
     l1 = rr.l1norm(4, lagrange=2.)
     l1.quadratic = rr.identity_quadratic(0.5, 0, None, 0.)
@@ -109,4 +106,3 @@ def test_lasso():
     print f(solver2.composite.coefs), f(ans)
     np.testing.assert_allclose(ans + 0.1, solver2.composite.coefs + 0.1, rtol=1.e-3)
 
-    np.random.set_state(state)

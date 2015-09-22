@@ -2,10 +2,9 @@ import numpy as np
 import regreg.api as rr
 import regreg.atoms.cones as C
 import regreg.atoms.svd_norms as C_SVD
+from regreg.tests.decorators import set_seed_for_test
 import nose.tools as nt
 import itertools
-
-np.random.seed(10)
 
 from test_seminorms import Solver, SolverFactory
 
@@ -47,6 +46,7 @@ class ConeSolverFactory(SolverFactory):
             yield solver
 
 
+@set_seed_for_test
 @np.testing.dec.slow
 def test_proximal_maps():
     for klass in sorted(C.conjugate_cone_pairs.keys()):
