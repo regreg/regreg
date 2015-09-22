@@ -1,11 +1,13 @@
-import numpy as np
+from __future__ import print_function, division, absolute_import
 
 from copy import copy
 
+import numpy as np
+
 from ..algorithms import FISTA
 from ..smooth.quadratic import quadratic, smooth_atom
-from composite import composite
-from simple import simple_problem
+from .composite import composite
+from .simple import simple_problem
 
 from ..identity_quadratic import identity_quadratic
 

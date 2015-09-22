@@ -1,11 +1,15 @@
-import numpy as np
-import regreg.api as rr
-import itertools
-from numpy import testing as npt
+from __future__ import print_function, division, absolute_import
 
+import itertools
+
+import numpy as np
+
+import regreg.api as rr
 import regreg.atoms.weighted_atoms as WA
 
-from test_seminorms import Solver, SolverFactory
+from numpy import testing as npt
+
+from .test_seminorms import Solver, SolverFactory
 
 w1 = np.ones(20) * 0.5
 w2 = w1 * 0

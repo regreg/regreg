@@ -1,6 +1,4 @@
-from numpy.linalg import norm
 from numpy import zeros, asarray, any as npany
-import new
 from copy import copy
 
 # local imports

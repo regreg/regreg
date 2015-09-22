@@ -1,6 +1,9 @@
-import numpy as np
+from __future__ import print_function, division, absolute_import
+
 import itertools
 from copy import copy
+
+import numpy as np
 
 import regreg.atoms.seminorms as S
 import regreg.api as rr
@@ -34,7 +37,7 @@ y : %s
     if not hasattr(solver, 'interactive') or not solver.interactive:
         nt.assert_true(v)
     else:
-        print msg.split('\n')[0]
+        print(msg.split('\n')[0])
 
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):

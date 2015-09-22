@@ -1,7 +1,10 @@
+from __future__ import print_function, division, absolute_import
+
 from operator import add, mul
+import warnings
+
 import numpy as np
 from scipy import sparse
-import warnings
 
 def broadcast_first(a, b, op):
     """ apply binary operation `op`, broadcast `a` over axis 1 if necessary
@@ -489,7 +492,6 @@ class normalize(object):
 
         Parameters
         ----------
-
         index_obj: slice, list, np.bool
             An object on which to index the columns of self.M.
             Must be a slice object or list so scipy.sparse matrices
@@ -497,42 +499,34 @@ class normalize(object):
 
         Returns
         -------
-        
         n : normalize
             A transform which agrees with self having zeroed out
             all coefficients not captured by index_obj.
 
         Notes
         -----
+        This method does not check whether or not ``self.intercept_column`` is
+        None so it must be set by hand on the returned instance.
 
-        This method does not check whether or not self.intercept_column
-        is None so it must be set by hand on the returned instance.
-        
+        Examples
+        --------
         >>> X = np.array([1.2,3.4,5.6,7.8,1.3,4.5,5.6,7.8,1.1,3.4])
         >>> D = np.identity(X.shape[0]) - np.diag(np.ones(X.shape[0]-1),1)
         >>> nD = normalize(D)
         >>> X_sliced = X.copy()
         >>> X_sliced[:4] = 0; X_sliced[6:] = 0
-
-        >>> nD.linear_map(X_sliced)
-        array([  0.        ,   0.        ,   0.        ,  -2.90688837,
-                -7.15541753,  10.0623059 ,   0.        ,   0.        ,
-                 0.        ,   0.        ])
-
+        >>> expected = [0, 0, 0, -2.906888, -7.155417, 10.06230, 0, 0, 0, 0]
+        >>> np.allclose(nD.linear_map(X_sliced), expected)
+        True
         >>> nD_slice = nD.slice_columns(slice(4,6))
-        >>> nD_slice.linear_map(X[slice(4,6)])
-        array([  0.        ,   0.        ,   0.        ,  -2.90688837,
-                -7.15541753,  10.0623059 ,   0.        ,   0.        ,
-                 0.        ,   0.        ])
-        >>> 
-
-        
+        >>> np.allclose(nD_slice.linear_map(X[slice(4,6)]), expected)
+        True
         """
         if type(index_obj) not in [type(slice(0,4)), type([])]:
             # try to find nonzero indices if a boolean array
             if index_obj.dtype == np.bool:
                 index_obj = np.nonzero(index_obj)[0]
-        
+
         new_obj = normalize.__new__(normalize)
         new_obj.sparseM = self.sparseM
 
@@ -558,7 +552,7 @@ class normalize(object):
             new_obj.col_stds = self.col_stds[index_obj]
         new_obj.affine_offset = self.affine_offset
         return new_obj
-        
+
     def normalized_array(self):
         if self.inplace:
             return self.M
@@ -807,7 +801,7 @@ def power_L(transform, max_its=500,tol=1e-8, debug=False):
         norm = np.linalg.norm(v)
         v /= norm
         if debug:
-            print "L", norm
+            print("L", norm)
         itercount += 1
     return norm
 

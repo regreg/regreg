@@ -4,8 +4,12 @@ matrix completion problems and other low-rank factorization
 problems.
 
 """
-import numpy as np
+from __future__ import print_function, division, absolute_import
+
 import warnings
+
+import numpy as np
+
 from ..affine import (linear_transform, astransform, 
                       composition, affine_sum, 
                       power_L, astransform, adjoint)
@@ -124,45 +128,39 @@ def compute_iterative_svd(transform,
                           max_rank=None):
 
     """
-    Compute the SVD of a matrix using partial_svd. If no initial
-    rank is given, it assumes a rank of size min(n,p) / 10.
+    Compute the SVD of a matrix using partial_svd.
 
-    Iteratively calls partial_svd until the singular_values are small enough.
+    If no initial rank is given, it assumes a rank of size min(n,p) / 10.
+
+    Iteratively calls :func:`partial_svd` until the `singular_values` are small
+    enough.
 
     Parameters
     ----------
-
     transform : [linear_transform, ndarray]
         Linear_transform whose SVD is computed. If an
         ndarray, it is first cast with :func:`astransform()`
-
     initial_rank : None or int, optional
         A guess at the rank of the matrix.
-
     warm_start : np.ndarray(np.float), optional
         A guess at the left singular vectors of the matrix.
         For fat matrices, these should be right singular vectors,
         while for tall matrices these should be left singular vectors.
-
-    min_singular : np.float, optional 
-        Stop when the singular value has this relative tolerance.    
-    
+    min_singular : np.float, optional
+        Stop when the singular value has this relative tolerance.
     tol: np.float, optional
         Tolerance at which the norm of the singular values are deemed
         to have converged.
-
     debug: bool, optional
         Print debugging statements.
-
-    stopping_rule : callable
-        Function of the singular values used to determine whether to stop.
-
-    padding : int
+    stopping_rule : None or callable, optional
+        Function of the singular values ``D``, returning True | False,  used to
+        determine whether to stop.  Continue while ``stopping_rule(D) ==
+        False``, or when `stopping_rule` is None.
+    padding : int, optional
         How many more singular vectors are found.
-
-    update_rank : callable
+    update_rank : callable, optional
         A rule to update rank, defaults to doubling the rank.
-
     max_rank : None or int, optional
         Largest rank considered. Defaults to 2 * min(transform.output_shape[0], 
         transform.input_shape[0]). An exception is raised if algorithm exceeds
@@ -170,11 +168,12 @@ def compute_iterative_svd(transform,
 
     Returns
     -------
-
     U, D, VT, Ufull : np.ndarray(np.float)
-        An SVD of the transform. Ufull is the full set of 
-        left singular vectors found.
+        An SVD of the transform. Ufull is the full set of left singular vectors
+        found.
 
+    Examples
+    --------
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
     >>> U, D, VT = compute_iterative_svd(X)[:3]
@@ -182,7 +181,6 @@ def compute_iterative_svd(transform,
     True
     >>> np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
     True
-
     """
 
     transform = astransform(transform)
@@ -213,13 +211,13 @@ def compute_iterative_svd(transform,
     D = [min_so_far]
     while D[-1] >= min_singular * np.max(D):
         if debug:
-            print( "Trying rank", rank)
+            print("Trying rank", rank)
         U, D, VT = partial_svd(transform, rank=rank, 
                                padding=padding, tol=tol, 
                                warm_start=U,
                                return_full=True, debug=debug)
         if debug:
-            print( "Singular values", D)
+            print("Singular values", D)
         if len(D) < rank:
             break
 
@@ -244,6 +242,7 @@ def compute_iterative_svd(transform,
             return VT[ind,:].T, D[ind],  U[:,ind].T
         else:
             return VT.reshape((-1,1)), D[ind], U.reshape((1,-1))
+
 
 def partial_svd(transform,
                 rank=1,
@@ -347,7 +346,9 @@ def partial_svd(transform,
 
     while itercount < max_its and singular_rel_change > tol:
         if debug and itercount > 0:
-            print itercount, singular_rel_change, np.sum(np.fabs(singular_values)>1e-12), np.fabs(singular_values[range(np.min([5,len(singular_values)]))])
+            print(itercount, singular_rel_change,
+                  np.sum(np.fabs(singular_values)>1e-12),
+                  np.fabs(singular_values[range(np.min([5,len(singular_values)]))]))
         V, _ = np.linalg.qr(transform.adjoint_map(U))
         X_V = transform.linear_map(V)
         U, R = np.linalg.qr(X_V)
@@ -358,7 +359,7 @@ def partial_svd(transform,
 
         if stopping_rule is not None and stopping_rule(np.fabs(singular_values)):
             break
-            
+
     singular_values = np.diagonal(R)[ind]
 
     nonzero = np.where(np.fabs(singular_values) > 1e-12)[0]

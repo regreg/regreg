@@ -1,14 +1,17 @@
+from __future__ import print_function, division, absolute_import
+
+import itertools
 
 import numpy as np
-import itertools
-from copy import copy
 
 import regreg.atoms.group_lasso as GL
 import regreg.api as rr
+
 import nose.tools as nt
 
-from test_seminorms import Solver, all_close, SolverFactory
-from test_cones import ConeSolverFactory
+from .test_seminorms import Solver, all_close, SolverFactory
+from .test_cones import ConeSolverFactory
+
 
 class GroupSolverFactory(SolverFactory):
 
@@ -50,6 +53,7 @@ class GroupSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+
 class GroupConeSolverFactory(ConeSolverFactory):
 
     group_choices = [np.arange(10),
@@ -79,6 +83,7 @@ class GroupConeSolverFactory(ConeSolverFactory):
                             FISTA=FISTA,
                             L=L)
             yield solver
+
 
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):

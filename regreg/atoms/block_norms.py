@@ -3,11 +3,13 @@ This module contains the implementation of block norms, i.e.
 l1/l*, linf/l* norms. These are used in multiresponse LASSOs.
 
 """
+from __future__ import print_function, division, absolute_import
 
 import warnings
 
 import numpy as np
-import seminorms
+
+from . import seminorms
 from ..identity_quadratic import identity_quadratic
 from ..problems.composite import smooth_conjugate
 from ..objdoctemplates import objective_doc_templater

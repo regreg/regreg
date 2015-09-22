@@ -1,10 +1,11 @@
-import numpy as np
-from numpy import testing as npt
-from numpy.testing import *
+from __future__ import print_function, division, absolute_import
 
-from scipy import sparse
+import numpy as np
 
 import regreg.api as rr
+
+from numpy import testing as npt
+from numpy.testing import dec
 
 @dec.setastest(True)
 def test_logistic_counts():
@@ -51,8 +52,6 @@ def test_logistic_counts():
     npt.assert_array_almost_equal(solution1, solution2, 3)
 
 
-
-
 @dec.setastest(True)
 def test_logistic_offset():
     """
@@ -91,8 +90,8 @@ def test_logistic_offset():
 
     ind = range(1,p+1)
 
-    print solution1[range(5)]
-    print solution2[range(5)]
+    print(solution1[range(5)])
+    print(solution2[range(5)])
 
     npt.assert_array_almost_equal(solution1[ind], solution2[ind], 3)
     npt.assert_almost_equal(solution1[0]-diff,solution2[0], 2)

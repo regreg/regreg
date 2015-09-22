@@ -1,6 +1,7 @@
 """
 A collection of commonly used RegReg functions and objects
 """
+from __future__ import print_function, division, absolute_import
 
 # Atom imports
 
@@ -37,31 +38,35 @@ from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
 
 # Affine imports
 
-from affine import (identity, selector, affine_transform, normalize, linear_transform, composition as affine_composition, affine_sum,
-                    power_L, astransform)
-from affine.factored_matrix import (factored_matrix, compute_iterative_svd,
-                                    nuclear_norm as factored_nuclear_norm,
-                                    operator_norm as factored_operator_norm)
+from .affine import (identity, selector, affine_transform, normalize,
+                     linear_transform, composition as affine_composition,
+                     affine_sum, power_L, astransform)
+from .affine.factored_matrix import (factored_matrix, compute_iterative_svd,
+                                     nuclear_norm as factored_nuclear_norm,
+                                     operator_norm as factored_operator_norm)
 
 # Smooth imports
 
-from smooth import (logistic_deviance, poisson_deviance, multinomial_deviance, smooth_atom, affine_smooth, logistic_loss, sum as smooth_sum)
-from smooth.quadratic import quadratic, cholesky, signal_approximator, squared_error
+from .smooth import (logistic_deviance, poisson_deviance, multinomial_deviance,
+                     smooth_atom, affine_smooth, logistic_loss, sum as
+                     smooth_sum)
+from .smooth.quadratic import (quadratic, cholesky, signal_approximator,
+                               squared_error)
 
 # Problem imports
 
-from problems.separable import separable, separable_problem
-from problems.simple import simple_problem, gengrad, nesta, tfocs
-from problems.container import container
-from algorithms import FISTA
+from .problems.separable import separable, separable_problem
+from .problems.simple import simple_problem, gengrad, nesta, tfocs
+from .problems.container import container
+from .algorithms import FISTA
 
-from problems.conjugate import conjugate
-from problems.composite import (composite, nonsmooth as nonsmooth_composite,
-                       smooth as smooth_composite, smooth_conjugate)
+from .problems.conjugate import conjugate
+from .problems.composite import (composite, nonsmooth as nonsmooth_composite,
+                                 smooth as smooth_composite, smooth_conjugate)
 
-from problems.dual_problem import dual_problem
+from .problems.dual_problem import dual_problem
 
-from identity_quadratic import identity_quadratic
+from .identity_quadratic import identity_quadratic
 
-from paths import lasso, nesta as nesta_path, UNPENALIZED, L1_PENALTY, POSITIVE_PART, NONNEGATIVE
-
+from .paths import (lasso, nesta as nesta_path, UNPENALIZED, L1_PENALTY,
+                    POSITIVE_PART, NONNEGATIVE)

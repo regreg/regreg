@@ -5,7 +5,11 @@ import regreg.affine as ra
 
 INTERACTIVE = False
 
-import matplotlib.pyplot as plt
+if INTERACTIVE:
+    try:
+        from matplotlib.pyplot import plt
+    except ImportError:
+        INTERACTIVE = False
 
 def _multiscale_matrix(p, minsize=None):
     minsize = minsize or int(np.around(p**(1/3.)))

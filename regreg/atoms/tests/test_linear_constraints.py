@@ -1,10 +1,15 @@
-import numpy as np
-import regreg.atoms.linear_constraints as LC
-import regreg.api as rr
-import nose.tools as nt
+from __future__ import print_function, division, absolute_import
+
 import itertools
 
-from test_cones import Solver, ConeSolverFactory
+import numpy as np
+
+import regreg.atoms.linear_constraints as LC
+import regreg.api as rr
+
+import nose.tools as nt
+
+from .test_cones import Solver, ConeSolverFactory
 
 class ConstraintSolverFactory(ConeSolverFactory):
 
@@ -44,7 +49,7 @@ class ConstraintSolverFactory(ConeSolverFactory):
 
 @np.testing.dec.slow
 def test_proximal_maps():
-    for klass in sorted(sorted(LC.conjugate_cone_pairs.keys())):
+    for klass in sorted(LC.conjugate_cone_pairs.keys(), key=str):
         factory = ConstraintSolverFactory(klass)
         for solver in factory:
             for t in solver.all_tests():
