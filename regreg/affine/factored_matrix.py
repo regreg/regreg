@@ -121,7 +121,7 @@ def compute_iterative_svd(transform,
                           stopping_rule=None,
                           padding=5,
                           update_rank=lambda R: 2*R,
-                          max_rank=100):
+                          max_rank=None):
 
     """
     Compute the SVD of a matrix using partial_svd. If no initial
@@ -163,9 +163,10 @@ def compute_iterative_svd(transform,
     update_rank : callable
         A rule to update rank, defaults to doubling the rank.
 
-    max_rank : int
-        Largest rank considered -- exception is raised if
-        higher rank is attempted.
+    max_rank : None or int, optional
+        Largest rank considered. Defaults to 2 * min(transform.output_shape[0], 
+        transform.input_shape[0]). An exception is raised if algorithm exceeds
+        given value.
 
     Returns
     -------
@@ -189,6 +190,9 @@ def compute_iterative_svd(transform,
     n = transform.output_shape[0]
     p = transform.input_shape[0]
     
+    if max_rank is None:
+        max_rank = 2 * min(n, p)
+
     need_to_transpose = False
     if n < p:
         transform = adjoint(transform)

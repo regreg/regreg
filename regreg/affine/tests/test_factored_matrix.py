@@ -154,3 +154,17 @@ def test_proximal_method():
 
     nt.assert_true(np.linalg.norm(RPO+RB-X) / np.linalg.norm(X) < 0.01)
     nt.assert_true(np.linalg.norm(RBO+RP-X) / np.linalg.norm(X) < 0.01)
+
+def test_max_rank():
+    np.random.seed(0)
+    X = np.random.standard_normal((100, 200))
+    nt.assert_raises(ValueError, FM.compute_iterative_svd, X, max_rank=2)
+
+    U, D, VT = FM.compute_iterative_svd(X)
+    nt.assert_true(np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6)
+    nt.assert_true(np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6)
+
+    U, D, VT = FM.compute_iterative_svd(X, max_rank=200)
+    nt.assert_true(np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6)
+    nt.assert_true(np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6)
+
