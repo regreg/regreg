@@ -114,8 +114,9 @@ def test_composition2():
                        np.dot(X1, np.dot(X2, np.dot(X3, z))))
     assert_array_equal(comp.adjoint_map(w), 
                        np.dot(X3.T, np.dot(X2.T, np.dot(X1.T, w))))
-    assert_array_equal(comp.affine_map(z), 
-                       np.dot(X1, np.dot(X2, np.dot(X3, z) + b3) + b2) + b1)
+    assert_array_almost_equal(
+        comp.affine_map(z),
+        np.dot(X1, np.dot(X2, np.dot(X3, z) + b3) + b2) + b1)
 
 def test_adjoint():
     X = np.random.standard_normal((20,30))
