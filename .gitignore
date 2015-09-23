@@ -14,6 +14,7 @@
 .sw[nop]
 *.tmp
 .buildbot.patch
+.coverage
 
 # Not sure what the next two are for
 *.kpf
