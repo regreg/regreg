@@ -1,5 +1,6 @@
+from __future__ import print_function, division, absolute_import
+
 from copy import copy
-import warnings
 
 import numpy as np
 
@@ -335,12 +336,12 @@ class seminorm(atom):
 
         debug = False
         if debug:
-            print '='*80
-            print 'atom: ', self
-            print 'quadratic: ', quadratic
-            print 'proxarg: ', prox_arg
-            print 'totalq: ', totalq
-            print 'offset: ', offset
+            print('='*80)
+            print('atom: ', self)
+            print('quadratic: ', quadratic)
+            print('proxarg: ', prox_arg)
+            print('totalq: ', totalq)
+            print('offset: ', offset)
 
         if self.bound is not None:
             eta = self.bound_prox(prox_arg, 
@@ -515,6 +516,7 @@ class seminorm(atom):
         (<regreg.affine.linear_transform object at 0x...>, supnorm((3,), bound=2.3...))
 
         """
+        return self.linear_transform, self.conjugate
 
     @classmethod
     def affine(cls, linear_operator, offset, lagrange=None, diag=False,

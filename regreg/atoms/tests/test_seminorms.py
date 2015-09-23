@@ -1,6 +1,9 @@
-import numpy as np
+from __future__ import print_function, division, absolute_import
+
 import itertools
 from copy import copy
+
+import numpy as np
 
 import regreg.atoms.seminorms as S
 import regreg.api as rr
@@ -34,7 +37,7 @@ y : %s
     if not hasattr(solver, 'interactive') or not solver.interactive:
         nt.assert_true(v)
     else:
-        print msg.split('\n')[0]
+        print(msg.split('\n')[0])
 
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):
@@ -137,6 +140,11 @@ class SolverFactory(object):
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
+
+            # make sure certain lines of code are tested
+            assert(atom == atom)
+            atom.latexify(), atom.dual, atom.conjugate
+
             yield solver
 
 
@@ -196,7 +204,7 @@ class Solver(object):
         p2.quadratic = atom.quadratic + q
         problem = rr.simple_problem.nonsmooth(p2)
         solver = rr.FISTA(problem)
-        solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop)
+        solver.fit(tol=1.0e-14, FISTA=self.FISTA, coef_stop=self.coef_stop, min_its=100)
 
         gg = rr.gengrad(problem, 2.) # this lipschitz constant is based on knowing our loss...
         tests.append((atom.proximal(q), gg, 'solving prox with gengrad\n %s ' % str(self)))
@@ -217,7 +225,8 @@ class Solver(object):
         problem = rr.simple_problem.nonsmooth(p4)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-14, monotonicity_restart=False, coef_stop=self.coef_stop,
-                   FISTA=self.FISTA)
+                   FISTA=self.FISTA,
+                   min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem.nonsmooth with no monotonocity\n %s ' % str(self)))
 
@@ -235,7 +244,7 @@ class Solver(object):
 
         problem = rr.simple_problem(loss, atom)
         solver = rr.FISTA(problem)
-        solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop)
+        solver.fit(tol=1.0e-12, FISTA=self.FISTA, coef_stop=self.coef_stop, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem with monotonicity\n %s' % str(self)))
 
@@ -256,7 +265,7 @@ class Solver(object):
         problem = rr.simple_problem(loss, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, monotonicity_restart=False,
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving prox with simple_problem no monotonicity_restart\n %s' % str(self)))
 
@@ -264,7 +273,7 @@ class Solver(object):
         problem = rr.simple_problem(loss, d)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, monotonicity_restart=False, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
         tests.append((d.proximal(q), problem.solve(tol=1.e-12,
                                                 FISTA=self.FISTA,
                                                 coef_stop=self.coef_stop,
@@ -308,7 +317,7 @@ class Solver(object):
         problem = rr.separable_problem.singleton(atom, loss)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton \n%s ' % str(self)))
 
@@ -317,9 +326,9 @@ class Solver(object):
         problem = rr.separable_problem.singleton(d, loss)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
-        tests.append((d.proximal(q), solver.composite.coefs, 'solving atom prox with separable_atom.singleton \n%s ' % str(self)))
+        tests.append((d.proximal(q), solver.composite.coefs, 'solving dual atom prox with separable_atom.singleton \n%s ' % str(self)))
 
         if not self.interactive:
             for test in tests:
@@ -336,7 +345,7 @@ class Solver(object):
         problem = rr.container(loss, atom)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
 
         tests.append((atom.proximal(q), solver.composite.coefs, 'solving atom prox with container\n %s ' % str(self)))
 
@@ -358,7 +367,7 @@ class Solver(object):
         problem = rr.container(d, loss)
         solver = rr.FISTA(problem)
         solver.fit(tol=1.0e-12, 
-                   coef_stop=self.coef_stop, FISTA=self.FISTA)
+                   coef_stop=self.coef_stop, FISTA=self.FISTA, min_its=100)
         tests.append((d.proximal(q), solver.composite.coefs, 'solving dual prox with container\n %s ' % str(self)))
 
         if not self.interactive:

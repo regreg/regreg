@@ -50,16 +50,10 @@ def difference_transform(X, order=1, sorted=False,
 
 class trend_filter(affine_transform):
 
-    def __init__(self, m, order=1, knots=None, sorted=False):
-        self.m = m
+    def __init__(self, knots, order=1, sorted=False):
         self.order = order
-        if knots is None:
-            knots = np.arange(m)
-        else:
-            knots = np.sort(knots)
-
-        self.knots = knots
-        self.steps = knots[1:] - knots[:-1]
+        self.knots = np.sort(knots)
+        self.steps = self.knots[1:] - self.knots[:-1]
 
         self.linear_transform = difference_transform(knots, order=order, sorted=True,
                                                      transform=True)
@@ -67,14 +61,15 @@ class trend_filter(affine_transform):
         self.input_shape = self.linear_transform.input_shape
         self.output_shape = self.linear_transform.output_shape
 
+    @classmethod
+    def grid(cls, m, order=1, sorted=False):
+        return cls(np.arange(m), order=order, sorted=sorted)
+
     def linear_map(self, x):
         return self.linear_transform.linear_map(x)
 
     def affine_map(self, x):
         return self.linear_map(x)
-
-    def offset_map(self, x):
-        return x
 
     def adjoint_map(self, x):
         return self.linear_transform.adjoint_map(x)
@@ -82,18 +77,12 @@ class trend_filter(affine_transform):
 
 class trend_filter_inverse(affine_transform):
 
-    def __init__(self, m, order=1, knots=None, sorted=False):
-        self.m = m
+    def __init__(self, knots, order=1, sorted=False):
         self.order = order
+        self.knots = np.sort(knots)
+        self.steps = self.knots[1:] - self.knots[:-1]
         if order != 1:
-            raise ValueError('pinv only worked out for first order')
-        if knots is None:
-            knots = np.arange(m)
-        else:
-            knots = np.sort(knots)
-
-        self.knots = knots
-        self.steps = knots[1:] - knots[:-1]
+            raise ValueError('pseudo inverse only worked out for first order')
             
         dtransform = difference_transform(knots, order=order, sorted=True,
                                           transform=True)
@@ -102,24 +91,25 @@ class trend_filter_inverse(affine_transform):
         self.output_shape = dtransform.input_shape
         self.input_shape = dtransform.output_shape
 
+    @classmethod
+    def grid(cls, m, order=1, sorted=False):
+        return cls(np.arange(m), order=order, sorted=sorted)
+
     def linear_map(self, x):
         if x.ndim == 1:
-            v = np.zeros(self.m)
+            v = np.zeros(self.output_shape)
             v[1:] = np.cumsum(x * self.steps)
             v -= v.mean()
             return v
         elif x.ndim == 2:
             # assuming m is the first axis
-            v = np.zeros((self.m, x.shape[1]))
+            v = np.zeros((self.output_shape[0], x.shape[1]))
             v[1:] = np.cumsum(x * self.steps[:,np.newaxis], axis=0)
             v -= v.mean(0)
             return v
 
     def affine_map(self, x):
         return self.linear_map(x)
-
-    def offset_map(self, x):
-        return x
 
     def adjoint_map(self, x):
         if x.ndim == 1:

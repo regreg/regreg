@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 import numpy as np
 import warnings
 
@@ -113,7 +115,7 @@ class FISTA(algorithm):
 
             if np.mod(itercount+1,restart)==0:
                 if self.debug:
-                    print "\tRestarting weights"
+                    print("\tRestarting weights")
                 self.working_coefs = self.composite.coefs
                 t_old = 1.
 
@@ -143,22 +145,30 @@ class FISTA(algorithm):
 
             if self.debug:
                 if coef_stop:
-                    print itercount, working_obj, self.step, obj_rel_change, coef_rel_change, tol
+                    print(itercount, working_obj,
+                          self.step, obj_rel_change,
+                          coef_rel_change, tol)
                 else:
-                    print "%i    obj: %.6e    step: %.2e    rel_obj_change: %.2e    tol: %.1e" % (itercount, working_obj, self.step, obj_rel_change, tol)
+                    print("%i    obj: %.6e    step: %.2e    "
+                          "rel_obj_change: %.2e    tol: %.1e" %
+                          (itercount, working_obj,
+                           self.step, obj_rel_change,
+                           tol))
 
             if itercount >= min_its:
                 if coef_stop:
                     if coef_rel_change < tol:
                         self.working_coefs = proposed_coefs
                         if self.debug:
-                            print "Success: Optimization stopped because change in coefficients was below tolerance"
+                            print("Success: Optimization stopped because "
+                                  "change in coefficients was below tolerance")
                         break
                 else:
                     if obj_rel_change < tol or obj_change < tol:
                         self.working_coefs = proposed_coefs
                         if self.debug:
-                            print 'Success: Optimization stopped because decrease in objective was below tolerance'
+                            print('Success: Optimization stopped because '
+                                  'decrease in objective was below tolerance')
                         break
 
             self.update_working_coefs(proposed_coefs)
@@ -166,18 +176,20 @@ class FISTA(algorithm):
             if itercount > 1 and working_obj < proposed_obj and obj_rel_change > 1e-10 and monotonicity_restart:
                 #Adaptive restarting: restart if monotonicity violated
                 if self.debug:
-                    print "%i Restarting weights" % itercount
+                    print("%i Restarting weights" % itercount)
                 self.attempt_decrease = True
 
                 if self.weight_old == 1.:
                     #Gradient step didn't decrease objective: tolerance composites or incorrect prox op... time to give up?
                     if self.debug:
-                        print "%i  Badstep: current: %f, proposed %f" % (itercount, working_obj, proposed_obj)
+                        print("%i  Badstep: current: %f, proposed %f" %
+                              (itercount, working_obj, proposed_obj))
                     badstep += 1
                     if badstep > 3:
                         warnings.warn('prox is taking bad steps')
                         if self.debug:
-                            print 'Caution: Optimization stopped while prox was taking bad steps'
+                            print('Caution: Optimization stopped while prox '
+                                  'was taking bad steps')
                         break
                 itercount += 1
                 self.weight_old = 1.
@@ -191,8 +203,9 @@ class FISTA(algorithm):
 
         if self.debug:
             if itercount == max_its:
-                print "Optimization stopped because iteration limit was reached"
-            print "FISTA used", itercount, "of", max_its, "iterations"
+                print("Optimization stopped because iteration limit was "
+                      "reached")
+            print("FISTA used", itercount, "of", max_its, "iterations")
         if return_objective_hist:
             return objective_hist[:itercount]
 
@@ -240,5 +253,5 @@ class FISTA(algorithm):
             if not self.step > 0:
                 raise ValueError("stepsize zero reached")
             if self.debug:
-                print "%i    Decreasing step to" % itercount, self.step
+                print("%i    Decreasing step to" % itercount, self.step)
         return proposed_coefs, proposed_smooth

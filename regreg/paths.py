@@ -1,7 +1,11 @@
+from __future__ import print_function, division, absolute_import
+
 from warnings import warn
 import gc
 
 import numpy as np
+import numpy.linalg as npl
+
 import scipy.sparse
 
 from .affine import power_L, normalize, selector, identity, adjoint
@@ -330,7 +334,7 @@ class lasso(object):
                         break
                     else:
                         if verbose:
-                            print 'failing:', np.nonzero(all_failing)[0]
+                            print('failing:', np.nonzero(all_failing)[0])
                         retry_counter += 1
                         self.ever_active += all_failing
 
@@ -355,7 +359,12 @@ class lasso(object):
             gc.collect()
 
             if verbose:
-                print lagrange_cur / self.lagrange_max, lagrange_new, (self.solution != 0).sum(), 1. - objective[-1] / objective[0], list(self.lagrange_sequence).index(lagrange_new), np.fabs(rescaled_solution).sum()
+                print(lagrange_cur / self.lagrange_max,
+                      lagrange_new,
+                      (self.solution != 0).sum(),
+                      1. - objective[-1] / objective[0],
+                      list(self.lagrange_sequence).index(lagrange_new),
+                      np.fabs(rescaled_solution).sum())
 
         objective = np.array(objective)
         output = {'devratio': 1 - objective / objective.max(),
@@ -488,13 +497,15 @@ class nesta(lasso):
             self.final_step = subproblem.final_step
 
             candidate = selector.adjoint_map(sub_soln)
-            print np.linalg.norm(self.solution - candidate) / max(np.linalg.norm(candidate), 1)
-            if np.linalg.norm(self.solution - candidate) < tol * max(np.linalg.norm(candidate),1):
-                print 'breaking'
+            print(npl.norm(self.solution - candidate) /
+                  max(npl.norm(candidate), 1))
+            if (npl.norm(self.solution - candidate) <
+                tol * max(npl.norm(candidate),1)):
+                print('breaking')
                 break
             self.solution[:] = candidate
             self.dual_term = self.nesta_loss.grad
-            print self._dual_term_lookup
+            print(self._dual_term_lookup)
             self.set_dual_term(self.lagrange, self.dual_term)
 
         grad = subproblem.smooth_objective(sub_soln, mode='grad') 

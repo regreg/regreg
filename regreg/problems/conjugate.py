@@ -1,43 +1,44 @@
-import numpy as np
+from __future__ import print_function, division, absolute_import
 
 from copy import copy
 
+import numpy as np
+
 from ..algorithms import FISTA
-from ..smooth.quadratic import quadratic
-from composite import composite
-from container import container
+from ..smooth.quadratic import quadratic, smooth_atom
+from .composite import composite
+from .simple import simple_problem
 
 from ..identity_quadratic import identity_quadratic
 
 class conjugate(composite):
 
-    def __init__(self, atom, quadratic=None, tol=1e-8):
+    def __init__(self, atom, quadratic=None, **fit_args):
 
         # we copy the atom because we will modify its quadratic part
         self.atom = copy(atom)
 
-        if self.atom.quadratic is None:
-            self.atom.set_quadratic(0, None, None, 0)
-        
-        if quadratic is not None:
-            totalq = self.atom.quadratic + quadratic
-            self.atom.quadratic = identity_quadratic(totalq.coef,
-                                    totalq.center,
-                                    totalq.linear_term,
-                                    totalq.constant_term)
+        if quadratic is None:
+            quadratic = identity_quadratic(0, 0, 0, 0)
+        self.quadratic = quadratic
 
-        if self.atom.quadratic in [0, None]:
+        totalq = self.atom.quadratic + quadratic
+        if totalq.coef in [0, None]:
             raise ValueError('quadratic coefficient must be non-zero')
 
-        self.solver = FISTA(self.atom)
-        self.tol = tol
+        if isinstance(self.atom, smooth_atom):
+            self.problem = simple_problem.smooth(self.atom)
+        self.fit_args = fit_args
+
         #XXX we need a better way to pass around the Lipschitz constant
         # should go in the container class
-        if hasattr(self.atom, "lipschitz"):
-            self.perform_backtrack = False
-        else:
-            self.perform_backtrack = True
+#         if hasattr(self.atom, "lipschitz"):
+#             self.fit_args['perform_backtrack'] = False
+#         else:
+#             self.fit_args['perform_backtrack'] = True
+
         self._have_solved_once = False
+        self.shape = atom.shape
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
@@ -48,22 +49,27 @@ class conjugate(composite):
         if mode == 'func', return only the function value
         """
 
-        self.solver.debug = False
-        self.atom.quadratic.linear_term -= x.T
-        self.solver.perform_backtrack = self.perform_backtrack
-        self.solver.fit(max_its=5000, tol=self.tol)
-        minimizer = self.atom.coefs
-            
+        old_lin = self.quadratic.linear_term
+        if old_lin is not None:
+            new_lin = old_lin - x
+        else:
+            new_lin = -x
+        self.quadratic.linear_term = new_lin
+        if isinstance(self.atom, smooth_atom):
+            minimizer = self.problem.solve(self.quadratic, max_its=5000, **self.fit_args)
+        else: # it better have a proximal method!
+            minimizer = self.atom.proximal(self.quadratic)
+        self.quadratic.linear_term = old_lin
+    
         # retain a reference
         self.argmin = minimizer
         if mode == 'both':
             v = self.atom.objective(minimizer)
-            return -v, minimizer
+            return - v - self.quadratic.objective(minimizer, mode='func') + (x * minimizer).sum(), minimizer
         elif mode == 'func':
             v = self.atom.objective(minimizer)
-            return -v
+            return - v - self.quadratic.objective(minimizer, mode='func') + (x * minimizer).sum()
         elif mode == 'grad':
             return minimizer
         else:
             raise ValueError("mode incorrectly specified")
-        self.atom.quadratic.linear_term += x

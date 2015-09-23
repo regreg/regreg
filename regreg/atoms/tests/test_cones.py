@@ -1,13 +1,16 @@
+import itertools
+
 import numpy as np
+
 import regreg.api as rr
 import regreg.atoms.cones as C
 import regreg.atoms.svd_norms as C_SVD
+from regreg.tests.decorators import set_seed_for_test
+
 import nose.tools as nt
-import itertools
 
-np.random.seed(10)
+from .test_seminorms import Solver, SolverFactory
 
-from test_seminorms import Solver, SolverFactory
 
 class ConeSolverFactory(SolverFactory):
 
@@ -30,6 +33,10 @@ class ConeSolverFactory(SolverFactory):
 
             atom = self.klass(self.shape)
 
+            # make sure certain lines of code are tested
+            assert(atom == atom)
+            atom.latexify(), atom.dual, atom.conjugate
+
             if q: 
                 atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
 
@@ -43,9 +50,10 @@ class ConeSolverFactory(SolverFactory):
             yield solver
 
 
+@set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps():
-    for klass in sorted(C.conjugate_cone_pairs.keys()):
+    for klass in sorted(C.conjugate_cone_pairs.keys(), key=str):
         if klass in [C_SVD.nuclear_norm_epigraph,
                      C_SVD.nuclear_norm_epigraph_polar,
                      C_SVD.operator_norm_epigraph,

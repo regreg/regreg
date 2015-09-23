@@ -1,11 +1,17 @@
+from __future__ import print_function, division, absolute_import
+
+from itertools import chain
+
 import numpy as np
+
 import regreg.atoms.block_norms as B
 import regreg.atoms.svd_norms as SVD
 import regreg.api as rr
-import nose.tools as nt
-import itertools
+from regreg.tests.decorators import set_seed_for_test
 
-from test_seminorms import Solver, all_close, SolverFactory
+import nose.tools as nt
+
+from .test_seminorms import Solver, all_close, SolverFactory
 
 class MatrixSolverFactory(SolverFactory):
 
@@ -14,9 +20,11 @@ class MatrixSolverFactory(SolverFactory):
     coef_stop_choices = [False]
     shape = (5,4)
 
+@set_seed_for_test(seed=20)
 @np.testing.dec.slow
 def test_proximal_maps():
-    for klass in B.conjugate_block_pairs.keys() + SVD.conjugate_svd_pairs.keys():
+    for klass in chain(B.conjugate_block_pairs.keys(),
+                       SVD.conjugate_svd_pairs.keys()):
         if klass not in [B.block_max, B.block_sum]:
             factory = MatrixSolverFactory(klass, 'lagrange')
             for solver in factory:

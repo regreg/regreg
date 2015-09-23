@@ -185,16 +185,6 @@ class cone(atom):
 
         prox_arg = -totalq.linear_term / totalq.coef
 
-        debug = False
-        if debug:
-            print '='*80
-            print 'x :', x
-            print 'grad: ', grad
-            print 'cone: ', self
-            print 'quadratic: ', quadratic
-            print 'proxarg: ', prox_arg
-            print 'totalq: ', totalq
-
         eta = self.cone_prox(prox_arg)
         if offset is None:
             return eta

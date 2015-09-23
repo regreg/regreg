@@ -13,6 +13,7 @@
 .*.sw[nop]
 .sw[nop]
 *.tmp
+.buildbot.patch
 
 # Not sure what the next two are for
 *.kpf
@@ -48,11 +49,11 @@
 
 # Python files #
 ################
-build            # setup.py working directory
-_build           # sphinx build directory
-./dist           # setup.py dist directory
-./*.egg-info     # Egg metadata
-./.shelf         # The shelf plugin uses this dir
+build/
+_build/
+dist/
+*.egg-info/
+.shelf
 
 # Logs and databases #
 ######################

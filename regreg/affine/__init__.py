@@ -1,7 +1,10 @@
+from __future__ import print_function, division, absolute_import
+
 from operator import add, mul
+import warnings
+
 import numpy as np
 from scipy import sparse
-import warnings
 
 def broadcast_first(a, b, op):
     """ apply binary operation `op`, broadcast `a` over axis 1 if necessary
@@ -63,7 +66,7 @@ class affine_transform(object):
 
         if sparse.issparse(affine_offset):
             #Convert sparse offset to an array
-            self.affine_offset = affine_offset.toarray()
+            self.affine_offset = affine_offset.toarray().reshape(-1)
         else:
             self.affine_offset = affine_offset
         self.linear_operator = linear_operator
@@ -108,10 +111,10 @@ class affine_transform(object):
                 self.affineD = False
                 self.input_shape = (linear_operator.shape[0],)
                 self.output_shape = (linear_operator.shape[0],)
-            elif not input_shape is None and (len(input_shape) == 2):
-                #Input shape is a matrix
+            elif (input_shape is not None) and (len(input_shape) == 2):
+                #Input coefficients is a matrix
                 self.input_shape = input_shape
-                self.output_shape = (linear_operator.shape[0],input_shape[1])
+                self.output_shape = (linear_operator.shape[0], input_shape[1])
                 self.diagD = False
                 self.affineD = False
             else:
@@ -304,17 +307,17 @@ class reshape(linear_transform):
         return self.linear_map(x)
 
     def adjoint_map(self, u):
-        return u.reshape(self.output_shape)
+        return u.reshape(self.input_shape)
 
-def tensor(T, first_input_index):
-    input_shape = T.shape[first_input_index:]
-    output_shape = T.shape[:first_input_index]
+# def tensor(T, first_input_index):
+#     input_shape = T.shape[first_input_index:]
+#     output_shape = T.shape[:first_input_index]
 
-    Tm = T.reshape((np.product(output_shape),
-                    np.product(input_shape)))
-    reshape_input = reshape(input_shape, Tm.shape[1])
-    reshape_output = reshape(Tm.shape[0], output_shape)
-    return composition(reshape_output, Tm, reshape_input)
+#     Tm = T.reshape((np.product(output_shape),
+#                     np.product(input_shape)))
+#     reshape_input = reshape(input_shape, Tm.shape[1])
+#     reshape_output = reshape(Tm.shape[0], output_shape)
+#     return composition(reshape_output, Tm, reshape_input)
 
 class normalize(object):
 
@@ -368,7 +371,7 @@ class normalize(object):
         self.inplace = inplace
 
         if value != 1 and not scale:
-            raise ValueError('setting value when not being asked to scale')
+            warnings.warn('setting length of columns when not being asked to scale them')
 
         # we divide by n instead of n-1 in the scalings
         # so that np.std is constant
@@ -391,9 +394,9 @@ class normalize(object):
                 if not self.sparseM:
                     self.col_stds = np.sqrt((np.sum(M**2,0) - n * col_means**2) / n) / np.sqrt(self.value)
                 else:
-                    self.col_stds = np.sqrt((np.asarray(tmp.sum(0)).reshape(-1) - n * col_means**2) / n) / np.sqrt(self.value)
+                    self.col_stds = np.asarray(np.sqrt((np.asarray(tmp.sum(0)).reshape(-1) - n * col_means**2) / n) / np.sqrt(self.value)).reshape(-1)
                 if self.intercept_column is not None:
-                    self.col_stds[self.intercept_column] = 1. / np.sqrt(self.value)
+                    self.col_stds[self.intercept_column] = 1. 
 
             if not self.sparseM and self.inplace:
                 self.M -= col_means[np.newaxis,:]
@@ -409,9 +412,9 @@ class normalize(object):
             else:
                 tmp = M.copy()
                 tmp.data **= 2
-                self.col_stds = np.sqrt((tmp.sum(0)) / n) / np.sqrt(self.value)
+                self.col_stds = np.asarray(np.sqrt((tmp.sum(0)) / n) / np.sqrt(self.value)).reshape(-1)
             if self.intercept_column is not None:
-                self.col_stds[self.intercept_column] = 1. / np.sqrt(self.value)
+                self.col_stds[self.intercept_column] = 1.
             if self.inplace:
                 self.M /= self.col_stds[np.newaxis,:]
                 # if scaling has been applied in place, 
@@ -421,12 +424,8 @@ class normalize(object):
         self.affine_offset = None
         
     def linear_map(self, x):
-        shift = None
         if self.intercept_column is not None:
-            if self.scale and self.value != 1:
-                x_intercept = x[self.intercept_column] * np.sqrt(self.value)
-            else:
-                x_intercept = x[self.intercept_column]
+            x_intercept = x[self.intercept_column]
         if self.scale:
             if x.ndim == 1:
                 x = x / self.col_stds
@@ -435,7 +434,10 @@ class normalize(object):
             else:
                 raise ValueError('normalize only implemented for 1D and 2D inputs')
         if self.sparseM:
-            v = self.M * x
+            if x.ndim == 1:
+                v = np.asarray(self.M * (x.reshape((-1,1)))).reshape(self.output_shape)
+            else:
+                v = np.asarray(self.M * x).reshape((self.output_shape[0], x.shape[1]))
         else:
             v = np.dot(self.M, x)
         if self.center:
@@ -443,13 +445,6 @@ class normalize(object):
                 v -= v.mean()
             elif x.ndim == 2:
                 v -= v.mean(0)[np.newaxis,:]
-            else:
-                raise ValueError('normalize only implemented for 1D and 2D inputs')
-        if shift is not None: # what is this shift possibly for?
-            if x.ndim == 1:
-                return v + shift
-            elif x.ndim == 2:
-                w = v + shift[np.newaxis,:]
             else:
                 raise ValueError('normalize only implemented for 1D and 2D inputs')
         if self.intercept_column is not None and self.center:
@@ -463,23 +458,32 @@ class normalize(object):
         return self.linear_map(x)
 
     def adjoint_map(self, u):
-        v = np.empty(self.input_shape)
+        if u.ndim == 1:
+            u_mean = u.mean()
+        elif u.ndim == 2:
+            u_mean = u.mean(0)
         if self.center:
             if u.ndim == 1:
-                u_mean = u.mean()
                 u = u - u_mean
             elif u.ndim == 2:
-                u_mean = u.mean(0)
-                u = u - u_mean[np.newaxis,:]
+                if self.center:
+                    u = u - u_mean[np.newaxis,:]
             else:
                 raise ValueError('normalize only implemented for 1D and 2D inputs')
         if self.sparseM:
-            v = (u.T * self.M).T
+            if u.ndim == 1:
+                v = np.asarray((u.T * self.M).T).reshape(-1)
+            else:
+                v = np.asarray((u.T * self.M).T)
         else:
             v = np.dot(u.T, self.M).T
+
         if self.scale:
-            v /= self.col_stds
-        if self.intercept_column is not None:
+            if u.ndim == 1:
+                v /= self.col_stds
+            elif u.ndim == 2:
+                v /= self.col_stds[:,None]
+        if self.intercept_column is not None and (self.center or self.scale):
             v[self.intercept_column] = u_mean * u.shape[0]
         return v
 
@@ -488,7 +492,6 @@ class normalize(object):
 
         Parameters
         ----------
-
         index_obj: slice, list, np.bool
             An object on which to index the columns of self.M.
             Must be a slice object or list so scipy.sparse matrices
@@ -496,47 +499,45 @@ class normalize(object):
 
         Returns
         -------
-        
         n : normalize
             A transform which agrees with self having zeroed out
             all coefficients not captured by index_obj.
 
         Notes
         -----
+        This method does not check whether or not ``self.intercept_column`` is
+        None so it must be set by hand on the returned instance.
 
-        This method does not check whether or not self.intercept_column
-        is None so it must be set by hand on the returned instance.
-        
+        Examples
+        --------
         >>> X = np.array([1.2,3.4,5.6,7.8,1.3,4.5,5.6,7.8,1.1,3.4])
         >>> D = np.identity(X.shape[0]) - np.diag(np.ones(X.shape[0]-1),1)
         >>> nD = normalize(D)
         >>> X_sliced = X.copy()
         >>> X_sliced[:4] = 0; X_sliced[6:] = 0
-
-        >>> nD.linear_map(X_sliced)
-        array([  0.        ,   0.        ,   0.        ,  -2.90688837,
-                -7.15541753,  10.0623059 ,   0.        ,   0.        ,
-                 0.        ,   0.        ])
-
+        >>> expected = [0, 0, 0, -2.906888, -7.155417, 10.06230, 0, 0, 0, 0]
+        >>> np.allclose(nD.linear_map(X_sliced), expected)
+        True
         >>> nD_slice = nD.slice_columns(slice(4,6))
-        >>> nD_slice.linear_map(X[slice(4,6)])
-        array([  0.        ,   0.        ,   0.        ,  -2.90688837,
-                -7.15541753,  10.0623059 ,   0.        ,   0.        ,
-                 0.        ,   0.        ])
-        >>> 
-
-        
+        >>> np.allclose(nD_slice.linear_map(X[slice(4,6)]), expected)
+        True
         """
         if type(index_obj) not in [type(slice(0,4)), type([])]:
             # try to find nonzero indices if a boolean array
             if index_obj.dtype == np.bool:
                 index_obj = np.nonzero(index_obj)[0]
-        
+
         new_obj = normalize.__new__(normalize)
         new_obj.sparseM = self.sparseM
 
         # explicitly assumes there is no intercept column
-        new_obj.intercept_column = None
+        if self.intercept_column is not None:
+            if self.intercept_column not in list(index_obj):
+                new_obj.intercept_column = None
+            else:
+                new_obj.intercept_column = list(index_obj).index(self.intercept_column)
+        else:
+            new_obj.intercept_column = None
         new_obj.value = self.value
         try:
             new_obj.M = self.M[:,index_obj]
@@ -551,7 +552,7 @@ class normalize(object):
             new_obj.col_stds = self.col_stds[index_obj]
         new_obj.affine_offset = self.affine_offset
         return new_obj
-        
+
     def normalized_array(self):
         if self.inplace:
             return self.M
@@ -559,6 +560,10 @@ class normalize(object):
             raise ValueError('only possible to extract matrix if normalization was done inplace')
 
 class identity(object):
+
+    """
+    Identity transform
+    """
 
     def __init__(self, input_shape):
         self.input_shape = self.output_shape = input_shape
@@ -752,7 +757,7 @@ class product(object):
                                 self.input_slices, 
                                 self.transforms,
                                 self.input_shapes):
-            result[og] = t.linear_map(x[g].reshape(s))
+            result[og] = t.linear_map(x[ig].reshape(s))
         return result
 
     def affine_map(self, x):
@@ -796,7 +801,7 @@ def power_L(transform, max_its=500,tol=1e-8, debug=False):
         norm = np.linalg.norm(v)
         v /= norm
         if debug:
-            print "L", norm
+            print("L", norm)
         itercount += 1
     return norm
 
@@ -971,9 +976,9 @@ class scalar_multiply(object):
 
     def affine_map(self, x):
         if self.scalar != 1.:
-            return self._atransform.linear_map(x) * self.scalar
+            return self._atransform.affine_map(x) * self.scalar
         else:
-            return self._atransform.linear_map(x)
+            return self._atransform.affine_map(x)
 
     def linear_map(self, x):
         if self.scalar != 1.:
@@ -999,8 +1004,8 @@ class posneg(affine_transform):
         self.output_shape = self.linear_transform.output_shape
 
     def linear_map(self, x):
-        X = self.linear_transform.linear_map
-        return  X(x[0]) - X(x[1])
+        L = self.linear_transform.linear_map
+        return  L(x[0]) - L(x[1])
 
     def affine_map(self, x):
         return self.linear_map(x)

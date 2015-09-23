@@ -1,3 +1,4 @@
+from __future__ import print_function, division, absolute_import
 
 import numpy as np
 
@@ -5,7 +6,7 @@ from copy import copy
 import scipy.optimize
 
 import regreg.api as rr
-from ..atoms.tests.test_seminorms import all_close
+from regreg.atoms.tests.test_seminorms import all_close
 
 def test_lasso():
     '''
@@ -38,8 +39,8 @@ def test_lasso():
 
     f = p2.objective
     ans = scipy.optimize.fmin_powell(f, np.zeros(4), ftol=1.0e-12)
-    print f(solver2.composite.coefs), f(ans)
-    print f(solver1.composite.coefs), f(ans)
+    print(f(solver2.composite.coefs), f(ans))
+    print(f(solver1.composite.coefs), f(ans))
 
     yield all_close, ans, solver2.composite.coefs, 'singleton solver', None
     yield all_close, solver1.composite.coefs, solver2.composite.coefs, 'container solver', None

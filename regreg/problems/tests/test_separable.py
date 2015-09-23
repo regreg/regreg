@@ -1,7 +1,15 @@
+from __future__ import print_function, division, absolute_import
+
+from copy import copy
+
 import numpy as np
+
 import regreg.api as rr
+from regreg.tests.decorators import set_seed_for_test
+
 import nose.tools as nt
 
+@set_seed_for_test()
 def test_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -15,7 +23,21 @@ def test_lasso_separable():
 
     penalty1 = rr.l1norm(10, lagrange=1.2)
     penalty2 = rr.l1norm(10, lagrange=1.2)
-    penalty = rr.separable((20,), [penalty1, penalty2], [slice(0,10), slice(10,20)])
+    penalty = rr.separable((20,), [penalty1, penalty2], [slice(0,10), slice(10,20)], test_for_overlap=True)
+
+    # ensure code is tested
+
+    print(penalty1.latexify())
+
+    print(penalty.latexify())
+    print(penalty.conjugate)
+    print(penalty.dual)
+    print(penalty.seminorm(np.ones(penalty.shape)))
+    print(penalty.constraint(np.ones(penalty.shape), bound=2.))
+
+    pencopy = copy(penalty)
+    pencopy.set_quadratic(rr.identity_quadratic(1,0,0,0))
+    pencopy.conjugate
 
     # solve using separable
     
@@ -47,6 +69,7 @@ def test_lasso_separable():
     np.testing.assert_almost_equal(coefs, coefs_s)
 
 
+@set_seed_for_test()
 def test_group_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -81,6 +104,8 @@ def test_group_lasso_separable():
 
     np.testing.assert_almost_equal(coefs, coefs_s)
 
+
+@set_seed_for_test()
 def test_nonnegative_positive_part(debug=False):
     """
     This test verifies that using nonnegative constraint
