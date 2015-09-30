@@ -11,8 +11,8 @@ If you are British you spell it differently from Americans, sometimes:
 
 http://www.tiscali.co.uk/reference/dictionaries/english/data/d0082350.html
 
-As usual the American spelling rule (always use *s*) was less painful
-and arbitrary, so I (MB) went for that.
+As usual the American spelling rule (always use *s*) was less painful and
+arbitrary, so we went for that.
 
 Why did you choose BSD?
 -----------------------
@@ -20,7 +20,7 @@ Why did you choose BSD?
 We have chosen BSD licensing, for compatibility with SciPy, and to
 increase input from developers in industry.  Wherever possible we will
 keep packages that can have BSD licensing separate from packages
-needing a GPL license.  
+needing a GPL license.
 
 Our choices were between:
 
@@ -67,7 +67,7 @@ grant application document:
   2. The terms of software availability should permit the 
   commercialization of enhanced or customized versions of the software, 
   or incorporation of the software or pieces of it into other software 
-  packages.  
+  packages.
 
 There is more discussion of licensing in this `na-mic presentation
 <http://www.na-mic.org/Wiki/images/a/ae/NA-MIC-2005-10-30-Licencing.ppt>`_.
@@ -81,5 +81,4 @@ So far this might suggest that the NIH would prefer at least a
 BSD-like license, but the NIH has supported several GPL'd projects in
 imaging, :term:`AFNI` being the most obvious example.
 
-
-.. include:: ../links_names.txt
+.. include:: ../links_names.inc

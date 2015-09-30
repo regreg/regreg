@@ -8,11 +8,10 @@
    __not_case_sensitive__, so only one target definition is needed for
    nipy, NIPY, Nipy, etc...
 
-.. _nipy: http://nipy.org
-.. _`NIPY developer resources`: http://nipy.sourceforge.net/devel
-.. _`NIPY data packages`: http://nipy.sourceforge.net/data-packages
-
-.. _`Brain Imaging Center`: http://bic.berkeley.edu/
+.. regreg
+.. _`regreg github`: http://github.com/regreg/regreg
+.. _regreg pypi: http://pypi.python.org/pypi/regreg
+.. _regreg issues: http://github.com/regreg/regreg/issues
 
 .. Documentation tools
 .. _graphviz: http://www.graphviz.org/
@@ -28,18 +27,7 @@
 .. _MIT License: http://www.opensource.org/licenses/mit-license.php
 
 .. Working process
-.. _pynifti: http://niftilib.sourceforge.net/pynifti/
-.. _nifticlibs: http://nifti.nimh.nih.gov
-.. _nifti: http://nifti.nimh.nih.gov
-.. _`nipy sourceforge`: http://nipy.sourceforge.net/
-.. _sourceforge: http://nipy.sourceforge.net/
-.. _nipy github: http://github.com/nipy/nipy
-.. _`nipy launchpad`: https://launchpad.net/nipy
 .. _github: http://github.com
-.. _launchpad: https://launchpad.net/
-.. _`nipy trunk`: http://github.com/nipy/nipy
-.. _`nipy mailing list`: http://projects.scipy.org/mailman/listinfo/nipy-devel
-.. _`nipy bugs`: http://github.com/nipy/nipy/issues
 
 .. Code support stuff
 .. _pychecker: http://pychecker.sourceforge.net/
@@ -63,14 +51,14 @@
 .. _numpy: http://www.scipy.org/NumPy
 .. _scipy: http://www.scipy.org
 .. _cython: http://www.cython.org/
-.. _ipython: http://ipython.scipy.org
-.. _`ipython manual`: http://ipython.scipy.org/doc/manual/html
-.. _matplotlib: http://matplotlib.sourceforge.net
+.. _sympy: http://sympy.org
+.. _ipython: http://ipython.org
+.. _ipython manual: http://ipython.org/documentation.html
+.. _matplotlib: http://matplotlib.org
 .. _ETS: http://code.enthought.com/projects/tool-suite.php
 .. _`Enthought Tool Suite`: http://code.enthought.com/projects/tool-suite.php
 .. _python: http://www.python.org
 .. _mayavi: http://mayavi.sourceforge.net/
-.. _sympy: http://code.google.com/p/sympy/
 .. _networkx: http://networkx.lanl.gov/
 .. _pythonxy: http://www.pythonxy.com/
 .. _EPD: http://www.enthought.com/products/epd.php
@@ -116,10 +104,3 @@
 .. Mathematical methods
 .. _`wikipedia ICA`: http://en.wikipedia.org/wiki/Independent_component_analysis
 .. _`wikipedia PCA`: http://en.wikipedia.org/wiki/Principal_component_analysis
-
-.. People
-.. _Matthew Brett: https://cirl.berkeley.edu/mb312/
-.. _Yaroslav O. Halchenko: http://www.onerussian.com
-.. _Michael Hanke: http://apsy.gse.uni-magdeburg.de/hanke
-.. _Gaël Varoquaux: http://gael-varoquaux.info/
-
