@@ -1,12 +1,14 @@
 from itertools import product
+import nose.tools as nt
+
 import numpy as np
 import scipy.sparse
 
 import regreg.api as rr
 from regreg.identity_quadratic import identity_quadratic as sq
-import nose.tools as nt
+from regreg.tests.decorators import set_seed_for_test
 
-
+@set_seed_for_test()
 def test_centering():
     """
     This test verifies that the normalized transform
@@ -43,6 +45,7 @@ def test_centering():
         u2 = np.dot(X.T, y2)
         np.testing.assert_almost_equal(u1, u2)
 
+@set_seed_for_test()
 def test_scaling():
     """
     This test verifies that the normalized transform
@@ -79,6 +82,7 @@ def test_scaling():
         u2 = np.dot(scaling_matrix, np.dot(X.T, y))
         np.testing.assert_almost_equal(u1, u2)
 
+@set_seed_for_test()
 def test_scaling_and_centering():
     """
     This test verifies that the normalized transform
@@ -113,6 +117,7 @@ def test_scaling_and_centering():
         u2 = np.dot(scaling_matrix, np.dot(X.T, y2))
         np.testing.assert_almost_equal(u1, u2)
 
+@set_seed_for_test()
 def test_centering_fit(debug=False):
 
     # N - number of data points
@@ -182,6 +187,7 @@ def test_centering_fit(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
 
+@set_seed_for_test()
 def test_scaling_fit(debug=False):
 
     # N - number of data points
@@ -250,6 +256,7 @@ def test_scaling_fit(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
 
+@set_seed_for_test()
 def test_scaling_and_centering_fit(debug=False):
 
     # N - number of data points
@@ -317,6 +324,7 @@ def test_scaling_and_centering_fit(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
 
+@set_seed_for_test()
 def test_scaling_and_centering_fit_inplace(debug=False):
 
     # N - number of data points
@@ -387,6 +395,7 @@ def test_scaling_and_centering_fit_inplace(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
 
+@set_seed_for_test()
 def test_scaling_fit_inplace(debug=False):
 
     # N - number of data points
@@ -457,6 +466,7 @@ def test_scaling_fit_inplace(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
 
+@set_seed_for_test()
 def test_centering_fit_inplace(debug=False):
 
     # N - number of data points
@@ -527,6 +537,7 @@ def test_centering_fit_inplace(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
 
+@set_seed_for_test()
 def test_normalize_intercept():
 
     for issparse, value, inplace, intercept_column, scale, center in product([False, True], 

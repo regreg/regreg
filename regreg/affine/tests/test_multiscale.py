@@ -1,7 +1,9 @@
 import numpy as np
+
 from regreg.affine.multiscale import multiscale
 import regreg.api as rr
 import regreg.affine as ra
+from regreg.tests.decorators import set_seed_for_test
 
 INTERACTIVE = False
 
@@ -24,6 +26,7 @@ def _multiscale_matrix(p, minsize=None):
     A -= np.mean(A, 1)[:,None]
     return A
 
+@set_seed_for_test()
 def test_multiscale():
 
     M = _multiscale_matrix(200)
@@ -46,6 +49,7 @@ def test_multiscale():
     Mtrans.affine_map(V)
     Mtrans.adjoint_map(W)
 
+@set_seed_for_test()
 def test_changepoint():
 
     p = 150
@@ -72,6 +76,7 @@ def test_changepoint():
         plt.plot(np.arange(p), Yhat)
         plt.show()
 
+@set_seed_for_test()
 def test_changepoint_scaled():
 
     p = 150

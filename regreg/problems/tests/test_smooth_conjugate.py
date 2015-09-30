@@ -1,11 +1,12 @@
-
 import numpy as np
 
 from copy import copy
 import scipy.optimize
 
 import regreg.api as rr
+from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_quadratic():
 
     l = rr.quadratic(5, coef=3., offset=np.arange(5))

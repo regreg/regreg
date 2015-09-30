@@ -1,17 +1,16 @@
 from __future__ import print_function, division, absolute_import
 
 import itertools
+import nose.tools as nt
 
 import numpy as np
 
 import regreg.atoms.group_lasso as GL
 import regreg.api as rr
 
-import nose.tools as nt
-
 from .test_seminorms import Solver, all_close, SolverFactory
 from .test_cones import ConeSolverFactory
-
+from regreg.tests.decorators import set_seed_for_test
 
 class GroupSolverFactory(SolverFactory):
 
@@ -85,6 +84,7 @@ class GroupConeSolverFactory(ConeSolverFactory):
             yield solver
 
 
+@set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):
     for klass in GL.conjugate_seminorm_pairs.keys(): 

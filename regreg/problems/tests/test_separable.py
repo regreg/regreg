@@ -1,13 +1,12 @@
 from __future__ import print_function, division, absolute_import
 
 from copy import copy
+import nose.tools as nt
 
 import numpy as np
 
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
-
-import nose.tools as nt
 
 @set_seed_for_test()
 def test_lasso_separable():

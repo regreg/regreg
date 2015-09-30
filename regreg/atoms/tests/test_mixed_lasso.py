@@ -1,6 +1,7 @@
 import numpy as np, regreg.api as rr
 import regreg.atoms.mixed_lasso as ml
 import regreg.atoms.group_lasso as gl
+from regreg.tests.decorators import set_seed_for_test
 
 def test_group_lasso_prox():
     prox_center = np.array([1,3,5,7,-9,3,4,6,7,8,9,11,13,4,-23,40], np.float)
@@ -27,8 +28,8 @@ def test_group_lasso_prox():
 
     np.testing.assert_allclose(result, prox_result)
 
+@set_seed_for_test()
 def test_group_lasso_atom():
-
 
     ps = np.array([0]*5 + [3]*3)
     weights = {3:2., 0:2.3}

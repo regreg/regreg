@@ -7,7 +7,9 @@ import scipy.optimize
 
 import regreg.api as rr
 from regreg.atoms.tests.test_seminorms import all_close
+from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_lasso():
     '''
     this test verifies that the l1 prox can be solved
@@ -45,6 +47,7 @@ def test_lasso():
     yield all_close, ans, solver2.composite.coefs, 'singleton solver', None
     yield all_close, solver1.composite.coefs, solver2.composite.coefs, 'container solver', None
 
+@set_seed_for_test()
 def test_quadratic_for_smooth():
     '''
     this test is a check to ensure that the quadratic part 
@@ -124,6 +127,7 @@ def test_quadratic_for_smooth():
                        'simple_problem having a quadratic']):
         yield all_close, aq, p, msg, None
 
+@set_seed_for_test()
 def test_quadratic_for_smooth2():
     '''
     this test is a check to ensure that the

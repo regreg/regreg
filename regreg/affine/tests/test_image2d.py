@@ -1,12 +1,15 @@
 from itertools import product
+import nose.tools as nt
+
 import numpy as np
 import scipy.sparse
 
 import regreg.api as rr
 import regreg.affine.image2d as I2D
 from regreg.identity_quadratic import identity_quadratic as sq
-import nose.tools as nt
+from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_class():
     p = 50
     diff = I2D.image2d_differences((p,p+5))

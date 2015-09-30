@@ -2,12 +2,13 @@ from __future__ import print_function, division, absolute_import
 
 import itertools
 from copy import copy
+import nose.tools as nt
 
 import numpy as np
 
 import regreg.atoms.seminorms as S
 import regreg.api as rr
-import nose.tools as nt
+from regreg.tests.decorators import set_seed_for_test
 
 def all_close(x, y, msg, solver):
     """
@@ -39,6 +40,7 @@ y : %s
     else:
         print(msg.split('\n')[0])
 
+@set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):
     for klass in [S.l1norm, S.supnorm, S.l2norm,
@@ -174,6 +176,7 @@ class Solver(object):
         self.q = rr.identity_quadratic(L, self.prox_center, 0, 0)
         self.loss = rr.quadratic.shift(self.prox_center, coef=L)
 
+    @set_seed_for_test()
     def test_duality_of_projections(self):
         if self.atom.quadratic == rr.identity_quadratic(0,0,0,0) or self.atom.quadratic is None:
 
@@ -195,6 +198,7 @@ class Solver(object):
                 for test in tests:
                     yield all_close(*((test + (self,))))
 
+    @set_seed_for_test()
     def test_simple_problem_nonsmooth(self):
         tests = []
         atom, q = self.atom, self.q
@@ -237,6 +241,7 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
+    @set_seed_for_test()
     def test_simple_problem(self):
         tests = []
         atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
@@ -287,6 +292,7 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
+    @set_seed_for_test()
     def test_dual_problem(self):
         tests = []
         atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
@@ -309,6 +315,7 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
+    @set_seed_for_test()
     def test_separable(self):
         tests = []
         atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L
@@ -337,6 +344,7 @@ class Solver(object):
             for test in tests:
                 yield all_close(*((test + (self,))))
 
+    @set_seed_for_test()
     def test_container(self):
         tests = []
         atom, q, prox_center, L = self.atom, self.q, self.prox_center, self.L

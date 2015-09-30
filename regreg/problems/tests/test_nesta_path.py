@@ -1,7 +1,9 @@
 import numpy as np
 import regreg.api as rr
 import nose.tools as nt
+from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_lasso_path():
 
     X = np.random.standard_normal((100,5))
@@ -35,7 +37,8 @@ def test_lasso_path():
     newbeta3[3:] = -beta3[6:]
     nt.assert_true(np.linalg.norm(beta1-newbeta3) < 1.e-3 * np.linalg.norm(beta1))
 
-@np.testing.dec.skipif(True)
+@set_seed_for_test()
+@np.testing.dec.skipif(True, msg='NESTA path not implemented correctly')
 def test_nesta_path():
 
     def atom_factory(candidate_set):

@@ -6,6 +6,7 @@ import numpy as np
 
 import regreg.api as rr
 import regreg.atoms.weighted_atoms as WA
+from regreg.tests.decorators import set_seed_for_test
 
 from numpy import testing as npt
 
@@ -54,6 +55,7 @@ class WeightedSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+@set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps():
     for klass, mode in zip([WA.l1norm, WA.supnorm], ['lagrange', 'bound']):
@@ -62,6 +64,7 @@ def test_proximal_maps():
             for t in solver.all_tests():
                 yield t
 
+@set_seed_for_test()
 def test_weighted_l1():
     a =rr.weighted_l1norm(2*np.ones(10), lagrange=0.5)
     b= rr.l1norm(10, lagrange=1)
@@ -69,6 +72,7 @@ def test_weighted_l1():
     npt.assert_equal(b.lagrange_prox(z), a.lagrange_prox(z))
     npt.assert_equal(b.dual[1].bound_prox(z), a.dual[1].bound_prox(z))
 
+@set_seed_for_test()
 def test_weighted_l1_with_zero():
     z = np.random.standard_normal(5)
     a=rr.weighted_l1norm([0,1,1,1,1], lagrange=0.5)

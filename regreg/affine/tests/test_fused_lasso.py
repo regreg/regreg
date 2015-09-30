@@ -1,12 +1,15 @@
 from itertools import product
+import nose.tools as nt
+
 import numpy as np
 import scipy.sparse
 
 import regreg.api as rr
 import regreg.affine.fused_lasso as FL
 from regreg.identity_quadratic import identity_quadratic as sq
-import nose.tools as nt
+from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_class():
     p = 50
     for order in range(1,3):

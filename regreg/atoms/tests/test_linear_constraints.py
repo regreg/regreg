@@ -6,6 +6,7 @@ import numpy as np
 
 import regreg.atoms.linear_constraints as LC
 import regreg.api as rr
+from regreg.tests.decorators import set_seed_for_test
 
 import nose.tools as nt
 
@@ -46,7 +47,7 @@ class ConstraintSolverFactory(ConeSolverFactory):
                             L=L)
             yield solver
 
-
+@set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps():
     for klass in sorted(LC.conjugate_cone_pairs.keys(), key=str):

@@ -4,12 +4,12 @@ Solving a LASSO with linear constraints using NESTA
 from __future__ import print_function, division, absolute_import
 
 import numpy as np
-
-import regreg.api as rr
-
 import nose.tools as nt
 
+import regreg.api as rr
+from regreg.tests.decorators import set_seed_for_test
 
+@set_seed_for_test()
 def test_nesta_nonnegative():
 
     state = np.random.get_state()
@@ -37,7 +37,7 @@ def test_nesta_nonnegative():
 
     np.random.set_state(state)
 
-
+@set_seed_for_test()
 def test_nesta_lasso():
 
     n, p = 1000, 20
