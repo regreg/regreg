@@ -2,6 +2,7 @@
 
 Why we should be using BSD
 ==========================
+
    John Hunter - 16 Dec 2004
 
 I'll start by summarizing what many of you already know about open
@@ -117,4 +118,4 @@ license, and when you encounter an open source developer whose code
 you want to use, to do the same.  Feel free to forward this document
 on them.
 
-.. include:: ../links_names.txt
+.. include:: ../links_names.inc

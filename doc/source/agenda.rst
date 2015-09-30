@@ -32,3 +32,5 @@ Long-term goals include:
 * Extending current framework for matrix problems
 
 * Continually improving constructor syntax to make framework as natural as possible
+
+.. include:: links_names.inc

@@ -66,11 +66,11 @@ colon ``:``.
     Parameters
     ----------
     coord_systems : sequence of :class:`CoordinateSystem`
-    
+
     Returns
     -------
     product_coord_system: :class:`CoordinateSystem`
 
 
 
-.. include:: ../links_names.txt
+.. include:: ../links_names.inc

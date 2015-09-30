@@ -9,11 +9,10 @@
    :Release: |version|
    :Date: |today|
 
-   Frequently asked questions about nipy
+   Frequently asked questions about regreg
 
 .. toctree::
    :maxdepth: 2
 
-   why
-   licensing   
-   documentation_faq   
+   licensing
+   documentation_faq

@@ -160,4 +160,4 @@
       use has been almost completely replaced by the less invasive
       :term:`BOLD` :term:`FMRI` technique.
 
-.. include:: links_names.txt
+.. include:: links_names.inc
