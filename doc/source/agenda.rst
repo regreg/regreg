@@ -3,7 +3,7 @@
 RegReg development
 ~~~~~~~~~~~~~~~~~~
 
-We currently host and manage our code at github. You can find our repo at http://github.com/klingebj/regreg.
+We currently host and manage our code at github. You can find our repo at `regreg github`_.
 
 Near-term development goals include:
 

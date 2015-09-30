@@ -3,34 +3,32 @@
 Downloading and installing RegReg
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The RegReg source code is hosted at 
+The RegReg source code is hosted at
 
-http://github.com/klingebj/regreg
+http://github.com/regreg/regreg
 
-RegReg depends on the following Python tools
+RegReg depends on the following Python tools:
 
-* `NumPy <http://numpy.scipy.org>`_
-
-* `SciPy <http://www.scipy.org>`_
-
-* `Cython <http://www.cython.org>`_
+* numpy_
+* scipy_
+* Cython_
 
 You can clone the RegReg github repo using::
 
-     git clone git://github.com/jonathan-taylor/regreg.git
+     git clone git://github.com/regreg/regreg.git
 
 Then installation is a simple call to python::
 
-     cd regreg/code
-     python setup.py install --prefix=MYDIR
+     cd regreg
+     python setup.py install --user
 
-where MYDIR is a site-packages directory you can write to. This directory will need to be on your PYTHONPATH for you to import RegReg. That's it!
+That's it!
 
 Testing your installation
 -------------------------
 
-There is a small but growing suite of tests that be easily checked using `nose <http://somethingaboutorange.com/mrl/projects/nose/1.0.0/>`_::
+There is a small but growing suite of tests that be easily checked using nose_::
 
-     cd regreg/code/tests
-     nosetests
+     nosetests regreg
 
+.. include:: links_names.inc
