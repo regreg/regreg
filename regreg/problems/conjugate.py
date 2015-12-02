@@ -13,7 +13,7 @@ from ..identity_quadratic import identity_quadratic
 
 class conjugate(composite):
 
-    def __init__(self, atom, quadratic=None, change_sign=False, **fit_args):
+    def __init__(self, atom, quadratic=None, negate=False, **fit_args):
         
         # we copy the atom because we will modify its quadratic part
         self.atom = copy(atom)
@@ -44,9 +44,9 @@ class conjugate(composite):
         # we often want to evalute the conjugate of -x 
         # instead of x
 
-        # change_sign saves composition with an affine transform
+        # negate saves composition with an affine transform
 
-        self.change_sign = change_sign
+        self.negate = negate
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
@@ -57,7 +57,7 @@ class conjugate(composite):
         if mode == 'func', return only the function value
         """
 
-        if self.change_sign:
+        if self.negate:
             v = -x
         else:
             v = x
@@ -79,18 +79,18 @@ class conjugate(composite):
 
         if mode == 'both':
             val = self.atom.objective(minimizer)
-            if not self.change_sign:
+            if not self.negate:
                 return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum(), minimizer
             else:
                 return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum(), -minimizer
         elif mode == 'func':
             val = self.atom.objective(minimizer)
-            if not self.change_sign:
+            if not self.negate:
                 return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
             else:
                 return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
         elif mode == 'grad':
-            if not self.change_sign:
+            if not self.negate:
                 return minimizer
             else:
                 return -minimizer
