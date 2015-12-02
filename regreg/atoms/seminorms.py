@@ -855,7 +855,7 @@ class positive_part(seminorm):
     function of [0,l]^p).
     """
 
-    objective_template = r"""\sum_{i=1}^{%(shape)s} %(var)s_i^+"""
+    objective_template = r"""\left(\sum_{i=1}^{%(shape)s} (%(var)s)_i^+\right)"""
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['normklass'] = 'positive_part'
     objective_vars['dualnormklass'] = 'constrained_max'
@@ -931,8 +931,8 @@ class constrained_max(seminorm):
     The seminorm x.max() s.t. x geq 0.
     """
 
-    objective_template = (r"""\|%(var)s\|_{\infty} + \sum_{i=1}^{%(shape)s} """
-                          + r"""\delta_{[0,+\infty)}(%(var)s_i) """)
+    objective_template = (r"""\left\|%(var)s\|_{\infty} + """
+                          + r"""I^{\infty}\left(\min(%(var)s) \in [0,+\infty)\right) """)
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['normklass'] = 'constrained_max'
     objective_vars['dualnormklass'] = 'positive_part'
