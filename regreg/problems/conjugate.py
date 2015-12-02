@@ -13,14 +13,14 @@ from ..identity_quadratic import identity_quadratic
 
 class conjugate(composite):
 
-    def __init__(self, atom, quadratic=None, **fit_args):
-
+    def __init__(self, atom, quadratic=None, change_sign=False, **fit_args):
+        
         # we copy the atom because we will modify its quadratic part
         self.atom = copy(atom)
 
         if quadratic is None:
             quadratic = identity_quadratic(0, 0, 0, 0)
-        self.quadratic = quadratic
+        self.conjugate_quadratic = quadratic
 
         totalq = self.atom.quadratic + quadratic
         if totalq.coef in [0, None]:
@@ -40,6 +40,14 @@ class conjugate(composite):
         self._have_solved_once = False
         self.shape = atom.shape
 
+        # for various purposes,
+        # we often want to evalute the conjugate of -x 
+        # instead of x
+
+        # change_sign saves composition with an affine transform
+
+        self.change_sign = change_sign
+
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
         Evaluate the conjugate function and/or its gradient
@@ -49,27 +57,44 @@ class conjugate(composite):
         if mode == 'func', return only the function value
         """
 
-        old_lin = self.quadratic.linear_term
-        if old_lin is not None:
-            new_lin = old_lin - x
+        if self.change_sign:
+            v = -x
         else:
-            new_lin = -x
-        self.quadratic.linear_term = new_lin
+            v = x
+
+        old_lin = self.conjugate_quadratic.linear_term
+        if old_lin is not None:
+            new_lin = old_lin - v
+        else:
+            new_lin = -v
+        self.conjugate_quadratic.linear_term = new_lin
         if isinstance(self.atom, smooth_atom):
-            minimizer = self.problem.solve(self.quadratic, max_its=5000, **self.fit_args)
+            minimizer = self.problem.solve(self.conjugate_quadratic, max_its=5000, **self.fit_args)
         else: # it better have a proximal method!
-            minimizer = self.atom.proximal(self.quadratic)
-        self.quadratic.linear_term = old_lin
+            minimizer = self.atom.proximal(self.conjugate_quadratic)
+        self.conjugate_quadratic.linear_term = old_lin
     
         # retain a reference
         self.argmin = minimizer
+
         if mode == 'both':
-            v = self.atom.objective(minimizer)
-            return - v - self.quadratic.objective(minimizer, mode='func') + (x * minimizer).sum(), minimizer
+            val = self.atom.objective(minimizer)
+            if not self.change_sign:
+                return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum(), minimizer
+            else:
+                return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum(), -minimizer
         elif mode == 'func':
-            v = self.atom.objective(minimizer)
-            return - v - self.quadratic.objective(minimizer, mode='func') + (x * minimizer).sum()
+            val = self.atom.objective(minimizer)
+            if not self.change_sign:
+                return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
+            else:
+                return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
         elif mode == 'grad':
-            return minimizer
+            if not self.change_sign:
+                return minimizer
+            else:
+                return -minimizer
         else:
             raise ValueError("mode incorrectly specified")
+
+
