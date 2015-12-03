@@ -931,7 +931,7 @@ class constrained_max(seminorm):
     The seminorm x.max() s.t. x geq 0.
     """
 
-    objective_template = (r"""\left\|%(var)s\|_{\infty} + """
+    objective_template = (r"""\left\|%(var)s\right\|_{\infty} + """
                           + r"""I^{\infty}\left(\min(%(var)s) \in [0,+\infty)\right) """)
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['normklass'] = 'constrained_max'

@@ -85,10 +85,7 @@ class conjugate(composite):
                 return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum(), -minimizer
         elif mode == 'func':
             val = self.atom.objective(minimizer)
-            if not self.negate:
-                return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
-            else:
-                return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
+            return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
         elif mode == 'grad':
             if not self.negate:
                 return minimizer
