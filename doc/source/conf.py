@@ -214,3 +214,10 @@ latex_preamble = """
 
 # If false, no module index is generated.
 latex_use_modindex = True
+
+# Numpy extensions
+# ----------------
+# Worked out by Steven Silvester in
+# https://github.com/scikit-image/scikit-image/pull/1356
+numpydoc_show_class_members = False
+numpydoc_class_members_toctree = False
