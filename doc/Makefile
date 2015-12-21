@@ -113,3 +113,9 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo
 	@echo "The overview file is in $(BUILDDIR)/doctest."
+
+github: html
+	# Needs ghp-import (pip install ghp-import)
+	ghp-import -n -p $(BUILDDIR)/html/
+	@echo
+	@echo "Published to Github"
