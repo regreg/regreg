@@ -31,6 +31,11 @@ import IPython.sphinxext.ipython_console_highlighting
 
 # General configuration
 # ---------------------
+for pkg_name in ('numpydoc', 'texext'):
+    try:
+        __import__(pkg_name)
+    except ImportError:
+        raise ImportError('Need {0} package for doc build'.format(pkg_name))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -41,8 +46,8 @@ extensions = ['sphinx.ext.autodoc',
               'IPython.sphinxext.ipython_console_highlighting',
               'IPython.sphinxext.ipython_directive',
               'sphinx.ext.inheritance_diagram',
-              'math_dollar', # has to go before numpydoc
-              'numpy_ext.numpydoc',
+              'texext.math_dollar', # has to go before numpydoc
+              'numpydoc',
               ]
 
 autosummary_generate=True
