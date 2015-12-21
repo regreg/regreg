@@ -1,0 +1,238 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+affine
+======
+
+Module: :mod:`affine`
+---------------------
+Inheritance diagram for ``regreg.affine``:
+
+.. inheritance-diagram:: regreg.affine 
+   :parts: 3
+
+.. automodule:: regreg.affine
+
+.. currentmodule:: regreg.affine
+
+Classes
+-------
+
+:class:`AffineError`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: AffineError
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`adjoint`
+~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: adjoint
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`affine_sum`
+~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: affine_sum
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`affine_transform`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: affine_transform
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`composition`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: composition
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`hstack`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: hstack
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`identity`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: identity
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`linear_transform`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: linear_transform
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`normalize`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: normalize
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`posneg`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: posneg
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`product`
+~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: product
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`reshape`
+~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: reshape
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`residual`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: residual
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`scalar_multiply`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: scalar_multiply
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`selector`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: selector
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`tensorize`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: tensorize
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`vstack`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: vstack
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+Functions
+---------
+
+
+.. autofunction:: regreg.affine.astransform
+
+
+.. autofunction:: regreg.affine.broadcast_first
+
+
+.. autofunction:: regreg.affine.power_L
+
+
+.. autofunction:: regreg.affine.todense
+

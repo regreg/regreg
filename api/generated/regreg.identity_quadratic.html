@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">identity_quadratic</a><ul>
+<li><a class="reference internal" href="#module-identity-quadratic">Module: <tt class="docutils literal"><span class="pre">identity_quadratic</span></tt></a></li>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">identity_quadratic</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.identity_quadratic.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="identity-quadratic">
+<h1>identity_quadratic<a class="headerlink" href="#identity-quadratic" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-identity-quadratic">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">identity_quadratic</span></tt><a class="headerlink" href="#module-identity-quadratic" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.identity_quadratic</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-197685876a6e48013c86e166a6a8535c71b2b555.png" alt="Inheritance diagram of regreg.identity_quadratic" usemap="#inheritance5ebd16c831" class="inheritance"/>
+<map id="inheritance5ebd16c831" name="inheritance5ebd16c831">
+<area shape="rect" id="node1" href="#regreg.identity_quadratic.identity_quadratic" title="This object is a quadratic function" alt="" coords="5,5,310,32"/>
+</map>
+</p>
+<span class="target" id="module-regreg.identity_quadratic"></span><p>This module contains a single class that is meant to represent
+a quadratic of the form</p>
+<div class="math">
+\[\frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma\]</div>
+<p>with <span class="math">\(L, \mu, \eta, \gamma\)</span> = (coef, center, linear_term,
+constant_term).</p>
+</div>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#regreg.identity_quadratic.identity_quadratic" title="regreg.identity_quadratic.identity_quadratic"><tt class="xref py py-class docutils literal"><span class="pre">identity_quadratic</span></tt></a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="regreg.identity_quadratic.identity_quadratic">
+<em class="property">class </em><tt class="descclassname">regreg.identity_quadratic.</tt><tt class="descname">identity_quadratic</tt><big>(</big><em>coef</em>, <em>center</em>, <em>linear_term</em>, <em>constant_term=0</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This object is a quadratic function</p>
+<div class="math">
+\[x \mapsto \frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma\]</div>
+<p>used in the proximal methods of all atoms.</p>
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>coef</em>, <em>center</em>, <em>linear_term</em>, <em>constant_term=0</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.collapsed">
+<tt class="descname">collapsed</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.collapsed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an identity quadratic with center of 0,
+would be nice to have None, but there are some 
+places we are still multiplying by -1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.identity_quadratic.identity_quadratic.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.get_shapes">
+<tt class="descname">get_shapes</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.get_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine shape of any pieces and make sure they agree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.identity_quadratic.identity_quadratic.iszero">
+<tt class="descname">iszero</tt><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.iszero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var='\beta'</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.noneify">
+<tt class="descname">noneify</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.noneify" title="Permalink to this definition">¶</a></dt>
+<dd><p>replace zeros with nones</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>mode='both'</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.recenter">
+<tt class="descname">recenter</tt><big>(</big><em>offset</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.recenter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.identity_quadratic.identity_quadratic.true_center">
+<tt class="descname">true_center</tt><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.true_center" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.identity_quadratic.identity_quadratic.zeroify">
+<tt class="descname">zeroify</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.zeroify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+<map id="inheritance257710e8f2" name="inheritance257710e8f2">
+<area shape="rect" id="node1" href="regreg.problems.composite.html#regreg.problems.composite.composite" title="A generic way to specify a problem in composite form." alt="" coords="4,96,167,116"/>
+<area shape="rect" id="node2" href="regreg.problems.composite.html#regreg.problems.composite.smooth" title="A composite subclass that has 0 as " alt="" coords="202,96,351,116"/>
+<area shape="rect" id="node3" href="#regreg.smooth.smooth_atom" title="A class for representing a smooth function and its gradient" alt="" coords="386,96,539,116"/>
+<area shape="rect" id="node4" href="#regreg.smooth.affine_smooth" title="regreg.smooth.affine_smooth" alt="" coords="592,4,746,23"/>
+<area shape="rect" id="node5" href="#regreg.smooth.zero" title="regreg.smooth.zero" alt="" coords="614,41,723,60"/>
+<area shape="rect" id="node6" href="#regreg.smooth.logistic_deviance" title="A class for combining the logistic log&#45;likelihood with a general seminorm" alt="" coords="585,78,753,97"/>
+<area shape="rect" id="node7" href="#regreg.smooth.poisson_deviance" title="A class for combining the Poisson log&#45;likelihood with a general seminorm" alt="" coords="584,115,754,134"/>
+<area shape="rect" id="node8" href="#regreg.smooth.multinomial_deviance" title="A class for baseline&#45;category logistic regression for nominal responses (e.g. Agresti, pg 267)" alt="" coords="574,152,764,171"/>
+<area shape="rect" id="node9" href="#regreg.smooth.sum" title="A simple way to combine smooth objectives" alt="" coords="615,189,723,208"/>
+</map>

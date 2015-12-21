@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="index.html" />
+    <link rel="next" title="RegReg development" href="agenda.html" />
+    <link rel="prev" title="RegReg tutorials" href="tutorial.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="index.html">
+  <img src="_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="agenda.html" title="RegReg development"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="RegReg tutorials"
+             accesskey="P">previous</a> |</li>
+  <li><a href="index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">RegReg tutorials</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="agenda.html"
+                        title="next chapter">RegReg development</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/gallery.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="regreg-examples-gallery">
+<span id="gallery"></span><h1>RegReg examples gallery<a class="headerlink" href="#regreg-examples-gallery" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><p class="first">LASSO signal approximator</p>
+<blockquote>
+<div><div class="math">
+\[\frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||\beta||_{1}\]</div>
+</div></blockquote>
+</li>
+<li><p class="first">LASSO</p>
+<blockquote>
+<div><div class="math">
+\[\frac{1}{2}||y - X\beta||^{2}_{2} + \lambda_{1}||\beta||_{1}\]</div>
+</div></blockquote>
+</li>
+<li><p class="first"><em class="xref std std-ref">fusedlassoapprox</em></p>
+<blockquote>
+<div><div class="math">
+\[\frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||D\beta||_{1}\]</div>
+<p>with</p>
+<div class="math">
+\[\begin{split}D = \left(\begin{array}{rrrrrr} -1 &amp; 1 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp; -1 &amp; 1 &amp; 0 &amp; \cdots &amp; 0 \\ &amp;&amp;&amp;&amp;\cdots &amp;\\ 0 &amp;0&amp;0&amp;\cdots &amp; -1 &amp; 1 \end{array}\right)\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p class="first">Linear trend filtering</p>
+</li>
+<li><p class="first">Non-negative signal approximator</p>
+</li>
+<li><p class="first"><em class="xref std std-ref">isotonic</em></p>
+<blockquote>
+<div><div class="math">
+\[\frac{1}{2}||y - \beta||^{2}_{2} \quad \mbox{subject to } D\beta \geq 0\]</div>
+<p>with</p>
+<div class="math">
+\[\begin{split}D = \left(\begin{array}{rrrrrr} -1 &amp; 1 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp; -1 &amp; 1 &amp; 0 &amp; \cdots &amp; 0 \\ &amp;&amp;&amp;&amp;\cdots &amp;\\ 0 &amp;0&amp;0&amp;\cdots &amp; -1 &amp; 1 \end{array}\right)\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p class="first"><em class="xref std std-ref">nearly-isotonic</em></p>
+<blockquote>
+<div><div class="math">
+\[\frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}\|D\beta\|_+\]</div>
+<p>with</p>
+<div class="math">
+\[\begin{split}D = \left(\begin{array}{rrrrrr} -1 &amp; 1 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp; -1 &amp; 1 &amp; 0 &amp; \cdots &amp; 0 \\ &amp;&amp;&amp;&amp;\cdots &amp;\\ 0 &amp;0&amp;0&amp;\cdots &amp; -1 &amp; 1 \end{array}\right)\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p class="first">Concave signal approximator</p>
+</li>
+<li><p class="first">Nearly concave signal approximator</p>
+</li>
+<li><p class="first">Group LASSO</p>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="agenda.html" title="RegReg development"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="RegReg tutorials"
+             >previous</a> |</li>
+  <li><a href="index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

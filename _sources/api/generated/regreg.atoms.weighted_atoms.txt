@@ -1,0 +1,54 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+atoms.weighted_atoms
+====================
+
+Module: :mod:`atoms.weighted_atoms`
+-----------------------------------
+Inheritance diagram for ``regreg.atoms.weighted_atoms``:
+
+.. inheritance-diagram:: regreg.atoms.weighted_atoms 
+   :parts: 3
+
+.. automodule:: regreg.atoms.weighted_atoms
+
+.. currentmodule:: regreg.atoms.weighted_atoms
+
+Classes
+-------
+
+:class:`l1norm`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: l1norm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`seminorm`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: seminorm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`supnorm`
+~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: supnorm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__

@@ -1,0 +1,43 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+problems.simple
+===============
+
+Module: :mod:`problems.simple`
+------------------------------
+Inheritance diagram for ``regreg.problems.simple``:
+
+.. inheritance-diagram:: regreg.problems.simple 
+   :parts: 3
+
+.. automodule:: regreg.problems.simple
+
+.. currentmodule:: regreg.problems.simple
+
+Class
+-----
+
+:class:`simple_problem`
+-----------------------
+
+
+.. autoclass:: simple_problem
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+Functions
+---------
+
+
+.. autofunction:: regreg.problems.simple.gengrad
+
+
+.. autofunction:: regreg.problems.simple.nesta
+
+
+.. autofunction:: regreg.problems.simple.tfocs
+

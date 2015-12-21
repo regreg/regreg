@@ -1,0 +1,1408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">smooth</a><ul>
+<li><a class="reference internal" href="#module-smooth">Module: <tt class="docutils literal"><span class="pre">smooth</span></tt></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#affine-smooth"><tt class="docutils literal"><span class="pre">affine_smooth</span></tt></a></li>
+<li><a class="reference internal" href="#logistic-deviance"><tt class="docutils literal"><span class="pre">logistic_deviance</span></tt></a></li>
+<li><a class="reference internal" href="#multinomial-deviance"><tt class="docutils literal"><span class="pre">multinomial_deviance</span></tt></a></li>
+<li><a class="reference internal" href="#poisson-deviance"><tt class="docutils literal"><span class="pre">poisson_deviance</span></tt></a></li>
+<li><a class="reference internal" href="#smooth-atom"><tt class="docutils literal"><span class="pre">smooth_atom</span></tt></a></li>
+<li><a class="reference internal" href="#sum"><tt class="docutils literal"><span class="pre">sum</span></tt></a></li>
+<li><a class="reference internal" href="#zero"><tt class="docutils literal"><span class="pre">zero</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.smooth.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="smooth">
+<h1>smooth<a class="headerlink" href="#smooth" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-smooth">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">smooth</span></tt><a class="headerlink" href="#module-smooth" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.smooth</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-fdfe50c99115958c457058ee736e0d3ba67e0fe8.png" alt="Inheritance diagram of regreg.smooth" usemap="#inheritance257710e8f2" class="inheritance"/>
+<map id="inheritance257710e8f2" name="inheritance257710e8f2">
+<area shape="rect" id="node1" href="regreg.problems.composite.html#regreg.problems.composite.composite" title="A generic way to specify a problem in composite form." alt="" coords="4,96,167,116"/>
+<area shape="rect" id="node2" href="regreg.problems.composite.html#regreg.problems.composite.smooth" title="A composite subclass that has 0 as " alt="" coords="202,96,351,116"/>
+<area shape="rect" id="node3" href="#regreg.smooth.smooth_atom" title="A class for representing a smooth function and its gradient" alt="" coords="386,96,539,116"/>
+<area shape="rect" id="node4" href="#regreg.smooth.affine_smooth" title="regreg.smooth.affine_smooth" alt="" coords="592,4,746,23"/>
+<area shape="rect" id="node5" href="#regreg.smooth.zero" title="regreg.smooth.zero" alt="" coords="614,41,723,60"/>
+<area shape="rect" id="node6" href="#regreg.smooth.logistic_deviance" title="A class for combining the logistic log&#45;likelihood with a general seminorm" alt="" coords="585,78,753,97"/>
+<area shape="rect" id="node7" href="#regreg.smooth.poisson_deviance" title="A class for combining the Poisson log&#45;likelihood with a general seminorm" alt="" coords="584,115,754,134"/>
+<area shape="rect" id="node8" href="#regreg.smooth.multinomial_deviance" title="A class for baseline&#45;category logistic regression for nominal responses (e.g. Agresti, pg 267)" alt="" coords="574,152,764,171"/>
+<area shape="rect" id="node9" href="#regreg.smooth.sum" title="A simple way to combine smooth objectives" alt="" coords="615,189,723,208"/>
+</map>
+</p>
+<span class="target" id="module-regreg.smooth"></span></div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="affine-smooth">
+<h3><a class="reference internal" href="#regreg.smooth.affine_smooth" title="regreg.smooth.affine_smooth"><tt class="xref py py-class docutils literal"><span class="pre">affine_smooth</span></tt></a><a class="headerlink" href="#affine-smooth" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.affine_smooth">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">affine_smooth</tt><big>(</big><em>smooth_atom</em>, <em>atransform</em>, <em>store_grad=True</em>, <em>diag=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">regreg.smooth.smooth_atom</span></tt></a></p>
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>smooth_atom</em>, <em>atransform</em>, <em>store_grad=True</em>, <em>diag=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.affine_smooth.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.coef">
+<tt class="descname">coef</tt><a class="headerlink" href="#regreg.smooth.affine_smooth.coef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.affine_smooth.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.dual">
+<tt class="descname">dual</tt><a class="headerlink" href="#regreg.smooth.affine_smooth.dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.force_reshape">
+<tt class="descname">force_reshape</tt><em class="property"> = True</em><a class="headerlink" href="#regreg.smooth.affine_smooth.force_reshape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.affine_smooth.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.affine_smooth.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.smooth.affine_smooth.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'linear': 'X'}</em><a class="headerlink" href="#regreg.smooth.affine_smooth.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.affine_smooth.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.affine_smooth.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.affine_smooth.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.affine_smooth.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.affine_smooth.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.affine_smooth.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="logistic-deviance">
+<h3><a class="reference internal" href="#regreg.smooth.logistic_deviance" title="regreg.smooth.logistic_deviance"><tt class="xref py py-class docutils literal"><span class="pre">logistic_deviance</span></tt></a><a class="headerlink" href="#logistic-deviance" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.logistic_deviance">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">logistic_deviance</tt><big>(</big><em>shape</em>, <em>successes</em>, <em>trials=None</em>, <em>coef=1.0</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">regreg.smooth.smooth_atom</span></tt></a></p>
+<p>A class for combining the logistic log-likelihood with a general seminorm</p>
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>successes</em>, <em>trials=None</em>, <em>coef=1.0</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.logistic_deviance.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.logistic_deviance.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.logistic_deviance.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.logistic_deviance.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.logistic_deviance.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.logistic_deviance.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.logistic_deviance.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = '\\ell^{L}\\left(%(var)s\\right)'</em><a class="headerlink" href="#regreg.smooth.logistic_deviance.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.logistic_deviance.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha+', 'coef': 'C'}</em><a class="headerlink" href="#regreg.smooth.logistic_deviance.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.logistic_deviance.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.logistic_deviance.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.logistic_deviance.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.logistic_deviance.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.logistic_deviance.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a smooth function and/or its gradient</p>
+<p>if mode == &#8216;both&#8217;, return both function value and gradient
+if mode == &#8216;grad&#8217;, return only the gradient
+if mode == &#8216;func&#8217;, return only the function value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.logistic_deviance.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_deviance.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="multinomial-deviance">
+<h3><a class="reference internal" href="#regreg.smooth.multinomial_deviance" title="regreg.smooth.multinomial_deviance"><tt class="xref py py-class docutils literal"><span class="pre">multinomial_deviance</span></tt></a><a class="headerlink" href="#multinomial-deviance" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.multinomial_deviance">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">multinomial_deviance</tt><big>(</big><em>shape</em>, <em>counts</em>, <em>coef=1.0</em>, <em>offset=None</em>, <em>initial=None</em>, <em>quadratic=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">regreg.smooth.smooth_atom</span></tt></a></p>
+<p>A class for baseline-category logistic regression for nominal responses (e.g. Agresti, pg 267)</p>
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>counts</em>, <em>coef=1.0</em>, <em>offset=None</em>, <em>initial=None</em>, <em>quadratic=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.multinomial_deviance.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.multinomial_deviance.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.multinomial_deviance.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.multinomial_deviance.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.multinomial_deviance.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.multinomial_deviance.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.multinomial_deviance.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = '\\ell^{M}\\left(%(var)s\\right)'</em><a class="headerlink" href="#regreg.smooth.multinomial_deviance.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.multinomial_deviance.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha+', 'coef': 'C'}</em><a class="headerlink" href="#regreg.smooth.multinomial_deviance.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.multinomial_deviance.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.multinomial_deviance.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.multinomial_deviance.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.multinomial_deviance.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.multinomial_deviance.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a smooth function and/or its gradient</p>
+<p>if mode == &#8216;both&#8217;, return both function value and gradient
+if mode == &#8216;grad&#8217;, return only the gradient
+if mode == &#8216;func&#8217;, return only the function value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.multinomial_deviance.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.multinomial_deviance.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="poisson-deviance">
+<h3><a class="reference internal" href="#regreg.smooth.poisson_deviance" title="regreg.smooth.poisson_deviance"><tt class="xref py py-class docutils literal"><span class="pre">poisson_deviance</span></tt></a><a class="headerlink" href="#poisson-deviance" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.poisson_deviance">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">poisson_deviance</tt><big>(</big><em>shape</em>, <em>counts</em>, <em>coef=1.0</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">regreg.smooth.smooth_atom</span></tt></a></p>
+<p>A class for combining the Poisson log-likelihood with a general seminorm</p>
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>counts</em>, <em>coef=1.0</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.poisson_deviance.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.poisson_deviance.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.poisson_deviance.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.poisson_deviance.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.poisson_deviance.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.poisson_deviance.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.poisson_deviance.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = '\\ell^{P}\\left(%(var)s\\right)'</em><a class="headerlink" href="#regreg.smooth.poisson_deviance.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.poisson_deviance.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha+', 'coef': 'C'}</em><a class="headerlink" href="#regreg.smooth.poisson_deviance.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.poisson_deviance.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.poisson_deviance.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.poisson_deviance.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.poisson_deviance.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.poisson_deviance.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a smooth function and/or its gradient</p>
+<p>if mode == &#8216;both&#8217;, return both function value and gradient
+if mode == &#8216;grad&#8217;, return only the gradient
+if mode == &#8216;func&#8217;, return only the function value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.poisson_deviance.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.poisson_deviance.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="smooth-atom">
+<h3><a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">smooth_atom</span></tt></a><a class="headerlink" href="#smooth-atom" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.smooth_atom">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">smooth_atom</tt><big>(</big><em>shape</em>, <em>coef=1</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.problems.composite.html#regreg.problems.composite.smooth" title="regreg.problems.composite.smooth"><tt class="xref py py-class docutils literal"><span class="pre">regreg.problems.composite.smooth</span></tt></a></p>
+<p>A class for representing a smooth function and its gradient</p>
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>coef=1</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.smooth_atom.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.smooth_atom.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.smooth_atom.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.smooth_atom.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.smooth_atom.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.smooth_atom.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.smooth_atom.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.smooth.smooth_atom.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.smooth_atom.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha+', 'coef': 'C'}</em><a class="headerlink" href="#regreg.smooth.smooth_atom.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.smooth_atom.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.smooth_atom.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.smooth_atom.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.smooth_atom.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.smooth_atom.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.smooth_atom.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.smooth_atom.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sum">
+<h3><a class="reference internal" href="#regreg.smooth.sum" title="regreg.smooth.sum"><tt class="xref py py-class docutils literal"><span class="pre">sum</span></tt></a><a class="headerlink" href="#sum" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.sum">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">sum</tt><big>(</big><em>atoms</em>, <em>weights=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">regreg.smooth.smooth_atom</span></tt></a></p>
+<p>A simple way to combine smooth objectives</p>
+<dl class="method">
+<dt id="regreg.smooth.sum.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>atoms</em>, <em>weights=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.sum.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.sum.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.sum.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.sum.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.sum.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.sum.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.sum.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.sum.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.sum.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.sum.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.sum.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.smooth.sum.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.sum.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha+', 'coef': 'C'}</em><a class="headerlink" href="#regreg.smooth.sum.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.sum.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.sum.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.sum.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.sum.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.sum.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a smooth function and/or its gradient</p>
+<p>if mode == &#8216;both&#8217;, return both function value and gradient
+if mode == &#8216;grad&#8217;, return only the gradient
+if mode == &#8216;func&#8217;, return only the function value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.sum.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.sum.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="zero">
+<h3><a class="reference internal" href="#regreg.smooth.zero" title="regreg.smooth.zero"><tt class="xref py py-class docutils literal"><span class="pre">zero</span></tt></a><a class="headerlink" href="#zero" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.zero">
+<em class="property">class </em><tt class="descclassname">regreg.smooth.</tt><tt class="descname">zero</tt><big>(</big><em>shape</em>, <em>coef=1</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><tt class="xref py py-class docutils literal"><span class="pre">regreg.smooth.smooth_atom</span></tt></a></p>
+<dl class="method">
+<dt id="regreg.smooth.zero.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>coef=1</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.zero.affine">
+<em class="property">classmethod </em><tt class="descname">affine</tt><big>(</big><em>linear_operator</em>, <em>offset</em>, <em>coef=1</em>, <em>diag=False</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.apply_offset">
+<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.zero.conjugate">
+<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.smooth.zero.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.get_conjugate">
+<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.zero.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.get_lipschitz">
+<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.zero.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.zero.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.get_quadratic">
+<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.smooth.zero.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.latexify">
+<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.zero.linear">
+<em class="property">classmethod </em><tt class="descname">linear</tt><big>(</big><em>linear_operator</em>, <em>coef=1</em>, <em>diag=False</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.zero.lipschitz">
+<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.smooth.zero.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.nonsmooth_objective">
+<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.objective">
+<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.zero.objective_template">
+<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.smooth.zero.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.zero.objective_vars">
+<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha+', 'coef': 'C'}</em><a class="headerlink" href="#regreg.smooth.zero.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.zero.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#regreg.smooth.zero.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.proximal">
+<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.proximal_optimum">
+<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.proximal_step">
+<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
+<blockquote class="last">
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.zero.quadratic">
+<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.smooth.zero.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.scale">
+<tt class="descname">scale</tt><big>(</big><em>obj</em>, <em>copy=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.set_lipschitz">
+<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.set_offset">
+<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.set_quadratic">
+<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.smooth.zero.shift">
+<em class="property">classmethod </em><tt class="descname">shift</tt><big>(</big><em>offset</em>, <em>coef=1</em>, <em>quadratic=None</em>, <em>**kws</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.smooth_objective">
+<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.smoothed">
+<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.zero.solve">
+<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.smooth.zero.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.smooth.acceptable_init_args">
+<tt class="descclassname">regreg.smooth.</tt><tt class="descname">acceptable_init_args</tt><big>(</big><em>cls</em>, <em>proposed_keywords</em><big>)</big><a class="headerlink" href="#regreg.smooth.acceptable_init_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the keywords in the dictionary proposed_keywords are arguments to __init__ of class cls</p>
+<p>Returns True/False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.smooth.logistic_loss">
+<tt class="descclassname">regreg.smooth.</tt><tt class="descname">logistic_loss</tt><big>(</big><em>X</em>, <em>Y</em>, <em>trials=None</em>, <em>coef=1.0</em><big>)</big><a class="headerlink" href="#regreg.smooth.logistic_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a logistic loss function for successes Y and
+affine transform X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : [affine_transform, ndarray]</p>
+<blockquote>
+<div><p>Design matrix</p>
+</div></blockquote>
+<p class="last"><strong>Y</strong> : ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

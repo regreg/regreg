@@ -1,0 +1,127 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+atoms.seminorms
+===============
+
+Module: :mod:`atoms.seminorms`
+------------------------------
+Inheritance diagram for ``regreg.atoms.seminorms``:
+
+.. inheritance-diagram:: regreg.atoms.seminorms 
+   :parts: 3
+
+.. automodule:: regreg.atoms.seminorms
+
+.. currentmodule:: regreg.atoms.seminorms
+
+Classes
+-------
+
+:class:`constrained_max`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: constrained_max
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`constrained_positive_part`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: constrained_positive_part
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`l1norm`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: l1norm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`l2norm`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: l2norm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`max_positive_part`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: max_positive_part
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`positive_part`
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: positive_part
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`seminorm`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: seminorm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`supnorm`
+~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: supnorm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+Functions
+---------
+
+
+.. autofunction:: regreg.atoms.seminorms.get_bound
+
+
+.. autofunction:: regreg.atoms.seminorms.get_lagrange
+
+
+.. autofunction:: regreg.atoms.seminorms.positive_part_lagrange
+

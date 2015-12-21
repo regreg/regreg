@@ -1,0 +1,114 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+atoms.svd_norms
+===============
+
+Module: :mod:`atoms.svd_norms`
+------------------------------
+Inheritance diagram for ``regreg.atoms.svd_norms``:
+
+.. inheritance-diagram:: regreg.atoms.svd_norms 
+   :parts: 3
+
+.. automodule:: regreg.atoms.svd_norms
+
+.. currentmodule:: regreg.atoms.svd_norms
+
+Classes
+-------
+
+:class:`nuclear_norm`
+~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: nuclear_norm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`nuclear_norm_epigraph`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: nuclear_norm_epigraph
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`nuclear_norm_epigraph_polar`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: nuclear_norm_epigraph_polar
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`operator_norm`
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: operator_norm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`operator_norm_epigraph`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: operator_norm_epigraph
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`operator_norm_epigraph_polar`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: operator_norm_epigraph_polar
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`svd_atom`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: svd_atom
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`svd_cone`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: svd_cone
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__

@@ -1,0 +1,42 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms
+==========
+
+Module: :mod:`algorithms`
+-------------------------
+Inheritance diagram for ``regreg.algorithms``:
+
+.. inheritance-diagram:: regreg.algorithms 
+   :parts: 3
+
+.. automodule:: regreg.algorithms
+
+.. currentmodule:: regreg.algorithms
+
+Classes
+-------
+
+:class:`FISTA`
+~~~~~~~~~~~~~~
+
+
+.. autoclass:: FISTA
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`algorithm`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: algorithm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__

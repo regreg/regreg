@@ -1,0 +1,30 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+problems.dual_problem
+=====================
+
+Module: :mod:`problems.dual_problem`
+------------------------------------
+Inheritance diagram for ``regreg.problems.dual_problem``:
+
+.. inheritance-diagram:: regreg.problems.dual_problem 
+   :parts: 3
+
+.. automodule:: regreg.problems.dual_problem
+
+.. currentmodule:: regreg.problems.dual_problem
+
+:class:`dual_problem`
+---------------------
+
+
+.. autoclass:: dual_problem
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+.. autofunction:: regreg.problems.dual_problem.stacked_dual
+

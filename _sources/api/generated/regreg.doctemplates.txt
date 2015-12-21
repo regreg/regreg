@@ -1,0 +1,23 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+doctemplates
+============
+
+Module: :mod:`doctemplates`
+---------------------------
+.. automodule:: regreg.doctemplates
+
+.. currentmodule:: regreg.doctemplates
+
+Functions
+---------
+
+
+.. autofunction:: regreg.doctemplates.doc_template_provider
+
+
+.. autofunction:: regreg.doctemplates.doc_template_user
+
+
+.. autofunction:: regreg.doctemplates.doc_templater
+

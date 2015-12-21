@@ -1,0 +1,13 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+objdoctemplates
+===============
+
+Module: :mod:`objdoctemplates`
+------------------------------
+.. automodule:: regreg.objdoctemplates
+
+.. currentmodule:: regreg.objdoctemplates
+
+.. autofunction:: regreg.objdoctemplates.objective_doc_templater
+

@@ -1,0 +1,54 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+atoms.linear_constraints
+========================
+
+Module: :mod:`atoms.linear_constraints`
+---------------------------------------
+Inheritance diagram for ``regreg.atoms.linear_constraints``:
+
+.. inheritance-diagram:: regreg.atoms.linear_constraints 
+   :parts: 3
+
+.. automodule:: regreg.atoms.linear_constraints
+
+.. currentmodule:: regreg.atoms.linear_constraints
+
+Classes
+-------
+
+:class:`linear_constraint`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: linear_constraint
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`projection`
+~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: projection
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`projection_complement`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: projection_complement
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__

@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="index.html">
+  <img src="_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lasso.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <p>In[1]:</p>
+<div class="highlight-python"><pre>Welcome to pylab, a matplotlib-based Python environment [backend: module://Ipython::.kernel.zmq.pylab.backend_inline].
+For more information, type 'help(pylab)'.</pre>
+</div>
+<p>In[2]:</p>
+<div class="highlight-python"><pre>Loaded lars 1.1</pre>
+</div>
+<p>In[3]:</p>
+<p>In[4]:</p>
+<p>Out[4]:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mf">316.07405269831145</span>
+</pre></div>
+</div>
+<p>In[5]:</p>
+<p>Out[5]:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">array</span><span class="p">([</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">434.75795962</span><span class="p">,</span>   <span class="mf">79.23644688</span><span class="p">,</span>
+          <span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>
+        <span class="mf">374.91583685</span><span class="p">,</span>    <span class="mf">0.</span>        <span class="p">])</span>
+</pre></div>
+</div>
+<p>In[6]:</p>
+<p>In[7]:</p>
+<p>Out[7]:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">array</span><span class="p">([</span>   <span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">434.75795962</span><span class="p">,</span>   <span class="mf">79.23644688</span><span class="p">,</span>
+          <span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>
+        <span class="mf">374.91583685</span><span class="p">,</span>    <span class="mf">0.</span>        <span class="p">])</span>
+</pre></div>
+</div>
+<p>In[8]:</p>
+<p>Out[8]:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">array</span><span class="p">([</span>  <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">434.75795962</span><span class="p">,</span>   <span class="mf">79.23644688</span><span class="p">,</span>
+         <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>
+        <span class="mf">374.91583685</span><span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">])</span>
+</pre></div>
+</div>
+<p>In[17]:</p>
+<p>Out[17]:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">array</span><span class="p">([</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">434.75407411</span><span class="p">,</span>   <span class="mf">79.18744169</span><span class="p">,</span>
+          <span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>   <span class="o">-</span><span class="mf">0.</span>        <span class="p">,</span>    <span class="mf">0.</span>        <span class="p">,</span>
+        <span class="mf">374.92041835</span><span class="p">,</span>    <span class="mf">0.</span>        <span class="p">])</span>
+</pre></div>
+</div>
+<p>In[18]:</p>
+<img alt="LASSO_again_files/LASSO_again_fig_00.png" src="LASSO_again_files/LASSO_again_fig_00.png" />
+<p>In[11]:</p>
+<p>In[19]:</p>
+<p>Out[19]:</p>
+<div class="highlight-python"><pre>&lt;matplotlib.collections.PathCollection at 0x1103601d0&gt;</pre>
+</div>
+<img alt="LASSO_again_files/LASSO_again_fig_01.png" src="LASSO_again_files/LASSO_again_fig_01.png" />
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

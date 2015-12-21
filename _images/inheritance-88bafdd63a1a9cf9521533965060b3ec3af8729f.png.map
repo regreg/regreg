@@ -1,0 +1,19 @@
+<map id="inheritance5aeff6cecc" name="inheritance5aeff6cecc">
+<area shape="rect" id="node1" href="#regreg.affine.AffineError" title="regreg.affine.AffineError" alt="" coords="23,613,202,640"/>
+<area shape="rect" id="node2" href="#regreg.affine.affine_transform" title="regreg.affine.affine_transform" alt="" coords="5,563,220,589"/>
+<area shape="rect" id="node3" href="#regreg.affine.linear_transform" title="A linear transform is an affine transform with no affine offset" alt="" coords="268,537,482,564"/>
+<area shape="rect" id="node17" href="#regreg.affine.posneg" title="regreg.affine.posneg" alt="" coords="297,588,453,614"/>
+<area shape="rect" id="node4" href="#regreg.affine.selector" title="Apply an affine transform after applying an" alt="" coords="530,512,689,538"/>
+<area shape="rect" id="node5" href="#regreg.affine.reshape" title="Reshape the output of an affine transform." alt="" coords="530,563,689,589"/>
+<area shape="rect" id="node6" href="#regreg.affine.normalize" title="Normalize column by means and possibly scale. Could make" alt="" coords="26,512,199,538"/>
+<area shape="rect" id="node7" href="#regreg.affine.identity" title="Identity transform" alt="" coords="34,461,191,488"/>
+<area shape="rect" id="node8" href="#regreg.affine.vstack" title="Stack several affine transforms vertically together though" alt="" coords="38,411,187,437"/>
+<area shape="rect" id="node9" href="#regreg.affine.hstack" title="Stack several affine transforms horizontally together though" alt="" coords="38,360,187,386"/>
+<area shape="rect" id="node10" href="#regreg.affine.product" title="Create a transform that maps the product of the inputs" alt="" coords="33,309,192,336"/>
+<area shape="rect" id="node11" href="#regreg.affine.adjoint" title="Given an affine_transform, return a linear_transform" alt="" coords="36,259,189,285"/>
+<area shape="rect" id="node12" href="#regreg.affine.tensorize" title="Given an affine_transform, return a linear_transform" alt="" coords="29,208,196,234"/>
+<area shape="rect" id="node13" href="#regreg.affine.residual" title="Compute the residual from an affine transform." alt="" coords="33,157,192,184"/>
+<area shape="rect" id="node14" href="#regreg.affine.composition" title="Composes a list of affine transforms, executing right to left" alt="" coords="19,107,206,133"/>
+<area shape="rect" id="node15" href="#regreg.affine.affine_sum" title="Creates the (weighted) sum of a list of affine_transforms" alt="" coords="24,56,202,82"/>
+<area shape="rect" id="node16" href="#regreg.affine.scalar_multiply" title="regreg.affine.scalar_multiply" alt="" coords="10,5,215,32"/>
+</map>

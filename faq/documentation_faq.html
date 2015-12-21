@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Documentation FAQ</a><ul>
+<li><a class="reference internal" href="#installing-graphviz-on-osx">Installing graphviz on OSX</a></li>
+<li><a class="reference internal" href="#error-writing-output-on-osx">Error writing output on OSX</a></li>
+<li><a class="reference internal" href="#sphinx-and-rest-gotchas">Sphinx and reST gotchas</a><ul>
+<li><a class="reference internal" href="#docstrings">Docstrings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/faq/documentation_faq.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="documentation-faq">
+<span id="id1"></span><h1>Documentation FAQ<a class="headerlink" href="#documentation-faq" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installing-graphviz-on-osx">
+<span id="id2"></span><h2>Installing graphviz on OSX<a class="headerlink" href="#installing-graphviz-on-osx" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way I found to do this was using <a class="reference external" href="http://www.macports.org/">MacPorts</a>, all other
+methods caused python exceptions when attempting to write out the pngs
+in the inheritance_diagram.py functions.  Just do:</p>
+<div class="highlight-python"><pre>sudo port install graphviz</pre>
+</div>
+<p>And make sure your macports directory (<tt class="docutils literal"><span class="pre">/opt/local/bin</span></tt>) is in your PATH.</p>
+</div>
+<div class="section" id="error-writing-output-on-osx">
+<h2>Error writing output on OSX<a class="headerlink" href="#error-writing-output-on-osx" title="Permalink to this headline">¶</a></h2>
+<p>If you are getting an error during the <strong>writing output...</strong> phase of
+the documentation build you may have a problem with your <a class="reference external" href="http://www.graphviz.org/">graphviz</a>
+install.  The error may look something like:</p>
+<div class="highlight-python"><pre>**writing output...** about api/generated/gen
+  api/generated/nipy
+  api/generated/nipy.algorithms.fwhm Format: "png" not
+  recognized. Use one of: canon cmap cmapx cmapx_np dia dot eps fig
+  hpgl imap imap_np ismap mif mp pcl pic plain plain-ext ps ps2 svg
+  svgz tk vml vmlz vtx xdot
+
+...
+
+Exception occurred:
+
+File "/Users/cburns/src/nipy-repo/trunk-dev/doc/sphinxext/
+inheritance_diagram.py", line 238, in generate_dot
+  (name, self._format_node_options(this_node_options)))
+
+IOError: [Errno 32] Broken pipe</pre>
+</div>
+<p>Try installing graphviz using <a class="reference external" href="http://www.macports.org/">MacPorts</a>.  See the
+<a class="reference internal" href="#installing-graphviz-on-osx"><em>Installing graphviz on OSX</em></a> for instructions.</p>
+</div>
+<div class="section" id="sphinx-and-rest-gotchas">
+<h2>Sphinx and reST gotchas<a class="headerlink" href="#sphinx-and-rest-gotchas" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="docstrings">
+<h3>Docstrings<a class="headerlink" href="#docstrings" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://sphinx.pocoo.org/">Sphinx</a> and <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reST</a> can be very picky about whitespace.  For example, in
+the docstring below the <em>Parameters</em> section will render correctly,
+where the <em>Returns</em> section will not.  By correctly I mean Sphinx will
+insert a link to the CoordinateSystem class in place of the
+cross-reference <em>:class:`CoordinateSystem`</em>.  The <em>Returns</em> section
+will be rendered exactly as shown below with the <em>:class:</em> identifier
+and the backticks around CoordinateSystem.  This section fails because
+of the missing whitespace between <tt class="docutils literal"><span class="pre">product_coord_system</span></tt> and the
+colon <tt class="docutils literal"><span class="pre">:</span></tt>.</p>
+<div class="highlight-python"><pre>Parameters
+----------
+coord_systems : sequence of :class:`CoordinateSystem`
+
+Returns
+-------
+product_coord_system: :class:`CoordinateSystem`</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms</a><ul>
+<li><a class="reference internal" href="#module-algorithms">Module: <tt class="docutils literal"><span class="pre">algorithms</span></tt></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#fista"><tt class="docutils literal"><span class="pre">FISTA</span></tt></a></li>
+<li><a class="reference internal" href="#algorithm"><tt class="docutils literal"><span class="pre">algorithm</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.algorithms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="algorithms">
+<h1>algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-algorithms">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">algorithms</span></tt><a class="headerlink" href="#module-algorithms" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.algorithms</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-be222cfe1448c20ee5cacf8628cf13c0d574988a.png" alt="Inheritance diagram of regreg.algorithms" usemap="#inheritance51d2b39f6a" class="inheritance"/>
+<map id="inheritance51d2b39f6a" name="inheritance51d2b39f6a">
+<area shape="rect" id="node1" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm" alt="" coords="5,5,209,32"/>
+<area shape="rect" id="node2" href="#regreg.algorithms.FISTA" title="The FISTA generalized gradient algorithm" alt="" coords="257,5,433,32"/>
+</map>
+</p>
+<span class="target" id="module-regreg.algorithms"></span></div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fista">
+<h3><a class="reference internal" href="#regreg.algorithms.FISTA" title="regreg.algorithms.FISTA"><tt class="xref py py-class docutils literal"><span class="pre">FISTA</span></tt></a><a class="headerlink" href="#fista" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.algorithms.FISTA">
+<em class="property">class </em><tt class="descclassname">regreg.algorithms.</tt><tt class="descname">FISTA</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm"><tt class="xref py py-class docutils literal"><span class="pre">regreg.algorithms.algorithm</span></tt></a></p>
+<p>The FISTA generalized gradient algorithm</p>
+<dl class="method">
+<dt id="regreg.algorithms.FISTA.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.alpha">
+<tt class="descname">alpha</tt><em class="property"> = 1.1</em><a class="headerlink" href="#regreg.algorithms.FISTA.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.attempt_decrease">
+<tt class="descname">attempt_decrease</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.FISTA.attempt_decrease" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.algorithms.FISTA.backtrack">
+<tt class="descname">backtrack</tt><big>(</big><em>itercount</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.backtrack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.debug">
+<tt class="descname">debug</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.FISTA.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.default_tol">
+<tt class="descname">default_tol</tt><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.algorithms.FISTA.default_tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.algorithms.FISTA.fit">
+<tt class="descname">fit</tt><big>(</big><em>tol=None</em>, <em>min_its=None</em>, <em>max_its=None</em>, <em>FISTA=True</em>, <em>start_step=1.0</em>, <em>restart=inf</em>, <em>coef_stop=False</em>, <em>return_objective_hist=True</em>, <em>monotonicity_restart=True</em>, <em>debug=None</em>, <em>prox_control={}</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the FISTA (or ISTA) algorithm to fit the problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>FISTA</strong> : bool</p>
+<blockquote>
+<div><p>use Nesterov weights? If False, this is just gradient descent</p>
+</div></blockquote>
+<p><strong>start_step</strong> : float</p>
+<blockquote>
+<div><p>used in backtracking. This is the starting value of self.step</p>
+</div></blockquote>
+<p><strong>restart</strong> : int</p>
+<blockquote>
+<div><p>Restart Nesterov weights every restart iterations. Default is never (np.inf)</p>
+</div></blockquote>
+<p><strong>coef_stop</strong> : bool</p>
+<blockquote>
+<div><p>Stop based on coefficient changes instead of objective value</p>
+</div></blockquote>
+<p><strong>return_objective_hist</strong> : bool</p>
+<blockquote>
+<div><p>Return the sequence of objective values?</p>
+</div></blockquote>
+<p><strong>monotonicity_restart</strong> : bool</p>
+<blockquote>
+<div><p>If True, Nesterov weights are restarted every time the objective value increases</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>Resets self.debug, which controls whether convergence information is printed</p>
+</div></blockquote>
+<p><strong>prox_control</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary of arguments for fit(), used when the composite.proximal_step itself is a FISTA problem</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>objective_hist</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>A vector of objective values. Only return if return_objective_hist is True.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.max_its">
+<tt class="descname">max_its</tt><em class="property"> = 10000</em><a class="headerlink" href="#regreg.algorithms.FISTA.max_its" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.min_its">
+<tt class="descname">min_its</tt><em class="property"> = 5</em><a class="headerlink" href="#regreg.algorithms.FISTA.min_its" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.output">
+<tt class="descname">output</tt><a class="headerlink" href="#regreg.algorithms.FISTA.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the &#8216;interesting&#8217; part of the composite arguments.
+In the regression case, this is the tuple (beta, r).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.perform_backtrack">
+<tt class="descname">perform_backtrack</tt><em class="property"> = True</em><a class="headerlink" href="#regreg.algorithms.FISTA.perform_backtrack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.FISTA.step">
+<tt class="descname">step</tt><em class="property"> = None</em><a class="headerlink" href="#regreg.algorithms.FISTA.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.algorithms.FISTA.update_working_coefs">
+<tt class="descname">update_working_coefs</tt><big>(</big><em>proposed_coefs</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.update_working_coefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="algorithm">
+<h3><a class="reference internal" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm"><tt class="xref py py-class docutils literal"><span class="pre">algorithm</span></tt></a><a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.algorithms.algorithm">
+<em class="property">class </em><tt class="descclassname">regreg.algorithms.</tt><tt class="descname">algorithm</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="regreg.algorithms.algorithm.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.algorithm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.alpha">
+<tt class="descname">alpha</tt><em class="property"> = 1.1</em><a class="headerlink" href="#regreg.algorithms.algorithm.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.attempt_decrease">
+<tt class="descname">attempt_decrease</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.algorithm.attempt_decrease" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.debug">
+<tt class="descname">debug</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.algorithm.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.default_tol">
+<tt class="descname">default_tol</tt><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.algorithms.algorithm.default_tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.algorithms.algorithm.fit">
+<tt class="descname">fit</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.algorithms.algorithm.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.max_its">
+<tt class="descname">max_its</tt><em class="property"> = 10000</em><a class="headerlink" href="#regreg.algorithms.algorithm.max_its" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.min_its">
+<tt class="descname">min_its</tt><em class="property"> = 5</em><a class="headerlink" href="#regreg.algorithms.algorithm.min_its" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.output">
+<tt class="descname">output</tt><a class="headerlink" href="#regreg.algorithms.algorithm.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the &#8216;interesting&#8217; part of the composite arguments.
+In the regression case, this is the tuple (beta, r).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.perform_backtrack">
+<tt class="descname">perform_backtrack</tt><em class="property"> = True</em><a class="headerlink" href="#regreg.algorithms.algorithm.perform_backtrack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.algorithms.algorithm.step">
+<tt class="descname">step</tt><em class="property"> = None</em><a class="headerlink" href="#regreg.algorithms.algorithm.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

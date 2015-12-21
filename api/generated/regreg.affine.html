@@ -1,0 +1,1043 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">affine</a><ul>
+<li><a class="reference internal" href="#module-affine">Module: <tt class="docutils literal"><span class="pre">affine</span></tt></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#affineerror"><tt class="docutils literal"><span class="pre">AffineError</span></tt></a></li>
+<li><a class="reference internal" href="#adjoint"><tt class="docutils literal"><span class="pre">adjoint</span></tt></a></li>
+<li><a class="reference internal" href="#affine-sum"><tt class="docutils literal"><span class="pre">affine_sum</span></tt></a></li>
+<li><a class="reference internal" href="#affine-transform"><tt class="docutils literal"><span class="pre">affine_transform</span></tt></a></li>
+<li><a class="reference internal" href="#composition"><tt class="docutils literal"><span class="pre">composition</span></tt></a></li>
+<li><a class="reference internal" href="#hstack"><tt class="docutils literal"><span class="pre">hstack</span></tt></a></li>
+<li><a class="reference internal" href="#identity"><tt class="docutils literal"><span class="pre">identity</span></tt></a></li>
+<li><a class="reference internal" href="#linear-transform"><tt class="docutils literal"><span class="pre">linear_transform</span></tt></a></li>
+<li><a class="reference internal" href="#normalize"><tt class="docutils literal"><span class="pre">normalize</span></tt></a></li>
+<li><a class="reference internal" href="#posneg"><tt class="docutils literal"><span class="pre">posneg</span></tt></a></li>
+<li><a class="reference internal" href="#product"><tt class="docutils literal"><span class="pre">product</span></tt></a></li>
+<li><a class="reference internal" href="#reshape"><tt class="docutils literal"><span class="pre">reshape</span></tt></a></li>
+<li><a class="reference internal" href="#residual"><tt class="docutils literal"><span class="pre">residual</span></tt></a></li>
+<li><a class="reference internal" href="#scalar-multiply"><tt class="docutils literal"><span class="pre">scalar_multiply</span></tt></a></li>
+<li><a class="reference internal" href="#selector"><tt class="docutils literal"><span class="pre">selector</span></tt></a></li>
+<li><a class="reference internal" href="#tensorize"><tt class="docutils literal"><span class="pre">tensorize</span></tt></a></li>
+<li><a class="reference internal" href="#vstack"><tt class="docutils literal"><span class="pre">vstack</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.affine.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="affine">
+<h1>affine<a class="headerlink" href="#affine" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-affine">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">affine</span></tt><a class="headerlink" href="#module-affine" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.affine</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-88bafdd63a1a9cf9521533965060b3ec3af8729f.png" alt="Inheritance diagram of regreg.affine" usemap="#inheritance5aeff6cecc" class="inheritance"/>
+<map id="inheritance5aeff6cecc" name="inheritance5aeff6cecc">
+<area shape="rect" id="node1" href="#regreg.affine.AffineError" title="regreg.affine.AffineError" alt="" coords="23,613,202,640"/>
+<area shape="rect" id="node2" href="#regreg.affine.affine_transform" title="regreg.affine.affine_transform" alt="" coords="5,563,220,589"/>
+<area shape="rect" id="node3" href="#regreg.affine.linear_transform" title="A linear transform is an affine transform with no affine offset" alt="" coords="268,537,482,564"/>
+<area shape="rect" id="node17" href="#regreg.affine.posneg" title="regreg.affine.posneg" alt="" coords="297,588,453,614"/>
+<area shape="rect" id="node4" href="#regreg.affine.selector" title="Apply an affine transform after applying an" alt="" coords="530,512,689,538"/>
+<area shape="rect" id="node5" href="#regreg.affine.reshape" title="Reshape the output of an affine transform." alt="" coords="530,563,689,589"/>
+<area shape="rect" id="node6" href="#regreg.affine.normalize" title="Normalize column by means and possibly scale. Could make" alt="" coords="26,512,199,538"/>
+<area shape="rect" id="node7" href="#regreg.affine.identity" title="Identity transform" alt="" coords="34,461,191,488"/>
+<area shape="rect" id="node8" href="#regreg.affine.vstack" title="Stack several affine transforms vertically together though" alt="" coords="38,411,187,437"/>
+<area shape="rect" id="node9" href="#regreg.affine.hstack" title="Stack several affine transforms horizontally together though" alt="" coords="38,360,187,386"/>
+<area shape="rect" id="node10" href="#regreg.affine.product" title="Create a transform that maps the product of the inputs" alt="" coords="33,309,192,336"/>
+<area shape="rect" id="node11" href="#regreg.affine.adjoint" title="Given an affine_transform, return a linear_transform" alt="" coords="36,259,189,285"/>
+<area shape="rect" id="node12" href="#regreg.affine.tensorize" title="Given an affine_transform, return a linear_transform" alt="" coords="29,208,196,234"/>
+<area shape="rect" id="node13" href="#regreg.affine.residual" title="Compute the residual from an affine transform." alt="" coords="33,157,192,184"/>
+<area shape="rect" id="node14" href="#regreg.affine.composition" title="Composes a list of affine transforms, executing right to left" alt="" coords="19,107,206,133"/>
+<area shape="rect" id="node15" href="#regreg.affine.affine_sum" title="Creates the (weighted) sum of a list of affine_transforms" alt="" coords="24,56,202,82"/>
+<area shape="rect" id="node16" href="#regreg.affine.scalar_multiply" title="regreg.affine.scalar_multiply" alt="" coords="10,5,215,32"/>
+</map>
+</p>
+<span class="target" id="module-regreg.affine"></span></div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="affineerror">
+<h3><a class="reference internal" href="#regreg.affine.AffineError" title="regreg.affine.AffineError"><tt class="xref py py-class docutils literal"><span class="pre">AffineError</span></tt></a><a class="headerlink" href="#affineerror" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.AffineError">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">AffineError</tt><a class="headerlink" href="#regreg.affine.AffineError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<dl class="method">
+<dt id="regreg.affine.AffineError.__init__">
+<tt class="descname">__init__</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.affine.AffineError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.affine.AffineError.args">
+<tt class="descname">args</tt><a class="headerlink" href="#regreg.affine.AffineError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.affine.AffineError.message">
+<tt class="descname">message</tt><a class="headerlink" href="#regreg.affine.AffineError.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="adjoint">
+<h3><a class="reference internal" href="#regreg.affine.adjoint" title="regreg.affine.adjoint"><tt class="xref py py-class docutils literal"><span class="pre">adjoint</span></tt></a><a class="headerlink" href="#adjoint" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.adjoint">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">adjoint</tt><big>(</big><em>transform</em><big>)</big><a class="headerlink" href="#regreg.affine.adjoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Given an affine_transform, return a linear_transform
+that is the adjoint of its linear part.</p>
+<dl class="method">
+<dt id="regreg.affine.adjoint.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transform</em><big>)</big><a class="headerlink" href="#regreg.affine.adjoint.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.adjoint.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.adjoint.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.adjoint.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.adjoint.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.adjoint.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.adjoint.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="affine-sum">
+<h3><a class="reference internal" href="#regreg.affine.affine_sum" title="regreg.affine.affine_sum"><tt class="xref py py-class docutils literal"><span class="pre">affine_sum</span></tt></a><a class="headerlink" href="#affine-sum" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.affine_sum">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">affine_sum</tt><big>(</big><em>transforms</em>, <em>weights=None</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Creates the (weighted) sum of a list of affine_transforms</p>
+<dl class="method">
+<dt id="regreg.affine.affine_sum.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transforms</em>, <em>weights=None</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_sum.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.affine_sum.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_sum.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.affine_sum.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_sum.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.affine_sum.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_sum.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="affine-transform">
+<h3><a class="reference internal" href="#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">affine_transform</span></tt></a><a class="headerlink" href="#affine-transform" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.affine_transform">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">affine_transform</tt><big>(</big><em>linear_operator</em>, <em>affine_offset</em>, <em>diag=False</em>, <em>input_shape=None</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="regreg.affine.affine_transform.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>linear_operator</em>, <em>affine_offset</em>, <em>diag=False</em>, <em>input_shape=None</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_transform.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create affine transform</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>linear_operator</strong> : None or ndarray or sparse array or affine_transform</p>
+<blockquote>
+<div><p>Linear part of affine transform implemented as array or as
+affine_transform.  None results in no linear component.</p>
+</div></blockquote>
+<p><strong>affine_offset</strong> : None or ndarray</p>
+<blockquote>
+<div><p>offset component of affine.  Only one of <cite>linear_operator</cite> and
+<cite>affine_offset</cite> can be None, because we need an input array to
+define the shape of the transform.</p>
+</div></blockquote>
+<p><strong>diag</strong> : {False, True}, optional</p>
+<blockquote class="last">
+<div><p>If True, interpret 1D <cite>linear_operator</cite> as the main diagonal of the
+a diagonal array, so that <tt class="docutils literal"><span class="pre">linear_operator</span> <span class="pre">=</span>
+<span class="pre">np.diag(linear_operator)</span></tt></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.affine_transform.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_transform.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply transpose of linear component to <cite>u</cite></p>
+<p>Return <span class="math">\(D^Tu\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>u</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transposed linear part of transform. Can be
+1D or 2D array</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>u</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DTu</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>u</cite> transformed with transpose of linear component</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This routine is currently a matrix multiplication, but could
+also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.affine_transform.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_transform.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear and affine offset to <cite>x</cite></p>
+<p>Return <span class="math">\(Dx+\alpha\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Dx_a</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>x</cite> transformed with linear and offset components</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This routine is subclassed in affine_atom as a matrix multiplications,
+but could also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.affine_transform.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.affine_transform.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear part of transform to <cite>x</cite></p>
+<p>Return <span class="math">\(Dx\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Dx</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>x</cite> transformed with linear component</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This routine is subclassed in affine_atom as a matrix multiplications,
+but could also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="composition">
+<h3><a class="reference internal" href="#regreg.affine.composition" title="regreg.affine.composition"><tt class="xref py py-class docutils literal"><span class="pre">composition</span></tt></a><a class="headerlink" href="#composition" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.composition">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">composition</tt><big>(</big><em>*transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Composes a list of affine transforms, executing right to left</p>
+<dl class="method">
+<dt id="regreg.affine.composition.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>*transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.composition.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.composition.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.composition.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.composition.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.composition.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.composition.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.composition.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="hstack">
+<h3><a class="reference internal" href="#regreg.affine.hstack" title="regreg.affine.hstack"><tt class="xref py py-class docutils literal"><span class="pre">hstack</span></tt></a><a class="headerlink" href="#hstack" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.hstack">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">hstack</tt><big>(</big><em>transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.hstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Stack several affine transforms horizontally together though
+not necessarily as a big matrix.</p>
+<dl class="method">
+<dt id="regreg.affine.hstack.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.hstack.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.hstack.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.hstack.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.hstack.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.hstack.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.hstack.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.hstack.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="identity">
+<h3><a class="reference internal" href="#regreg.affine.identity" title="regreg.affine.identity"><tt class="xref py py-class docutils literal"><span class="pre">identity</span></tt></a><a class="headerlink" href="#identity" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.identity">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">identity</tt><big>(</big><em>input_shape</em><big>)</big><a class="headerlink" href="#regreg.affine.identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Identity transform</p>
+<dl class="method">
+<dt id="regreg.affine.identity.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>input_shape</em><big>)</big><a class="headerlink" href="#regreg.affine.identity.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.identity.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.identity.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.identity.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.identity.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.identity.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.identity.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="linear-transform">
+<h3><a class="reference internal" href="#regreg.affine.linear_transform" title="regreg.affine.linear_transform"><tt class="xref py py-class docutils literal"><span class="pre">linear_transform</span></tt></a><a class="headerlink" href="#linear-transform" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.linear_transform">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">linear_transform</tt><big>(</big><em>linear_operator</em>, <em>diag=False</em>, <em>input_shape=None</em><big>)</big><a class="headerlink" href="#regreg.affine.linear_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<p>A linear transform is an affine transform with no affine offset</p>
+<dl class="method">
+<dt id="regreg.affine.linear_transform.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>linear_operator</em>, <em>diag=False</em>, <em>input_shape=None</em><big>)</big><a class="headerlink" href="#regreg.affine.linear_transform.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.linear_transform.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.linear_transform.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply transpose of linear component to <cite>u</cite></p>
+<p>Return <span class="math">\(D^Tu\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>u</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transposed linear part of transform. Can be
+1D or 2D array</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>u</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DTu</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>u</cite> transformed with transpose of linear component</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This routine is currently a matrix multiplication, but could
+also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.linear_transform.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.linear_transform.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear and affine offset to <cite>x</cite></p>
+<p>Return <span class="math">\(Dx+\alpha\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Dx_a</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>x</cite> transformed with linear and offset components</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This routine is subclassed in affine_atom as a matrix multiplications,
+but could also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.linear_transform.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.linear_transform.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear part of transform to <cite>x</cite></p>
+<p>Return <span class="math">\(Dx\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Dx</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>x</cite> transformed with linear component</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This routine is subclassed in affine_atom as a matrix multiplications,
+but could also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="normalize">
+<h3><a class="reference internal" href="#regreg.affine.normalize" title="regreg.affine.normalize"><tt class="xref py py-class docutils literal"><span class="pre">normalize</span></tt></a><a class="headerlink" href="#normalize" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.normalize">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">normalize</tt><big>(</big><em>M</em>, <em>center=True</em>, <em>scale=True</em>, <em>value=1</em>, <em>inplace=False</em>, <em>intercept_column=None</em><big>)</big><a class="headerlink" href="#regreg.affine.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Normalize column by means and possibly scale. Could make
+a class for row normalization to.</p>
+<p>Columns are normalized to have std equal to value.</p>
+<dl class="method">
+<dt id="regreg.affine.normalize.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>M</em>, <em>center=True</em>, <em>scale=True</em>, <em>value=1</em>, <em>inplace=False</em>, <em>intercept_column=None</em><big>)</big><a class="headerlink" href="#regreg.affine.normalize.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>M</strong> : ndarray or scipy.sparse</p>
+<blockquote>
+<div><p>The matrix to be normalized. If an ndarray and inplace=True,
+then the values of M are modified in place. Sparse matrices
+are not modified in place.</p>
+</div></blockquote>
+<p><strong>center</strong> : bool</p>
+<blockquote>
+<div><p>Center the columns?</p>
+</div></blockquote>
+<p><strong>scale</strong> : bool</p>
+<blockquote>
+<div><p>Scale the columns?</p>
+</div></blockquote>
+<p><strong>value</strong> : float</p>
+<blockquote>
+<div><p>Set the std of the columns to be value.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool</p>
+<blockquote>
+<div><p>If sensible, modify values in place. For a sparse matrix,
+this will raise an exception if True and center==True.</p>
+</div></blockquote>
+<p><strong>intercept_column</strong> : [int,None]</p>
+<blockquote class="last">
+<div><p>Which column is the intercept if any? This column is
+not centered or scaled.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.normalize.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.normalize.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.normalize.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.normalize.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.normalize.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.normalize.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.normalize.normalized_array">
+<tt class="descname">normalized_array</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.affine.normalize.normalized_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.normalize.slice_columns">
+<tt class="descname">slice_columns</tt><big>(</big><em>index_obj</em><big>)</big><a class="headerlink" href="#regreg.affine.normalize.slice_columns" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index_obj: slice, list, np.bool</strong></p>
+<blockquote>
+<div><p>An object on which to index the columns of self.M.
+Must be a slice object or list so scipy.sparse matrices
+can be sliced.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>n</strong> : normalize</p>
+<blockquote class="last">
+<div><p>A transform which agrees with self having zeroed out
+all coefficients not captured by index_obj.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This method does not check whether or not <tt class="docutils literal"><span class="pre">self.intercept_column</span></tt> is
+None so it must be set by hand on the returned instance.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.2</span><span class="p">,</span><span class="mf">3.4</span><span class="p">,</span><span class="mf">5.6</span><span class="p">,</span><span class="mf">7.8</span><span class="p">,</span><span class="mf">1.3</span><span class="p">,</span><span class="mf">4.5</span><span class="p">,</span><span class="mf">5.6</span><span class="p">,</span><span class="mf">7.8</span><span class="p">,</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">3.4</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nD</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_sliced</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_sliced</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">X_sliced</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.906888</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.155417</span><span class="p">,</span> <span class="mf">10.06230</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nD</span><span class="o">.</span><span class="n">linear_map</span><span class="p">(</span><span class="n">X_sliced</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nD_slice</span> <span class="o">=</span> <span class="n">nD</span><span class="o">.</span><span class="n">slice_columns</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nD_slice</span><span class="o">.</span><span class="n">linear_map</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">)]),</span> <span class="n">expected</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="posneg">
+<h3><a class="reference internal" href="#regreg.affine.posneg" title="regreg.affine.posneg"><tt class="xref py py-class docutils literal"><span class="pre">posneg</span></tt></a><a class="headerlink" href="#posneg" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.posneg">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">posneg</tt><big>(</big><em>linear_transform</em><big>)</big><a class="headerlink" href="#regreg.affine.posneg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<dl class="method">
+<dt id="regreg.affine.posneg.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>linear_transform</em><big>)</big><a class="headerlink" href="#regreg.affine.posneg.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.posneg.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.posneg.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.posneg.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.posneg.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.posneg.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.posneg.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="product">
+<h3><a class="reference internal" href="#regreg.affine.product" title="regreg.affine.product"><tt class="xref py py-class docutils literal"><span class="pre">product</span></tt></a><a class="headerlink" href="#product" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.product">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">product</tt><big>(</big><em>transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.product" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Create a transform that maps the product of the inputs
+to the product of the outputs.</p>
+<dl class="method">
+<dt id="regreg.affine.product.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.product.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.product.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.product.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.product.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.product.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.product.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.product.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="reshape">
+<h3><a class="reference internal" href="#regreg.affine.reshape" title="regreg.affine.reshape"><tt class="xref py py-class docutils literal"><span class="pre">reshape</span></tt></a><a class="headerlink" href="#reshape" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.reshape">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">reshape</tt><big>(</big><em>input_shape</em>, <em>output_shape</em><big>)</big><a class="headerlink" href="#regreg.affine.reshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.affine.linear_transform" title="regreg.affine.linear_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.linear_transform</span></tt></a></p>
+<p>Reshape the output of an affine transform.</p>
+<dl class="method">
+<dt id="regreg.affine.reshape.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>input_shape</em>, <em>output_shape</em><big>)</big><a class="headerlink" href="#regreg.affine.reshape.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.reshape.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.reshape.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.reshape.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.reshape.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.reshape.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.reshape.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="residual">
+<h3><a class="reference internal" href="#regreg.affine.residual" title="regreg.affine.residual"><tt class="xref py py-class docutils literal"><span class="pre">residual</span></tt></a><a class="headerlink" href="#residual" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.residual">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">residual</tt><big>(</big><em>transform</em><big>)</big><a class="headerlink" href="#regreg.affine.residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Compute the residual from an affine transform.</p>
+<dl class="method">
+<dt id="regreg.affine.residual.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transform</em><big>)</big><a class="headerlink" href="#regreg.affine.residual.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.residual.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.residual.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.residual.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.residual.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.residual.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.residual.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="scalar-multiply">
+<h3><a class="reference internal" href="#regreg.affine.scalar_multiply" title="regreg.affine.scalar_multiply"><tt class="xref py py-class docutils literal"><span class="pre">scalar_multiply</span></tt></a><a class="headerlink" href="#scalar-multiply" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.scalar_multiply">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">scalar_multiply</tt><big>(</big><em>atransform</em>, <em>scalar</em><big>)</big><a class="headerlink" href="#regreg.affine.scalar_multiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="regreg.affine.scalar_multiply.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>atransform</em>, <em>scalar</em><big>)</big><a class="headerlink" href="#regreg.affine.scalar_multiply.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.scalar_multiply.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.scalar_multiply.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.scalar_multiply.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.scalar_multiply.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.scalar_multiply.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.scalar_multiply.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="selector">
+<h3><a class="reference internal" href="#regreg.affine.selector" title="regreg.affine.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a><a class="headerlink" href="#selector" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.selector">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">selector</tt><big>(</big><em>index_obj</em>, <em>initial_shape</em>, <em>affine_transform=None</em><big>)</big><a class="headerlink" href="#regreg.affine.selector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.affine.linear_transform" title="regreg.affine.linear_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.linear_transform</span></tt></a></p>
+<p>Apply an affine transform after applying an
+indexing operation to the array.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transform</span> <span class="o">=</span> <span class="n">affine_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apply_to_first5</span> <span class="o">=</span> <span class="n">selector</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,),</span> <span class="n">transform</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apply_to_first5</span><span class="o">.</span><span class="n">linear_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="go">array([ 30,  80, 130, 180, 230, 280])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="go">array([ 30,  80, 130, 180, 230, 280])</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">apply_to_first5</span><span class="o">.</span><span class="n">affine_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="go">array([ 30,  81, 132, 183, 234, 285])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span> <span class="o">+</span> <span class="n">offset</span>
+<span class="go">array([ 30,  81, 132, 183, 234, 285])</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">apply_to_first5</span><span class="o">.</span><span class="n">adjoint_map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+<span class="go">array([ 275.,  290.,  305.,  320.,  335.,    0.,    0.,    0.,    0.,</span>
+<span class="go">          0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,</span>
+<span class="go">          0.,    0.])</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="regreg.affine.selector.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>index_obj</em>, <em>initial_shape</em>, <em>affine_transform=None</em><big>)</big><a class="headerlink" href="#regreg.affine.selector.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.selector.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.selector.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.selector.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.selector.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.selector.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.selector.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tensorize">
+<h3><a class="reference internal" href="#regreg.affine.tensorize" title="regreg.affine.tensorize"><tt class="xref py py-class docutils literal"><span class="pre">tensorize</span></tt></a><a class="headerlink" href="#tensorize" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.tensorize">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">tensorize</tt><big>(</big><em>transform</em>, <em>q</em><big>)</big><a class="headerlink" href="#regreg.affine.tensorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Given an affine_transform, return a linear_transform
+that expects q copies of something with transform&#8217;s input_shape.</p>
+<p>This class effectively makes explicit that a transform
+may expect a matrix rather than a single vector.</p>
+<dl class="method">
+<dt id="regreg.affine.tensorize.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transform</em>, <em>q</em><big>)</big><a class="headerlink" href="#regreg.affine.tensorize.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.tensorize.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.tensorize.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.tensorize.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.tensorize.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.tensorize.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.tensorize.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="vstack">
+<h3><a class="reference internal" href="#regreg.affine.vstack" title="regreg.affine.vstack"><tt class="xref py py-class docutils literal"><span class="pre">vstack</span></tt></a><a class="headerlink" href="#vstack" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.vstack">
+<em class="property">class </em><tt class="descclassname">regreg.affine.</tt><tt class="descname">vstack</tt><big>(</big><em>transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.vstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Stack several affine transforms vertically together though
+not necessarily as a big matrix.</p>
+<dl class="method">
+<dt id="regreg.affine.vstack.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>transforms</em><big>)</big><a class="headerlink" href="#regreg.affine.vstack.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.vstack.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em><big>)</big><a class="headerlink" href="#regreg.affine.vstack.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.vstack.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.vstack.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.vstack.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.vstack.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.affine.astransform">
+<tt class="descclassname">regreg.affine.</tt><tt class="descname">astransform</tt><big>(</big><em>X</em><big>)</big><a class="headerlink" href="#regreg.affine.astransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>If X is an affine_transform, return X,
+else try to cast it as an affine_transform</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.affine.broadcast_first">
+<tt class="descclassname">regreg.affine.</tt><tt class="descname">broadcast_first</tt><big>(</big><em>a</em>, <em>b</em>, <em>op</em><big>)</big><a class="headerlink" href="#regreg.affine.broadcast_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>apply binary operation <cite>op</cite>, broadcast <cite>a</cite> over axis 1 if necessary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : ndarray</p>
+<blockquote>
+<div><p>If a is 1D shape (N,), convert to shape (N,1) before appling <cite>op</cite>.  This
+has the effect of making broadcasting happen over axis 1 rather than the
+default of axis 0.</p>
+</div></blockquote>
+<p><strong>b</strong> : ndarray</p>
+<blockquote>
+<div><p>If a is 1D shape (P,), convert to shape (N,1) before appling <cite>op</cite></p>
+</div></blockquote>
+<p><strong>op</strong> : callable</p>
+<blockquote>
+<div><p>binary operation to apply to <cite>a</cite>, <cite>b</cite></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>res</strong> : object</p>
+<blockquote class="last">
+<div><p>shape equal to <tt class="docutils literal"><span class="pre">b.shape</span></tt></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.affine.power_L">
+<tt class="descclassname">regreg.affine.</tt><tt class="descname">power_L</tt><big>(</big><em>transform</em>, <em>max_its=500</em>, <em>tol=1e-08</em>, <em>debug=False</em><big>)</big><a class="headerlink" href="#regreg.affine.power_L" title="Permalink to this definition">¶</a></dt>
+<dd><p>Approximate the largest singular value (squared) of the linear part of
+a transform using power iterations</p>
+<p>TODO: should this be the largest singular value instead (i.e. not squared?)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.affine.todense">
+<tt class="descclassname">regreg.affine.</tt><tt class="descname">todense</tt><big>(</big><em>transform</em><big>)</big><a class="headerlink" href="#regreg.affine.todense" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dense array representation of a transform &#8211; use
+carefully &#8211; it could be large.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">affine.image2d</a><ul>
+<li><a class="reference internal" href="#module-affine-image2d">Module: <tt class="docutils literal"><span class="pre">affine.image2d</span></tt></a></li>
+<li><a class="reference internal" href="#class">Class</a></li>
+<li><a class="reference internal" href="#image2d-differences"><tt class="docutils literal"><span class="pre">image2d_differences</span></tt></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.affine.image2d.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="affine-image2d">
+<h1>affine.image2d<a class="headerlink" href="#affine-image2d" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-affine-image2d">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">affine.image2d</span></tt><a class="headerlink" href="#module-affine-image2d" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.affine.image2d</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-17783acf14714294e05ec1c66b66e9933d70638c.png" alt="Inheritance diagram of regreg.affine.image2d" usemap="#inheritance3dd87c4e5e" class="inheritance"/>
+<map id="inheritance3dd87c4e5e" name="inheritance3dd87c4e5e">
+<area shape="rect" id="node1" href="#regreg.affine.image2d.image2d_differences" title="affine.image2d.image2d_differences" alt="" coords="268,5,523,32"/>
+<area shape="rect" id="node2" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform" alt="" coords="5,5,220,32"/>
+</map>
+</p>
+<span class="target" id="module-regreg.affine.image2d"></span></div>
+<div class="section" id="class">
+<h2>Class<a class="headerlink" href="#class" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="image2d-differences">
+<h2><a class="reference internal" href="#regreg.affine.image2d.image2d_differences" title="regreg.affine.image2d.image2d_differences"><tt class="xref py py-class docutils literal"><span class="pre">image2d_differences</span></tt></a><a class="headerlink" href="#image2d-differences" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="regreg.affine.image2d.image2d_differences">
+<em class="property">class </em><tt class="descclassname">regreg.affine.image2d.</tt><tt class="descname">image2d_differences</tt><big>(</big><em>image_shape</em>, <em>affine_offset=None</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.image2d_differences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<dl class="method">
+<dt id="regreg.affine.image2d.image2d_differences.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>image_shape</em>, <em>affine_offset=None</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.image2d_differences.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.image2d.image2d_differences.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>u</em>, <em>copy=True</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.image2d_differences.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply adjioint of transform to <cite>u</cite></p>
+<p>Return <span class="math">\(D^Tu\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>u</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <a href="#id1"><span class="problematic" id="id2">``</span></a>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>D.T*u</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>u</cite> transformed with linear component</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.image2d.image2d_differences.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em>, <em>copy=True</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.image2d_differences.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear part of transform to <cite>x</cite></p>
+<p>Return <span class="math">\(Dx+\alpha\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Dx + offset: ndarray</p>
+<blockquote class="last">
+<div><p><cite>x</cite> transformed with linear component + offset</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.image2d.image2d_differences.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em>, <em>copy=True</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.image2d_differences.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear part of transform to <cite>x</cite></p>
+<p>Return <span class="math">\(Dx\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Dx</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><cite>x</cite> transformed with linear component</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.affine.image2d.formD">
+<tt class="descclassname">regreg.affine.image2d.</tt><tt class="descname">formD</tt><big>(</big><em>m</em>, <em>n</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.formD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a sparse
+matrix that computes
+the difference across all edges in a
+2D lattice of shape (m,n).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>m: int</strong></p>
+<p><strong>n: int</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">D: scipy.csr_matrix</p>
+<blockquote class="last">
+<div><p>A matrix with 2*(m*n-1)
+and m*n columns
+representing each edge exactly once in the
+2D lattice and including some zero rows.</p>
+<p>This shape is used because it associates
+exactly two edges to each vertex except
+the top right. Hence, the differences
+can be formed into a matrix with two rows
+to which the l1_l2 proximal function
+can be applied.</p>
+<p>The first (m-1)*(n-1) rows represent
+interior vertices, then the right hand edges and
+finally the top edges with the origin in the bottom left.
+This forms the first row of this two row matrix described above.</p>
+<p>The second row of the matrix has exactly the same structure.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.affine.image2d.formD_smaller">
+<tt class="descclassname">regreg.affine.image2d.</tt><tt class="descname">formD_smaller</tt><big>(</big><em>m</em>, <em>n</em><big>)</big><a class="headerlink" href="#regreg.affine.image2d.formD_smaller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a sparse
+matrix that computes
+the difference across all edges in a
+2D lattice of shape (m,n).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>m: int</strong></p>
+<p><strong>n: int</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">D: scipy.csr_matrix</p>
+<blockquote class="last">
+<div><p>A matrix with 2*(m-1)*(n-1)+(m-1)+(n-1) rows
+and m*n columns
+representing each edge exactly once in the
+2D lattice.</p>
+<p>The first 2*(m-1)*(n-1) rows represent
+interior vertices, then the right hand edges and
+finally the top edges with the origin in the bottom left.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

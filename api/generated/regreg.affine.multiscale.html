@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">affine.multiscale</a><ul>
+<li><a class="reference internal" href="#module-affine-multiscale">Module: <tt class="docutils literal"><span class="pre">affine.multiscale</span></tt></a></li>
+<li><a class="reference internal" href="#multiscale"><tt class="docutils literal"><span class="pre">multiscale</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.affine.multiscale.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="affine-multiscale">
+<h1>affine.multiscale<a class="headerlink" href="#affine-multiscale" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-affine-multiscale">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">affine.multiscale</span></tt><a class="headerlink" href="#module-affine-multiscale" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.affine.multiscale</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-33bbc20a9e4d77542087f5b0356a291b59cc0637.png" alt="Inheritance diagram of regreg.affine.multiscale" usemap="#inheritancee63cf90c1b" class="inheritance"/>
+<map id="inheritancee63cf90c1b" name="inheritancee63cf90c1b">
+<area shape="rect" id="node1" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform" alt="" coords="5,5,220,32"/>
+<area shape="rect" id="node2" href="#regreg.affine.multiscale.multiscale" title="An affine transform representing the" alt="" coords="268,5,464,32"/>
+</map>
+</p>
+<span class="target" id="module-regreg.affine.multiscale"></span></div>
+<div class="section" id="multiscale">
+<h2><a class="reference internal" href="#regreg.affine.multiscale.multiscale" title="regreg.affine.multiscale.multiscale"><tt class="xref py py-class docutils literal"><span class="pre">multiscale</span></tt></a><a class="headerlink" href="#multiscale" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="regreg.affine.multiscale.multiscale">
+<em class="property">class </em><tt class="descclassname">regreg.affine.multiscale.</tt><tt class="descname">multiscale</tt><big>(</big><em>p</em>, <em>minsize=None</em>, <em>slices=</em><span class="optional">[</span><span class="optional">]</span>, <em>scaling=None</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<p>An affine transform representing the
+multiscale changepoint transform.</p>
+<p>This transform centers the input
+and then computes the average over
+all intervals of a minimum size.</p>
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>p</em>, <em>minsize=None</em>, <em>slices=</em><span class="optional">[</span><span class="optional">]</span>, <em>scaling=None</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>p</strong> : int</p>
+<blockquote>
+<div><p>Length of signal.</p>
+</div></blockquote>
+<p><strong>minsize</strong> : int</p>
+<blockquote>
+<div><p>Smallest interval to consider.
+Defaults to p**(1/3.)</p>
+</div></blockquote>
+<p><strong>slices</strong> : []</p>
+<blockquote>
+<div><p>A list of intervals to use in the transform.
+Will be coerced to have dtype([(&#8216;start&#8217;, np.int), (&#8216;end&#8217;, np.int)])</p>
+</div></blockquote>
+<p><strong>scaling</strong> : np.float((slices.shape))</p>
+<blockquote class="last">
+<div><p>An optional scaling to apply after computing
+mean over each interval.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>v</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>v</strong> : np.float(self.output_shape)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>v</strong> : np.float(self.input_shape)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.affine.multiscale.multiscale.dtype">
+<tt class="descname">dtype</tt><em class="property"> = dtype([('start', '&lt;i8'), ('end', '&lt;i8')])</em><a class="headerlink" href="#regreg.affine.multiscale.multiscale.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a p-vector <cite>x</cite> compute the average of
+<cite>x - x.mean()</cite> over each interval
+of size greater than <cite>self.minsize</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> : np.float(self.input_shape)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>v</strong> : np.float(self.output_shape)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.update_slices">
+<tt class="descname">update_slices</tt><big>(</big><em>slices</em>, <em>scaling=None</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.update_slices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the intervals computed by the multiscale
+transform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>slices</strong> : []</p>
+<blockquote class="last">
+<div><p>List of (i,j) intervals to compute.
+Will be converted to have dtype([(&#8216;start&#8217;, np.int), (&#8216;end&#8217;, np.int)])</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RegReg &mdash; RegReg Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head>
+  <body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">affine.fused_lasso</a><ul>
+<li><a class="reference internal" href="#module-affine-fused-lasso">Module: <tt class="docutils literal"><span class="pre">affine.fused_lasso</span></tt></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#trend-filter"><tt class="docutils literal"><span class="pre">trend_filter</span></tt></a></li>
+<li><a class="reference internal" href="#trend-filter-inverse"><tt class="docutils literal"><span class="pre">trend_filter_inverse</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#function">Function</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/generated/regreg.affine.fused_lasso.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="affine-fused-lasso">
+<h1>affine.fused_lasso<a class="headerlink" href="#affine-fused-lasso" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-affine-fused-lasso">
+<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">affine.fused_lasso</span></tt><a class="headerlink" href="#module-affine-fused-lasso" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.affine.fused_lasso</span></tt>:</p>
+<p class="graphviz">
+<img src="../../_images/inheritance-72c2a477a406e6a9332bb57da56ee024ac1e12ab.png" alt="Inheritance diagram of regreg.affine.fused_lasso" usemap="#inheritance0355cc5722" class="inheritance"/>
+<map id="inheritance0355cc5722" name="inheritance0355cc5722">
+<area shape="rect" id="node1" href="#regreg.affine.fused_lasso.trend_filter" title="affine.fused_lasso.trend_filter" alt="" coords="294,5,505,32"/>
+<area shape="rect" id="node2" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform" alt="" coords="5,31,220,57"/>
+<area shape="rect" id="node3" href="#regreg.affine.fused_lasso.trend_filter_inverse" title="affine.fused_lasso.trend_filter_inverse" alt="" coords="268,56,531,82"/>
+</map>
+</p>
+<span class="target" id="module-regreg.affine.fused_lasso"></span></div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="trend-filter">
+<h3><a class="reference internal" href="#regreg.affine.fused_lasso.trend_filter" title="regreg.affine.fused_lasso.trend_filter"><tt class="xref py py-class docutils literal"><span class="pre">trend_filter</span></tt></a><a class="headerlink" href="#trend-filter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.fused_lasso.trend_filter">
+<em class="property">class </em><tt class="descclassname">regreg.affine.fused_lasso.</tt><tt class="descname">trend_filter</tt><big>(</big><em>knots</em>, <em>order=1</em>, <em>sorted=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>knots</em>, <em>order=1</em>, <em>sorted=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.affine.fused_lasso.trend_filter.grid">
+<em class="property">classmethod </em><tt class="descname">grid</tt><big>(</big><em>m</em>, <em>order=1</em>, <em>sorted=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter.grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="trend-filter-inverse">
+<h3><a class="reference internal" href="#regreg.affine.fused_lasso.trend_filter_inverse" title="regreg.affine.fused_lasso.trend_filter_inverse"><tt class="xref py py-class docutils literal"><span class="pre">trend_filter_inverse</span></tt></a><a class="headerlink" href="#trend-filter-inverse" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.affine.fused_lasso.trend_filter_inverse">
+<em class="property">class </em><tt class="descclassname">regreg.affine.fused_lasso.</tt><tt class="descname">trend_filter_inverse</tt><big>(</big><em>knots</em>, <em>order=1</em>, <em>sorted=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter_inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter_inverse.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>knots</em>, <em>order=1</em>, <em>sorted=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter_inverse.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter_inverse.adjoint_map">
+<tt class="descname">adjoint_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter_inverse.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter_inverse.affine_map">
+<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter_inverse.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="regreg.affine.fused_lasso.trend_filter_inverse.grid">
+<em class="property">classmethod </em><tt class="descname">grid</tt><big>(</big><em>m</em>, <em>order=1</em>, <em>sorted=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter_inverse.grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.fused_lasso.trend_filter_inverse.linear_map">
+<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.trend_filter_inverse.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="function">
+<h2>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.affine.fused_lasso.difference_transform">
+<tt class="descclassname">regreg.affine.fused_lasso.</tt><tt class="descname">difference_transform</tt><big>(</big><em>X</em>, <em>order=1</em>, <em>sorted=False</em>, <em>transform=False</em><big>)</big><a class="headerlink" href="#regreg.affine.fused_lasso.difference_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the divided difference matrix for X
+after sorting X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X: np.array, np.float, ndim=1</strong></p>
+<p><strong>order: int</strong></p>
+<blockquote>
+<div><p>What order of difference should we compute?</p>
+</div></blockquote>
+<p><strong>sorted: bool</strong></p>
+<blockquote>
+<div><p>Is X sorted?</p>
+</div></blockquote>
+<p><strong>transform: bool</strong></p>
+<blockquote>
+<div><p>If True, return a linear_transform rather
+than a sparse matrix.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">D: np.array, ndim=2, shape=(n-order,order)</p>
+<blockquote class="last">
+<div><p>Matrix of divided differences of sorted X.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
+      Last updated on Dec 21, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>
