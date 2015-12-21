@@ -322,7 +322,8 @@ class lasso(object):
                 strong_failing = check_KKT(strong_penalty, strong_grad, strong_soln, lagrange_new) 
 
                 if np.any(strong_failing):
-                    all_failing += strong_selector.adjoint_map(strong_failing)
+                    all_failing += (
+                        strong_selector.adjoint_map(strong_failing) != 0)
                 else:
                     self.solution[subproblem_set][:] = sub_soln
                     grad_solution = self.grad()
