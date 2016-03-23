@@ -56,24 +56,17 @@ class conjugate(composite):
         if mode == 'grad', return only the gradient
         if mode == 'func', return only the function value
         """
-
-        if self.negate:
-            v = -x
-        else:
-            v = x
+        v = -x if self.negate else x
 
         old_lin = self.conjugate_quadratic.linear_term
-        if old_lin is not None:
-            new_lin = old_lin - v
-        else:
-            new_lin = -v
+        new_lin = -v if old_lin is None else old_lin - v
         self.conjugate_quadratic.linear_term = new_lin
         if isinstance(self.atom, smooth_atom):
             minimizer = self.problem.solve(self.conjugate_quadratic, max_its=5000, **self.fit_args)
         else: # it better have a proximal method!
             minimizer = self.atom.proximal(self.conjugate_quadratic)
         self.conjugate_quadratic.linear_term = old_lin
-    
+
         # retain a reference
         self.argmin = minimizer
 
@@ -87,11 +80,5 @@ class conjugate(composite):
             val = self.atom.objective(minimizer)
             return -val - self.conjugate_quadratic.objective(minimizer, mode='func') + (v * minimizer).sum()
         elif mode == 'grad':
-            if not self.negate:
-                return minimizer
-            else:
-                return -minimizer
-        else:
-            raise ValueError("mode incorrectly specified")
-
-
+            return -minimizer if self.negate else minimizer
+        raise ValueError("mode incorrectly specified")
