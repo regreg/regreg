@@ -194,19 +194,14 @@ class identity_quadratic(object):
         would be nice to have None, but there are some 
         places we are still multiplying by -1
         """
-
-        if self.coef is None:
-            coef = 0
-        else:
-            coef = self.coef
-
-        linear_term = 0
+        coef = 0 if self.coef is None else self.coef
+        linear_term = 0.
         constant_term = self.constant_term
-        if constant_term is None: 
-            constant_term = 0 
+        if constant_term is None:
+            constant_term = 0.
         if self.center is not None:
             linear_term -= coef * self.center
-            constant_term += coef * norm(self.center)**2/2.
+            constant_term += coef * norm(self.center)**2 / 2.
         if self.linear_term is not None:
             linear_term += self.linear_term
 
