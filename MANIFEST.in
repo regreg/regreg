@@ -6,3 +6,5 @@ recursive-include tools *
 include setup_helpers.py
 include cythexts.py
 recursive-include fake_pyrex *
+include versioneer.py
+include regreg/_version.py

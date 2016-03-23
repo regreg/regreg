@@ -14,6 +14,8 @@ if exists('MANIFEST'): os.remove('MANIFEST')
 # Unconditionally require setuptools
 import setuptools
 
+# Package for getting versions from git tags
+import versioneer
 
 # Import distutils _after_ setuptools import, and after removing
 # MANIFEST
@@ -69,9 +71,10 @@ SetupDependency('scipy', info.SCIPY_MIN_VERSION,
                 heavy=True).check_fill(extra_setuptools_args)
 
 
-cmdclass = dict(
+cmdclass=versioneer.get_cmdclass()
+cmdclass.update(dict(
     build_ext=build_ext,
-    sdist=get_pyx_sdist())
+    sdist=get_pyx_sdist()))
 
 
 def main(**extra_args):
@@ -87,7 +90,7 @@ def main(**extra_args):
           author=info.AUTHOR,
           author_email=info.AUTHOR_EMAIL,
           platforms=info.PLATFORMS,
-          version=info.VERSION,
+          version=versioneer.get_version(),
           requires=info.REQUIRES,
           provides=info.PROVIDES,
           packages     = ['regreg',
