@@ -75,6 +75,7 @@ Thumbs.db
 doc/api/generated
 doc/build
 doc/manual
+.ipynb_checkpoints/
 
 # Cython generated C files
 ##########################
