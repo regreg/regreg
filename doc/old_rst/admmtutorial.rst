@@ -7,15 +7,15 @@ This tutorial illustrates solving the :ref:`fusedlassoapprox` problem with the A
 
 The sparse fused lasso minimizes the objective
 
-    .. math::
+.. math::
 
-       \frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||D\beta||_{1} + \lambda_2 \|\beta\|_1
+   \frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||D\beta||_{1} + \lambda_2 \|\beta\|_1
 
-    with
+with
 
-    .. math::
+.. math::
 
-       D = \left(\begin{array}{rrrrrr} -1 & 1 & 0 & 0 & \cdots & 0 \\ 0 & -1 & 1 & 0 & \cdots & 0 \\ &&&&\cdots &\\ 0 &0&0&\cdots & -1 & 1 \end{array}\right)
+      D = \left(\begin{array}{rrrrrr} -1 & 1 & 0 & 0 & \cdots & 0 \\ 0 & -1 & 1 & 0 & \cdots & 0 \\ &&&&\cdots &\\ 0 &0&0&\cdots & -1 & 1 \end{array}\right)
 
 The default ADMM algorithm in RegReg (described in :ref:`algorithms`) solves this problem by making the substitutions :math:`z_1 = \beta` and :math:`z_2 = D\beta` and cyclically minimizing the augmented Lagrangian
 
@@ -27,7 +27,7 @@ over the variables :math:`\beta`, :math:`z_i` and :math:`u_i`.
 
 To solve this problem using  RegReg we begin by loading the necessary numerical libraries
 
-.. ipython::
+.. ipython2::
 
    import numpy as np
    import pylab	
@@ -97,5 +97,20 @@ Here we first created D, converted it a sparse matrix, and then created an l1nor
 
 We can then plot solution to see the result of the regression,
 
-.. plot:: ./examples/admmtutorial.py
+.. plot:: 
 
+    from scipy import sparse
+
+    import regreg.api as R
+    Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
+    loss = R.signal_approximator(Y)
+    sparsity = R.l1norm(len(Y), lagrange=0.8)
+    D = (np.identity(500) + np.diag([-1]*499,k=1))[:-1]
+    D = sparse.csr_matrix(D)
+    fused = R.l1norm.linear(D, lagrange=25.5)
+    problem = R.container(loss, sparsity, fused)
+    solver = R.admm_problem(problem)
+    solver.fit(max_its=1000, tol=1e-8)
+    solution = solver.beta
+    pylab.plot(solution, c='g', linewidth=3)	
+    pylab.scatter(np.arange(Y.shape[0]), Y)
