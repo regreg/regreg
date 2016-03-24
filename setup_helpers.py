@@ -291,7 +291,7 @@ class SetupDependency(object):
         # Using setuptools; add packages to given section of
         # setup/install_requires, unless it's a heavy dependency for which we
         # already have an acceptable importable version.
-        if self.heavy and ver_err_msg:
+        if self.heavy and ver_err_msg is None:
             return
         new_req = '{0}>={1}'.format(self.import_name, self.min_ver)
         old_reqs = setuptools_kwargs.get(self.req_type, [])
