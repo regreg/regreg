@@ -34,7 +34,11 @@ This directory contains:
 Building the documentation
 --------------------------
 
-::
+You should first install the documentation dependencies.  From this directory::
+
+    pip install -r ../doc-requirements.txt
+
+Then::
 
     make html
 
