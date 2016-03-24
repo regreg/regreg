@@ -63,10 +63,6 @@ matrix:
       env:
         - INSTALL_TYPE=requirements
         - DEPENDS=
-    # test against pre-release builds
-    - python: 2.7
-      env:
-        - EXTRA_PIP_FLAGS="--pre"
 before_install:
     - source travis-tools/utils.sh
     - travis_before_install
