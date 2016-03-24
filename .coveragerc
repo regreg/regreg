@@ -4,3 +4,4 @@ source = regreg
 include = */regreg/*
 omit =
     */setup.py
+    */regreg/_version.py
