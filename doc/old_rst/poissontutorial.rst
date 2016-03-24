@@ -58,3 +58,20 @@ Next, we can fit this model in the usual way
    obj_vals = solver.fit()
    solution = solver.composite.coefs
 
+.. plot::
+
+   import numpy as np
+   import regreg.api as rr
+ 
+   n = 1000
+   p = 50
+   X = np.random.standard_normal((n,p))
+   Y = np.random.randint(0,100,n)
+
+   loss = rr.poisson_deviance.linear(X, counts=Y)
+
+   problem = rr.container(loss)
+   solver = rr.FISTA(problem)
+   obj_vals = solver.fit()
+   solution = solver.composite.coefs
+

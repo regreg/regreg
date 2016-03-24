@@ -74,7 +74,47 @@ side of the line a point is on.
    accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
    accuracy
 
-.. plot:: ./examples/svm.py
+.. plot::
+
+    import numpy as np
+    import regreg.api as rr
+
+    np.random.seed(400)
+
+    N = 500
+    P = 2
+
+    Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
+    X = np.random.standard_normal((N,P))
+    X[Y==1] += np.array([3,-2])[np.newaxis,:]
+
+    X_1 = np.hstack([X, np.ones((N,1))])
+    X_1_signs = -Y[:,np.newaxis] * X_1
+    transform = rr.affine_transform(X_1_signs, np.ones(N))
+    C = 0.2
+    hinge = rr.positive_part(N, lagrange=C)
+    hinge_loss = rr.linear_atom(hinge, transform)
+
+    quadratic = rr.quadratic.linear(rr.selector(slice(0,P), (P+1,)), coef=0.5)
+    problem = rr.container(quadratic, hinge_loss)
+    solver = rr.FISTA(problem)
+    solver.fit()
+
+    import pylab
+    pylab.clf()
+    pylab.scatter(X[Y==1,0],X[Y==1,1], facecolor='red')
+    pylab.scatter(X[Y==-1,0],X[Y==-1,1], facecolor='blue')
+
+    fits = np.dot(X_1, problem.coefs)
+    labels = 2 * (fits > 0) - 1
+
+    pointX = [X[:,0].min(), X[:,0].max()]
+    pointY = [-(pointX[0]*problem.coefs[0]+problem.coefs[2])/problem.coefs[1],
+              -(pointX[1]*problem.coefs[0]+problem.coefs[2])/problem.coefs[1]]
+    pylab.plot(pointX, pointY, linestyle='--', label='Separating hyperplane')
+    pylab.title("Accuracy = %0.1f %%" % (100-100 * np.fabs(labels - Y).sum() / (2 * N)))
+    #pylab.show()
+
 
 Sparse SVM
 ~~~~~~~~~~
@@ -128,6 +168,41 @@ points.
    accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
    accuracy
 
+.. plot::
+
+    import numpy as np
+    import regreg.api as rr
+
+    np.random.seed(400)
+
+    N = 1000
+    P = 200
+
+    Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
+    X = np.random.standard_normal((N,P))
+    X[Y==1] += np.array([30,-20] + (P-2)*[0])[np.newaxis,:]
+    X -= X.mean(0)[np.newaxis,:]
+
+    X_1 = np.hstack([X, np.ones((N,1))])
+    transform = rr.affine_transform(-Y[:,np.newaxis] * X_1, np.ones(N))
+    C = 0.2
+    hinge = rr.positive_part(N, lagrange=C)
+    hinge_loss = rr.linear_atom(hinge, transform)
+
+    s = rr.selector(slice(0,P), (P+1,))
+    sparsity = rr.l1norm.linear(s, lagrange=0.2)
+    quadratic = rr.quadratic.linear(s, coef=0.5)
+    problem = rr.container(quadratic, hinge_loss, sparsity)
+    solver = rr.FISTA(problem)
+    solver.debug = True
+    solver.fit()
+    solver.composite.coefs
+
+
+    fits = np.dot(X_1, problem.coefs)
+    labels = 2 * (fits > 0) - 1
+    accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
+    print accuracy
 
 Sparse Huberized SVM
 ~~~~~~~~~~~~~~~~~~~~
@@ -147,7 +222,8 @@ The hinge loss is defined similarly, and we only need to add a sparsity penalty
    hinge = rr.positive_part(N, lagrange=C)
    hinge_loss = rr.linear_atom(hinge, transform)
    epsilon = 0.04
-   smoothed_hinge_loss = rr.smoothed_atom(hinge_loss, epsilon=epsilon)
+   Q = rr.identity_quadratic(epsilon, 0., 0., 0.)
+   smoothed_hinge_loss = hinge_loss.smoothed(Q)
 
 
    s = rr.selector(slice(0,P), (P+1,))
@@ -174,7 +250,8 @@ Now, we can solve the problem without having to backtrack.
                           smoothed_hinge_loss, sparsity)
    solver = rr.FISTA(problem)
    solver.composite.lipschitz = lipschitz
-   vals = solver.fit(backtrack=False)
+   solver.perform_backtrack = False
+   vals = solver.fit()
    solver.composite.coefs
 
 In high dimensions, it becomes easier to separate
@@ -186,3 +263,56 @@ points.
    labels = 2 * (fits > 0) - 1
    accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
    accuracy
+
+.. plot::
+
+    import numpy as np
+    import regreg.api as rr
+
+    np.random.seed(400)
+
+    N = 1000
+    P = 200
+
+    Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
+    X = np.random.standard_normal((N,P))
+    X[Y==1] += np.array([30,-20] + (P-2)*[0])[np.newaxis,:]
+    X -= X.mean(0)[np.newaxis, :]
+
+    X_1 = np.hstack([X, np.ones((N,1))])
+    transform = rr.affine_transform(-Y[:,np.newaxis] * X_1, np.ones(N))
+    C = 0.2
+    hinge = rr.positive_part(N, lagrange=C)
+    hinge_loss = rr.linear_atom(hinge, transform)
+    epsilon = 0.04
+    Q = rr.identity_quadratic(epsilon, 0., 0., 0.)
+    smoothed_hinge_loss = hinge_loss.smoothed(Q)
+
+    s = rr.selector(slice(0,P), (P+1,))
+    sparsity = rr.l1norm.linear(s, lagrange=3.)
+    quadratic = rr.quadratic.linear(s, coef=0.5)
+
+
+    from regreg.affine import power_L
+    ltransform = rr.linear_transform(X_1)
+    singular_value_sq = power_L(X_1)
+    # the other smooth piece is a quadratic with identity
+    # for quadratic form, so its lipschitz constant is 1
+
+    lipschitz = 1.05 * singular_value_sq / epsilon + 1.1
+
+
+    problem = rr.container(quadratic, 
+                           smoothed_hinge_loss, sparsity)
+    solver = rr.FISTA(problem)
+    solver.composite.lipschitz = lipschitz
+    solver.debug = True
+    solver.perform_backtrack = False
+    solver.fit()
+    solver.composite.coefs
+
+
+    fits = np.dot(X_1, problem.coefs)
+    labels = 2 * (fits > 0) - 1
+    accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
+    print accuracy

@@ -17,6 +17,7 @@ to be large.
 .. ipython::
 
 
+   import regreg.api as R
    import numpy as np
    import scipy.linalg
 
@@ -53,14 +54,14 @@ The code to construct the loss function looks like this
 
    import regreg.api as R
    from regreg.smooth import linear
-   smooth_linf_constraint = R.smoothed_atom(R.supnorm(1000, bound=1), 
-                                            epsilon=0.01,
-                                            store_argmin=True)
+   linf_constraint = R.supnorm(1000, bound=1)
+   smoothq = R.identity_quadratic(0.01, 0, 0, 0)
+   smooth_linf_constraint = linf_constraint.smoothed(smoothq)
    transform = R.linear_transform(-X.T)
    loss = R.affine_smooth(smooth_linf_constraint, transform)
+   loss.quadratic = R.identity_quadratic(0, 0, Y, 0)
 
-We store the argmin above in *smoothed_atom* because
-it will actually be our primal solution. The penalty is specified as
+The penalty is specified as
 
 .. ipython::
 
@@ -73,16 +74,20 @@ decreasing the smoothing.
 
 .. ipython::
 
-   basis_pursuit = R.container(loss, linear(Y), l2_lagrange)
+   basis_pursuit = R.simple_problem(loss, l2_lagrange)
    solver = R.FISTA(basis_pursuit)
    tol = 1.0e-08
 
    for epsilon in [0.6**i for i in range(20)]:
-       smooth_linf_constraint.epsilon = epsilon
+       smoothq = R.identity_quadratic(epsilon, 0, 0, 0)
+       smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+       loss = R.affine_smooth(smooth_linf_constraint, transform)
+       basis_pursuit = R.simple_problem(loss, l2_lagrange)
+       solver = R.FISTA(basis_pursuit)
        solver.composite.lipschitz = 1.1/epsilon * Xnorm
-       h = solver.fit(max_its=2000, tol=tol, min_its=10, backtrack=False)
+       h = solver.fit(max_its=2000, tol=tol, min_its=10)
 
-   basis_pursuit_soln = smooth_linf_constraint.argmin
+   basis_pursuit_soln = smooth_linf_constraint.grad
 
 The solution should explain about 90% of the norm of *Y*
 
@@ -98,7 +103,7 @@ we obtain the same solution.
 
    sparsity = R.l1norm(1000, bound=np.fabs(basis_pursuit_soln).sum())
    loss = R.quadratic.affine(X, -Y)
-   lasso = R.container(loss, sparsity)
+   lasso = R.simple_problem(loss, sparsity)
    lasso_solver = R.FISTA(lasso)
    h = lasso_solver.fit(max_its=2000, tol=1.0e-10)
    lasso_soln = lasso.coefs
@@ -107,5 +112,54 @@ we obtain the same solution.
    print np.linalg.norm(Y-np.dot(X, lasso_soln)), np.linalg.norm(Y-np.dot(X, basis_pursuit_soln))
 
 
-.. plot:: ./examples/basispursuit_tutorial.py
+.. plot::
+
+    import regreg.api as R
+    import numpy as np
+    import scipy.linalg
+    import pylab
+
+    X = np.random.standard_normal((500,1000))
+    linf_constraint = R.supnorm(1000, bound=1)
+
+    beta = np.zeros(1000)
+    beta[:100] = 3 * np.sqrt(2 * np.log(1000))
+
+    Y = np.random.standard_normal((500,)) + np.dot(X, beta)
+    Xnorm = scipy.linalg.eigvalsh(np.dot(X.T,X), eigvals=(998,999)).max()
+
+    smoothq = R.identity_quadratic(0.01, 0, 0, 0)
+    smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+    transform = R.linear_transform(-X.T)
+    loss = R.affine_smooth(smooth_linf_constraint, transform)
+
+    norm_Y = np.linalg.norm(Y)
+    l2_constraint_value = np.sqrt(0.1) * norm_Y
+    l2_lagrange = R.l2norm(500, lagrange=l2_constraint_value)
+
+    basis_pursuit = R.simple_problem(loss, l2_lagrange)
+    solver = R.FISTA(basis_pursuit)
+    tol = 1.0e-08
+
+    for epsilon in [0.6**i for i in range(20)]:
+       smoothq = R.identity_quadratic(epsilon, 0, 0, 0)
+       smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+       loss = R.affine_smooth(smooth_linf_constraint, transform)
+       basis_pursuit = R.simple_problem(loss, l2_lagrange)
+       solver = R.FISTA(basis_pursuit)
+       solver.composite.lipschitz = 1.1/epsilon * Xnorm
+       h = solver.fit(max_its=2000, tol=tol, min_its=10)
+
+    basis_pursuit_soln = smooth_linf_constraint.grad
+
+    sparsity = R.l1norm(1000, bound=np.fabs(basis_pursuit_soln).sum())
+    loss = R.quadratic.affine(X, -Y)
+    lasso = R.container(loss, sparsity)
+    lasso_solver = R.FISTA(lasso)
+    lasso_solver.fit(max_its=2000, tol=1.0e-10)
+    lasso_soln = lasso.coefs
+
+    pylab.plot(basis_pursuit_soln, label='Basis pursuit')
+    pylab.plot(lasso_soln, label='LASSO')
+    pylab.legend()
 

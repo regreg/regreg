@@ -5,7 +5,7 @@ Elastic Net tutorial
 
 The Elastic Net problem minimizes the objective
 
-    .. math::
+.. math::
        \frac{1}{2}||y - X\beta||^{2}_{2} + \lambda_{1}||\beta||_{1} + \lambda_2 \|\beta\|_2^2
 
 To solve this problem using RegReg we begin by loading the necessary numerical libraries

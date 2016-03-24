@@ -76,3 +76,20 @@ Here max_its represents primal iterations, and tol is the primal tolerance.
 
 
 
+.. plot::
+
+   import numpy as np
+   import regreg.api as rr
+
+   X = np.random.normal(0,1,500000).reshape((500,1000))
+   Y = np.random.randint(0,2,500)
+   loss = rr.logistic_deviance.linear(X,successes=Y)
+   penalty = rr.quadratic(1000, coef=1.)
+   penalty.coef
+   problem = rr.container(loss, penalty)
+   solver = rr.FISTA(problem)
+   obj_vals = solver.fit(max_its=100, tol=1e-5)
+   solution = solver.composite.coefs
+
+   obj_vals
+

@@ -10,13 +10,16 @@ we want to shrink them all towards a given vector :math:`\alpha`
 
 This can be achieved formally  sparse fused lasso minimizes the objective
 
-    .. math::
+.. math::
+
        \frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||D\beta||_{1} + \lambda_2 \|\beta-\alpha\|_1
 
-    with
+with
 
-    .. math::
-       D = \left(\begin{array}{rrrrrr} -1 & 1 & 0 & 0 & \cdots & 0 \\ 0 & -1 & 1 & 0 & \cdots & 0 \\ &&&&\cdots &\\ 0 &0&0&\cdots & -1 & 1 \end{array}\right)
+.. math::
+
+       D = \left(\begin{array}{rrrrrr} -1 & 1 & 0 & 0 & \cdots & 0 \\ 
+       0 & -1 & 1 & 0 & \cdots & 0 \\ &&&&\cdots &\\ 0 &0&0&\cdots & -1 & 1 \end{array}\right)
 
 Everything is roughly the same as in the fused LASSO, we just need
 to change the second seminorm to have this affine offset.
@@ -74,18 +77,43 @@ Finally, we can create the final problem object, and solve it.
    _ip.magic("time solver.fit(max_its=200, tol=1e-10)")
    solution = cont.coefs
 
-Since this problem is a signal approximator, we can also solve
-it using blockwise coordinate descent. This is generally faster
-for this problem
-
-.. ipython::
-
-   _ip.magic("time block_soln = R.blockwise([shrink_to_alpha, fused], Y, max_its=500, tol=1.0e-10)")
-   np.linalg.norm(block_soln - solution) / np.linalg.norm(solution)
-   cont.objective(block_soln), cont.objective(solution)
-
-
 We can then plot solution to see the result of the regression,
 
-.. plot:: examples/affinetutorial.py
+.. plot:: 
+
+    import numpy as np
+    import pylab	
+    from scipy import sparse
+
+    np.random.seed(40)
+    import regreg.api as R
+
+    Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
+
+    alpha = np.linspace(0,10,500)
+    Y += alpha
+    loss = R.quadratic.shift(-Y.copy(), coef=0.5)
+
+    shrink_to_alpha = R.l1norm(Y.shape, offset=-alpha, lagrange=3.)
+
+    D = (np.identity(500) + np.diag([-1]*499,k=1))[:-1]
+    D = sparse.csr_matrix(D)
+    fused = R.l1norm.linear(D, lagrange=25.5)
+
+    cont = R.container(loss, shrink_to_alpha, fused)
+    solver = R.FISTA(cont)
+    solver.debug = True
+    solver.fit(max_its=200, tol=1e-10)
+    solution = solver.composite.coefs
+
+
+    pylab.clf()
+    pylab.plot(solution, c='g', linewidth=6, label=r'$\hat{Y}$')	
+    pylab.plot(alpha, c='black', linewidth=3, label=r'$\alpha$')	
+    pylab.scatter(np.arange(Y.shape[0]), Y, facecolor='red', label=r'$Y$')
+    pylab.legend()
+
+
+    pylab.gca().set_xlim([0,650])
+    pylab.legend()
 
