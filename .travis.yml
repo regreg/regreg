@@ -51,14 +51,14 @@ matrix:
         - INSTALL_TYPE=setup
     - python: 2.7
       env:
+        # Sdist install should collect all dependencies
         - INSTALL_TYPE=sdist
-        # Cython needed to run setup.py sdist, scipy for tests
-        - DEPENDS="cython==0.18 numpy==1.6.0 scipy==0.9.0"
+        - DEPENDS=
     - python: 2.7
       env:
+        # Wheel install should collect all dependencies
         - INSTALL_TYPE=wheel
-        # Cython needed to build binary wheel, scipy for tests
-        - DEPENDS="cython==0.18 numpy==1.6.0 scipy==0.9.0"
+        - DEPENDS=
     - python: 2.7
       env:
         - INSTALL_TYPE=requirements
