@@ -5,8 +5,6 @@ import os
 import sys
 from os.path import join as pjoin, dirname, exists
 
-import numpy as np
-
 # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.
 if exists('MANIFEST'): os.remove('MANIFEST')
@@ -23,7 +21,8 @@ from distutils.core import setup
 from distutils.extension import Extension
 
 from cythexts import cyproc_exts, get_pyx_sdist
-from setup_helpers import (SetupDependency, read_vars_from)
+from setup_helpers import (SetupDependency, read_vars_from,
+                           make_np_ext_builder)
 
 # Get version and release info, which is all stored in regreg/info.py
 info = read_vars_from(pjoin('regreg', 'info.py'))
@@ -48,9 +47,7 @@ for modulename, other_sources in (
     ('regreg.atoms.mixed_lasso_cython', []),
     ('regreg.atoms.piecewise_linear', [])):
     pyx_src = pjoin(*modulename.split('.')) + '.pyx'
-    EXTS.append(Extension(modulename,[pyx_src] + other_sources,
-                          include_dirs = [np.get_include(),
-                                         "src"]))
+    EXTS.append(Extension(modulename,[pyx_src] + other_sources))
 
 
 # Cython is a dependency for building extensions, iff we don't have stamped
@@ -59,12 +56,16 @@ build_ext, need_cython = cyproc_exts(EXTS,
                                      info.CYTHON_MIN_VERSION,
                                      'pyx-stamps')
 
+# Add numpy includes when building extension.
+build_ext = make_np_ext_builder(build_ext)
+
+# Check dependencies, maybe add to setuptools lists
 if need_cython:
     SetupDependency('Cython', info.CYTHON_MIN_VERSION,
-                    req_type='setup_requires',
+                    req_type='install_requires',
                     heavy=False).check_fill(extra_setuptools_args)
 SetupDependency('numpy', info.NUMPY_MIN_VERSION,
-                req_type='setup_requires',
+                req_type='install_requires',
                 heavy=True).check_fill(extra_setuptools_args)
 SetupDependency('scipy', info.SCIPY_MIN_VERSION,
                 req_type='install_requires',
