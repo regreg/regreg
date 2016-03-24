@@ -75,6 +75,10 @@ Thumbs.db
 doc/api/generated
 doc/build
 doc/manual
+doc/notebooks/.ipynb_checkpoints
+doc/notebooks/NewsGroup.RData
+doc/notebooks/newsX.mtx
+doc/notebooks/newsgroup.mat
 
 # Cython generated C files
 ##########################
