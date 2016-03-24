@@ -31,7 +31,7 @@ Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
 Now we can create the problem object, beginning with the loss function
 
 ```python
-loss = R.quadratic.shift(-Y,coef=1)
+loss = R.signal_approximator(Y)
 sparsity = R.l1norm(len(Y), lagrange=1.8)
 
 # fused
@@ -75,7 +75,7 @@ We will estimate $\beta$ for various values of $\epsilon$:
 ```python
 solns = []
 for eps in [.5**i for i in range(15)]:
-    Q = R.identity_quadratic(0.01, 0, 0, 0)
+    Q = R.identity_quadratic(eps, 0, 0, 0)
     smoothed_sparsity = sparsity.smoothed(Q)
     smoothed_fused = fused.smoothed(Q)
     problem = R.smooth_sum([loss, smoothed_sparsity, smoothed_fused])
@@ -115,8 +115,9 @@ problem = R.smooth_sum([loss, smoothed_sparsity, smoothed_fused])
 solver = R.FISTA(problem)
 
 solns = []
+pylab.scatter(range(500), Y)
 for eps in [.5**i for i in range(15)]:
-   Q = R.identity_quadratic(0.01, 0, 0, 0)
+   Q = R.identity_quadratic(eps, 0, 0, 0)
    smoothed_sparsity = sparsity.smoothed(Q)
    smoothed_fused = fused.smoothed(Q)
    problem = R.smooth_sum([loss, smoothed_sparsity, smoothed_fused])

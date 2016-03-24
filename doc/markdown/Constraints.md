@@ -39,7 +39,7 @@ form of the problem
 
 ```python
 Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
-loss = rr.quadratic.shift(-Y, coef=0.5)
+loss = rr.signal_approximator(Y)
 
 sparsity = rr.l1norm(len(Y), 1.4)
 # TODO should make a module to compute typical Ds
@@ -86,7 +86,7 @@ from scipy import sparse
 import regreg.api as rr
 
 Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
-loss = rr.quadratic.shift(-Y, coef=0.5)
+loss = rr.signal_approximator(Y)
 
 sparsity = rr.l1norm(len(Y), 1.4)
 # TODO should make a module to compute typical Ds

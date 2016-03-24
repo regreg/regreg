@@ -40,13 +40,14 @@ Now we can create the problem object, beginning with the loss function
 ```python
 alpha = np.linspace(0,10,500)
 Y += alpha
-loss = R.quadratic.shift(-Y.copy(), coef=0.5)
+loss = R.signal_approximator(Y)
 
 shrink_to_alpha = R.l1norm(Y.shape, offset=-alpha, lagrange=3.)
+shrink_to_alpha
 ```
 which creates an affine_atom object with $\lambda_2=3$. That is, it creates the penalty
 $$
-3 \|\beta-\alpha\|_{\ell_1(\mathbb{R}^{500})}
+3 \|\beta-\alpha\|_{1}
 $$
 
 that will be added to a smooth loss function.
@@ -82,7 +83,7 @@ Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
 
 alpha = np.linspace(0,10,500)
 Y += alpha
-loss = R.quadratic.shift(-Y.copy(), coef=0.5)
+loss = R.signal_approximator(Y)
 
 shrink_to_alpha = R.l1norm(Y.shape, offset=-alpha, lagrange=3.)
 

@@ -24,7 +24,7 @@ Next, let's generate an example signal, and solve the Lagrange form of the probl
 
 ```python
 Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
-loss = rr.quadratic.shift(-Y, coef=0.5)
+loss = rr.signal_approximator(Y)
 
 sparsity = rr.l1norm(len(Y), lagrange=1.4)
 D = sparse.csr_matrix((np.identity(500) + np.diag([-1]*499,k=1))[:-1])
@@ -66,7 +66,7 @@ from scipy import sparse
 import regreg.api as R
 
 Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
-loss = R.quadratic.shift(-Y, coef=0.5)
+loss = R.signal_approximator(Y)
 
 sparsity = R.l1norm(len(Y), lagrange=1.4)
 D = sparse.csr_matrix((np.identity(500) + np.diag([-1]*499,k=1))[:-1])
