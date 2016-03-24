@@ -9,42 +9,72 @@ language: python
 cache:
   directories:
     - $HOME/.cache/pip
+addons:
+  apt:
+    packages:
+      # For numpy --pre wheels
+      - libatlas-base-dev
 env:
     global:
         # Maximal dependencies
         - DEPENDS="cython numpy scipy matplotlib"
 python:
     - 2.6
-    - 3.2
     - 3.3
     - 3.4
+    - 3.5
 matrix:
   include:
     - python: 2.7
       env:
         - COVERAGE=1
     # To test minimum dependencies
+    # Check these dependencies against regreg/info.py
     - python: 2.7
       env:
         - DEPENDS="cython==0.18 numpy==1.6.0 scipy==0.9.0"
+    # Testing without matplotlib
     - python: 2.7
       env:
         - DEPENDS="cython numpy scipy"
+    # test against pre-release builds
+    - python: 2.7
+      env:
+        - EXTRA_PIP_FLAGS="--pre"
+    # Documentation doctests
+    - python: 2.7
+      env:
+        - DOC_DOC_TEST=1
+    # Setup.py install
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=setup
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=sdist
+        # Cython needed to run setup.py sdist, scipy for tests
+        - DEPENDS="cython==0.18 numpy==1.6.0 scipy==0.9.0"
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=wheel
+        # Cython needed to build binary wheel, scipy for tests
+        - DEPENDS="cython==0.18 numpy==1.6.0 scipy==0.9.0"
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=requirements
+        - DEPENDS=
+    # test against pre-release builds
+    - python: 2.7
+      env:
+        - EXTRA_PIP_FLAGS="--pre"
 before_install:
-    - source tools/travis_tools.sh
-    - virtualenv --python=python venv
-    - source venv/bin/activate
-    - python --version # just to check
-    - retry pip install nose # always
-    - wheelhouse_pip_install $DEPENDS
-    - if [ "${COVERAGE}" == "1" ]; then
-      pip install coverage;
-      pip install coveralls;
-      fi
+    - source travis-tools/utils.sh
+    - travis_before_install
 install:
-    - python setup.py install
+    - travis_install $INSTALL_TYPE
 # command to run tests, e.g. python setup.py test
 script:
+    - pip install nose
     # Change into an innocuous directory and find tests from installation
     - mkdir for_testing
     - cd for_testing
