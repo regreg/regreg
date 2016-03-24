@@ -147,8 +147,9 @@ class container(composite):
         else:
             proxq = proxq + self.quadratic + self.smoothq
             primal = atom.conjugate
+            lipschitz, x, grad = proxq.coef, proxq.center, proxq.linear_term
             if isinstance(transform, afselector):
-                z = x.copy()
+                z = x - grad / lipschitz
                 z[transform.index_obj] = primal.proximal(proxq[transform.index_obj])
                 return z
             else:
