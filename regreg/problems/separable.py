@@ -148,4 +148,4 @@ class separable_problem(simple_problem):
                                  separable_atom.groups, False)
     @property
     def selectors(self):
-        return [selector(group, self.nonsmooth_atom.shape) for group in self.nonsmooth_atom.groups]
+        return [selector(group, self.proximal_atom.shape) for group in self.proximal_atom.groups]
