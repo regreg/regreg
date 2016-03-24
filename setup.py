@@ -82,7 +82,6 @@ def main(**extra_args):
           maintainer=info.MAINTAINER,
           maintainer_email=info.MAINTAINER_EMAIL,
           description=info.DESCRIPTION,
-          long_description=info.LONG_DESCRIPTION,
           url=info.URL,
           download_url=info.DOWNLOAD_URL,
           license=info.LICENSE,
@@ -108,6 +107,7 @@ def main(**extra_args):
           package_data = {},
           data_files=[],
           scripts= [],
+          long_description = open('README.rst', 'rt').read(),
           cmdclass = cmdclass,
           **extra_args
          )
