@@ -28,6 +28,8 @@ class identity_quadratic(object):
 
     """
 
+    objective_vars = {'var': r'\beta', 'shape':'p', 'offset':r'\alpha'}
+
     def __eq__(self, other):
         if isinstance(other, identity_quadratic):
             return (allclose(self.coef, other.coef) and
@@ -208,6 +210,14 @@ class identity_quadratic(object):
         return identity_quadratic(coef, 0, linear_term, constant_term)
 
     def latexify(self, var=r'\beta', idx=''):
+
+        template_dict = copy(self.objective_vars)
+        template_dict['idx'] = idx
+        if var is not None:
+            template_dict['var'] = var
+        var = template_dict['var']
+        idx = template_dict['idx']
+
         self.zeroify()
         terms = []
         if self.coef != 0:
