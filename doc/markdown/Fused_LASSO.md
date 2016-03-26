@@ -11,28 +11,30 @@ $$
 ```python
 # third party imports
 import numpy as np
-%pylab inline
+%matplotlib inline
+import matplotlib.pyplot as plt
 from scipy import sparse
+%load_ext rpy2.ipython
 
-# the regreg import
 import regreg.api as rr
+from regreg.affine.fused_lasso import difference_transform
 ```
 
 We will use the CGH data from the R package cghFLasso. You will have to have installed the package 'cghFLasso' in R, as well as installed rpy2.
 
 
 ```python
-import rpy2.robjects as ri
-ri.r('''
-# You 
+%%R -o Y
 library(cghFLasso)
 data(CGH)
 Y = CGH$GBM.y
-''')
-Y = np.array(ri.r('Y'))
+```
+
+
+```python
 n = Y.shape[0]
-pylab.figure(figsize=(20,10))
-pylab.scatter(np.arange(n), Y)
+plt.figure(figsize=(20,10))
+plt.scatter(np.arange(n), Y)
 ```
 
 Let's specify two penalties, one for "smoothness", i.e. piecewise constant behaviour, the other for sparsity. For "smoothness" we need to create the
@@ -43,14 +45,7 @@ sparse matrix.
 ```python
 loss = rr.signal_approximator(Y)
 sparsity = rr.l1norm(n, lagrange=0.3)
-print rr.__file__
-import regreg.affine.fused_lasso as FL
-from regreg.affine.fused_lasso import difference_transform
-D = difference_transform(np.arange(n), order=1, sorted=True)
-
-# Let's just verify it is the matrix of first order differences
-print D[:4,:5].todense()
-
+D = difference_transform(np.arange(n))
 fused = rr.l1norm.linear(D, lagrange=2.8)
 ```
 
@@ -58,13 +53,12 @@ Finally, we will create the problem. We will solve this as a dual problem where 
 term and $u_f$ dual variables for the fused term.
 
 
-
 ```python
 problem = rr.dual_problem.fromprimal(loss, sparsity, fused)
 smooth_and_sparse_coefs = problem.solve(tol=1.e-14)
-pylab.figure(figsize=(20,10))
-pylab.plot(np.arange(n), smooth_and_sparse_coefs, linewidth=3, c='r')
-pylab.scatter(np.arange(n), Y)
+plt.figure(figsize=(20,10))
+plt.plot(np.arange(n), smooth_and_sparse_coefs, linewidth=3, c='r')
+plt.scatter(np.arange(n), Y)
 ```
 
 ## Fused LASSO without sparsity
@@ -72,13 +66,12 @@ pylab.scatter(np.arange(n), Y)
 Of course, we can also solve the problem without the sparsity penalty.
 
 
-
 ```python
 problem = rr.dual_problem.fromprimal(loss, fused)
 smooth_coefs = problem.solve(tol=1.e-14)
-pylab.figure(figsize=(20,10))
-pylab.plot(np.arange(n), smooth_coefs, linewidth=3, c='r')
-pylab.scatter(np.arange(n), Y)
+plt.figure(figsize=(20,10))
+plt.plot(np.arange(n), smooth_coefs, linewidth=3, c='r')
+plt.scatter(np.arange(n), Y)
 ```
 
 ## Fused LASSO via smoothing the TV term
@@ -101,7 +94,6 @@ pylab.legend()
 ```
 
 We can also solve the problem without the sparsity
-
 
 
 ```python
@@ -146,7 +138,6 @@ pylab.scatter(np.arange(n), Y)
 ```
 
 Of course, we can set the offset to be some other vector as well
-
 
 
 ```python
@@ -213,12 +204,6 @@ print 'sparsity: %0.1f' % np.fabs(smooth_and_sparse_coefs).sum()
 print 'fused: %0.1f' % np.fabs(D*smooth_and_sparse_coefs).sum()
 ```
 
-
-```python
-
-```
-
-
 # Sparse fused lasso tutorial
 
 The sparse fused lasso minimizes the objective
@@ -233,6 +218,7 @@ $$
 
 To solve this problem using RegReg we begin by loading the necessary numerical libraries
 
+
 ```python
 # third party imports
 %pylab inline
@@ -241,11 +227,16 @@ from scipy import sparse
 
 import regreg.api as rr
 ```
+
 Next, let's generate an example signal,
+
+
 ```python
 Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
 ```
+
 which looks like
+
 
 ```python
 import numpy as np
@@ -253,25 +244,33 @@ import pylab
 Y = np.random.standard_normal(500); Y[100:150] += 7; Y[250:300] += 14
 pylab.scatter(np.arange(Y.shape[0]), Y)
 ```
+
 Now we can create the problem object, beginning with the loss function
+
 
 ```python
 loss = rr.signal_approximator(Y)
 n = Y.shape[0]
 ```
+
 there are other loss functions (squared error, logistic, etc) and any differentiable function can be specified. Next, we specifiy the seminorm for this problem by instantiating two l1norm objects,
+
 
 ```python
 sparsity = rr.l1norm(Y.shape[0], lagrange=0.8)
 ```
+
 which creates an l1norm object with :math:`\lambda_2=0.8`. The first argument specifies the length of the coefficient vector. The object sparsity now has a coefficient associated with it that we can access and change,
+
 
 ```python
 sparsity
 sparsity.lagrange += 1
 sparsity.lagrange
 ```
+
 Next, we create the fused lasso matrix and the associated l1norm object,
+
 
 ```python
 D = (np.identity(500) + np.diag([-1]*499,k=1))[:-1]
@@ -279,19 +278,25 @@ print (D)
 D = sparse.csr_matrix(D)
 fused = rr.l1norm.linear(D, lagrange=25.5)
 ```
+
 Here we first created D, converted it a sparse matrix, and then created an l1norm object with the sparse version of D and :math:`\lambda_1 = 25.5`. We can now combine the two l1norm objects and the loss function using the  container class
+
 
 ```python
 problem = rr.container(loss, sparsity, fused)
 problem # TODO: fix the latexify for container
 ```
+
 We could still easily access the penalty parameter
+
 
 ```python
 problem.nonsmooth_atoms
 problem.nonsmooth_atoms[0].lagrange
 ```
+
 Next, we can select our algorithm of choice and use it solve the problem,
+
 
 ```python
 solver = rr.FISTA(problem)
@@ -302,6 +307,7 @@ solution = problem.coefs
 Here max_its represents primal (outer) iterations, and tol is the primal tolerance. 
 
 We can then plot solution to see the result of the regression,
+
 
 ```python
 

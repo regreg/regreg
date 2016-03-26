@@ -14,6 +14,7 @@ def difference_transform(X, order=1, sorted=False,
     ----------
 
     X: np.array, np.float, ndim=1
+        X coordinates where discrete derivative is computed.
 
     order: int
         What order of difference should we compute?
