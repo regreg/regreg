@@ -10,7 +10,8 @@ import scipy.sparse
 
 from .affine import power_L, normalize, selector, identity, adjoint
 from .atoms.seminorms import l1norm, constrained_positive_part
-from .smooth import logistic_loss, sum as smooth_sum, affine_smooth
+from .smooth import sum as smooth_sum, affine_smooth
+from .smooth.glm import logistic_loss
 from .smooth.quadratic import squared_error
 from .problems.separable import separable_problem, separable
 from .problems.simple import simple_problem

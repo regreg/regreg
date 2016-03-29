@@ -17,19 +17,19 @@ def test_multinomial_vs_logistic():
     counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
 
     mult_x = rr.linear_transform(X, input_shape=(p,J-1))
-    loss = rr.multinomial_deviance.linear(mult_x, counts=counts)
+    loss = rr.multinomial_loglike.linear(mult_x, counts=counts)
     problem = rr.container(loss)
     solver = rr.FISTA(problem)
     solver.fit(debug=False, tol=1e-10)
     coefs1 = solver.composite.coefs
 
-    loss = rr.logistic_deviance.linear(X, successes=counts[:,0], trials = np.sum(counts, axis=1))
+    loss = rr.logistic_loglike.linear(X, successes=counts[:,0], trials = np.sum(counts, axis=1))
     problem = rr.container(loss)
     solver = rr.FISTA(problem)
     solver.fit(debug=False, tol=1e-10)
     coefs2 = solver.composite.coefs
 
-    loss = rr.logistic_deviance.linear(X, successes=counts[:,1], trials = np.sum(counts, axis=1))
+    loss = rr.logistic_loglike.linear(X, successes=counts[:,1], trials = np.sum(counts, axis=1))
     problem = rr.container(loss)
     solver = rr.FISTA(problem)
     solver.fit(debug=False, tol=1e-10)
