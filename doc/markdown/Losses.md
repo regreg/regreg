@@ -1,3 +1,4 @@
+
 # Huberized lasso tutorial
 
 The Huberized lasso minimizes the following objective
@@ -10,6 +11,7 @@ $$
 $$
 To solve this problem using RegReg we begin by loading the necessary numerical libraries
 
+
 ```python
 import numpy as np
 import regreg.api as rr
@@ -17,27 +19,36 @@ import regreg.api as rr
 
 Next, let's generate some example data,
 
+
 ```python
 X = np.random.normal(0,1,500000).reshape((500,1000))
 Y = np.random.randint(0,2,500)
 ```
+
 Now we can create the problem object, beginning with the loss function
+
 
 ```python
 penalty = rr.l1norm(1000,lagrange=5.)
 loss = rr.l1norm.affine(X,-Y, lagrange=1.).smoothed(rr.identity_quadratic(1,0,0,0))
 ```
+
 The penalty contains the regularization parameter that can be easily accessed and changed,
+
 
 ```python
 penalty.lagrange
 ```
+
 Now we can create the final problem object
 
+
 ```python
-problem = rr.container(loss, penalty)
+problem = rr.simple_problem(loss, penalty)
 ```
+
 Next, we can select our algorithm of choice and use it solve the problem,
+
 
 ```python
 solver = rr.FISTA(problem)
@@ -45,7 +56,9 @@ obj_vals = solver.fit(max_its=200, tol=1e-6)
 solution = solver.composite.coefs
 (solution != 0).sum()
 ```
-Here max_its represents primal iterations, and tol is the primal tolerance. 
+
+Here max_its represents primal iterations, and tol is the primal tolerance.
+
 
 ```python
 obj_vals
@@ -64,14 +77,17 @@ $$
 
 To solve this problem using RegReg we begin by loading the necessary numerical libraries
 
+
 ```python
 import numpy as np
 import regreg.api as rr
 ```
+
 The only code needed to add Poisson regression is a class
 with one method which computes the objective and its gradient.
 
 Next, let's generate some example data,
+
 
 ```python
 n = 1000
@@ -79,16 +95,19 @@ p = 50
 X = np.random.standard_normal((n,p))
 Y = np.random.randint(0,100,n)
 ```
+
 Now we can create the problem object, beginning with the loss function
+
 
 ```python
 loss = rr.poisson_deviance.linear(X, counts=Y)
 ```
+
 Next, we can fit this model in the usual way
 
+
 ```python
-problem = rr.container(loss)
-solver = rr.FISTA(problem)
+solver = rr.FISTA(loss)
 obj_vals = solver.fit()
 solution = solver.composite.coefs
 ```
@@ -108,10 +127,12 @@ $$
 
 To solve this problem using RegReg we begin by loading the necessary numerical libraries
 
+
 ```python
 import numpy as np
 import regreg.api as rr
 ```
+
 The only code needed to add logistic regression is a class
 with one method which computes the objective and its gradient.
 
@@ -121,11 +142,14 @@ with one method which computes the objective and its gradient.
 
 Next, let's generate some example data,
 
+
 ```python
 X = np.random.normal(0,1,500000).reshape((500,1000))
 Y = np.random.randint(0,2,500)
 ```
+
 Now we can create the problem object, beginning with the loss function
+
 
 ```python
 loss = rr.logistic_deviance.linear(X,successes=Y)
@@ -133,8 +157,10 @@ penalty = rr.identity_quadratic(1., 0., 0., 0.)
 loss.quadratic = penalty
 loss
 ```
+
 The logistic log-likelihood function is written without a matrix :math:`X`. We use the ".linear" to specify the linear composition :math:`X\beta`. Similarly, we could use ".affine" to specify an offset :math:`X\beta + \alpha`.
 The penalty contains the regularization parameter that can be easily accessed and changed,
+
 
 ```python
 penalty.coef
@@ -142,12 +168,15 @@ penalty.coef
 
 Next, we can select our algorithm of choice and use it solve the problem,
 
+
 ```python
 solver = rr.FISTA(loss)
 obj_vals = solver.fit(max_its=100, tol=1e-5)
 solution = solver.composite.coefs
 ```
-Here max_its represents primal iterations, and tol is the primal tolerance. 
+
+Here max_its represents primal iterations, and tol is the primal tolerance.
+
 
 ```python
 obj_vals
@@ -168,6 +197,7 @@ $$
 
 To solve this problem using RegReg we begin by loading the necessary numerical libraries
 
+
 ```python
 import numpy as np
 import regreg.api as rr
@@ -179,6 +209,7 @@ with one method which computes the objective and its gradient.
 
 Next, let's generate some example data. The multinomial counts will be stored in a $n \times J$ array
 
+
 ```python
 J = 5
 n = 1000
@@ -189,15 +220,17 @@ Y = np.random.randint(0,10,n*J).reshape((n,J))
 
 Now we can create the problem object, beginning with the loss function. The coefficients will be stored in a $p \times J-1$ array, and we need to let RegReg know that the coefficients will be a 2d array instead of a vector. We can do this by defining the input_shape in a linear_transform object that multiplies by X,
 
+
 ```python
 multX = rr.linear_transform(X, input_shape=(p,J-1))
 loss = rr.multinomial_deviance.linear(multX, counts=Y)
 ```
 
 Next, we can solve the problem
+
+
 ```python
-problem = rr.container(loss)
-solver = rr.FISTA(problem)
+solver = rr.FISTA(loss)
 solver.fit()
 ```
 
@@ -209,30 +242,29 @@ J = 2
 Y = np.random.randint(0,10,n*J).reshape((n,J))
 multX = rr.linear_transform(X, input_shape=(p,J-1))	
 loss = rr.multinomial_deviance.linear(multX, counts=Y)
-problem = rr.container(loss)
-solver = rr.FISTA(problem)
+solver = rr.FISTA(loss)
 solver.fit(tol=1e-6)
 multinomial_coefs = solver.composite.coefs.flatten()
 ```
 
 and then the equivalent logistic regresison model
 
+
 ```python
 successes = Y[:,0]
 trials = np.sum(Y, axis=1)
 loss = rr.logistic_deviance.linear(X, successes=successes, trials=trials)
-problem = rr.container(loss)
-solver = rr.FISTA(problem)
+solver = rr.FISTA(loss)
 solver.fit(tol=1e-6)
 logistic_coefs = solver.composite.coefs
 ```
 
 Finally we can check that the two models gave the same coefficients
 
+
 ```python
 print np.linalg.norm(multinomial_coefs - logistic_coefs) / np.linalg.norm(logistic_coefs)
 ```
-
 
 
 ```python
@@ -395,7 +427,7 @@ The term $\eta$ is derived from `hinge_rep.atom.offset` and is stored in `hinge_
 hinge_conj.quadratic.linear_term
 ```
 
-Now, let's look at the smoothed hinge loss. 
+Now, let's look at the smoothed hinge loss.
 
 
 ```python
@@ -509,8 +541,6 @@ $$
 $$
 
 
-
-
 ```python
 weights = np.random.sample(P) + 1.
 weights[:5] = 0.
@@ -600,7 +630,6 @@ $$
 $$
 
 
-
 ```python
 bound_l1 = rr.l1norm(P, bound=2.)
 bound_l1
@@ -616,11 +645,6 @@ bound_problem
 ```python
 bound_soln = bound_problem.solve()
 np.fabs(bound_soln).sum()
-```
-
-
-```python
-
 ```
 
 # Support vector machine
@@ -643,6 +667,7 @@ and the $y_i$ are labels coded as $\pm 1$.
 
 Let's generate some data appropriate for this problem.
 
+
 ```python
 import numpy as np
 
@@ -655,7 +680,9 @@ X = np.random.standard_normal((N,P))
 X[Y==1] += np.array([3,-2])[np.newaxis,:]
 X -= X.mean(0)[np.newaxis,:]
 ```
+
 We now specify the hinge loss part of the problem
+
 
 ```python
 import regreg.api as rr
@@ -665,7 +692,9 @@ C = 0.2 # = 1/\lambda
 hinge = rr.positive_part(N, lagrange=C)
 hinge_loss = rr.linear_atom(hinge, transform)
 ```
+
 and the quadratic penalty
+
 
 ```python
 quadratic = rr.quadratic.linear(rr.selector(slice(0,P), (P+1,)), coef=0.5)
@@ -673,8 +702,9 @@ quadratic = rr.quadratic.linear(rr.selector(slice(0,P), (P+1,)), coef=0.5)
 
 Now, let's solve it
 
+
 ```python
-problem = rr.container(quadratic, hinge_loss)
+problem = rr.simple_problem(quadratic, hinge_loss)
 solver = rr.FISTA(problem)
 vals = solver.fit()
 solver.composite.coefs
@@ -683,12 +713,14 @@ solver.composite.coefs
 This determines a line in the plane, specified as $\beta_1 \cdot x + \beta_2 \cdot y + \gamma = 0$ and the classifications are determined by which
 side of the line a point is on.
 
+
 ```python
 fits = np.dot(X_1, problem.coefs)
 labels = 2 * (fits > 0) - 1
 accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
 accuracy
 ```
+
 
 ```python
 import numpy as np
@@ -711,7 +743,7 @@ hinge = rr.positive_part(N, lagrange=C)
 hinge_loss = rr.linear_atom(hinge, transform)
 
 quadratic = rr.quadratic.linear(rr.selector(slice(0,P), (P+1,)), coef=0.5)
-problem = rr.container(quadratic, hinge_loss)
+problem = rr.simple_problem(quadratic, hinge_loss)
 solver = rr.FISTA(problem)
 solver.fit()
 
@@ -731,7 +763,6 @@ pylab.title("Accuracy = %0.1f %%" % (100-100 * np.fabs(labels - Y).sum() / (2 * 
 #pylab.show()
 ```
 
-
 Sparse SVM
 ~~~~~~~~~~
 
@@ -742,6 +773,7 @@ $$
 $$
 
 Let's generate a bigger dataset
+
 
 ```python
 N = 1000
@@ -754,6 +786,8 @@ X -= X.mean(0)[np.newaxis,:]
 ```
 
 The hinge loss is defined similarly, and we only need to add a sparsity penalty
+
+
 ```python
 X_1 = np.hstack([X, np.ones((N,1))])
 transform = rr.affine_transform(-Y[:,np.newaxis] * X_1, np.ones(N))
@@ -766,8 +800,9 @@ sparsity = rr.l1norm.linear(s, lagrange=0.2)
 quadratic = rr.quadratic.linear(s, coef=0.5)
 ```
 
+
 ```python
-problem = rr.container(quadratic, hinge_loss, sparsity)
+problem = rr.dual_problem.fromprimal(quadratic, hinge_loss, sparsity)
 solver = rr.FISTA(problem)
 solver.fit()
 solver.composite.coefs
@@ -776,12 +811,14 @@ solver.composite.coefs
 In high dimensions, it becomes easier to separate
 points.
 
+
 ```python
 fits = np.dot(X_1, problem.coefs)
 labels = 2 * (fits > 0) - 1
 accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
 accuracy
 ```
+
 
 ```python
 import numpy as np
@@ -806,9 +843,8 @@ hinge_loss = rr.linear_atom(hinge, transform)
 s = rr.selector(slice(0,P), (P+1,))
 sparsity = rr.l1norm.linear(s, lagrange=0.2)
 quadratic = rr.quadratic.linear(s, coef=0.5)
-problem = rr.container(quadratic, hinge_loss, sparsity)
+problem = rr.dual_problem.fromprimal(loss, hinge_loss, sparsity)
 solver = rr.FISTA(problem)
-solver.debug = True
 solver.fit()
 solver.composite.coefs
 
@@ -828,6 +864,7 @@ to write it out formally.
 
 The hinge loss is defined similarly, and we only need to add a sparsity penalty
 
+
 ```python
 X_1 = np.hstack([X, np.ones((N,1))])
 transform = rr.affine_transform(-Y[:,np.newaxis] * X_1, np.ones(N))
@@ -846,6 +883,7 @@ quadratic = rr.quadratic.linear(s, coef=0.5)
 Now, let's fit it. For this problem, we can use a known bound for the Lipschitz
 constant. We'll first get a bound on the largest squared singular value of X
 
+
 ```python
 from regreg.affine import power_L
 singular_value_sq = power_L(X)
@@ -856,9 +894,12 @@ lipschitz = 1.05 * singular_value_sq / epsilon + 1
 ```
 
 Now, we can solve the problem without having to backtrack.
+
+
 ```python
-problem = rr.container(quadratic, 
-                       smoothed_hinge_loss, sparsity)
+problem = rr.dual_problem.fromprimal(quadratic, 
+	                             smoothed_hinge_loss, 
+                                     sparsity)
 solver = rr.FISTA(problem)
 solver.composite.lipschitz = lipschitz
 solver.perform_backtrack = False
@@ -869,12 +910,14 @@ solver.composite.coefs
 In high dimensions, it becomes easier to separate
 points.
 
+
 ```python
 fits = np.dot(X_1, problem.coefs)
 labels = 2 * (fits > 0) - 1
 accuracy = (1 - np.fabs(Y-labels).sum() / (2. * N))
 accuracy
 ```
+
 
 ```python
 import numpy as np
@@ -913,8 +956,9 @@ singular_value_sq = power_L(X_1)
 lipschitz = 1.05 * singular_value_sq / epsilon + 1.1
 
 
-problem = rr.container(quadratic, 
-                       smoothed_hinge_loss, sparsity)
+problem = rr.dual_problem.fromprimal(quadratic, 
+                                     smoothed_hinge_loss, 
+                                     sparsity)
 solver = rr.FISTA(problem)
 solver.composite.lipschitz = lipschitz
 solver.debug = True
