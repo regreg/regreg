@@ -6,16 +6,16 @@ This notebook covers various optimization problems related to the LASSO.
 
 ```python
 import numpy as np
+import regreg.api as rr
 np.random.seed(0)
-X = np.loadtxt("X.csv", delimiter=',')
-Y = np.loadtxt("Y.csv")
+X = np.random.standard_normal((100, 10))
+Y = np.random.standard_normal(100)
 ```
 
 For a given $X, Y$, here is the squared error loss
 
 
 ```python
-import regreg.api as rr
 loss = rr.squared_error(X, Y)
 loss
 ```
@@ -41,7 +41,7 @@ $$
 
 
 ```python
-penalty = rr.l1norm(10, lagrange=200.)
+penalty = rr.l1norm(10, lagrange=4.)
 print ('penalty:', str(penalty))
 penalty
 ```
@@ -115,7 +115,7 @@ just calls the proximal mapping.
 
 
 ```python
-penalty.lagrange = 200.
+penalty.lagrange = 4.
 problem_lagrange = rr.simple_problem(loss, penalty)
 problem_lagrange
 ```
@@ -232,7 +232,7 @@ enet_term
 
 
 ```python
-penalty_enet = rr.l1norm(10, lagrange=200., quadratic=enet_term)
+penalty_enet = rr.l1norm(10, lagrange=4., quadratic=enet_term)
 penalty_enet
 ```
 
@@ -261,8 +261,6 @@ The arguments to `rr.identity_quadratic` determine functions like
 $$
 \beta \mapsto \frac{C}{2} \|\beta - \mu\|^2_2 + \beta^T\eta + \gamma.
 $$
-
-
 
 
 ```python
@@ -404,7 +402,7 @@ print str(dual_atom)
 
 ```python
 dual_problem = rr.simple_problem(dual_loss, dual_atom)
-dual_soln = dual_problem.solve(min_its=50)
+dual_soln = dual_problem.solve(min_its=50,tol=1.e-12)
 dual_soln
 ```
 
@@ -508,7 +506,7 @@ smoothed_soln
 The TFOCS approach similarly smooths atoms, but solves this by adding a small quadratic 
 to the objective before solving a dual problem. Formally, `TFOCS` solves a sequence of such
 smoothed problems where the quadratic term is updated along the sequence. The center of the quadratic is also updated
-along the sequence. 
+along the sequence.
 
 
 ```python
@@ -539,4 +537,247 @@ for the conjugate function before applying `full_transform`
 ```python
 primal_soln = linf_smoothed.grad
 primal_soln
+```
+
+# Elastic Net tutorial
+
+The Elastic Net problem minimizes the objective
+$$
+\frac{1}{2}||y - X\beta||^{2}_{2} + \lambda_{1}||\beta||_{1} + \lambda_2 \|\beta\|_2^2
+$$
+
+To solve this problem using RegReg we begin by loading the necessary numerical libraries
+
+
+```python
+import numpy as np
+import regreg.api as rr
+```
+
+Next, let's generate some example data,
+
+
+```python
+X = np.random.normal(0,1,500000).reshape((500,1000))
+Y = np.random.normal(0,1,500)
+```
+
+Now we can create the problem object, beginning with the loss function
+
+
+```python
+loss = rr.quadratic.affine(X,-Y, coef=0.5)
+grouping = rr.quadratic(1000, coef=1.)
+sparsity = rr.l1norm(1000, lagrange=5.)
+```
+
+The penalty contains the regularization parameter that can be easily accessed and changed,
+
+
+```python
+grouping.coef
+grouping.coef += 1 
+grouping.coef
+sparsity.lagrange
+```
+
+Now we can create the final problem object by comining the smooth functions and the :math:`\ell_1` seminorm,
+
+
+```python
+problem = rr.container(loss, grouping, sparsity)
+```
+
+The penalty parameters can still be changed by accessing grouping and sparsity directly.
+
+Next, we can select our algorithm of choice and use it solve the problem,
+
+
+```python
+solver = rr.FISTA(problem)
+obj_vals = solver.fit(max_its=100, tol=1e-5)
+solution = solver.composite.coefs
+```
+
+Here max_its represents primal iterations, and tol is the primal tolerance.
+
+
+```python
+obj_vals
+```
+
+# Basis pursuit
+
+In this tutorial, we demonstrate how to solve the basis pursuit problem
+via a smoothing approach as in TFOCS.
+The basis pursuit problem is
+$$
+\text{minimize}_{\beta: \|y-X\beta\| \leq \lambda} \|\beta\|_1
+$$
+Let's generate some data first, setting the first 100 coefficients
+to be large.
+
+
+```python
+import regreg.api as R
+import numpy as np
+import scipy.linalg
+
+X = np.random.standard_normal((500,1000))
+
+beta = np.zeros(1000)
+beta[:100] = 3 * np.sqrt(2 * np.log(1000))
+
+Y = np.random.standard_normal((500,)) + np.dot(X, beta)
+
+# Later, we will need this for a Lipschitz constant
+Xnorm = scipy.linalg.eigvalsh(np.dot(X.T,X), eigvals=(998,999)).max()
+```
+
+The approach in TFOCS is to smooth the $\ell_1$ objective
+yielding a dual problem
+
+$$
+\text{minimize}_{u} \left(\|\beta\|_1 + 
+\frac{\epsilon}{2} \|\beta\|^2_2 \right)^* \biggl|_{\beta=-X'u} + y'u + \lambda \|u\|_2
+$$
+
+Above, $f^*$ denotes the convex conjugate. In this case,
+it is a smoothed version of the unit $\ell_{\infty}$ ball constraint,
+as its conjugate is the $\ell_1$ norm. Suppose
+we want to minimize the $\ell_1$ norm achieving
+an explanation of 90% of the norm of *Y*. That is,
+$$
+\|Y - X\beta\|^2_2 \leq 0.1 \cdot \|Y\|^2_2
+$$
+
+The code to construct the loss function looks like this
+
+
+```python
+import regreg.api as R
+linf_constraint = R.supnorm(1000, bound=1)
+smoothq = R.identity_quadratic(0.01, 0, 0, 0)
+smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+transform = R.linear_transform(-X.T)
+loss = R.affine_smooth(smooth_linf_constraint, transform)
+loss.quadratic = R.identity_quadratic(0, 0, Y, 0)
+loss
+```
+
+The penalty is specified as
+
+
+```python
+norm_Y = np.linalg.norm(Y)
+l2_constraint_value = np.sqrt(0.1) * norm_Y
+l2_lagrange = R.l2norm(500, lagrange=l2_constraint_value)
+```
+
+The container puts these together, then solves the problem by
+decreasing the smoothing.
+
+
+```python
+basis_pursuit_dual = R.simple_problem(loss, l2_lagrange)
+basis_pursuit_dual
+```
+
+
+```python
+solver = R.FISTA(basis_pursuit_dual)
+tol = 1.0e-08
+
+for epsilon in [0.6**i for i in range(20)]:
+    smoothq = R.identity_quadratic(epsilon, 0, 0, 0)
+    smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+    loss = R.affine_smooth(smooth_linf_constraint, transform)
+    basis_pursuit = R.simple_problem(loss, l2_lagrange)
+    solver = R.FISTA(basis_pursuit)
+    solver.composite.lipschitz = 1.1/epsilon * Xnorm
+    h = solver.fit(max_its=2000, tol=tol, min_its=10)
+
+basis_pursuit_soln = smooth_linf_constraint.grad
+```
+
+The solution should explain about 90% of the norm of *Y*
+
+
+```python
+print 1 - (np.linalg.norm(Y-np.dot(X, basis_pursuit_soln)) / norm_Y)**2
+```
+
+We now solve the corresponding bound form of the LASSO and verify
+we obtain the same solution.
+
+
+```python
+sparsity = R.l1norm(1000, bound=np.fabs(basis_pursuit_soln).sum())
+loss = R.quadratic.affine(X, -Y)
+lasso = R.simple_problem(loss, sparsity)
+lasso_solver = R.FISTA(lasso)
+h = lasso_solver.fit(max_its=2000, tol=1.0e-10)
+lasso_soln = lasso.coefs
+
+print np.fabs(lasso_soln).sum(), np.fabs(basis_pursuit_soln).sum()
+print np.linalg.norm(Y-np.dot(X, lasso_soln)), np.linalg.norm(Y-np.dot(X, basis_pursuit_soln))
+```
+
+
+```python
+
+import regreg.api as R
+import numpy as np
+import scipy.linalg
+import pylab
+
+X = np.random.standard_normal((500,1000))
+linf_constraint = R.supnorm(1000, bound=1)
+
+beta = np.zeros(1000)
+beta[:100] = 3 * np.sqrt(2 * np.log(1000))
+
+Y = np.random.standard_normal((500,)) + np.dot(X, beta)
+Xnorm = scipy.linalg.eigvalsh(np.dot(X.T,X), eigvals=(998,999)).max()
+
+smoothq = R.identity_quadratic(0.01, 0, 0, 0)
+smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+transform = R.linear_transform(-X.T)
+loss = R.affine_smooth(smooth_linf_constraint, transform)
+
+norm_Y = np.linalg.norm(Y)
+l2_constraint_value = np.sqrt(0.1) * norm_Y
+l2_lagrange = R.l2norm(500, lagrange=l2_constraint_value)
+
+basis_pursuit = R.simple_problem(loss, l2_lagrange)
+solver = R.FISTA(basis_pursuit)
+tol = 1.0e-08
+
+for epsilon in [0.6**i for i in range(20)]:
+   smoothq = R.identity_quadratic(epsilon, 0, 0, 0)
+   smooth_linf_constraint = linf_constraint.smoothed(smoothq)
+   loss = R.affine_smooth(smooth_linf_constraint, transform)
+   basis_pursuit = R.simple_problem(loss, l2_lagrange)
+   solver = R.FISTA(basis_pursuit)
+   solver.composite.lipschitz = 1.1/epsilon * Xnorm
+   h = solver.fit(max_its=2000, tol=tol, min_its=10)
+
+basis_pursuit_soln = smooth_linf_constraint.grad
+
+sparsity = R.l1norm(1000, bound=np.fabs(basis_pursuit_soln).sum())
+loss = R.quadratic.affine(X, -Y)
+lasso = R.container(loss, sparsity)
+lasso_solver = R.FISTA(lasso)
+lasso_solver.fit(max_its=2000, tol=1.0e-10)
+lasso_soln = lasso.coefs
+
+pylab.plot(basis_pursuit_soln, label='Basis pursuit')
+pylab.plot(lasso_soln, label='LASSO')
+pylab.legend()
+
+```
+
+
+```python
+
 ```
