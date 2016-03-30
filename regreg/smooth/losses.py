@@ -40,15 +40,32 @@ class huberized_svm(smooth_atom):
         Q = identity_quadratic(smoothing_parameter, 0, 0, 0)
         self.smoothed_atom = atom.smoothed(Q)
                                          
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
+    def smooth_objective(self, beta, mode='both', check_feasibility=False):
         """
-        Evaluate a smooth function and/or its gradient
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Parameters
+        ----------
+
+        beta : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `beta` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `beta`, else if `mode` is 'grad' returns the gradient
+        else returns both.
         """
         
-        return self.smoothed_atom.smooth_objective(x,
+        return self.smoothed_atom.smooth_objective(beta,
                                                    mode=mode,
                                                    check_feasibility=check_feasibility)
+

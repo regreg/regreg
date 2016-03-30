@@ -3,7 +3,9 @@ import warnings
 from scipy import sparse
 
 from . import smooth_atom, affine_smooth
-from ..affine import astransform, linear_transform, affine_transform
+from ..affine import (astransform, 
+                      linear_transform, 
+                      affine_transform)
 from ..identity_quadratic import identity_quadratic
 from ..atoms.seminorms import l1norm
 
@@ -233,12 +235,14 @@ class glm(smooth_atom):
 
         """
         loss = gaussian_loglike(response.shape,
-                                     response,
-                                     coef=coef)
-        return glm(X, response, loss,
-                        offset=offset,
-                        quadratic=quadratic,
-                        initial=initial)
+                                response,
+                                coef=coef)
+        return glm(X, 
+                   response, 
+                   loss,
+                   offset=offset,
+                   quadratic=quadratic,
+                   initial=initial)
 
     @staticmethod
     def logistic(X, successes, 
@@ -938,7 +942,135 @@ class multinomial_loglike(smooth_atom):
         else:
             raise ValueError("mode incorrectly specified")
 
+# is the Cox proportional hazards likelihood available?
+# TODO: rewrite the Cox code to be faster -- it is very slow
 
+cox_available = True
+try:
+    from statsmodels.api import PHReg
+except ImportError:
+    cov_available = False
+
+class coxph(glm):
+
+    objective_template = r"""\ell^{\text{Cox}}\left(%(var)s\right)"""
+
+    def __init__(self, 
+                 X, 
+                 times, 
+                 status,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None,
+                 initial=None):
+
+        """
+        Cox proportional hazard loss function.
+
+        Parameters
+        ----------
+
+        X : np.float(n,p)
+            Design matrix.
+
+        times : np.float(n)
+            Event times.
+
+        status : np.bool(n)
+            Censoring status.
+
+        """
+
+        if not cox_available:
+            raise ImportError('unable to import PHReg from statsmodels')
+        smooth_atom.__init__(self,
+                             X.shape[1],
+                             offset=offset,
+                             quadratic=quadratic,
+                             initial=initial,
+                             coef=coef)
+
+        X = np.asarray(X)
+        self.data = X, times, status
+
+    def smooth_objective(self, beta, mode='both', check_feasibility=False):
+        """
+
+        Parameters
+        ----------
+
+        beta : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `beta` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `beta`, else if `mode` is 'grad' returns the gradient
+        else returns both.
+        """
+        
+        beta = self.apply_offset(beta)
+
+        if mode == 'both':
+            f = - self.scale(self.model.efron_loglike(beta))
+            g = - self.scale(self.model.efron_gradient(beta))
+            return f, g
+        elif mode == 'grad':
+            g = - self.scale(self.model.efron_gradient(beta))
+            return g
+        elif mode == 'func':
+            f = - self.scale(self.model.efron_loglike(beta))
+            return f
+        else:
+            raise ValueError("mode incorrectly specified")
+
+    def hessian(self, beta):
+        """
+
+        Compute the Hessian of the loss $ \nabla^2 \ell(X\beta)$.
+
+
+        Parameters
+        ----------
+
+        beta : ndarray
+            Parameters.
+
+        Returns
+        -------
+
+        hess : ndarray
+            Hessian of the loss at $\beta$, if defined.
+
+        """
+        beta = self.apply_offset(beta)
+        return -self.model.efron_hessian(beta)
+
+    def get_data(self):
+        return self.times, self.status
+
+    def set_data(self, data):
+        X, times, status = data
+        self.X, self.times, self.status = X, times, status
+        self.X = X - X.mean(0)[None,:]
+        self.model = PHReg(times, X, status=status)
+
+    data = property(get_data, set_data)
+
+    def latexify(self, var=None, idx=''):
+        # a trick to get latex representation looking right
+        # coxph should be written similar to logistic
+        # composed with a linear transform (TODO)
+        return smooth_atom.latexify(self, var=var, idx=idx)
 
 def logistic_loss(X, Y, trials=None, coef=1.):
     '''

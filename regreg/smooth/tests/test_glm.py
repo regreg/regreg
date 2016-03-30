@@ -1,7 +1,7 @@
 import numpy as np
 import nose.tools as nt
 
-from regreg.smooth.glm import glm
+from regreg.smooth.glm import glm, coxph
 
 def test_logistic():
 
@@ -97,4 +97,23 @@ def test_huber():
 
     L.data = (X, Y)
     L.data
+
+
+def test_coxph():
+
+    X = np.random.standard_normal((100,5))
+    T = np.random.standard_exponential(100)
+    S = np.random.binomial(1, 0.5, size=(100,))
+
+    L = coxph(X, T, S)
+    L.smooth_objective(np.zeros(L.shape), 'both')
+
+    L.gradient(np.zeros(L.shape))
+
+    L.objective(np.zeros(L.shape))
+    L.latexify()
+
+    L.data = (X, T, S)
+    L.data
+
 
