@@ -1,6 +1,9 @@
 import numpy as np, regreg.api as rr
 import nose.tools as nt
 
+from regreg.tests.decorators import set_seed_for_test
+
+@set_seed_for_test()
 def test_path():
     '''
     this test looks at the paths of three different parameterizations
@@ -42,6 +45,7 @@ def test_path():
     np.testing.assert_allclose(beta1, beta2)
     np.testing.assert_allclose(beta2, beta3)
 
+@set_seed_for_test()
 def test_path_unpenalized():
     '''
     this test looks at the paths of three different parameterizations
