@@ -53,7 +53,7 @@ from .smooth import (smooth_atom,
 from .smooth.quadratic import (quadratic, cholesky, signal_approximator,
                                squared_error)
 
-from .smooth.glm import glm, multinomial_loglike, logistic_loglike, poisson_loglike, gaussian_loglike
+from .smooth.glm import glm, multinomial_loglike, logistic_loglike, poisson_loglike, gaussian_loglike, coxph
 
 # Problem imports
 
