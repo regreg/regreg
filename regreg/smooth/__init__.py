@@ -180,7 +180,12 @@ class affine_smooth(smooth_atom):
         if var is not None:
             template_dict['var'] = var
         template_dict['idx'] = idx
-        return self.atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=idx)
+
+        obj_latex = self.atom.latexify(var='%(linear)s_{%(idx)s}%(var)s' % template_dict, idx=idx)
+        if not self.quadratic.iszero:
+            return ' + '.join([obj_latex, self.quadratic.latexify(var=template_dict['var'], idx=idx)])
+        else:
+            return obj_latex
 
 class zero(smooth_atom):
 
@@ -199,7 +204,7 @@ class logistic_deviance(smooth_atom):
     A class for combining the logistic log-likelihood with a general seminorm
     """
 
-    objective_template = r"""\ell^{L}\left(%(var)s\right)"""
+    objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
     #TODO: Make init more standard, replace np.dot with shape friendly alternatives in case successes.shape is (n,1)
 
     def __init__(self, shape, successes, 
@@ -295,7 +300,7 @@ class poisson_deviance(smooth_atom):
     A class for combining the Poisson log-likelihood with a general seminorm
     """
 
-    objective_template = r"""\ell^{P}\left(%(var)s\right)"""
+    objective_template = r"""\ell^{\text{Pois}}\left(%(var)s\right)"""
 
     def __init__(self, shape, counts, coef=1., offset=None,
                  quadratic=None,

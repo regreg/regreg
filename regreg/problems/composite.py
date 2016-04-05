@@ -58,7 +58,7 @@ class composite(object):
         if var is not None:
             template_dict['var'] = var
         if hasattr(self, 'offset') and self.offset is not None and npany(self.offset != 0):
-            template_dict['var'] = var + (r' - %(offset)s_{%(idx)s}' % template_dict)
+            template_dict['var'] = (r'%(var)s - %(offset)s_{%(idx)s}' % template_dict)
 
         obj = self.objective_template % template_dict
         template_dict['obj'] = obj
