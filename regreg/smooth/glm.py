@@ -945,12 +945,12 @@ class multinomial_loglike(smooth_atom):
 # is the Cox proportional hazards likelihood available?
 # TODO: rewrite the Cox code to be faster -- it is very slow
 
-cox_available = True
 try:
     from statsmodels.api import PHReg
+    PHReg_available = True
 except ImportError:
     warnings.warn('unable to import PHReg from statsmodels, objective function is the zero function!')
-    cox_available = False
+    PHReg_available = False
 
 class coxph(glm):
 
@@ -1020,20 +1020,20 @@ class coxph(glm):
         beta = self.apply_offset(beta)
 
         if mode == 'both':
-            if cox_available:
+            if PHReg_available:
                 f = - self.scale(self.model.efron_loglike(beta))
                 g = - self.scale(self.model.efron_gradient(beta))
             else:
                 f, g = 0., np.zeros_like(beta)
             return f, g
         elif mode == 'grad':
-            if cox_available:
+            if PHReg_available:
                 g = - self.scale(self.model.efron_gradient(beta))
             else:
                 g = np.zeros_like(beta)
             return g
         elif mode == 'func':
-            if cox_available:
+            if PHReg_available:
                 f = - self.scale(self.model.efron_loglike(beta))
             else:
                 f = 0.
@@ -1060,8 +1060,12 @@ class coxph(glm):
             Hessian of the loss at $\beta$, if defined.
 
         """
-        beta = self.apply_offset(beta)
-        return -self.model.efron_hessian(beta)
+        if PHReg_available:
+            beta = self.apply_offset(beta)
+            return -self.model.efron_hessian(beta)
+        else:
+            p = np.asarray(beta).shape[0]
+            return np.zeros((p,p))
 
     def get_data(self):
         return self.times, self.status
@@ -1070,7 +1074,10 @@ class coxph(glm):
         X, times, status = data
         self.X, self.times, self.status = X, times, status
         self.X = X - X.mean(0)[None,:]
-        self.model = PHReg(times, X, status=status)
+        if PHReg_available:
+            self.model = PHReg(times, X, status=status)
+        else:
+            self.model = None
 
     data = property(get_data, set_data)
 
