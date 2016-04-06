@@ -4,6 +4,9 @@ import itertools
 from numpy import testing as npt
 from numpy.testing import *
 
+from regreg.tests.decorators import set_seed_for_test
+
+@set_seed_for_test()
 @dec.setastest(True)
 def test_affine_linear_offset_l1norm():
 
