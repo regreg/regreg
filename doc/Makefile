@@ -44,6 +44,7 @@ pdf: latex
 	cd $(BUILDDIR)/latex && make all-pdf
 
 all: html pdf
+	pip install -r ../doc-requirements.txt
 
 dist: clean all
 	mkdir -p dist

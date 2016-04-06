@@ -34,3 +34,6 @@ STATUS              = 'alpha'
 PROVIDES            = ["regreg"]
 REQUIRES            = ["numpy (>=%s)" % NUMPY_MIN_VERSION,
                        "scipy (>=%s)" % SCIPY_MIN_VERSION]
+
+
+__version__         = '0.01'
