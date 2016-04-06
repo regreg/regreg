@@ -949,7 +949,8 @@ cox_available = True
 try:
     from statsmodels.api import PHReg
 except ImportError:
-    cov_available = False
+    warnings.warn('unable to import PHReg from statsmodels, objective function is the zero function!')
+    cox_available = False
 
 class coxph(glm):
 
@@ -981,8 +982,6 @@ class coxph(glm):
 
         """
 
-        if not cox_available:
-            raise ImportError('unable to import PHReg from statsmodels')
         smooth_atom.__init__(self,
                              X.shape[1],
                              offset=offset,
@@ -1021,14 +1020,23 @@ class coxph(glm):
         beta = self.apply_offset(beta)
 
         if mode == 'both':
-            f = - self.scale(self.model.efron_loglike(beta))
-            g = - self.scale(self.model.efron_gradient(beta))
+            if cox_available:
+                f = - self.scale(self.model.efron_loglike(beta))
+                g = - self.scale(self.model.efron_gradient(beta))
+            else:
+                f, g = 0., np.zeros_like(beta)
             return f, g
         elif mode == 'grad':
-            g = - self.scale(self.model.efron_gradient(beta))
+            if cox_available:
+                g = - self.scale(self.model.efron_gradient(beta))
+            else:
+                g = np.zeros_like(beta)
             return g
         elif mode == 'func':
-            f = - self.scale(self.model.efron_loglike(beta))
+            if cox_available:
+                f = - self.scale(self.model.efron_loglike(beta))
+            else:
+                f = 0.
             return f
         else:
             raise ValueError("mode incorrectly specified")
