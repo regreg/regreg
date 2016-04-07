@@ -19,11 +19,8 @@ import sys, os
 # absolute, like shown here.
 sys.path.append(os.path.abspath('sphinxext'))
 
-# Get project related strings.  Please do not change this line to use
-# execfile because execfile is not available in Python 3
-_info_fname = os.path.join('..', '..', 'regreg', 'info.py')
-rel = {}
-exec(open(_info_fname, 'rt').read(), {}, rel)
+# Import regreg to get version
+import regreg
 
 # Import support for ipython console session syntax highlighting (lives
 # in the sphinxext directory defined above)
@@ -83,7 +80,7 @@ copyright = '2011-2015, B. Klingenberg & J. Taylor'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = rel['__version__']
+version = regreg.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
