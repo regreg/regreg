@@ -40,6 +40,7 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/* dist/* *~ api/generated
 	-rm -f manual
+	-rm -rf $(SRCDIR)/examples/*
 
 pdf: latex
 	cd $(BUILDDIR)/latex && make all-pdf
