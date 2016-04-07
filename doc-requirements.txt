@@ -4,6 +4,7 @@
 sphinx>=1.0
 numpydoc
 matplotlib
+scikit-learn
 texext
 ipython
 rpy2
