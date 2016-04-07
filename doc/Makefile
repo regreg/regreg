@@ -13,6 +13,9 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(SRCDIR)
 
+# Required R packages
+R_PACKAGES = Matrix gglasso
+
 .PHONY: help clean pdf all dist public_html web web_public htmlonly api html pickle htmlhelp latex changes linkcheck doctest
 
 help:
@@ -123,6 +126,7 @@ github: notebooks html
 	@echo "Published to Github"
 
 notebooks:
+	python tools/check_r_packages.py $(R_PACKAGES)
 	mkdir -p $(BUILDDIR)/html/notebooks
 	python tools/convert_notebooks.py markdown $(BUILDDIR)/html/notebooks \
 		$(SRCDIR)/examples --if-newer
