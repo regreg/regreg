@@ -8,9 +8,10 @@ PAPER         =
 
 # Internal variables.
 BUILDDIR        = build
+SRCDIR          = source
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(SRCDIR)
 
 .PHONY: help clean pdf all dist public_html web web_public htmlonly api html pickle htmlhelp latex changes linkcheck doctest
 
@@ -61,7 +62,7 @@ htmlonly:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 api:
-	-mkdir -p source/api/generated
+	-mkdir -p $(SRCDIR)/api/generated
 	python ../tools/build_modref_templates.py
 	@echo "Build API docs finished."
 
@@ -114,8 +115,13 @@ doctest:
 	@echo
 	@echo "The overview file is in $(BUILDDIR)/doctest."
 
-github: html
+github: notebooks html
 	# Needs ghp-import (pip install ghp-import)
 	ghp-import -n -p $(BUILDDIR)/html/
 	@echo
 	@echo "Published to Github"
+
+notebooks:
+	mkdir -p $(BUILDDIR)/html/notebooks
+	python tools/convert_notebooks.py markdown $(BUILDDIR)/html/notebooks \
+		$(SRCDIR)/examples --if-newer

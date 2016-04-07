@@ -7,3 +7,7 @@ matplotlib
 texext
 ipython
 rpy2
+nbconvert
+recommonmark
+jupyter
+notedown

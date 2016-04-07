@@ -64,8 +64,13 @@ extensions.append('matplotlib.sphinxext.plot_directive')
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+# Add markdown source parser
+from recommonmark.parser import CommonMarkParser
+
+source_parsers = {'.md': CommonMarkParser}
+
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
