@@ -13,9 +13,13 @@
 # serve to show the default value.
 
 import sys, os
+from os.path import join as pjoin
 from importlib import import_module
 
 import sphinx
+
+# Required R packages
+R_PACKAGES = ['Matrix', 'gglasso', 'glmnet', 'lars']
 
 # Doc generation depends on being able to import project
 project = 'regreg'
@@ -27,7 +31,7 @@ except ImportError:
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.append(os.path.abspath('sphinxext'))
+# sys.path.append(os.path.abspath('sphinxext'))
 
 # General configuration
 # ---------------------
@@ -57,6 +61,11 @@ extensions = ['sphinx.ext.autodoc',
               ]
 
 autosummary_generate=True
+
+# Check R packages are installed
+sys.path.append(os.path.abspath(pjoin('..', 'tools')))
+from check_r_packages import check_r_packages
+check_r_packages(R_PACKAGES)
 
 # Matplotlib sphinx extensions
 # ----------------------------
