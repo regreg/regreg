@@ -127,6 +127,6 @@ github: notebooks html
 
 notebooks:
 	python tools/check_r_packages.py $(R_PACKAGES)
-	mkdir -p $(BUILDDIR)/html/notebooks
+	mkdir -p $(BUILDDIR)/html/examples
 	python tools/convert_notebooks.py markdown $(SRCDIR)/examples --if-newer
-	cp $(SRCDIR)/examples/*.ipynb $(BUILDDIR)/html/notebooks
+	cp $(SRCDIR)/examples/*.ipynb $(BUILDDIR)/html/examples
