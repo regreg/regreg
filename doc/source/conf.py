@@ -47,8 +47,6 @@ extensions = ['sphinx.ext.autodoc',
               'numpydoc',
               ]
 
-autosummary_generate=True
-
 # Matplotlib sphinx extensions
 # ----------------------------
 
