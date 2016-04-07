@@ -4,7 +4,7 @@ import warnings
 import inspect
 
 from ..problems.composite import smooth as smooth_composite
-from ..affine import affine_transform, linear_transform
+from ..affine import affine_transform, linear_transform, astransform
 from ..identity_quadratic import identity_quadratic
 
 #TODO: create proximal methods for known smooth things
@@ -31,8 +31,31 @@ class smooth_atom(smooth_composite):
             raise ValueError('coefs must be nonnegative to ensure convexity (assuming all atoms are indeed convex)')
         self.coefs = np.zeros(self.shape)
 
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
-        raise NotImplementedError
+    def smooth_objective(self, arg, mode='both', check_feasibility=False):
+        """
+
+        Parameters
+        ----------
+
+        arg : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `beta` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `beta`, else if `mode` is 'grad' returns the gradient
+        else returns both.
+        """
+        raise NotImplementedError("Abstract method.")
     
     @classmethod
     def affine(cls, linear_operator, offset, coef=1, diag=False,
@@ -114,15 +137,40 @@ def acceptable_init_args(cls, proposed_keywords):
 
 class affine_smooth(smooth_atom):
 
-    # if smooth_obj is a class, an object is created
-    # smooth_obj(*args, **keywords)
-    # else, it is assumed to be an instance of smooth_function
- 
+    """
+
+    Composition of a smooth objective with an affine transform.
+
+    """
+
     force_reshape = True
 
     objective_vars = {'linear':'X'}
 
     def __init__(self, smooth_atom, atransform, store_grad=True, diag=False):
+        """
+
+        Parameters
+        ----------
+
+        smooth_atom : `regreg.smooth.smooth_atom`
+             A smooth atom.
+
+        atransform : `regreg.affine.affine_transform`
+             An affine transformation, or cast to one
+             using `regreg.affine.linear_transform`
+
+        store_grad : bool
+             If True, when computing the gradient,
+             store a reference to the gradient of `smooth_atom`
+             in the attribute `grad`.
+
+        diag : bool
+             Indicates if `atransform` acts diagonally,
+             i.e. a rescaling.
+             Passed to `regreg.affine.linear_transform`.
+
+        """
         self.store_grad = store_grad
         self.atom = smooth_atom
         if not isinstance(atransform, affine_transform):
@@ -138,8 +186,33 @@ class affine_smooth(smooth_atom):
         self.atom.coef = coef
     coef = property(_get_coef, _set_coef)
 
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
-        eta = self.affine_transform.affine_map(x)
+    def smooth_objective(self, arg, mode='both', check_feasibility=False):
+        """
+        Compute the smooth objective at the point `self.transform.affine_map(arg)`.
+
+        Parameters
+        ----------
+
+        arg : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `beta` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `self.transform(arg)`, else if `mode` is 'grad' returns the gradient
+        else returns both.
+        """
+
+        eta = self.affine_transform.affine_map(arg)
         if mode == 'both':
             v, g = self.atom.smooth_objective(eta, mode='both')
             if self.store_grad:
@@ -189,6 +262,10 @@ class affine_smooth(smooth_atom):
 
 class zero(smooth_atom):
 
+    """
+    The zero function.
+    """
+
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         if mode == 'both':
             return 0., np.zeros(x.shape)
@@ -198,268 +275,24 @@ class zero(smooth_atom):
             return np.zeros(x.shape)
         raise ValueError("Mode not specified correctly")
 
-class logistic_deviance(smooth_atom):
-
-    """
-    A class for combining the logistic log-likelihood with a general seminorm
-    """
-
-    objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
-    #TODO: Make init more standard, replace np.dot with shape friendly alternatives in case successes.shape is (n,1)
-
-    def __init__(self, shape, successes, 
-                 trials=None, coef=1., offset=None,
-                 quadratic=None,
-                 initial=None):
-
-        smooth_atom.__init__(self,
-                             shape,
-                             offset=offset,
-                             quadratic=quadratic,
-                             initial=initial,
-                             coef=coef)
-
-        if sparse.issparse(successes):
-            #Convert sparse success vector to an array
-            self.successes = successes.toarray().flatten()
-        else:
-            self.successes = np.asarray(successes)
-
-        if trials is None:
-            if not set([0,1]).issuperset(np.unique(self.successes)):
-                raise ValueError("Number of successes is not binary - must specify number of trials")
-            self.trials = np.ones(self.successes.shape, np.float)
-        else:
-            if np.min(trials-self.successes) < 0:
-                raise ValueError("Number of successes greater than number of trials")
-            if np.min(self.successes) < 0:
-                raise ValueError("Response coded as negative number - should be non-negative number of successes")
-            self.trials = trials * 1.
-
-        saturated = self.successes / self.trials
-        deviance_terms = np.log(saturated) * self.successes + np.log(1-saturated) * (self.trials - self.successes)
-        deviance_constant = -2 * coef * deviance_terms[~np.isnan(deviance_terms)].sum()
-
-        devq = identity_quadratic(0,0,0,-deviance_constant)
-        self.quadratic += devq
-
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
-        """
-        Evaluate a smooth function and/or its gradient
-
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
-        """
-        
-        #Check for overflow in np.exp (can occur during initial backtracking steps)
-        x = self.apply_offset(x)
-        if np.max(x) > 1e2:
-            overflow = True
-            not_overflow_ind = np.where(x <= 1e2)[0]
-            exp_x = np.exp(x[not_overflow_ind])
-        else:
-            overflow = False
-            exp_x = np.exp(x)
-            
-        if mode == 'both':
-            ratio = self.trials * 1.
-            if overflow:
-                log_exp_x = x * 1.
-                log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
-                ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
-            else:
-                log_exp_x = np.log(1.+exp_x)
-                ratio *= exp_x/(1.+exp_x)
-                
-            f, g = -2 * self.scale((np.dot(self.successes,x) - np.sum(self.trials*log_exp_x))), -2 * self.scale(self.successes-ratio)
-            return f, g
-        elif mode == 'grad':
-            ratio = self.trials * 1.
-            if overflow:
-                ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
-            else:
-                ratio *= exp_x/(1.+exp_x)
-            f, g = None, - 2 * self.scale(self.successes-ratio)
-            return g
-        elif mode == 'func':
-            if overflow:
-                log_exp_x = x * 1.
-                log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
-            else:
-                log_exp_x = np.log(1.+exp_x)
-            f, g = -2 * self.scale(np.dot(self.successes,x) - np.sum(self.trials * log_exp_x)), None
-            return f
-        else:
-            raise ValueError("mode incorrectly specified")
-
-
-class poisson_deviance(smooth_atom):
-
-    """
-    A class for combining the Poisson log-likelihood with a general seminorm
-    """
-
-    objective_template = r"""\ell^{\text{Pois}}\left(%(var)s\right)"""
-
-    def __init__(self, shape, counts, coef=1., offset=None,
-                 quadratic=None,
-                 initial=None):
-
-        smooth_atom.__init__(self,
-                             shape,
-                             offset=offset,
-                             quadratic=quadratic,
-                             initial=initial,
-                             coef=coef)
-
-        if sparse.issparse(counts):
-            #Convert sparse success vector to an array
-            self.counts = counts.toarray().flatten()
-        else:
-            self.counts = counts
-
-        if not np.allclose(np.round(self.counts),self.counts):
-            raise ValueError("Counts vector is not integer valued")
-        if np.min(self.counts) < 0:
-            raise ValueError("Counts vector is not non-negative")
-
-        saturated = counts
-        deviance_terms = -2 * coef * ((counts - 1) * np.log(counts))
-        deviance_terms[counts == 0] = 0
-
-        deviance_constant = -2 * coef * deviance_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-deviance_constant)
-        self.quadratic += devq
-
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
-        """
-        Evaluate a smooth function and/or its gradient
-
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
-        """
-        x = self.apply_offset(x)
-        exp_x = np.exp(x)
-        
-        if mode == 'both':
-            f, g = -2. * self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), -2. * self.scale(self.counts - exp_x)
-            return f, g
-        elif mode == 'grad':
-            f, g = None, -2. * self.scale(self.counts - exp_x)
-            return g
-        elif mode == 'func':
-            f, g =  -2. * self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), None
-            return f
-        else:
-            raise ValueError("mode incorrectly specified")
-
-
-class multinomial_deviance(smooth_atom):
-
-    """
-    A class for baseline-category logistic regression for nominal responses (e.g. Agresti, pg 267)
-    """
-
-    objective_template = r"""\ell^{M}\left(%(var)s\right)"""
-
-    def __init__(self, shape, counts, coef=1., offset=None,
-                 initial=None,
-                 quadratic=None):
-
-        smooth_atom.__init__(self,
-                             shape,
-                             offset=offset,
-                             quadratic=quadratic,
-                             initial=initial,
-                             coef=coef)
-
-        if sparse.issparse(counts):
-            #Convert sparse success vector to an array
-            self.counts = counts.toarray()
-        else:
-            self.counts = counts
-
-        self.J = self.counts.shape[1]
-        #Select the counts for the first J-1 categories
-        self.firstcounts = self.counts[:,range(self.J-1)]
-
-        if not np.allclose(np.round(self.counts),self.counts):
-            raise ValueError("Counts vector is not integer valued")
-        if np.min(self.counts) < 0:
-            raise ValueError("Counts vector is not non-negative")
-
-        self.trials = np.sum(self.counts, axis=1)
-
-        if shape[1] != self.J - 1:
-            raise ValueError("Primal shape is incorrect - should only have coefficients for first J-1 categories")
-
-        saturated = self.counts / (1. * self.trials[:,np.newaxis])
-        deviance_terms = np.log(saturated) * self.counts
-        deviance_terms[np.isnan(deviance_terms)] = 0
-        deviance_constant = -2 * coef * deviance_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-deviance_constant)
-        self.quadratic += devq
-
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
-        """
-        Evaluate a smooth function and/or its gradient
-
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
-        """
-        x = self.apply_offset(x)
-        exp_x = np.exp(x)
-
-        #TODO: Using transposes to scale the rows of a 2d array - should we use an affine_transform to do this?
-        #JT: should be able to do this with np.newaxis
-
-        if mode == 'both':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = -2. * self.scale(np.sum(self.firstcounts * x) -  np.dot(self.trials, np.log(1. + np.sum(exp_x, axis=1)))), - 2 * self.scale(self.firstcounts - ratio) 
-            return f, g
-        elif mode == 'grad':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = None, - 2 * self.scale(self.firstcounts - ratio) 
-            return g
-        elif mode == 'func':
-            f, g = -2. * self.scale(np.sum(self.firstcounts * x) -  np.dot(self.trials, np.log(1. + np.sum(exp_x, axis=1)))), None
-            return f
-        else:
-            raise ValueError("mode incorrectly specified")
-
-
-def logistic_loss(X, Y, trials=None, coef=1.):
-    '''
-    Construct a logistic loss function for successes Y and
-    affine transform X.
-
-    Parameters
-    ----------
-
-    X : [affine_transform, ndarray]
-        Design matrix
-
-    Y : ndarray
-
-    '''
-    n = Y.shape[0]
-    loss = affine_smooth(logistic_deviance(Y.shape, 
-                                           Y,
-                                           coef=coef/n,
-                                           trials=trials), 
-                         X)
-    return loss
-
 class sum(smooth_atom):
     """
     A simple way to combine smooth objectives
     """
     def __init__(self, atoms, weights=None):
+        """
+        Parameters
+        ----------
+
+        atoms : sequence
+            A sequence of `regreg.smooth.smooth_atom` that will be summed
+            to make a new atom.
+
+        weights : ndarray (optional)
+            If provided, these weights will appear as coefficients
+            in front of each atom.
+
+        """
         self.offset = None
         self.atoms = atoms
         if weights is None:
@@ -467,17 +300,39 @@ class sum(smooth_atom):
         self.weights = np.asarray(weights).reshape(-1)
         if self.weights.shape[0] != len(atoms):
             raise ValueError('weights and atoms have different lengths')
+        if np.any(self.weights < 0):
+            raise ValueError('weights should be non-negative to maintain convexity')
         self.coefs = self.atoms[0].coefs
         self.shape = self.coefs.shape
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
-        """
-        Evaluate a smooth function and/or its gradient
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
         """
+        Compute the smooth objective at the point `self.transform.affine_map(arg)`,
+        which is the sum of each `atom`'s objective with its respective weight.
+
+        Parameters
+        ----------
+
+        arg : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `beta` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `self.transform(arg)`, else if `mode` is 'grad' returns the gradient
+        else returns both.
+        """
+
         x = self.apply_offset(x)
         f, g = 0, 0
         for w, atom in zip(self.weights, self.atoms):
@@ -497,3 +352,4 @@ class sum(smooth_atom):
             return f, g
         else:
             raise ValueError("mode incorrectly specified")
+
