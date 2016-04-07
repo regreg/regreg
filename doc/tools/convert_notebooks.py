@@ -35,6 +35,7 @@ def main():
                 continue
         check_call(['notedown', in_file, '-o', nb_file])
         check_call(['jupyter', 'nbconvert', '--execute', '--inplace',
+                    '--output=' + nb_file,
                     nb_file, '--ExecutePreprocessor.timeout=-1'])
         check_call(['jupyter', 'nbconvert', '--to=markdown',
                     '--output=' + md_file, nb_file])
