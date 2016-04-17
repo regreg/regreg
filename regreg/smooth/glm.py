@@ -482,7 +482,7 @@ class gaussian_loglike(smooth_atom):
             A 1D-array representing the diagonal of the Hessian
             evaluated at `natural_param`.
         """
-        return np.ones_like(natural_param)
+        return self.scale(np.ones_like(natural_param))
 
     def get_data(self):
         return self.response
@@ -1062,7 +1062,7 @@ class coxph(glm):
         """
         if PHReg_available:
             beta = self.apply_offset(beta)
-            return -self.model.efron_hessian(beta)
+            return self.scale(-self.model.efron_hessian(beta))
         else:
             p = np.asarray(beta).shape[0]
             return np.zeros((p,p))
