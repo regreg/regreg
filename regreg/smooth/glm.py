@@ -482,7 +482,7 @@ class gaussian_loglike(smooth_atom):
             A 1D-array representing the diagonal of the Hessian
             evaluated at `natural_param`.
         """
-        return np.ones_like(natural_param)
+        return self.scale(np.ones_like(natural_param))
 
     def get_data(self):
         return self.response
