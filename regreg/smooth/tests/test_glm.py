@@ -15,6 +15,7 @@ def test_logistic():
 
         L = glm.logistic(X, Y, trials=T)
         L.smooth_objective(np.zeros(L.shape), 'both')
+        L.hessian(np.zeros(L.shape))
 
         if T is None:
             np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
@@ -41,6 +42,7 @@ def test_poisson():
 
     L = glm.poisson(X, Y)
     L.smooth_objective(np.zeros(L.shape), 'both')
+    L.hessian(np.zeros(L.shape))
 
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                X.T.dot(1 - Y))
@@ -62,6 +64,7 @@ def test_gaussian():
     Y = np.random.standard_normal(10)
 
     L = glm.gaussian(X, Y)
+    L.hessian(np.zeros(L.shape))
     L.smooth_objective(np.zeros(L.shape), 'both')
 
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
@@ -107,6 +110,7 @@ def test_coxph():
 
     L = coxph(X, T, S)
     L.smooth_objective(np.zeros(L.shape), 'both')
+    L.hessian(np.zeros(L.shape))
 
     L.gradient(np.zeros(L.shape))
 
