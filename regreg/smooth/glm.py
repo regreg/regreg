@@ -630,7 +630,11 @@ class logistic_loglike(smooth_atom):
         return self.successes, self.trials
 
     def set_data(self, data):
-        successes, trials = data
+        if type(data) == type((3,)):
+            successes, trials = data
+        else:
+            successes = data
+            trials = None
 
         if sparse.issparse(successes):
             #Convert sparse success vector to an array
@@ -1062,7 +1066,7 @@ class coxph(glm):
         """
         if PHReg_available:
             beta = self.apply_offset(beta)
-            return -self.model.efron_hessian(beta)
+            return self.scale(-self.model.efron_hessian(beta))
         else:
             p = np.asarray(beta).shape[0]
             return np.zeros((p,p))
