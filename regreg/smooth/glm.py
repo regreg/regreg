@@ -630,7 +630,11 @@ class logistic_loglike(smooth_atom):
         return self.successes, self.trials
 
     def set_data(self, data):
-        successes, trials = data
+        if type(data) == type((3,)):
+            successes, trials = data
+        else:
+            successes = data
+            trials = None
 
         if sparse.issparse(successes):
             #Convert sparse success vector to an array
