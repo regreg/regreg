@@ -619,7 +619,9 @@ class logistic_loglike(smooth_atom):
         if np.max(x) > 1e2:
             overflow = True
             not_overflow_ind = np.where(x <= 1e2)[0]
-            exp_x = np.exp(x[not_overflow_ind])
+            exp_x = np.zeros_like(x)
+            exp_x[not_overflow_ind] = np.exp(x[not_overflow_ind])
+            exp_x[~not_overflow_ind] = np.exp(100)
         else:
             overflow = False
             exp_x = np.exp(x)
