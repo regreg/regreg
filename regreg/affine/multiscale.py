@@ -133,7 +133,10 @@ class multiscale(affine_transform):
         v : np.float(self.input_shape)
         """
 
-        v_scaled = v / self.sizes
+        if v.ndim == 1:
+            v_scaled = v / self.sizes
+        else:
+            v_scaled = v / self.sizes[:,None]
         if self.scaling is not None:
             v_scaled *= self.scaling
         if not self._all:
@@ -151,5 +154,86 @@ class multiscale(affine_transform):
             output = -np.cumsum(_output2)
         return output - output.mean()
         
+    def form_matrix(self, slices):
+        """
+        Form a matrix with given slices of multiscale transform.
+        """
+        p = self.input_shape[0]
+        X_E = np.zeros((p, len(slices)))
+        length = np.zeros(len(slices))
+        for k, ij in enumerate(slices):
+            i,j = ij
+            X_E[i:j, k] = 1.
+            length[k] = j-i
 
+        X_hat = X_E - X_E.mean(0)[None,:]
+        return X_hat / np.sqrt(length), length
+
+def SMUCE_stat(M, Z, sigma=None):
+    """
+
+    Compute multiscale test statistic of Chan and Walther. Used
+    in the SMUCE algorithm and in the multiscale change point
+    algorithm in the square-root LASSO selective inference paper.
+
+    Parameters
+    ----------
+
+    M : instance of `multiscale`
+    
+    Z : np.ndarray
+        Data on which to compute the statistic.
+
+    sigma : float
+        Noise level. Defaults to np.std(Z).
+
+    Notes
+    -----
+
+    M's scaling is ignored, even if not None.
+
+    """
+
+    p = Z.shape[0]
+    M.scaling, old = np.sqrt(M.sizes), M.scaling
+    Z0 = Z - Z.mean()
+    if sigma is None:
+        sigma_hat = np.std(Z)
+    T = np.fabs(M.linear_map(Z0) / sigma_hat) - np.sqrt(2 * np.log(p / M.sizes))
+    idx = np.argmax(T)
+    return T[idx], M.slices[idx]
+
+def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
+    """
+
+    Choose tuning parameter 
+    in the SMUCE algorithm and in the multiscale change point
+    algorithm in the square-root LASSO selective inference paper.
+
+    Parameters
+    ----------
+
+    M : instance of `multiscale`
+    
+    ndraw : int
+        How many Monte Carlo draws.
+
+    quantile : float
+        Which quantile of Monte Carlo draws to choose.
+
+    sigma : float
+        Passed to `SMUCE_stat`
+
+    Notes
+    -----
+
+    M's scaling is ignored, even if not None.
+
+    """
+    V = []
+    p = M.input_shape[0]
+    for i in range(ndraw):
+        Z = np.random.standard_normal(p)
+        V.append(SMUCE_stat(M, Z)[0])
+    return np.percentile(V, 100*quantile)
 
