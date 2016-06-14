@@ -132,9 +132,6 @@ class affine_transform(object):
         ----------
         x : ndarray
             array to which to apply transform.  Can be 1D or 2D
-        copy : {True, False}, optional
-            If True, in situations where return is identical to `x`, ensure
-            returned value is a copy.
 
         Returns
         -------
@@ -155,7 +152,36 @@ class affine_transform(object):
         elif self.diagD:
             # Deal with 1D or 2D input or linear operator
             return broadcast_first(self.linear_operator, x, mul)
-        return np.dot(self.linear_operator, x)
+        return self.linear_operator.dot(x)
+
+    def dot(self, x):
+        r"""Apply linear part of transform to `x`.
+        Returns `self.linear_map(x)`.
+        
+        Parameters
+        ----------
+        x : ndarray
+            array to which to apply transform.  Can be 1D or 2D
+
+        Returns
+        -------
+        Dx : ndarray
+            `x` transformed with linear component
+
+        """
+        return self.linear_map(x)
+    
+    @property
+    def T(self, doc="Return the adjoint."):
+        return adjoint(self)
+
+    @property
+    def shape(self, doc="Shape of linear map. " + 
+              "Usual 2-tuple if transform can be represented by 2-dim array."):
+        if len(self.input_shape) == 1 and len(self.output_shape) == 1:
+            return (self.output_shape[0], self.input_shape[0])
+        else:
+            return (self.output_shape, self.input_shape)
 
     def affine_map(self, x):
         r"""Apply linear and affine offset to `x`
@@ -815,7 +841,7 @@ def astransform(X):
     else:
         return linear_transform(X)
 
-class adjoint(object):
+class adjoint(linear_transform):
 
     """
     Given an affine_transform, return a linear_transform
