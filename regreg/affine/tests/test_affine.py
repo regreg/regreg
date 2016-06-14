@@ -61,7 +61,9 @@ def test_affine_transform():
         trans = affine_transform(None, np.zeros((m,1)))
         assert_array_almost_equal(trans.affine_map(x), x)
         assert_array_almost_equal(trans.linear_map(x), x)
+        assert_array_almost_equal(trans.dot(x), x)
         assert_array_almost_equal(trans.adjoint_map(x), x)
+        assert_array_almost_equal(trans.T.dot(x), x)
         # With linear eye and None affine offset - identity again
         trans = affine_transform(np.eye(m), None)
         assert_array_almost_equal(trans.affine_map(x), x)
