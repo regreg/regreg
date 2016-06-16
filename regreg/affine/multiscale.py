@@ -1,3 +1,5 @@
+from copy import copy
+
 import numpy as np
 from ..affine import affine_transform
 
@@ -54,6 +56,19 @@ class multiscale(affine_transform):
         self.sizes = self.slices['end'] - self.slices['start'] * 1.
         self.input_shape = (p,)
         self.output_shape = (len(self.slices),)
+
+    def __copy__(self):
+        M = multiscale(self.p)
+        M.minsize = self.minsize
+        M.slices = copy(self.slices)
+        M.scaling = copy(self.scaling)
+        if hasattr(self, "_mask"):
+            M._mask = copy(self._mask)
+        M._all = self._all
+        M.sizes = copy(self.sizes)
+        M.input_shape = self.input_shape
+        M.output_shape = self.output_shape
+        return M
 
     def update_slices(self, slices, scaling=None):
         """
