@@ -156,7 +156,8 @@ class affine_transform(object):
 
     def dot(self, x):
         r"""Apply linear part of transform to `x`.
-        Returns `self.linear_map(x)`.
+        Returns `self.linear_map(x)` unless `x`
+        is a transform, in which case it returns the composition.
         
         Parameters
         ----------
@@ -169,11 +170,18 @@ class affine_transform(object):
             `x` transformed with linear component
 
         """
-        return self.linear_map(x)
+        if not isinstance(x, affine_transform):
+            return self.linear_map(x)
+        else:
+            return composition(self, x)
     
     @property
     def T(self, doc="Return the adjoint."):
         return adjoint(self)
+
+    @property
+    def ndim(self, doc="Dimension of array."):
+        return len(self.input_shape) + len(self.output_shape)
 
     @property
     def shape(self, doc="Shape of linear map. " + 
@@ -345,7 +353,7 @@ class reshape(linear_transform):
 #     reshape_output = reshape(Tm.shape[0], output_shape)
 #     return composition(reshape_output, Tm, reshape_input)
 
-class normalize(object):
+class normalize(affine_transform):
 
     '''
     Normalize column by means and possibly scale. Could make
@@ -585,7 +593,7 @@ class normalize(object):
         else:
             raise ValueError('only possible to extract matrix if normalization was done inplace')
 
-class identity(object):
+class identity(affine_transform):
 
     """
     Identity transform
@@ -605,7 +613,7 @@ class identity(object):
     def adjoint_map(self, x):
         return self.linear_map(x)
 
-class vstack(object):
+class vstack(affine_transform):
     """
     Stack several affine transforms vertically together though
     not necessarily as a big matrix.
@@ -666,7 +674,7 @@ class vstack(object):
             result += t.adjoint_map(u[g].reshape(s))
         return result
 
-class hstack(object):
+class hstack(affine_transform):
     """
     Stack several affine transforms horizontally together though
     not necessarily as a big matrix.
@@ -732,7 +740,7 @@ class hstack(object):
             result[g] = t.adjoint_map(u).reshape(-1)
         return result
 
-class product(object):
+class product(affine_transform):
     """
     Create a transform that maps the product of the inputs
     to the product of the outputs.
@@ -862,7 +870,7 @@ class adjoint(linear_transform):
     def adjoint_map(self, x):
         return self.transform.linear_map(x)
 
-class tensorize(object):
+class tensorize(affine_transform):
 
     """
     Given an affine_transform, return a linear_transform
@@ -890,7 +898,7 @@ class tensorize(object):
     def adjoint_map(self, x):
         return self.transform.adjoint_map(x)
 
-class residual(object):
+class residual(affine_transform):
 
     """
     Compute the residual from an affine transform.
@@ -913,7 +921,7 @@ class residual(object):
     def adjoint_map(self, u):
         return u - self.transform.adjoint_map(u)
 
-class composition(object):
+class composition(affine_transform):
 
     """
     Composes a list of affine transforms, executing right to left
@@ -949,7 +957,7 @@ class composition(object):
             output = transform.adjoint_map(output)
         return output
 
-class affine_sum(object):
+class affine_sum(affine_transform):
 
     """
     Creates the (weighted) sum of a list of affine_transforms
@@ -992,7 +1000,7 @@ class affine_sum(object):
         return output
 
 
-class scalar_multiply(object):
+class scalar_multiply(affine_transform):
 
     def __init__(self, atransform, scalar):
         self.input_shape, self.output_shape = (atransform.input_shape, atransform.output_shape)

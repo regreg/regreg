@@ -92,6 +92,7 @@ class multiscale(affine_transform):
             self._all = False
         else:
             self.slices = slices
+            self._all = False
         self.sizes = self.slices['end'] - self.slices['start'] * 1.
         self.output_shape = (len(self.slices),)
         self.scaling = scaling
