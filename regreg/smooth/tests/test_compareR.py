@@ -20,6 +20,7 @@ from regreg.tests.decorators import set_seed_for_test
 @np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
 def test_gaussian():
 
+    rpy.r('set.seed(0)')
     rpy.r('X = matrix(rnorm(1000), 50, 20)')
     rpy.r('Y = rnorm(50)')
     rpy.r('C = coef(lm(Y~X-1))')
@@ -35,6 +36,7 @@ def test_gaussian():
 @np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
 def test_logistic():
 
+    rpy.r('set.seed(0)')
     rpy.r('X = matrix(rnorm(1000), 50, 20)')
     rpy.r('TR = c(rep(1,20), rep(2,30))')
     rpy.r('Y = rbinom(50, TR, 0.5)')
@@ -46,12 +48,13 @@ def test_logistic():
     L = rr.glm.logistic(X, Y, trials=TR)
     soln = L.solve(min_its=200)
 
-    np.testing.assert_allclose(C, soln)
+    np.testing.assert_allclose(C, soln, atol=1.e-5, rtol=1.e-5)
 
 @set_seed_for_test(10)
 @np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
 def test_poisson():
 
+    rpy.r('set.seed(0)')
     rpy.r('X = matrix(rnorm(1000), 50, 20)')
     rpy.r('Y = rpois(50, 5)')
     rpy.r('C = coef(glm(Y~X-1, family=poisson()))')
@@ -68,6 +71,7 @@ def test_poisson():
 def test_coxph():
 
     rpy.r('''
+    set.seed(0)
     sigma=1.
     X = matrix(rnorm(250), 50, 5)
     X = scale(X, TRUE, TRUE)
