@@ -199,8 +199,9 @@ class glm(smooth_atom):
     def latexify(self, var=None, idx=''):
         return self.affine_atom.latexify(var=var, idx=idx)
 
-    @staticmethod
-    def gaussian(X, response,
+    @classmethod
+    def gaussian(klass,
+                 X, response,
                  coef=1., 
                  offset=None,
                  quadratic=None, 
@@ -237,15 +238,15 @@ class glm(smooth_atom):
         loss = gaussian_loglike(response.shape,
                                 response,
                                 coef=coef)
-        return glm(X, 
-                   response, 
-                   loss,
-                   offset=offset,
-                   quadratic=quadratic,
-                   initial=initial)
+        return klass(X, 
+                     response, 
+                     loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial)
 
-    @staticmethod
-    def logistic(X, successes, 
+    @classmethod
+    def logistic(klass, X, successes, 
                  trials=None,
                  coef=1., 
                  offset=None,
@@ -289,15 +290,16 @@ class glm(smooth_atom):
                                      successes,
                                      coef=coef,
                                      trials=trials)
-        return glm(X, 
-                   (successes, loss.trials),
-                   loss,
-                   offset=offset,
-                   quadratic=quadratic,
-                   initial=initial)
+        return klass(X, 
+                     (successes, loss.trials),
+                     loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial)
 
-    @staticmethod
-    def poisson(X, counts,
+    @classmethod
+    def poisson(klass,
+                X, counts,
                 coef=1., 
                 offset=None,
                 quadratic=None, 
@@ -334,13 +336,14 @@ class glm(smooth_atom):
         loss = poisson_loglike(counts.shape,
                                     counts,
                                     coef=coef)
-        return glm(X, counts, loss,
-                   offset=offset,
-                   quadratic=quadratic,
-                   initial=initial)
+        return klass(X, counts, loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial)
 
-    @staticmethod
-    def huber(X, 
+    @classmethod
+    def huber(klass,
+              X, 
               response,
               smoothing_parameter,
               coef=1., 
@@ -385,10 +388,10 @@ class glm(smooth_atom):
                               response,
                               smoothing_parameter,
                               coef=coef)
-        return glm(X, response, loss,
-                   offset=offset,
-                   quadratic=quadratic,
-                   initial=initial)
+        return klass(X, response, loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial)
 
 
 class gaussian_loglike(smooth_atom):
