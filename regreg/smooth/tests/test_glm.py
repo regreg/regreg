@@ -29,8 +29,8 @@ def test_logistic():
         L.objective(np.zeros(L.shape))
         L.latexify()
 
-        L.loss.data = (Y, T)
-        L.loss.data
+        L.saturated_loss.data = (Y, T)
+        L.saturated_loss.data
 
         L.data = (X, (Y, T))
         L.data
@@ -52,8 +52,8 @@ def test_poisson():
     L.objective(np.zeros(L.shape))
     L.latexify()
 
-    L.loss.data = Y
-    L.loss.data
+    L.saturated_loss.data = Y
+    L.saturated_loss.data
 
     L.data = (X, Y)
     L.data
@@ -75,8 +75,8 @@ def test_gaussian():
     L.objective(np.zeros(L.shape))
     L.latexify()
 
-    L.loss.data = Y
-    L.loss.data
+    L.saturated_loss.data = Y
+    L.saturated_loss.data
 
     L.data = (X, Y)
     L.data
@@ -95,8 +95,8 @@ def test_huber():
     L.objective(np.zeros(L.shape))
     L.latexify()
 
-    L.loss.data = Y
-    L.loss.data
+    L.saturated_loss.data = Y
+    L.saturated_loss.data
 
     L.data = (X, Y)
     L.data

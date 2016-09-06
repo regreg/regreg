@@ -39,7 +39,6 @@ def test_logistic_counts():
     Ynew = np.hstack(Ynew)
     Xnew =  np.vstack(Xnew)
 
-
     loss = rr.logistic_loglike.linear(Xnew, successes=Ynew)
     penalty = rr.quadratic(p, coef=1.)
 
