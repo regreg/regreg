@@ -55,7 +55,7 @@ class glm(smooth_atom):
 
         """
 
-        self.loss = loss
+        self.saturated_loss = loss
         self.data = X, Y
         self.affine_atom = affine_smooth(loss, X)
         smooth_atom.__init__(self,
@@ -93,7 +93,7 @@ class glm(smooth_atom):
         return self.affine_atom.smooth_objective(beta, mode=mode, check_feasibility=check_feasibility)
 
     def get_data(self):
-        return self._X, self._Y
+        return self._X, self.saturated_loss.data
 
     def set_data(self, data):
         X, Y = data
@@ -101,7 +101,7 @@ class glm(smooth_atom):
         self._X = X
         self._is_transform = id(self._X) == id(self._transform) # i.e. astransform was a nullop
         self._Y = Y
-        self.loss.data = Y
+        self.saturated_loss.data = Y
 
     data = property(get_data, set_data, doc="Data for the general linear model.")
 
@@ -187,9 +187,9 @@ class glm(smooth_atom):
         linpred = self.linear_predictor(beta)
         if self._is_transform:
             raise ValueError('refusing to form Hessian for arbitrary affine_transform, use an ndarray or scipy.sparse')
-        if not hasattr(self.loss, 'hessian'):
+        if not hasattr(self.saturated_loss, 'hessian'):
             raise ValueError('loss has no hessian method')
-        W = self.loss.hessian(linpred)
+        W = self.saturated_loss.hessian(linpred)
         X = self.data[0]
         if not sparse.issparse(X): # assuming it is an ndarray
             return X.T.dot(W[:,None] * X)
@@ -287,9 +287,9 @@ class glm(smooth_atom):
         """
 
         loss = logistic_loglike(successes.shape,
-                                     successes,
-                                     coef=coef,
-                                     trials=trials)
+                                successes,
+                                coef=coef,
+                                trials=trials)
         return klass(X, 
                      (successes, loss.trials),
                      loss,
@@ -576,7 +576,8 @@ class logistic_loglike(smooth_atom):
                 log_exp_x = np.log(1.+exp_x)
                 ratio *= exp_x/(1.+exp_x)
                 
-            f, g = -self.scale((np.dot(self.successes,x) - np.sum(self.trials * log_exp_x))), - self.scale(self.successes-ratio)
+            f, g = -self.scale((np.dot(self.successes, x) - 
+                                np.sum(self.trials * log_exp_x))), - self.scale(self.successes - ratio)
             return f, g
         elif mode == 'grad':
             ratio = self.trials * 1.
@@ -584,7 +585,7 @@ class logistic_loglike(smooth_atom):
                 ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
             else:
                 ratio *= exp_x/(1.+exp_x)
-            f, g = None, - self.scale(self.successes-ratio)
+            f, g = None, - self.scale(self.successes - ratio)
             return g
         elif mode == 'func':
             if overflow:
@@ -592,7 +593,7 @@ class logistic_loglike(smooth_atom):
                 log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
             else:
                 log_exp_x = np.log(1.+exp_x)
-            f, g = - self.scale(np.dot(self.successes,x) - np.sum(self.trials * log_exp_x)), None
+            f, g = - self.scale(np.dot(self.successes, x) - np.sum(self.trials * log_exp_x)), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -632,7 +633,7 @@ class logistic_loglike(smooth_atom):
         return self.scale(exp_x / (1 + exp_x)**2 * self.trials)
 
     def get_data(self):
-        return self.successes, self.trials
+        return self.successes
 
     def set_data(self, data):
         if type(data) == type((3,)):
