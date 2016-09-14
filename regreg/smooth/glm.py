@@ -413,7 +413,8 @@ class gaussian_loglike(smooth_atom):
                  coef=1., 
                  offset=None,
                  quadratic=None,
-                 initial=None):
+                 initial=None,
+                 case_weights=None):
 
         smooth_atom.__init__(self,
                              shape,
@@ -426,6 +427,15 @@ class gaussian_loglike(smooth_atom):
             self.response = response.toarray().flatten()
         else:
             self.response = np.asarray(response)
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.response.shape:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
     def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
         """
@@ -456,16 +466,27 @@ class gaussian_loglike(smooth_atom):
         
         natural_param = self.apply_offset(natural_param)
         resid = natural_param - self.response 
-        if mode == 'both':
-            f, g = self.scale(np.sum(resid**2)) / 2., self.scale(resid)
-            return f, g
-        elif mode == 'grad':
-            return self.scale(resid) 
-        elif mode == 'func':
-            return self.scale(np.sum(resid**2)) / 2.
+        if self.case_weights is None:
+            if mode == 'both':
+                f, g = self.scale(np.sum(resid**2)) / 2., self.scale(resid)
+                return f, g
+            elif mode == 'grad':
+                return self.scale(resid) 
+            elif mode == 'func':
+                return self.scale(np.sum(resid**2)) / 2.
+            else:
+                raise ValueError("mode incorrectly specified")
         else:
-            raise ValueError("mode incorrectly specified")
-
+            if mode == 'both':
+                f, g = self.scale(np.sum(self.case_weights*resid**2)) / 2., self.scale(self.case_weights*resid)
+                return f, g
+            elif mode == 'grad':
+                return self.scale(self.case_weights*resid) 
+            elif mode == 'func':
+                return self.scale(np.sum(self.case_weights*resid**2)) / 2.
+            else:
+                raise ValueError("mode incorrectly specified")
+            
     # Begin loss API
 
     def hessian(self, natural_param):
@@ -485,7 +506,10 @@ class gaussian_loglike(smooth_atom):
             A 1D-array representing the diagonal of the Hessian
             evaluated at `natural_param`.
         """
-        return self.scale(np.ones_like(natural_param))
+        if self.case_weights is None:
+            return self.scale(np.ones_like(natural_param))
+        else:
+            return self.scale(self.case_weights)
 
     def get_data(self):
         return self.response
@@ -506,10 +530,15 @@ class logistic_loglike(smooth_atom):
     objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
     #TODO: Make init more standard, replace np.dot with shape friendly alternatives in case successes.shape is (n,1)
 
-    def __init__(self, shape, successes, 
-                 trials=None, coef=1., offset=None,
+    def __init__(self, 
+                 shape, 
+                 successes, 
+                 trials=None, 
+                 coef=1., 
+                 offset=None,
                  quadratic=None,
-                 initial=None):
+                 initial=None,
+                 case_weights=None):
 
         smooth_atom.__init__(self,
                              shape,
@@ -526,6 +555,15 @@ class logistic_loglike(smooth_atom):
 
         devq = identity_quadratic(0,0,0,-loss_constant)
         self.quadratic += devq
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.successes.shape:
+                raise ValueError('case_weights should have same shape as successes')
+        else:
+            self.case_weights = None
 
     def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
         """
@@ -576,8 +614,13 @@ class logistic_loglike(smooth_atom):
                 log_exp_x = np.log(1.+exp_x)
                 ratio *= exp_x/(1.+exp_x)
                 
-            f, g = -self.scale((np.dot(self.successes, x) - 
-                                np.sum(self.trials * log_exp_x))), - self.scale(self.successes - ratio)
+            if self.case_weights is None:
+                f, g = -self.scale((np.dot(self.successes, x) - 
+                                    np.sum(self.trials * log_exp_x))), - self.scale(self.successes - ratio)
+            else:
+                f, g = -self.scale((np.dot(self.case_weights * self.successes, x) - 
+                                    np.sum(self.case_weights * self.trials * log_exp_x))), - self.scale(self.case_weights * (self.successes - ratio))
+                
             return f, g
         elif mode == 'grad':
             ratio = self.trials * 1.
@@ -585,15 +628,22 @@ class logistic_loglike(smooth_atom):
                 ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
             else:
                 ratio *= exp_x/(1.+exp_x)
-            f, g = None, - self.scale(self.successes - ratio)
+            if self.case_weights is None:
+                f, g = None, - self.scale(self.successes - ratio)
+            else:
+                f, g = None, - self.scale(self.case_weights * (self.successes - ratio))
             return g
+
         elif mode == 'func':
             if overflow:
                 log_exp_x = x * 1.
                 log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
             else:
                 log_exp_x = np.log(1.+exp_x)
-            f, g = - self.scale(np.dot(self.successes, x) - np.sum(self.trials * log_exp_x)), None
+            if self.case_weights is None:
+                f, g = - self.scale(np.dot(self.successes, x) - np.sum(self.trials * log_exp_x)), None
+            else:
+                f, g = - self.scale(np.dot(self.case_weights * self.successes, x) - np.sum(self.case_weights * self.trials * log_exp_x)), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -630,7 +680,10 @@ class logistic_loglike(smooth_atom):
             overflow = False
             exp_x = np.exp(x)
 
-        return self.scale(exp_x / (1 + exp_x)**2 * self.trials)
+        if self.case_weights is None:
+            return self.scale(exp_x / (1 + exp_x)**2 * self.trials)
+        else:
+            return self.scale(exp_x / (1 + exp_x)**2 * self.trials * self.case_weights)
 
     def get_data(self):
         return self.successes
@@ -671,12 +724,14 @@ class poisson_loglike(smooth_atom):
 
     objective_template = r"""\ell^{\text{Pois}}\left(%(var)s\right)"""
 
-    def __init__(self, shape, 
+    def __init__(self, 
+                 shape, 
                  counts, 
                  coef=1., 
                  offset=None,
                  quadratic=None,
-                 initial=None):
+                 initial=None,
+                 case_weights=None):
 
         smooth_atom.__init__(self,
                              shape,
@@ -704,6 +759,15 @@ class poisson_loglike(smooth_atom):
 
         devq = identity_quadratic(0,0,0,-loss_constant)
         self.quadratic += devq
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.successes.shape:
+                raise ValueError('case_weights should have same shape as successes')
+        else:
+            self.case_weights = None
 
     def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
         """
@@ -738,13 +802,22 @@ class poisson_loglike(smooth_atom):
         exp_x = np.exp(x)
         
         if mode == 'both':
-            f, g = - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), - self.scale(self.counts - exp_x)
+            if self.case_weights is None:
+                f, g = - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), - self.scale(self.counts - exp_x)
+            else:
+                f, g = - self.scale(-np.sum(self.case_weights * exp_x) + np.dot(self.case_weights * self.counts,x)), - self.scale(self.case_weights * (self.counts - exp_x))
             return f, g
         elif mode == 'grad':
-            f, g = None, - self.scale(self.counts - exp_x)
+            if self.case_weights is None:
+                f, g = None, - self.scale(self.counts - exp_x)
+            else:
+                f, g = None, - self.scale(self.case_weights * (self.counts - exp_x))
             return g
         elif mode == 'func':
-            f, g =  - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), None
+            if self.case_weights is None:
+                f, g =  - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), None
+            else:
+                f, g =  - self.scale(-np.sum(self.case_weights * exp_x) + np.dot(self.case_weights * self.counts,x)), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -769,8 +842,11 @@ class poisson_loglike(smooth_atom):
             evaluated at `natural_param`.
         """
         x = natural_param # shorthand
-        return self.scale(np.exp(x))
-
+        if self.case_weights is None:
+            return self.scale(np.exp(x))
+        else:
+            return self.scale(self.case_weights * np.exp(x))
+            
     def get_data(self):
         return self.counts
 
@@ -792,7 +868,8 @@ class huber_loss(smooth_atom):
                  coef=1., 
                  offset=None,
                  quadratic=None,
-                 initial=None):
+                 initial=None,
+                 case_weights=None):
 
         smooth_atom.__init__(self,
                              shape,
@@ -809,6 +886,9 @@ class huber_loss(smooth_atom):
             self.response = response.toarray().flatten()
         else:
             self.response = np.asarray(response)
+
+        if case_weights is not None:
+            raise ValueError('case_weights not implemented for Huber')
 
     def smooth_objective(self, param, mode='both', check_feasibility=False):
         """
