@@ -41,6 +41,31 @@ class quadratic(smooth_atom):
         if self.Q is not None:
             self.Q_transform = affine_transform(Q, None, Qdiag)
 
+    @staticmethod
+    def fromarray(Q, 
+                  offset=None,
+                  quadratic=None,
+                  initial=None):
+        return quadratic((Q.shape[0],), 
+                         Q=Q,
+                         offset=offset,
+                         quadratic=quadratic,
+                         initial=initial)
+
+    @staticmethod
+    def diagonal(D, 
+                 offset=None,
+                 quadratic=None,
+                 initial=None):
+        D = np.asarray(D)
+        return quadratic((D.shape[0],), 
+                         Q=D,
+                         Qdiag=True,
+                         offset=offset,
+                         quadratic=quadratic,
+                         initial=initial)
+
+
     def __repr__(self):
         if self.quadratic.iszero:
             return "%s(%s, coef=%s, Q=%s, Qdiag=%s, offset=%s)" % \
