@@ -12,7 +12,7 @@ from ..atoms.cones import zero
 from ..atoms import _work_out_conjugate
 from ..identity_quadratic import identity_quadratic
 
-class quadratic(smooth_atom):
+class quadratic_loss(smooth_atom):
     """
     The square of the l2 norm
 
@@ -46,7 +46,7 @@ class quadratic(smooth_atom):
                   offset=None,
                   quadratic=None,
                   initial=None):
-        return quadratic((Q.shape[0],), 
+        return quadratic_loss((Q.shape[0],), 
                          Q=Q,
                          offset=offset,
                          quadratic=quadratic,
@@ -58,7 +58,7 @@ class quadratic(smooth_atom):
                  quadratic=None,
                  initial=None):
         D = np.asarray(D)
-        return quadratic((D.shape[0],), 
+        return quadratic_loss((D.shape[0],), 
                          Q=D,
                          Qdiag=True,
                          offset=offset,
@@ -132,19 +132,19 @@ class quadratic(smooth_atom):
             if self.offset is not None:
                 sq.linear_term -= self.scale(self.Q_transform.linear_map(self.offset))
             if self.Q_transform.diagD:
-                return quadratic(self.shape,
-                                 Q=1./(self.coef*self.Q_transform.linear_operator + sq.coef),
-                                 offset=offset,
-                                 quadratic=outq, 
-                                 coef=1.,
-                                 Qdiag=True)
+                return quadratic_loss(self.shape,
+                                      Q=1./(self.coef*self.Q_transform.linear_operator + sq.coef),
+                                      offset=offset,
+                                      quadratic=outq, 
+                                      coef=1.,
+                                      Qdiag=True)
             elif factor:
-                return quadratic(self.shape,
-                             Q=cholesky(self.coef * self.Q + sq.coef*np.identity(self.shape)),
-                             Qdiag=False,
-                             offset=offset,
-                             quadratic=outq,
-                             coef=1.)
+                return quadratic_loss(self.shape,
+                                      Q=cholesky(self.coef * self.Q + sq.coef*np.identity(self.shape)),
+                                      Qdiag=False,
+                                      offset=offset,
+                                      quadratic=outq,
+                                      coef=1.)
             else:
                 raise ValueError('factor is False, so no factorization was done')
 
@@ -221,7 +221,7 @@ def signal_approximator(signal, coef=1):
        \frac{C}{2} \|\beta-Y\|^2_2
 
     """
-    atom = quadratic.shift(signal, coef=coef)    
+    atom = quadratic_loss.shift(signal, coef=coef)    
     atom.objective_vars['offset'] = 'Y'
     atom.objective_template = r"""\frac{%(coef)s}{2}\left\|%(var)s\right\|^2_2"""
     return atom

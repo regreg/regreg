@@ -50,7 +50,9 @@ from .affine.factored_matrix import (factored_matrix, compute_iterative_svd,
 from .smooth import (smooth_atom, 
                      affine_smooth, 
                      sum as smooth_sum)
-from .smooth.quadratic import (quadratic, cholesky, signal_approximator,
+from .smooth.quadratic import (quadratic_loss, 
+                               cholesky, 
+                               signal_approximator,
                                squared_error)
 
 from .smooth.glm import glm, multinomial_loglike, logistic_loglike, poisson_loglike, gaussian_loglike, coxph
