@@ -21,7 +21,7 @@ def test_logistic_counts():
     X = np.random.normal(0,1,n*p).reshape((n,p))
 
     loss = rr.logistic_loglike.linear(X, successes=successes, trials=trials)
-    penalty = rr.quadratic(p, coef=1.)
+    penalty = rr.quadratic_loss(p, coef=1.)
 
     prob1 = rr.container(loss, penalty)
     solver1 = rr.FISTA(prob1)
@@ -40,7 +40,7 @@ def test_logistic_counts():
     Xnew =  np.vstack(Xnew)
 
     loss = rr.logistic_loglike.linear(Xnew, successes=Ynew)
-    penalty = rr.quadratic(p, coef=1.)
+    penalty = rr.quadratic_loss(p, coef=1.)
 
     prob2 = rr.container(loss, penalty)
     solver2 = rr.FISTA(prob2)
@@ -68,7 +68,7 @@ def test_logistic_offset():
     loss = rr.logistic_loglike.linear(X, successes=successes, trials=trials)
     weights = np.ones(p+1)
     weights[0] = 0.
-    penalty = rr.quadratic.linear(weights, coef=.1, diag=True)
+    penalty = rr.quadratic_loss.linear(weights, coef=.1, diag=True)
 
     prob1 = rr.container(loss, penalty)
     solver1 = rr.FISTA(prob1)
@@ -80,7 +80,7 @@ def test_logistic_offset():
     loss = rr.logistic_loglike.affine(X, successes=successes, trials=trials, offset = diff*np.ones(n))
     weights = np.ones(p+1)
     weights[0] = 0.
-    penalty = rr.quadratic.linear(weights, coef=.1, diag=True)
+    penalty = rr.quadratic_loss.linear(weights, coef=.1, diag=True)
 
     prob2 = rr.container(loss, penalty)
     solver2 = rr.FISTA(prob2)

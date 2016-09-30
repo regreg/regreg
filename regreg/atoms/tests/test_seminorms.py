@@ -174,7 +174,7 @@ class Solver(object):
             self.prox_center = prox_center
 
         self.q = rr.identity_quadratic(L, self.prox_center, 0, 0)
-        self.loss = rr.quadratic.shift(self.prox_center, coef=L)
+        self.loss = rr.quadratic_loss.shift(self.prox_center, coef=L)
 
     @set_seed_for_test()
     def test_duality_of_projections(self):
@@ -256,7 +256,7 @@ class Solver(object):
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
         q = rr.identity_quadratic(L, prox_center, 0, 0)
-        lossq = rr.quadratic.shift(prox_center.copy(), coef=0.6*L)
+        lossq = rr.quadratic_loss.shift(prox_center.copy(), coef=0.6*L)
         lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center.copy(), 0, 0)
         problem = rr.simple_problem(lossq, atom)
 
@@ -360,7 +360,7 @@ class Solver(object):
         # write the loss in terms of a quadratic for the smooth loss and a smooth function...
 
         q = rr.identity_quadratic(L, prox_center, 0, 0)
-        lossq = rr.quadratic.shift(prox_center.copy(), coef=0.6*L)
+        lossq = rr.quadratic_loss.shift(prox_center.copy(), coef=0.6*L)
         lossq.quadratic = rr.identity_quadratic(0.4*L, prox_center.copy(), 0, 0)
         problem = rr.container(lossq, atom)
         solver = rr.FISTA(problem)
