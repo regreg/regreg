@@ -1,5 +1,7 @@
-import numpy as np
 import warnings
+from copy import copy
+
+import numpy as np
 from scipy import sparse
 
 from . import smooth_atom, affine_smooth
@@ -198,6 +200,16 @@ class glm(smooth_atom):
 
     def latexify(self, var=None, idx=''):
         return self.affine_atom.latexify(var=var, idx=idx)
+
+    def __copy__(self):
+        klass = self.__class__
+        X, Y = self.data
+        return klass(copy(X), 
+                     copy(Y), 
+                     copy(self.saturated_loss), 
+                     quadratic=copy(self.quadratic),
+                     initial=copy(self.coefs),
+                     offset=copy(self.offset))
 
     @classmethod
     def gaussian(klass,
@@ -519,6 +531,15 @@ class gaussian_loglike(smooth_atom):
 
     data = property(get_data, set_data)
 
+    def __copy__(self):
+        return gaussian_loglike(self.shape,
+                                copy(self.response),
+                                coef=self.coef, 
+                                offset=copy(self.offset),
+                                quadratic=copy(self.quadratic),
+                                initial=copy(self.coefs),
+                                case_weights=copy(self.case_weights))
+
     # End loss API
 
 class logistic_loglike(smooth_atom):
@@ -714,6 +735,17 @@ class logistic_loglike(smooth_atom):
 
     data = property(get_data, set_data)
 
+    def __copy__(self):
+        successes, trials = self.data
+        return logistic_loglike(self.shape,
+                                copy(successes),
+                                trials=copy(self.trials),
+                                coef=self.coef,
+                                offset=copy(self.offset),
+                                quadratic=copy(self.quadratic),
+                                initial=copy(self.coefs),
+                                case_weights=copy(self.case_weights))
+
     # End loss API
 
 class poisson_loglike(smooth_atom):
@@ -855,6 +887,17 @@ class poisson_loglike(smooth_atom):
 
     data = property(get_data, set_data)
 
+    def __copy__(self):
+        counts = self.data
+        return poisson_loglike(self.shape,
+                               copy(counts),
+                               coef=self.coef,
+                               offset=copy(self.offset),
+                               quadratic=copy(self.quadratic),
+                               initial=copy(self.coefs),
+                               case_weights=copy(self.case_weights))
+
+
     # End loss API
 
 class huber_loss(smooth_atom):
@@ -955,6 +998,15 @@ class huber_loss(smooth_atom):
 
     data = property(get_data, set_data)
 
+    def __copy__(self):
+        response = self.data
+        return huber_loss(self.shape,
+                          copy(response),
+                          coef=self.coef,
+                          offset=copy(self.offset),
+                          quadratic=copy(self.quadratic),
+                          initial=copy(self.coefs))
+
     # End loss API
 
 class multinomial_loglike(smooth_atom):
@@ -965,7 +1017,11 @@ class multinomial_loglike(smooth_atom):
 
     objective_template = r"""\ell^{M}\left(%(var)s\right)"""
 
-    def __init__(self, shape, counts, coef=1., offset=None,
+    def __init__(self, 
+                 shape, 
+                 counts, 
+                 coef=1., 
+                 offset=None,
                  initial=None,
                  quadratic=None):
 

@@ -1,5 +1,7 @@
-import numpy as np
+from copy import copy
+
 import nose.tools as nt
+import numpy as np
 
 from regreg.smooth.glm import glm, coxph
 
@@ -16,6 +18,8 @@ def test_logistic():
         L = glm.logistic(X, Y, trials=T)
         L.smooth_objective(np.zeros(L.shape), 'both')
         L.hessian(np.zeros(L.shape))
+
+        Lcp = copy(L)
 
         if T is None:
             np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
@@ -43,6 +47,8 @@ def test_poisson():
     L = glm.poisson(X, Y)
     L.smooth_objective(np.zeros(L.shape), 'both')
     L.hessian(np.zeros(L.shape))
+
+    Lcp = copy(L)
 
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                X.T.dot(1 - Y))
@@ -72,6 +78,8 @@ def test_gaussian():
     np.testing.assert_allclose(L.hessian(np.zeros(L.shape)),
                                X.T.dot(X))
 
+    Lcp = copy(L)
+
     L.objective(np.zeros(L.shape))
     L.latexify()
 
@@ -88,6 +96,8 @@ def test_huber():
 
     L = glm.huber(X, Y, 0.1)
     L.smooth_objective(np.zeros(L.shape), 'both')
+
+    Lcp = copy(L)
 
     L.gradient(np.zeros(L.shape))
     nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))
