@@ -76,6 +76,18 @@ def test_gaussian():
     L.smooth_objective(np.zeros(L.shape), 'both')
     L_sub = L.subsample(range(5))
 
+    Xs = X[range(5)]
+    Ys = Y[range(5)]
+
+    beta = np.ones(5)
+    value_sub = 0.5 * np.linalg.norm(Ys - Xs.dot(beta))**2
+    grad_sub = Xs.T.dot(Xs.dot(beta) - Ys)
+
+    f, g= L_sub.smooth_objective(beta, 'both')
+
+    np.testing.assert_allclose(value_sub, f)
+    np.testing.assert_allclose(grad_sub, g)
+
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                -X.T.dot(Y))
     np.testing.assert_allclose(L.hessian(np.zeros(L.shape)),
