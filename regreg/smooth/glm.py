@@ -238,9 +238,9 @@ class glm(smooth_atom):
         idx_bool = np.zeros(n, np.bool)
         idx_bool[idx] = 1
 
-        if not hasattr(subsample_loss, 'case_weights') or subsample_loss.case_weights is None:
-            subsample_loss.case_weights = np.ones(n)
-        subsample_loss.case_weights *= idx_bool
+        if not hasattr(subsample_loss.saturated_loss, 'case_weights') or subsample_loss.saturated_loss.case_weights is None:
+            subsample_loss.saturated_loss.case_weights = np.ones(n)
+        subsample_loss.saturated_loss.case_weights *= idx_bool
 
         return subsample_loss
         
@@ -576,6 +576,9 @@ class gaussian_loglike(smooth_atom):
 
     # End loss API
 
+    def mean_function(self, eta):
+        return eta
+
 class logistic_loglike(smooth_atom):
 
     """
@@ -785,6 +788,10 @@ class logistic_loglike(smooth_atom):
 
     # End loss API
 
+    def mean_function(self, eta):
+        _exp_eta = np.exp(eta)
+        return _exp_eta / (1. + _exp_eta)
+
 class poisson_loglike(smooth_atom):
 
     """
@@ -936,6 +943,9 @@ class poisson_loglike(smooth_atom):
 
 
     # End loss API
+
+    def mean_function(self, eta):
+        return np.exp(eta)
 
 class huber_loss(smooth_atom):
 
