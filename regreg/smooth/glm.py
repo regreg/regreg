@@ -397,9 +397,9 @@ class glm(smooth_atom):
         """
 
         loss = huber_loss(response.shape,
-                              response,
-                              smoothing_parameter,
-                              coef=coef)
+                          response,
+                          smoothing_parameter,
+                          coef=coef)
         return klass(X, response, loss,
                      offset=offset,
                      quadratic=quadratic,
@@ -722,6 +722,9 @@ class logistic_loglike(smooth_atom):
         else:
             self.successes = np.asarray(successes)
 
+        if trials is None and hasattr(self, 'trials') and self.trials is not None:
+            trials = self.trials
+
         if trials is None:
             if not set([0,1]).issuperset(np.unique(self.successes)):
                 raise ValueError("Number of successes is not binary - must specify number of trials")
@@ -736,10 +739,10 @@ class logistic_loglike(smooth_atom):
     data = property(get_data, set_data)
 
     def __copy__(self):
-        successes, trials = self.data
+        successes, trials = self.data, self.trials
         return logistic_loglike(self.shape,
                                 copy(successes),
-                                trials=copy(self.trials),
+                                trials=copy(trials),
                                 coef=self.coef,
                                 offset=copy(self.offset),
                                 quadratic=copy(self.quadratic),
@@ -921,6 +924,7 @@ class huber_loss(smooth_atom):
                              initial=initial,
                              coef=coef)
 
+        self.smoothing_parameter = smoothing_parameter
         atom = l1norm(shape, lagrange=1.)
         Q = identity_quadratic(smoothing_parameter, 0, 0, 0)
         self.smoothed_atom = atom.smoothed(Q)
@@ -1002,6 +1006,7 @@ class huber_loss(smooth_atom):
         response = self.data
         return huber_loss(self.shape,
                           copy(response),
+                          self.smoothing_parameter,
                           coef=self.coef,
                           offset=copy(self.offset),
                           quadratic=copy(self.quadratic),
