@@ -92,7 +92,12 @@ class glm(smooth_atom):
         else returns both.
         """
         beta = self.apply_offset(beta)
-        return self.affine_atom.smooth_objective(beta, mode=mode, check_feasibility=check_feasibility)
+        value = self.affine_atom.smooth_objective(beta, mode=mode, check_feasibility=check_feasibility)
+
+        if mode in ['func', 'grad']:
+            return self.scale(value)
+        else:
+            return self.scale(value[0]), self.scale(value[1])
 
     def get_data(self):
         return self._X, self.saturated_loss.data
@@ -788,7 +793,7 @@ class logistic_loglike(smooth_atom):
 
     # End loss API
 
-    def mean_function(self, eta):
+    def mean_function(self, eta, trials=None):
         _exp_eta = np.exp(eta)
         return _exp_eta / (1. + _exp_eta)
 

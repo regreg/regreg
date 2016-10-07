@@ -22,6 +22,43 @@ def test_logistic():
         Lcp = copy(L)
         L_sub = L.subsample(range(5))
 
+        # check that subsample is getting correct answer
+
+        Xsub = X[range(5)]
+        Ysub = Y[range(5)]
+        if T is not None:
+            Tsub = T[range(5)]
+            T_num = T
+        else:
+            Tsub = np.ones(5)
+            T_num = np.ones(10)
+
+        beta = np.ones(L.shape)
+
+        Lsub2 = glm.logistic(Xsub, Ysub, trials=Tsub)
+        Lsub3 = glm.logistic(Xsub, Ysub, trials=Tsub)
+        Lsub3.coef *= 2.
+
+        f2, g2 = Lsub2.smooth_objective(beta, 'both')
+        f3, g3 = Lsub3.smooth_objective(beta, 'both')
+
+        np.testing.assert_allclose(f3, 2*f2)
+        np.testing.assert_allclose(g3, 2*g2)
+
+        np.testing.assert_allclose(L_sub.gradient(beta),
+                                   Lsub2.gradient(beta))
+
+        np.testing.assert_allclose(L.gradient(beta),
+                                   X.T.dot(L.saturated_loss.mean_function(X.dot(beta)) * T_num - Y))
+
+        np.testing.assert_allclose(L_sub.gradient(beta),
+                                   Xsub.T.dot(L_sub.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
+
+        np.testing.assert_allclose(L_sub.gradient(beta),
+                                   Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
+
+        # other checks on gradient
+
         if T is None:
             np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                        X.T.dot(0.5 - Y))
@@ -66,6 +103,35 @@ def test_poisson():
     L.data = (X, Y)
     L.data
 
+    # check that subsample is getting correct answer
+
+    Xsub = X[range(5)]
+    Ysub = Y[range(5)]
+
+    Lsub2 = glm.poisson(Xsub, Ysub)
+    beta = np.ones(L.shape)
+    Lsub3 = glm.poisson(Xsub, Ysub)
+    Lsub3.coef *= 2.
+
+    f2, g2 = Lsub2.smooth_objective(beta, 'both')
+    f3, g3 = Lsub3.smooth_objective(beta, 'both')
+
+    np.testing.assert_allclose(f3, 2*f2)
+    np.testing.assert_allclose(g3, 2*g2)
+
+    np.testing.assert_allclose(L_sub.gradient(beta),
+                               Lsub2.gradient(beta))
+
+    np.testing.assert_allclose(L.gradient(beta),
+                               X.T.dot(L.saturated_loss.mean_function(X.dot(beta)) - Y))
+
+    np.testing.assert_allclose(L_sub.gradient(beta),
+                               Xsub.T.dot(L_sub.saturated_loss.mean_function(Xsub.dot(beta)) - Ysub))
+
+    np.testing.assert_allclose(L_sub.gradient(beta),
+                               Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) - Ysub))
+
+
 def test_gaussian():
 
     X = np.random.standard_normal((10,5))
@@ -103,6 +169,38 @@ def test_gaussian():
 
     L.data = (X, Y)
     L.data
+
+    # check that subsample is getting correct answer
+
+    Xsub = X[range(5)]
+    Ysub = Y[range(5)]
+
+    Lsub2 = glm.gaussian(Xsub, Ysub)
+    beta = np.ones(L.shape)
+    Lsub3 = glm.gaussian(Xsub, Ysub)
+    Lsub3.coef *= 2.
+
+    f2, g2 = Lsub2.smooth_objective(beta, 'both')
+    f3, g3 = Lsub3.smooth_objective(beta, 'both')
+
+    np.testing.assert_allclose(f3, 2*f2)
+    np.testing.assert_allclose(g3, 2*g2)
+
+    beta = np.ones(L.shape)
+
+    np.testing.assert_allclose(L_sub.gradient(beta),
+                               Lsub2.gradient(beta))
+
+    np.testing.assert_allclose(L.gradient(beta),
+                               X.T.dot(L.saturated_loss.mean_function(X.dot(beta)) - Y))
+
+    np.testing.assert_allclose(L_sub.gradient(beta),
+                               Xsub.T.dot(L_sub.saturated_loss.mean_function(Xsub.dot(beta)) - Ysub))
+
+    np.testing.assert_allclose(L_sub.gradient(beta),
+                               Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) - Ysub))
+
+
 
 def test_huber():
 
