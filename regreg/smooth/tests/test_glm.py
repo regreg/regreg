@@ -20,6 +20,7 @@ def test_logistic():
         L.hessian(np.zeros(L.shape))
 
         Lcp = copy(L)
+        L_sub = L.subsample(range(5))
 
         if T is None:
             np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
@@ -49,6 +50,7 @@ def test_poisson():
     L.hessian(np.zeros(L.shape))
 
     Lcp = copy(L)
+    L_sub = L.subsample(range(5))
 
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                X.T.dot(1 - Y))
@@ -72,6 +74,7 @@ def test_gaussian():
     L = glm.gaussian(X, Y)
     L.hessian(np.zeros(L.shape))
     L.smooth_objective(np.zeros(L.shape), 'both')
+    L_sub = L.subsample(range(5))
 
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                -X.T.dot(Y))
@@ -98,6 +101,7 @@ def test_huber():
     L.smooth_objective(np.zeros(L.shape), 'both')
 
     Lcp = copy(L)
+    L_sub = L.subsample(range(5))
 
     L.gradient(np.zeros(L.shape))
     nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))

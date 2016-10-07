@@ -211,6 +211,40 @@ class glm(smooth_atom):
                      initial=copy(self.coefs),
                      offset=copy(self.offset))
 
+    def subsample(self, idx):
+        """
+        Create a loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `glm`
+            Loss after discarding all
+            cases not in `idx.
+        """
+
+        subsample_loss = copy(self)
+        n = subsample_loss.saturated_loss.shape[0]
+
+        idx_bool = np.zeros(n, np.bool)
+        idx_bool[idx] = 1
+
+        if not hasattr(subsample_loss, 'case_weights') or subsample_loss.case_weights is None:
+            subsample_loss.case_weights = np.ones(n)
+        subsample_loss.case_weights *= idx_bool
+
+        return subsample_loss
+        
+        
     @classmethod
     def gaussian(klass,
                  X, response,
