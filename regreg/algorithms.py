@@ -107,6 +107,9 @@ class FISTA(algorithm):
         working_smooth = self.composite.smooth_objective(self.working_coefs, mode='func')
         working_obj = working_smooth + self.composite.nonsmooth_objective(self.working_coefs, check_feasibility=True)
         
+        if np.isnan(working_obj):
+            raise ValueError('objective is NaN')
+
         itercount = 0
         badstep = 0
         while itercount < max_its:
