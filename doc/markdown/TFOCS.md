@@ -3,26 +3,19 @@
 ```python
 import regreg.api as rr
 import numpy as np
-%load_ext rpy2.ipython
+import rpy2.robjects as rpy2
 ```
 
 
 ```python
-%%R -o X,Y
-library(lars)
-data(diabetes)
-X = diabetes$x
-Y = diabetes$y
+rpy2.r('library(lars); data(diabetes)')
+X = rpy2.r('diabetes$x')
+Y = rpy2.r('diabetes$y')
 ```
 
 
 ```python
 X = np.hstack([X, np.ones((X.shape[0],1))])
-#betah = np.dot(np.linalg.pinv(X), Y)
-#Yhat = np.dot(X,betah)
-#smallest_l2_bound = np.linalg.norm(Y-Yhat)
-#null_soln = Y-Y.mean()
-#R = smallest_l2_bound / np.linalg.norm(null_soln)
 ```
 
 
