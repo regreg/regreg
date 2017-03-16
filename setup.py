@@ -24,7 +24,7 @@ from cythexts import cyproc_exts, get_pyx_sdist
 from setup_helpers import (SetupDependency, read_vars_from,
                            make_np_ext_builder)
 
-# Get version and release info, which is all stored in regreg/info.py
+# Get various parameters for this version, stored in regreg/info.py
 info = read_vars_from(pjoin('regreg', 'info.py'))
 
 # Try to preempt setuptools monkeypatching of Extension handling when Pyrex
