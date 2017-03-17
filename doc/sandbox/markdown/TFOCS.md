@@ -3,26 +3,19 @@
 ```python
 import regreg.api as rr
 import numpy as np
-%load_ext rpy2.ipython
+import rpy2.robjects as rpy2
 ```
 
 
 ```python
-%%R -o X,Y
-library(lars)
-data(diabetes)
-X = diabetes$x
-Y = diabetes$y
+rpy2.r('library(lars); data(diabetes)')
+X = np.asarray(rpy2.r('diabetes$x'))
+Y = np.asarray(rpy2.r('diabetes$y'))
 ```
 
 
 ```python
 X = np.hstack([X, np.ones((X.shape[0],1))])
-#betah = np.dot(np.linalg.pinv(X), Y)
-#Yhat = np.dot(X,betah)
-#smallest_l2_bound = np.linalg.norm(Y-Yhat)
-#null_soln = Y-Y.mean()
-#R = smallest_l2_bound / np.linalg.norm(null_soln)
 ```
 
 
@@ -56,12 +49,12 @@ np.linalg.norm(Y - np.dot(X, primal_tfocs)) / np.linalg.norm(Y)
 
 
 ```python
-%timeit primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, atom)
+# %timeit primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, atom)
 ```
 
 
 ```python
-%timeit primal_nesta, dual_nesta = rr.nesta(None, l1, l2)
+# %timeit primal_nesta, dual_nesta = rr.nesta(None, l1, l2)
 ```
 
 
