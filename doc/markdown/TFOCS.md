@@ -9,8 +9,8 @@ import rpy2.robjects as rpy2
 
 ```python
 rpy2.r('library(lars); data(diabetes)')
-X = rpy2.r('diabetes$x')
-Y = rpy2.r('diabetes$y')
+X = np.asarray(rpy2.r('diabetes$x'))
+Y = np.asarray(rpy2.r('diabetes$y'))
 ```
 
 

@@ -12,6 +12,8 @@ import numpy as np
 %matplotlib inline
 import matplotlib.pyplot as plt
 import rpy2.robjects as rpy2
+from rpy2.robjects import numpy2ri
+numpy2ri.activate()
 
 # the regreg import
 import regreg.api as rr
@@ -372,3 +374,6 @@ plt.figure(figsize=(6,6))
 plt.plot(obj_vals[:,2])
 ```
 
+```python
+numpy2ri.deactivate()
+```
