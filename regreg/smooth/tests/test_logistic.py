@@ -87,10 +87,10 @@ def test_logistic_offset():
     vals = solver2.fit(tol=1e-12)
     solution2 = solver2.composite.coefs
 
-    ind = range(1,p+1)
+    ind = np.arange(1,p+1)
 
-    print(solution1[range(5)])
-    print(solution2[range(5)])
+    print(solution1[np.arange(5)])
+    print(solution2[np.arange(5)])
 
     npt.assert_array_almost_equal(solution1[ind], solution2[ind], 3)
     npt.assert_almost_equal(solution1[0]-diff,solution2[0], 2)

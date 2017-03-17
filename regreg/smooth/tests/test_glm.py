@@ -20,14 +20,14 @@ def test_logistic():
         L.hessian(np.zeros(L.shape))
 
         Lcp = copy(L)
-        L_sub = L.subsample(range(5))
+        L_sub = L.subsample(np.arange(5))
 
         # check that subsample is getting correct answer
 
-        Xsub = X[range(5)]
-        Ysub = Y[range(5)]
+        Xsub = X[np.arange(5)]
+        Ysub = Y[np.arange(5)]
         if T is not None:
-            Tsub = T[range(5)]
+            Tsub = T[np.arange(5)]
             T_num = T
         else:
             Tsub = np.ones(5)
@@ -87,7 +87,7 @@ def test_poisson():
     L.hessian(np.zeros(L.shape))
 
     Lcp = copy(L)
-    L_sub = L.subsample(range(5))
+    L_sub = L.subsample(np.arange(5))
 
     np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                X.T.dot(1 - Y))
@@ -105,8 +105,8 @@ def test_poisson():
 
     # check that subsample is getting correct answer
 
-    Xsub = X[range(5)]
-    Ysub = Y[range(5)]
+    Xsub = X[np.arange(5)]
+    Ysub = Y[np.arange(5)]
 
     Lsub2 = glm.poisson(Xsub, Ysub)
     beta = np.ones(L.shape)
@@ -140,10 +140,10 @@ def test_gaussian():
     L = glm.gaussian(X, Y)
     L.hessian(np.zeros(L.shape))
     L.smooth_objective(np.zeros(L.shape), 'both')
-    L_sub = L.subsample(range(5))
+    L_sub = L.subsample(np.arange(5))
 
-    Xs = X[range(5)]
-    Ys = Y[range(5)]
+    Xs = X[np.arange(5)]
+    Ys = Y[np.arange(5)]
 
     beta = np.ones(5)
     value_sub = 0.5 * np.linalg.norm(Ys - Xs.dot(beta))**2
@@ -172,8 +172,8 @@ def test_gaussian():
 
     # check that subsample is getting correct answer
 
-    Xsub = X[range(5)]
-    Ysub = Y[range(5)]
+    Xsub = X[np.arange(5)]
+    Ysub = Y[np.arange(5)]
 
     Lsub2 = glm.gaussian(Xsub, Ysub)
     beta = np.ones(L.shape)
@@ -211,7 +211,7 @@ def test_huber():
     L.smooth_objective(np.zeros(L.shape), 'both')
 
     Lcp = copy(L)
-    L_sub = L.subsample(range(5))
+    L_sub = L.subsample(np.arange(5))
 
     L.gradient(np.zeros(L.shape))
     nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))

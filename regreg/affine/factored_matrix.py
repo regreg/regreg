@@ -348,7 +348,7 @@ def partial_svd(transform,
         if debug and itercount > 0:
             print(itercount, singular_rel_change,
                   np.sum(np.fabs(singular_values)>1e-12),
-                  np.fabs(singular_values[range(np.min([5,len(singular_values)]))]))
+                  np.fabs(singular_values[np.arange(np.min([5,len(singular_values)]))]))
         V, _ = np.linalg.qr(transform.adjoint_map(U))
         X_V = transform.linear_map(V)
         U, R = np.linalg.qr(X_V)
