@@ -7,3 +7,4 @@ matplotlib
 texext
 ipython
 rpy2
+sklearn
