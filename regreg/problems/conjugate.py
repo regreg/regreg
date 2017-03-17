@@ -5,7 +5,7 @@ from copy import copy
 import numpy as np
 
 from ..algorithms import FISTA
-from ..smooth.quadratic import quadratic, smooth_atom
+from ..smooth import smooth_atom
 from .composite import composite
 from .simple import simple_problem
 

@@ -33,7 +33,7 @@ def test_gengrad():
     p = rr.l1norm(100, lagrange=0.13)
     L = 0.14
 
-    loss = rr.quadratic.shift(Z, coef=L)
+    loss = rr.quadratic_loss.shift(Z, coef=L)
     problem = rr.simple_problem(loss, p)
     solver = rr.FISTA(problem)
     solver.fit(tol=1.0e-10, debug=True)
@@ -60,7 +60,7 @@ def test_gengrad():
     solver.fit(tol=1.0e-10)
     separable_coef = solver.composite.coefs
 
-    loss2 = rr.quadratic.shift(Z, coef=0.6*L)
+    loss2 = rr.quadratic_loss.shift(Z, coef=0.6*L)
     loss2.quadratic = rr.identity_quadratic(0.4*L, Z, 0, 0)
     p.coefs *= 0
     problem2 = rr.simple_problem(loss2, p)
@@ -82,7 +82,7 @@ def test_gengrad_blocknorms():
     dual = p.conjugate
     L = 0.23
 
-    loss = rr.quadratic.shift(Z, coef=L)
+    loss = rr.quadratic_loss.shift(Z, coef=L)
     problem = rr.simple_problem(loss, p)
     solver = rr.FISTA(problem)
     solver.fit(tol=1.0e-10, debug=True)

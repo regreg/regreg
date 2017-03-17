@@ -98,7 +98,7 @@ def test_lasso():
     X = np.random.standard_normal((10,4))
     Y = np.random.standard_normal(10) + 3
     
-    loss = rr.quadratic.affine(X, -Y, coef=0.5)
+    loss = rr.quadratic_loss.affine(X, -Y, coef=0.5)
 
     p2 = rr.separable_problem.singleton(l1, loss)
     solver2 = rr.FISTA(p2)

@@ -47,11 +47,15 @@ from .affine.factored_matrix import (factored_matrix, compute_iterative_svd,
 
 # Smooth imports
 
-from .smooth import (logistic_deviance, poisson_deviance, multinomial_deviance,
-                     smooth_atom, affine_smooth, logistic_loss, sum as
-                     smooth_sum)
-from .smooth.quadratic import (quadratic, cholesky, signal_approximator,
+from .smooth import (smooth_atom, 
+                     affine_smooth, 
+                     sum as smooth_sum)
+from .smooth.quadratic import (quadratic_loss, 
+                               cholesky, 
+                               signal_approximator,
                                squared_error)
+
+from .smooth.glm import glm, multinomial_loglike, logistic_loglike, poisson_loglike, gaussian_loglike, coxph
 
 # Problem imports
 

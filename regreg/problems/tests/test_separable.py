@@ -40,7 +40,7 @@ def test_lasso_separable():
 
     # solve using separable
     
-    loss = rr.quadratic.affine(X, -Y, coef=0.5)
+    loss = rr.quadratic_loss.affine(X, -Y, coef=0.5)
     problem = rr.separable_problem.fromatom(penalty, loss)
     solver = rr.FISTA(problem)
     solver.fit(min_its=200, tol=1.0e-12)
@@ -86,7 +86,7 @@ def test_group_lasso_separable():
 
     # solve using separable
     
-    loss = rr.quadratic.affine(X, -Y, coef=0.5)
+    loss = rr.quadratic_loss.affine(X, -Y, coef=0.5)
     problem = rr.separable_problem.fromatom(penalty, loss)
     solver = rr.FISTA(problem)
     solver.fit(min_its=200, tol=1.0e-12)
@@ -131,7 +131,7 @@ def test_nonnegative_positive_part(debug=False):
     lagrange = .1
 
     # Loss function (squared difference between fitted and actual data)
-    loss = rr.quadratic.affine(X, -Y, coef=coef)
+    loss = rr.quadratic_loss.affine(X, -Y, coef=coef)
 
     # Penalty using nonnegative, leave the last 5 unpenalized but
     # nonnegative

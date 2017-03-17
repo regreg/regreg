@@ -9,7 +9,7 @@ from regreg.tests.decorators import set_seed_for_test
 @set_seed_for_test()
 def test_quadratic():
 
-    l = rr.quadratic(5, coef=3., offset=np.arange(5))
+    l = rr.quadratic_loss(5, coef=3., offset=np.arange(5))
     l.quadratic = rr.identity_quadratic(1, np.ones(5), 2*np.ones(5), 3.)
     c1 = l.get_conjugate()
 

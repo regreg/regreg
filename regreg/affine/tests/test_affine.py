@@ -3,6 +3,7 @@
 
 from operator import add
 import numpy as np
+
 from regreg.affine import (broadcast_first, 
                            affine_transform, 
                            linear_transform,
@@ -45,6 +46,18 @@ def test_broad_first():
     assert_equal(res1d.shape, c.shape)
     assert_array_almost_equal(c, res1d)
 
+def test_dot():
+
+    A = np.random.standard_normal((20, 12))
+    B = np.random.standard_normal((10, 20))
+
+    C = rr.astransform(B).dot(rr.astransform(A))
+
+    assert_equal(C.shape, (10, 12))
+    Z = np.random.standard_normal(12)
+    assert_array_almost_equal(C.dot(Z), B.dot(A.dot(Z)))
+
+    assert_equal(C.ndim, 2)
 
 def test_affine_transform():
     # Test affine transform
@@ -61,7 +74,9 @@ def test_affine_transform():
         trans = affine_transform(None, np.zeros((m,1)))
         assert_array_almost_equal(trans.affine_map(x), x)
         assert_array_almost_equal(trans.linear_map(x), x)
+        assert_array_almost_equal(trans.dot(x), x)
         assert_array_almost_equal(trans.adjoint_map(x), x)
+        assert_array_almost_equal(trans.T.dot(x), x)
         # With linear eye and None affine offset - identity again
         trans = affine_transform(np.eye(m), None)
         assert_array_almost_equal(trans.affine_map(x), x)
