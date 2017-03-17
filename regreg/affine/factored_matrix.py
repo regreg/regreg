@@ -6,20 +6,16 @@ problems.
 """
 from __future__ import print_function, division, absolute_import
 
-import warnings
-
 import numpy as np
 
-from ..affine import (linear_transform, astransform, 
-                      composition, affine_sum, 
-                      power_L, astransform, adjoint)
+from ..affine import affine_sum, astransform, adjoint
 from ..atoms.svd_norms import (svd_atom, nuclear_norm as nuclear_norm_atom,
                                operator_norm as operator_norm_atom)
 from ..atoms.seminorms import l1norm, _work_out_conjugate
 from ..problems.composite import smooth_conjugate
 
 from ..objdoctemplates import objective_doc_templater
-from ..doctemplates import (doc_template_user, doc_template_provider)
+from ..doctemplates import doc_template_user
 
 
 class factored_matrix(object):
@@ -115,6 +111,7 @@ class factored_matrix(object):
             return x + self.affine_offset
         else:
             return x
+
 
 def compute_iterative_svd(transform,
                           initial_rank=None,
@@ -255,12 +252,12 @@ def partial_svd(transform,
                 stopping_rule=None):
 
     """
-    Compute the partial SVD of the linear_transform X using the Mazumder/Hastie 
-    algorithm in (TODO: CITE)
+    Compute partial SVD of the linear transform `transform`
+
+    Uses the Mazumder/Hastie algorithm in (TODO: CITE)
 
     Parameters
     ----------
-
     transform : [linear_transform, ndarray]
         Linear_transform whose SVD is computed. If an
         ndarray, it is first cast with :func:`astransform()`
@@ -286,7 +283,7 @@ def partial_svd(transform,
 
     return_full: bool, optional
         Return a singular values / vectors from padding?
-    
+
     debug: bool, optional
         Print debugging statements.
 
@@ -295,7 +292,6 @@ def partial_svd(transform,
 
     Returns
     -------
-
     U, D, VT, Ufull : np.ndarray(np.float)
         An SVD up to `rank` of the transform.
         Ufull is the full set of left singular vectors found.
@@ -312,8 +308,6 @@ def partial_svd(transform,
     True
     >>> np.linalg.norm(VT - np.dot(VT, np.dot(VT_np[:10].T, VT_np[:10]))) < 1.e-4
     True
-    >>> 
-
     """
 
     transform = astransform(transform)
