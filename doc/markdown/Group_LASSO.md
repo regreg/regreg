@@ -135,12 +135,12 @@ def solve_path(X, Y, groups, lagrange_seq, tol=1.e-8, max_its=50):
 ```
 
 ```python
-%timeit solve_path(X, Y, groups, L)
+# %timeit solve_path(X, Y, groups, L)
 ```
 
 
 ```python
-%%timeit
+# %%timeit
 rpy2.r('gglasso(x=X,y=Y,group=group1,loss="ls")')
 ```
 
@@ -184,7 +184,7 @@ def solve_one(X, Y, groups, lagrange, tol=1.e-8, max_its=100):
 
 ```python
 L_test = L[int(len(L)/2)-1]
-%timeit solve_one(X, Y, groups, L_test)
+# %timeit solve_one(X, Y, groups, L_test)
 ```
 
 Let's see how `gglasso` does to get at the same point. To be fair, we will only take 50 steps to get there.
@@ -197,7 +197,7 @@ rpy2.r('L_half = exp(seq(log(max(L)), log(L_test), length=50))')
 
 
 ```python
-%%timeit
+# %%timeit
 rpy2.r('gglasso(x=X,y=Y,group=group1,loss='ls',lambda=L_half)')
 ```
 
@@ -214,7 +214,7 @@ If we relax the tolerance a bit, `regreg` is even faster.
 
 
 ```python
-%timeit solve_one(X, Y, groups, L_test, tol=1.e-7)
+# %timeit solve_one(X, Y, groups, L_test, tol=1.e-7)
 ```
 
 But, its objective value is still a little worse than before, though still better than `gglasso`.
@@ -242,8 +242,8 @@ Xr = rpy2.r('Xr')
 
 
 ```python
-%timeit rpy2.r('gglasso(x=Xr,y=Y,group=group1,loss="ls")')
-%timeit solve_path(Xr, Y, groups, Lr)
+# %timeit rpy2.r('gglasso(x=Xr,y=Y,group=group1,loss="ls")')
+# %timeit solve_path(Xr, Y, groups, Lr)
 ```
 
 ### Comparison of objective values.
@@ -299,7 +299,7 @@ rpy2.r.assign('groupsb', groupsb)
 
 
 ```python
-%%timeit
+# %%timeit
 Lb = rpy2.r('gglasso(x=Xb,y=Yb,group=groupsb,loss="ls")$lambda')
 ```
 
@@ -311,7 +311,7 @@ Xb -= Xb.mean(0)[np.newaxis,:]
 
 
 ```python
-%timeit solve_path(Xb, Yb, groupsb, Lb)
+# %timeit solve_path(Xb, Yb, groupsb, Lb)
 ```
 
 
@@ -319,13 +319,13 @@ Xb -= Xb.mean(0)[np.newaxis,:]
 Lb_test = Lb[int(len(Lb)/2)]
 rpy2.r.assign('Lb_test', Lb_test)
 rpy2.r('Lb_half = exp(seq(log(max(Lb)), log(Lb_test), length=50));')
-%timeit solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=200)
+# %timeit solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=200)
 solnb, problemb = solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=150)
 ```
 
 
 ```python
-%%timeit
+# %%timeit
 rpy2.r('gglasso(x=Xb,y=Yb,group=groupsb,loss="ls",lambda=Lb_half)')
 ```
 
