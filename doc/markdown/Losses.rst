@@ -13,8 +13,6 @@ There are several commonly used smooth loss functions built into
 -  Huber loss (``regreg.glm.glm.huber``)
 -  Huberized SVM (``regreg.smooth.losses.huberized_svm``)
 
-.. mpl-interactive::
-
 .. nbplot::
 
     >>>
@@ -45,8 +43,11 @@ There are several commonly used smooth loss functions built into
 
 .. nbplot::
 
+    >>> rpy2.r.assign('X', X)
+    >>> rpy2.r.assign('Y', Y)
+    >>> r_soln = rpy2.r('glm(Y ~ X, family=binomial)')
     >>> loss.solve()
-    >>> print(loss.solve())
+    >>> r_soln
              X1          X2          X3          X4          X5 
     -0.07111141  0.05295475 -0.15058291  0.17405453  0.03915539 
 
@@ -65,8 +66,6 @@ The losses can very easily be combined with a penalty.
 
 .. nbplot::
 
-    >>> rpy2.r.assign('X', X)
-    >>> rpy2.r.assign('Y', Y)
     >>> rpy2.r('''
     ... library(glmnet)
     ... G = glmnet(X, as.numeric(Y), intercept=FALSE, standardize=FALSE, family='binomial')
@@ -148,13 +147,11 @@ For example, suppose we want to define the loss
 
 .. math::
 
-
    \mu \mapsto \frac{1}{2} \|\mu\|^2_2  - \sum_{i=1}^k \log(b_i - a_i^T\mu)
 
 as a smooth approximation to the function
 
 .. math::
-
 
    \mu \mapsto \frac{1}{2} \|\mu\|^2_2 + I^{\infty}_K(\mu)
 
@@ -265,7 +262,6 @@ Huberized lasso
 The Huberized lasso minimizes the following objective
 
 .. math::
-
 
    H_{\delta}(Y - X\beta) + \lambda \|\beta\|_1
 
@@ -564,11 +560,9 @@ regression problem is to use the hinge loss:
     [...]
 
 
-
 The SVM loss is then
 
 .. math::
-
 
    \ell(\beta) = C \sum_{i=1}^n h(Y_i X_i^T\beta) + \frac{1}{2} \|\beta\|^2_2
 
