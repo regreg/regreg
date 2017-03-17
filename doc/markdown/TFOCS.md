@@ -49,12 +49,12 @@ np.linalg.norm(Y - np.dot(X, primal_tfocs)) / np.linalg.norm(Y)
 
 
 ```python
-%timeit primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, atom)
+# %timeit primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, atom)
 ```
 
 
 ```python
-%timeit primal_nesta, dual_nesta = rr.nesta(None, l1, l2)
+# %timeit primal_nesta, dual_nesta = rr.nesta(None, l1, l2)
 ```
 
 
