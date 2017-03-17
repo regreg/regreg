@@ -19,11 +19,8 @@ import sys, os
 # absolute, like shown here.
 sys.path.append(os.path.abspath('sphinxext'))
 
-# Get project related strings.  Please do not change this line to use
-# execfile because execfile is not available in Python 3
-_info_fname = os.path.join('..', '..', 'regreg', 'info.py')
-rel = {}
-exec(open(_info_fname, 'rt').read(), {}, rel)
+# Import regreg to get version
+import regreg
 
 # Import support for ipython console session syntax highlighting (lives
 # in the sphinxext directory defined above)
@@ -50,8 +47,6 @@ extensions = ['sphinx.ext.autodoc',
               'numpydoc',
               ]
 
-autosummary_generate=True
-
 # Matplotlib sphinx extensions
 # ----------------------------
 
@@ -64,21 +59,26 @@ extensions.append('matplotlib.sphinxext.plot_directive')
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+# Add markdown source parser
+from recommonmark.parser import CommonMarkParser
+
+source_parsers = {'.md': CommonMarkParser}
+
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
 
 # General substitutions.
 project = 'regreg'
-copyright = '2011-2015, B. Klingenberg & J. Taylor'
+copyright = '2011-2016, B. Klingenberg & J. Taylor'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = rel['__version__']
+version = regreg.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 

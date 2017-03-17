@@ -8,9 +8,13 @@ PAPER         =
 
 # Internal variables.
 BUILDDIR        = build
+SRCDIR          = source
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(SRCDIR)
+
+# Required R packages
+R_PACKAGES = Matrix gglasso
 
 .PHONY: help clean pdf all dist public_html web web_public htmlonly api html pickle htmlhelp latex changes linkcheck doctest
 
@@ -39,6 +43,7 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/* dist/* *~ api/generated
 	-rm -f manual
+	-rm -rf $(SRCDIR)/examples/*
 
 pdf: latex
 	cd $(BUILDDIR)/latex && make all-pdf
@@ -62,7 +67,7 @@ htmlonly:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 api:
-	-mkdir -p source/api/generated
+	-mkdir -p $(SRCDIR)/api/generated
 	python ../tools/build_modref_templates.py
 	@echo "Build API docs finished."
 
@@ -115,8 +120,14 @@ doctest:
 	@echo
 	@echo "The overview file is in $(BUILDDIR)/doctest."
 
-github: html
+github: notebooks html
 	# Needs ghp-import (pip install ghp-import)
 	ghp-import -n -p $(BUILDDIR)/html/
 	@echo
 	@echo "Published to Github"
+
+notebooks:
+	python tools/check_r_packages.py $(R_PACKAGES)
+	mkdir -p $(BUILDDIR)/html/examples
+	python tools/convert_notebooks.py markdown $(SRCDIR)/examples --if-newer
+	cp $(SRCDIR)/examples/*.ipynb $(BUILDDIR)/html/examples
