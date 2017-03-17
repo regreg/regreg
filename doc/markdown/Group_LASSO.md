@@ -1,4 +1,3 @@
-
 # The group LASSO for least squares
 
 This notebook provides some ways to solve the group LASSO problem
@@ -7,13 +6,12 @@ $$
 $$
 where $g_i$ are pairwise distinct subsets of $\{1, \dots, p\}$.
 
-
 ```python
 # third party imports
 import numpy as np
 %matplotlib inline
 import matplotlib.pyplot as plt
-%load_ext rpy2.ipython
+import rpy2.robjects as rpy2
 
 # the regreg import
 import regreg.api as rr
@@ -25,9 +23,8 @@ We will compare to the `gglasso` packge in `R` using the dataset supplied by thi
 We see that for smaller problems like this, `gglasso` is faster, particularly
 if we use fairly high tolerance for convergence.
 
-
 ```python
-%%R -o B,DF,L,Y,X,Xr,Lr
+rpy2.r('''
 library(gglasso)
 data(bardet)
 group1 = rep(1:20,each=5)
@@ -39,6 +36,14 @@ B = gg1$beta
 L = gg1$lambda
 Lr = gglasso(x=Xr,y=Y,group=group1,loss="ls")$lambda
 DF = gg1$df
+''')
+B = rpy2.r('B')
+DF = rpy2.r('DF')
+L = rpy2.r('L')
+Y = rpy2.r('Y')
+X = rpy2.r('X')
+Xr = rpy2.r('Xr')
+Lr = rpy2.r('Lr')
 ```
 
 The `gglasso` centers `X` and `Y` by default and its loss is 
@@ -56,7 +61,6 @@ loss
 ```
 
 The groups used in the example are all of size 5.
-
 
 ```python
 groups = []
@@ -102,8 +106,7 @@ This generalized gradient algorithm can be found in `regreg.problems.simple.geng
 
 ## Constructing a path of solutions (not using strong rules)
 
-The package `gglasso` chooses which penalty parameters as follows:
-
+The package `gglasso` chooses which penalty parameters to use as follows:
 
 ```python
 score0 = loss.smooth_objective(np.zeros(loss.shape), mode='grad')
@@ -114,7 +117,6 @@ np.linalg.norm(L - lagrange_seq)
 ```
 
 Let's write a function that solves the group LASSO for a grid of $\lambda$ values.
-
 
 ```python
 def solve_path(X, Y, groups, lagrange_seq, tol=1.e-8, max_its=50):
@@ -132,15 +134,14 @@ def solve_path(X, Y, groups, lagrange_seq, tol=1.e-8, max_its=50):
     return np.array(solns), problem
 ```
 
-
 ```python
-%timeit solve_path(X, Y, groups, L)
+# %timeit solve_path(X, Y, groups, L)
 ```
 
 
 ```python
-%%timeit
-%R gglasso(x=X,y=Y,group=group1,loss="ls")
+# %%timeit
+rpy2.r('gglasso(x=X,y=Y,group=group1,loss="ls")')
 ```
 
 We see that `gglasso` is much faster for this design,  though we'll see that the
@@ -183,27 +184,28 @@ def solve_one(X, Y, groups, lagrange, tol=1.e-8, max_its=100):
 
 ```python
 L_test = L[int(len(L)/2)-1]
-%timeit solve_one(X, Y, groups, L_test)
+# %timeit solve_one(X, Y, groups, L_test)
 ```
 
 Let's see how `gglasso` does to get at the same point. To be fair, we will only take 50 steps to get there.
 
 
 ```python
-%R -i L_test L_half = exp(seq(log(max(L)), log(L_test), length=50));
+rpy2.r.assign('L_test', L_test)
+rpy2.r('L_half = exp(seq(log(max(L)), log(L_test), length=50))')
 ```
 
 
 ```python
-%%timeit
-%R gglasso(x=X,y=Y,group=group1,loss='ls',lambda=L_half)
+# %%timeit
+rpy2.r('gglasso(x=X,y=Y,group=group1,loss='ls',lambda=L_half)')
 ```
 
 Let's compare objective values.
 
 
 ```python
-%R -o B_mid B_mid=gglasso(x=X,y=Y,group=group1,loss='ls',lambda=L_half)$beta[,50]
+B_mid = rpy2.r('gglasso(x=X,y=Y,group=group1,loss='ls',lambda=L_half)$beta[,50]')
 soln, problem = solve_one(X, Y, groups, L_test)
 problem.objective(soln), problem.objective(B_mid)
 ```
@@ -212,10 +214,10 @@ If we relax the tolerance a bit, `regreg` is even faster.
 
 
 ```python
-%timeit solve_one(X, Y, groups, L_test, tol=1.e-7)
+# %timeit solve_one(X, Y, groups, L_test, tol=1.e-7)
 ```
 
-But, its objective value is still a little worse than before, still better than `gglasso`.
+But, its objective value is still a little worse than before, though still better than `gglasso`.
 
 
 ```python
@@ -230,16 +232,18 @@ is particularly fast for the coordinate descent method.
 
 
 ```python
-%%R -o Lr,Xr
+rpy2.r('''
 Xr = matrix(rnorm(nrow(X)*ncol(X)), nrow(X), ncol(X))
 Lr = gglasso(x=Xr,y=Y,group=group1,loss="ls")$lambda
-
+''')
+Lr = rpy2.r('Lr')
+Xr = rpy2.r('Xr')
 ```
 
 
 ```python
-%timeit %R gglasso(x=Xr,y=Y,group=group1,loss="ls")
-%timeit solve_path(Xr, Y, groups, Lr)
+# %timeit rpy2.r('gglasso(x=Xr,y=Y,group=group1,loss="ls")')
+# %timeit solve_path(Xr, Y, groups, Lr)
 ```
 
 ### Comparison of objective values.
@@ -288,45 +292,46 @@ groupsb = []
 for i in range(20):
     groupsb.extend([i+1]*(p/20))
 groups = np.array(groupsb)
-%R -i Xb,Yb,groupsb
+rpy2.r.assign('Xb', Xb)
+rpy2.r.assign('Yb', Yb)
+rpy2.r.assign('groupsb', groupsb)
 ```
 
 
 ```python
-%%timeit
-%R Lb=gglasso(x=Xb,y=Yb,group=groupsb,loss="ls")$lambda
+# %%timeit
+Lb = rpy2.r('gglasso(x=Xb,y=Yb,group=groupsb,loss="ls")$lambda')
 ```
 
 
 ```python
-%R -o Lb 
 Yb -= Yb.mean()
 Xb -= Xb.mean(0)[np.newaxis,:]
 ```
 
 
 ```python
-%timeit solve_path(Xb, Yb, groupsb, Lb)
+# %timeit solve_path(Xb, Yb, groupsb, Lb)
 ```
 
 
 ```python
 Lb_test = Lb[int(len(Lb)/2)]
-%R -i Lb_test Lb_half = exp(seq(log(max(Lb)), log(Lb_test), length=50));
-%timeit solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=200)
+rpy2.r.assign('Lb_test', Lb_test)
+rpy2.r('Lb_half = exp(seq(log(max(Lb)), log(Lb_test), length=50));')
+# %timeit solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=200)
 solnb, problemb = solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=150)
 ```
 
 
 ```python
-%%timeit
-%R gglasso(x=Xb,y=Yb,group=groupsb,loss='ls',lambda=Lb_half)
+# %%timeit
+rpy2.r('gglasso(x=Xb,y=Yb,group=groupsb,loss="ls",lambda=Lb_half)')
 ```
 
 
 ```python
-%%R -o Bb_mid 
-Bb_mid=gglasso(x=Xb, y=Yb, group=groupsb, loss='ls', lambda=Lb_half)$beta[,50]
+Bb_mid = rpy2.r('gglasso(x=Xb, y=Yb, group=groupsb, loss="ls", lambda=Lb_half)$beta[,50]')
 ```
 
 
@@ -338,8 +343,7 @@ problemb.objective(solnb), problemb.objective(Bb_mid)
 
 
 ```python
-%%R -o Bb
-Bb=gglasso(x=Xb, y=Yb, group=groupsb, loss="ls")$beta
+Bb = rpy2.r('gglasso(x=Xb, y=Yb, group=groupsb, loss="ls")$beta')
 ```
 
 
@@ -368,7 +372,3 @@ plt.figure(figsize=(6,6))
 plt.plot(obj_vals[:,2])
 ```
 
-
-```python
-
-```

@@ -176,14 +176,14 @@ lagrange = np.fabs(Xtiming.T.dot(Ytiming)).max() * 0.6
 
 
 ```python
-%%timeit
+# %%timeit
 clf = Lasso(alpha=lagrange / Xtiming.shape[0])
 sklearn_soln = clf.fit(Xtiming, Ytiming).coef_
 ```
 
 
 ```python
-%%timeit
+# %%timeit
 loss = rr.squared_error(Xtiming, Ytiming)
 penalty = rr.l1norm(Xtiming.shape[1], lagrange=lagrange)
 rr.simple_problem(loss,penalty).solve(tol=1.e-12)

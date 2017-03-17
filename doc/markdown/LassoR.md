@@ -1,18 +1,22 @@
 ```python
 import numpy as np, regreg.api as rr
-%load_ext rpy2.ipython
+import rpy2.robjects as rpy2
 ```
 
 # The Diabetes data from LARS
 
 ```python
-%%R -o X,L,Y
+rpy2.r('''
 library(lars)
 data(diabetes)
 X = diabetes$x
 Y = diabetes$y
 diabetes_lars = lars(diabetes$x, diabetes$y, type='lasso')
 L = diabetes_lars$lambda
+''')
+X = rpy.r('X')
+L = rpy.r('L')
+Y = rpy.r('Y')
 ```
 
 ```python
@@ -48,8 +52,7 @@ beta
 Compare this to `R`'s solution:
 
 ```python
-%%R -o S
-S = diabetes_lars$beta[4,]
+S = rpy2.r('diabetes_lars$beta[4,]')
 ```
 
 ## Bound form
