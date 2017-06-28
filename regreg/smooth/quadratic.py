@@ -14,10 +14,34 @@ from ..identity_quadratic import identity_quadratic
 
 class quadratic_loss(smooth_atom):
     """
-    The square of the l2 norm
+    Half of the square of the l2 norm
 
-    Q: array
-       positive definite matrix 
+    Parameters
+    ----------
+
+    shape : tuple
+       Shape of argument to `smooth_objective`
+
+    Q: ndarray 
+       positive definite matrix (optional),
+       defaults to identity. If `Qdiag` then
+       `Q` is one-dimensional.
+
+    Qdiag : bool
+       Is the quadratic form diagonal?
+
+    coef : float (optional)
+       Scalar multiple to be applied (must be nonnegative)
+
+    offset : ndarray (optional)
+       Vector to be subtracted before evaluating `smooth_objective`. 
+
+    quadratic : `identity_quadratic` (optional)
+       Instance of `identity_quadratic` to be added to overall
+       objective.
+
+    initial : ndarray (optional)
+       Initial value for coefficients.
 
     """
 
@@ -25,7 +49,11 @@ class quadratic_loss(smooth_atom):
     objective_vars['Q'] = 'Q'
     objective_template = r"""\frac{%(coef)s}{2} \cdot %(var)s^T %(Q)s %(var)s"""
 
-    def __init__(self, shape, coef=1., Q=None, Qdiag=False,
+    def __init__(self, 
+                 shape, 
+                 Q=None, 
+                 Qdiag=False,
+                 coef=1., 
                  offset=None,
                  quadratic=None,
                  initial=None):
