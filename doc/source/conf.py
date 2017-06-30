@@ -88,7 +88,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'regreg'
-copyright = '2011-2015, B. Klingenberg & J. Taylor'
+copyright = '2011-2017, B. Klingenberg & J. Taylor'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
