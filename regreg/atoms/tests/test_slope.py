@@ -8,7 +8,7 @@ from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close
 
-@np.testing.decorators.skipif(True, "dual seminorm of SLOPE still not quite correct")
+#@np.testing.decorators.skipif(True, "dual seminorm of SLOPE still not quite correct")
 def test_failing():
 
     Z = np.array([0.75529996,
@@ -30,7 +30,7 @@ def test_failing():
                   0.0643194,
                   -0.16640537,
                   -0.94070977,
-                  -0.0535945])
+                  -0.0535945]) 
 
     o = np.argsort(np.fabs(Z))
     Z = Z[o][::-1]
@@ -66,17 +66,18 @@ def test_duality():
     np.testing.assert_allclose(Z, pen1.lagrange_prox(Z) + dual1.bound_prox(Z))
 
 
-class SLOPESolver(Solver):
+# class SLOPESolver(Solver):
+#     pass
 
-    def all_tests(self):
-        for group in [self.test_simple_problem,
-                      self.test_separable,
-                      self.test_dual_problem,
-                      self.test_container,
-                      self.test_simple_problem_nonsmooth
-                      ]:
-            for t in group():
-                yield t
+# #     def all_tests(self):
+# #         for group in [self.test_simple_problem,
+# #                       self.test_separable,
+# #                       self.test_dual_problem,
+# #                       self.test_container,
+# #                       self.test_simple_problem_nonsmooth
+# #                       ]:
+# #             for t in group():
+# #                 yield t
 
 
 class SlopeSolverFactory(SolverFactory):
@@ -112,10 +113,10 @@ class SlopeSolverFactory(SolverFactory):
             if offset:
                 atom.offset = 0.02 * np.random.standard_normal(atom.shape)
 
-            solver = SLOPESolver(atom, interactive=self.interactive, 
-                                 coef_stop=coef_stop,
-                                 FISTA=FISTA,
-                                 L=L)
+            solver = Solver(atom, interactive=self.interactive, 
+                            coef_stop=coef_stop,
+                            FISTA=FISTA,
+                            L=L)
             yield solver
 
 @set_seed_for_test()
