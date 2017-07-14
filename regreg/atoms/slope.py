@@ -159,7 +159,9 @@ class slope_conjugate(slope):
                                  check_feasibility=check_feasibility, 
                                  lagrange=lagrange)
         xsort = np.sort(np.fabs(x))[::-1]
-        return lagrange * np.fabs(xsort / self.weights).max()
+        xsort_cumsum = np.cumsum(xsort)
+        w_cumsum = np.cumsum(self.weights)
+        return lagrange * np.fabs(xsort_cumsum / w_cumsum).max()
 
     @doc_template_user
     def constraint(self, x, bound=None):
