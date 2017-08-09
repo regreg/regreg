@@ -127,6 +127,11 @@ script:
         sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix'), repos='http://cloud.r-project.org');"
         pip install -r doc-requirements.txt
         cd doc
+        # Build without the API documentation, for the doctests
+        make htmlonly
+        make doctest
+        # Now build the full docs
+        make clean
         make html
       else
         # Doctests only on platforms that have compatible fp output
