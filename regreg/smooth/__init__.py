@@ -12,6 +12,26 @@ class smooth_atom(smooth_composite):
 
     """
     A class for representing a smooth function and its gradient
+
+    Parameters
+    ----------
+
+    shape : tuple
+       Shape of argument to `smooth_objective`
+
+    coef : float (optional)
+       Scalar multiple to be applied (must be nonnegative)
+
+    offset : ndarray (optional)
+       Vector to be subtracted before evaluating `smooth_objective`. 
+
+    quadratic : `identity_quadratic` (optional)
+       Instance of `identity_quadratic` to be added to overall
+       objective.
+
+    initial : ndarray (optional)
+       Initial value for coefficients.
+
     """
 
     objective_template = r'''f(%(var)s)'''
