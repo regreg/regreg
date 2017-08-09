@@ -58,6 +58,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.inheritance_diagram',
               'texext.math_dollar', # has to go before numpydoc
               'numpydoc',
+              'nb2plots'
               ]
 
 autosummary_generate=True
@@ -246,3 +247,6 @@ latex_use_modindex = True
 # https://github.com/scikit-image/scikit-image/pull/1356
 numpydoc_show_class_members = False
 numpydoc_class_members_toctree = False
+
+# For doctesting import
+doctest_global_setup = "import numpy as np"

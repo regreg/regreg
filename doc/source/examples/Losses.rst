@@ -30,11 +30,6 @@ There are several commonly used smooth loss functions built into
     >>> loss = rr.glm.logistic(X, Y)
     >>> loss
 
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:616: RuntimeWarning: divide by zero encountered in log
-      loss_terms = np.log(saturated) * self.successes + np.log(1-saturated) * (self.trials - self.successes)
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:616: RuntimeWarning: invalid value encountered in multiply
-      loss_terms = np.log(saturated) * self.successes + np.log(1-saturated) * (self.trials - self.successes)
-
 
 .. math::
 
@@ -47,7 +42,7 @@ There are several commonly used smooth loss functions built into
     >>> rpy2.r.assign('Y', Y)
     >>> r_soln = rpy2.r('glm(Y ~ X, family=binomial)')
     >>> loss.solve()
-    >>> r_soln
+    >>> np.asarray(r_soln)
              X1          X2          X3          X4          X5 
     -0.07111141  0.05295475 -0.15058291  0.17405453  0.03915539 
 
@@ -770,17 +765,11 @@ computed with ``smooth_objective``.
     >>> ax.plot(r, [smoothed_hinge_loss.smooth_objective(v, 'func') for v in r])
     >>> fig
 
-
-
-
 .. nbplot::
 
     >>> less_smooth = hinge_rep.smoothed(rr.identity_quadratic(5.e-2, 0, 0, 0))
     >>> ax.plot(r, [less_smooth.smooth_objective(v, 'func') for v in r])
     >>> fig
-
-
-
 
 Fitting the SVM
 ---------------
