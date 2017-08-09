@@ -10,7 +10,7 @@ The Diabetes data from LARS
 .. nbplot::
 
     >>> rpy2.r('''
-    >>> install.packages('lars',repos='http://cloud.r-project.org') # if needed
+    >>> library(lars)
     >>> data(diabetes)
     >>> X = diabetes$x
     >>> Y = diabetes$y
