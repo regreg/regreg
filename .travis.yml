@@ -31,7 +31,7 @@ matrix:
       env:
         - COVERAGE=1
     # To test minimum dependencies
-    # Check these dependencies against regreg/info.py
+    # Check these dependencies against regreg/info.py and requirements.txt
     - python: 2.7
       env:
         - DEPENDS="cython==0.18 numpy==1.7.1 scipy==0.9.0"

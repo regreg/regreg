@@ -1,0 +1,25 @@
+.. -*- mode: rst -*-
+.. vim:ft=rst
+
+.. _changelog:
+
+#############################
+Regreg Development Changelog
+#############################
+
+The full VCS changelog is available here:
+
+  http://github.com/regreg/regreg/commits/master
+
+***************
+Regreg releases
+***************
+
+Most work on Regreg so far has been by Brad Klingenberg (BK) and Jonathan Taylor (JT).
+
+References like "pr/298" refer to github pull request numbers.
+
+Upcoming Release
+================
+
+First public release.
