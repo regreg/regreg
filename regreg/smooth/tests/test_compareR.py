@@ -64,7 +64,9 @@ def test_poisson():
     L = rr.glm.poisson(X, Y)
     soln = L.solve(min_its=200)
 
-    np.testing.assert_allclose(C, soln)
+    # tolerance adjusted here because of an occasional failure
+    # https://nipy.bic.berkeley.edu/builders/regreg-py2.6/builds/30/steps/shell_6/logs/stdio
+    np.testing.assert_allclose(C, soln, atol=1.e-5, rtol=1.e-5)
 
 @set_seed_for_test(10)
 @np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
@@ -90,4 +92,4 @@ def test_coxph():
     L = rr.coxph(X, T, S)
     soln = L.solve(min_its=200)
 
-    np.testing.assert_allclose(C, soln, rtol=1.e-4)
+    np.testing.assert_allclose(C, soln, rtol=1.e-4, atol=1.e-4)
