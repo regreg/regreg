@@ -77,12 +77,17 @@ matrix:
       dist: trusty
       env:
         - DOC_BUILD=1
+    - os: osx
+      osx_image: xcode7.3
+      language: generic
+      env: TRAVIS_PYTHON_VERSION=3.5
 
 before_install:
-    - python -m pip install --upgrade pip
-    - pip install --upgrade virtualenv
-    - virtualenv --python=python venv
-    - source venv/bin/activate
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        source tools/travis_osx_install.sh ;
+      else
+        source tools/travis_linux_install.sh ;
+      fi
     - python --version # just to check
     - pip install -U pip
     - pip install nose mock  # always
