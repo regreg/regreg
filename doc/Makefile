@@ -10,7 +10,8 @@ PAPER         =
 BUILDDIR        = build
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
+SOURCE_DIR      = source
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(SOURCE_DIR)
 
 .PHONY: help clean pdf all dist public_html web web_public htmlonly api html pickle htmlhelp latex changes linkcheck doctest
 
@@ -37,7 +38,7 @@ help:
 # @echo "  changes   to make an overview over all changed/added/deprecated items"
 
 clean:
-	-rm -rf $(BUILDDIR)/* dist/* *~ api/generated
+	-rm -rf $(BUILDDIR)/* dist/* *~ $(SOURCE_DIR)/api/generated
 	-rm -f manual
 
 pdf: latex
@@ -62,7 +63,7 @@ htmlonly:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 api:
-	-mkdir -p source/api/generated
+	-mkdir -p $(SOURCE_DIR)/api/generated
 	python ../tools/build_modref_templates.py
 	@echo "Build API docs finished."
 
