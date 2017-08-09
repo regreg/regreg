@@ -10,8 +10,7 @@ The Diabetes data from LARS
 .. nbplot::
 
     >>> rpy2.r('''
-    >>> install.packages('lars',repos='http://cloud.r-project.org')
-    >>> library(lars)
+    >>> install.packages('lars',repos='http://cloud.r-project.org') # if needed
     >>> data(diabetes)
     >>> X = diabetes$x
     >>> Y = diabetes$y
@@ -21,37 +20,6 @@ The Diabetes data from LARS
     >>> X = rpy2.r('X')
     >>> L = rpy2.r('L')
     >>> Y = rpy2.r('Y')
-
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning: Installing package into ‘/home/jb/R/x86_64-pc-linux-gnu-library/3.2’
-    (as ‘lib’ is unspecified)
-    
-      warnings.warn(x, RRuntimeWarning)
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning: trying URL 'http://cloud.r-project.org/src/contrib/lars_1.2.tar.gz'
-    
-      warnings.warn(x, RRuntimeWarning)
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning: Content type 'application/x-gzip'
-      warnings.warn(x, RRuntimeWarning)
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning:  length 173620 bytes (169 KB)
-    
-      warnings.warn(x, RRuntimeWarning)
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning: =
-      warnings.warn(x, RRuntimeWarning)
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning: 
-    
-      warnings.warn(x, RRuntimeWarning)
-    /home/jb/virtualenvs/regreg/lib/python3.5/site-packages/rpy2/rinterface/__init__.py:186: RRuntimeWarning: downloaded 169 KB
-    
-    
-      warnings.warn(x, RRuntimeWarning)
-
-##STDOUT_END####STDOUT_START##
-    
-    
-    
-    The downloaded source packages are in
-    	‘/tmp/RtmpEEcaLO/downloaded_packages’
-    
-    
     
 
 .. nbplot::
