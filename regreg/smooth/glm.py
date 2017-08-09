@@ -613,9 +613,11 @@ class logistic_loglike(smooth_atom):
         self.data = (successes, trials)
 
         saturated = self.successes / self.trials
-        
+
         _mask = (saturated != 0) * (saturated != 1)
-        loss_terms = np.log(saturated[_mask]) * self.successes[_mask] + np.log(1 - saturated[_mask]) * ((self.trials - self.successes)[_mask])
+        loss_terms = (np.log(saturated[_mask]) * self.successes[_mask] +
+                      np.log(1 - saturated[_mask]) *
+                      ((self.trials - self.successes)[_mask]))
         loss_constant = -coef * loss_terms.sum()
 
         devq = identity_quadratic(0,0,0,-loss_constant)
