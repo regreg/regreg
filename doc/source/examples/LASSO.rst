@@ -62,7 +62,7 @@ The LASSO uses an :math:`\ell_1` penalty in "Lagrange" form:
 .. nbplot::
 
     >>> penalty = rr.l1norm(10, lagrange=4.)
-    >>> print ('penalty:', str(penalty))
+    >>> print('penalty:', str(penalty))
     >>> penalty
 
     ('penalty:', 'l1norm((10,), lagrange=4.000000, offset=None)')
@@ -324,7 +324,7 @@ a factor of :math:`1/n`.
     >>> soln1 = rr.simple_problem(loss_t, penalty_t).solve(tol=1.e-6)
     >>> clf = Lasso(alpha=lagrange / Xtiming.shape[0])
     >>> soln2 = clf.fit(Xtiming, Ytiming).coef_
-    >>> print (soln1 != 0).sum(), (soln2 != 0).sum()
+    >>> print((soln1 != 0).sum(), (soln2 != 0).sum())
     >>> np.linalg.norm(soln1 - soln2) / np.linalg.norm(soln1)
     >>> (loss_t.smooth_objective(soln1, 'func') + np.fabs(soln1).sum() * lagrange, loss_t.smooth_objective(soln2, 'func') + np.fabs(soln2).sum() * lagrange)
     (965.57710749492287, 965.57847510945123)
@@ -626,7 +626,7 @@ transform.
 .. nbplot::
 
     >>> dual_atom = penalty.conjugate
-    >>> print str(dual_atom)
+    >>> print(str(dual_atom))
 
     supnorm((10,), bound=4.000000, offset=None)
 
@@ -670,7 +670,7 @@ not have exact zeros.
 
 .. nbplot::
 
-    >>> print np.linalg.norm(primal_soln - enet_lagrange) / np.linalg.norm(enet_lagrange)
+    >>> print(np.linalg.norm(primal_soln - enet_lagrange) / np.linalg.norm(enet_lagrange))
 
     4.33868837223e-06
 
@@ -692,7 +692,7 @@ will have to also explicitly solve for the primal solution.
 .. nbplot::
 
     >>> primal_soln_alt = -dual_quadratic.smooth_objective(dual_soln_alt, 'grad')
-    >>> print np.linalg.norm(primal_soln_alt - enet_lagrange) / np.linalg.norm(enet_lagrange)
+    >>> print(np.linalg.norm(primal_soln_alt - enet_lagrange) / np.linalg.norm(enet_lagrange))
 
     9.57771586331e-08
 
@@ -1032,7 +1032,7 @@ The solution should explain about 90% of the norm of *Y*
 
 .. nbplot::
 
-    >>> print 1 - (np.linalg.norm(Y-np.dot(X, basis_pursuit_soln)) / norm_Y)**2
+    >>> print(1 - (np.linalg.norm(Y-np.dot(X, basis_pursuit_soln)) / norm_Y)**2)
 
     0.0
 
@@ -1048,8 +1048,8 @@ obtain the same solution.
     >>> h = lasso_solver.fit(max_its=2000, tol=1.0e-10)
     >>> lasso_soln = lasso.coefs
     >>>
-    >>> print np.fabs(lasso_soln).sum(), np.fabs(basis_pursuit_soln).sum()
-    >>> print np.linalg.norm(Y-np.dot(X, lasso_soln)), np.linalg.norm(Y-np.dot(X, basis_pursuit_soln))
+    >>> print(np.fabs(lasso_soln).sum(), np.fabs(basis_pursuit_soln).sum())
+    >>> print(np.linalg.norm(Y-np.dot(X, lasso_soln)), np.linalg.norm(Y-np.dot(X, basis_pursuit_soln)))
 
     0.0 0.0
     2327.67420379 2327.67420379
