@@ -106,21 +106,21 @@ def test_changepoint_scaled():
 def test_choose_parameter(delta=2, p=60):
 
     signal = np.zeros(p)
-    signal[(p/2):] += delta
+    signal[(p//2):] += delta
     Z = np.random.standard_normal(p) + signal
     p = Z.shape[0]
     M = multiscale(p)
     M.scaling = np.sqrt(M.sizes)
     lam = choose_tuning_parameter(M)
     weights = (lam + np.sqrt(2 * np.log(p / M.sizes))) / np.sqrt(p)
-    
+
     Z0 = Z - Z.mean()
     loss = rr.squared_error(ra.adjoint(M), Z0)
     penalty = rr.weighted_l1norm(weights, lagrange=1.)
     problem = rr.simple_problem(loss, penalty)
     coef = problem.solve()
     active = coef != 0
-    
+
     if active.sum():
         X = M.form_matrix(M.slices[active])[0]
 
