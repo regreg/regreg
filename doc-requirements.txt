@@ -7,3 +7,4 @@ matplotlib
 texext
 ipython
 rpy2
+nb2plots

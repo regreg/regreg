@@ -689,21 +689,6 @@ will have to also explicitly solve for the primal solution.
     array([ 2.54211324, -0.9184747 , -3.49504942,  4.        , -4.        ,
            -4.        ,  4.        ,  0.32793405,  4.        , -4.        ])
 
-::
-
-    ---------------------------------------------------------------------------
-
-    AttributeError                            Traceback (most recent call last)
-
-    <ipython-input-39-34772a5da301> in <module>()
-    ----> 1 dual_quadratic = rr.quadratic_loss(Q.shape[0], Q=Q, offset=X.T.dot(Y))
-          2 dual_problem_alt = rr.simple_problem(dual_quadratic, dual_atom)
-          3 dual_soln_alt = dual_problem_alt.solve(min_its=100)
-          4 dual_soln_alt
-
-
-    AttributeError: 'module' object has no attribute 'quadratic'
-
 .. nbplot::
 
     >>> primal_soln_alt = -dual_quadratic.smooth_objective(dual_soln_alt, 'grad')
