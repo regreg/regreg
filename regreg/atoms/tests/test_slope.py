@@ -3,12 +3,11 @@ import numpy as np
 import nose.tools as nt
 
 import regreg.api as rr
-from regreg.atoms.slope import slope, slope_conjugate
+from regreg.atoms.slope import slope, slope_conjugate, have_sklearn_iso
 from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close
 
-#@np.testing.decorators.skipif(True, "dual seminorm of SLOPE still not quite correct")
 def test_failing():
 
     Z = np.array([0.75529996,
@@ -65,21 +64,6 @@ def test_duality():
     Z = np.random.standard_normal(3) * 100
     np.testing.assert_allclose(Z, pen1.lagrange_prox(Z) + dual1.bound_prox(Z))
 
-
-# class SLOPESolver(Solver):
-#     pass
-
-# #     def all_tests(self):
-# #         for group in [self.test_simple_problem,
-# #                       self.test_separable,
-# #                       self.test_dual_problem,
-# #                       self.test_container,
-# #                       self.test_simple_problem_nonsmooth
-# #                       ]:
-# #             for t in group():
-# #                 yield t
-
-
 class SlopeSolverFactory(SolverFactory):
 
     weight_choices = [np.arange(20)[::-1]/20. + 1]
@@ -87,9 +71,10 @@ class SlopeSolverFactory(SolverFactory):
     L_choices = [0.3]
     coef_stop_choices = [False]
 
-    def __init__(self, klass, mode):
+    def __init__(self, klass, mode, use_sklearn=True):
         self.klass = klass
         self.mode = mode
+        self.use_sklearn = use_sklearn
 
     def __iter__(self):
         for offset, FISTA, coef_stop, L, q, w in itertools.product(self.offset_choices,
@@ -106,6 +91,7 @@ class SlopeSolverFactory(SolverFactory):
                 atom = self.klass(w, lagrange=self.lagrange)
             else:
                 atom = self.klass(w, bound=self.bound)
+            atom.use_sklearn = self.use_sklearn and have_sklearn_iso # test out both prox maps if available
 
             if q: 
                 atom.quadratic = rr.identity_quadratic(0, 0, np.random.standard_normal(atom.shape)*0.02)
@@ -127,5 +113,9 @@ def test_proximal_maps():
         for solver in factory:
             for t in solver.all_tests():
                 yield t
+        factory = SlopeSolverFactory(klass, mode, use_sklearn=False)
+        for solver in factory:
+            for t in solver.all_tests():
+                yield t
 
-#test_l1norm_equivalent()
+

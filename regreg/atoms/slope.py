@@ -4,16 +4,18 @@ Implementation of the SLOPE proximal operator of
 https://statweb.stanford.edu/~candes/papers/SLOPE.pdf
 
 """
+from warnings import warn
 from copy import copy
 import numpy as np
 from scipy import sparse
 
-have_isotonic = False
 try:
-    from sklearn.isotonic import IsotonicRegression
-    have_isotonic = True
+     from sklearn.isotonic import isotonic_regression as isotonic_regression_sk
+     have_sklearn_iso = True
 except ImportError:
-    raise ValueError('unable to import isotonic regression from sklearn')
+     warn('unable to import isotonic regression from sklearn, using a pure python implementation')
+     have_sklearn_iso = False
+from ._isotonic import pav as isotonic_regression_py
 
 from .seminorms import seminorm
 
@@ -28,9 +30,13 @@ class slope(seminorm):
     The SLOPE penalty
     """
 
+    use_sklearn = have_sklearn_iso
+
     objective_template = r"""\sum_j \lambda_j |(var)s_{(j)}|"""
 
-    def __init__(self, weights, lagrange=None, bound=None, 
+    def __init__(self, weights, 
+                 lagrange=None, 
+                 bound=None, 
                  offset=None, 
                  quadratic=None,
                  initial=None):
@@ -50,7 +56,6 @@ class slope(seminorm):
                           quadratic=quadratic,
                           initial=initial,
                           offset=offset)
-
 
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, x, 
@@ -72,7 +77,7 @@ class slope(seminorm):
     @doc_template_user
     def lagrange_prox(self, x,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, x, lipschitz, lagrange)
-        return _basic_proximal_map(x, self.weights * lagrange / lipschitz)
+        return _basic_proximal_map(x, self.weights * lagrange / lipschitz, use_sklearn=self.use_sklearn)
 
     @doc_template_user
     def bound_prox(self, x, bound=None):
@@ -185,13 +190,10 @@ class slope_conjugate(slope):
         # by working out the SLOPE proximal
         # map and computing the residual
 
-        # might be better to just find the correct cython function instead 
-        # of always constructing IsotonicRegression
-
-        _slope_prox = _basic_proximal_map(x, self.weights * bound)
+        _slope_prox = _basic_proximal_map(x, self.weights * bound, use_sklearn=self.use_sklearn)
         return x - _slope_prox
 
-def _basic_proximal_map(center, weights):
+def _basic_proximal_map(center, weights, use_sklearn=have_sklearn_iso):
     """
     Proximal algorithm described (2.3) of SLOPE
     though sklearn isotonic has ordering reversed.
@@ -201,20 +203,16 @@ def _basic_proximal_map(center, weights):
     # runs isotonic regression with an offset
     # reassigns the signs
 
-    # might be better to just find the correct cython function instead 
-    # of always constructing IsotonicRegression
-
-    ir = IsotonicRegression()
-
-    _dummy = np.arange(center.shape[0])
     _arg = np.argsort(np.fabs(center))
     shifted_center = np.fabs(center)[_arg] - weights[::-1]
-    _prox_val = np.clip(ir.fit_transform(_dummy, shifted_center), 0, np.inf)
+    if use_sklearn:
+         _prox_val = np.clip(isotonic_regression_sk(shifted_center), 0, np.inf)
+    else:
+         _prox_val = np.clip(isotonic_regression_py(shifted_center), 0, np.inf)
     _return_val = np.zeros_like(_prox_val)
     _return_val[_arg] = _prox_val
     _return_val *= np.sign(center)
     return _return_val
-
 
 conjugate_slope_pairs = {}
 for n1, n2 in [(slope, slope_conjugate)]:
