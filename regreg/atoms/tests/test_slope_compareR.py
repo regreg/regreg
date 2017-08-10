@@ -116,7 +116,7 @@ def test_using_SLOPE_weights():
 
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
+@np.testing.dec.skipif(not rpy2_available or not Rslope, msg="rpy2 or SLOPE not available, skipping test")
 def test_using_SLOPE_prox():
 
     n, p = 50, 50
