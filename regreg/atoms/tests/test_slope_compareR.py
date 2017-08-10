@@ -13,9 +13,15 @@ try:
     import rpy2.robjects.numpy2ri
     from rpy2.robjects.packages import importr
     from rpy2 import robjects
-    SLOPE = importr('SLOPE')
 except ImportError:
     rpy2_available = False
+
+Rslope = True
+try:
+    SLOPE = importr('SLOPE')
+except:
+    Rslope = False
+    
 
 import regreg.api as rr
 from regreg.atoms.slope import slope
@@ -79,7 +85,7 @@ def fit_slope_R(X, Y, W = None, normalize = True, choice_weights = "gaussian"):
     return result[0], result[1], result[2], result[3]
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
+@np.testing.dec.skipif(not rpy2_available or not Rslope, msg="rpy2 or SLOPE not available, skipping test")
 def test_using_SLOPE_weights():
 
     n, p = 500, 50
