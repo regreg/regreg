@@ -8,7 +8,7 @@ from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close
 
-def test_failing():
+def test_kkt():
 
     Z = np.array([0.75529996,
                   0.87948569,
