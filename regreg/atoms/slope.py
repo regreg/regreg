@@ -33,6 +33,7 @@ class slope(seminorm):
     use_sklearn = have_sklearn_iso
 
     objective_template = r"""\sum_j \lambda_j |(var)s_{(j)}|"""
+    objective_vars = seminorm.objective_vars.copy()
 
     def __init__(self, weights, 
                  lagrange=None, 
@@ -156,7 +157,8 @@ class slope_conjugate(slope):
     The dual of the slope penalty:math:`\ell_{\infty}` norm
     """
 
-    objective_template = r"""P^*(%(var)s)"""
+    objective_template = r"""{\cal D}^{SLOPE}(%(var)s)"""
+    objective_vars = seminorm.objective_vars.copy()
 
     @doc_template_user
     def seminorm(self, x, lagrange=None, check_feasibility=False):
