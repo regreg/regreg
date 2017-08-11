@@ -530,7 +530,7 @@ Finally we can check that the two models gave the same coefficients
 
 .. nbplot::
 
-    >>> print np.linalg.norm(multinomial_coefs - logistic_coefs) / np.linalg.norm(logistic_coefs)
+    >>> print(np.linalg.norm(multinomial_coefs - logistic_coefs) / np.linalg.norm(logistic_coefs))
 
     6.35619142025e-16
 
