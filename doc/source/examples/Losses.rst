@@ -1058,7 +1058,7 @@ group. The group LASSO penalty is
 .. nbplot::
 
     >>> groups = []
-    >>> for i in range(P/5):
+    >>> for i in range(int(P/5)):
     ...     groups.extend([i]*5)
     >>> weights = dict([g, np.random.sample()+1] for g in np.unique(groups))
     >>> group_penalty = rr.group_lasso(groups, weights=weights, lagrange=1.)
