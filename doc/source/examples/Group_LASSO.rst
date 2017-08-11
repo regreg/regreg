@@ -325,7 +325,7 @@ Let's generate some larger data and time their performance.
     >>> Yb = Xb.dot(beta) + np.random.standard_normal(n)
     >>> groupsb = []
     >>> for i in range(20):
-    ...     groupsb.extend([i+1]*(p/20))
+    ...     groupsb.extend([i+1]*int(p/20))
     >>> groups = np.array(groupsb)
     >>> rpy2.r.assign('Xb', Xb)
     >>> rpy2.r.assign('Yb', Yb)
