@@ -8,3 +8,5 @@ texext
 rpy2
 nb2plots
 sklearn
+# for PHreg
+statsmodels
