@@ -1,0 +1,5 @@
+# Requirements to ensure that all tests are run
+# rpy2 allows comparison with R's output
+# statsmodels enables Cox proportional hazards model regression and a check with R
+rpy2
+statsmodels
