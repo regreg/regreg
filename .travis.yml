@@ -154,6 +154,7 @@ script:
         sudo apt-get update
         sudo apt-get install -y r-base r-base-dev
         pip install -r test-requirements.txt
+        pip install -e .
         nosetests $DOCTEST_ARGS --verbose regreg
       else
         # Doctests only on platforms that have compatible fp output
