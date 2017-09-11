@@ -19,6 +19,7 @@ such as the `LASSO <http://www-stat.stanford.edu/~tibs/lasso.html>`_
 and many others. The general problem is to minimize a combination of a 
 differentiable function and certain non-differentiable penalties or constraints, i.e.
 a composite problem. 
+
 This includes many problems popular in applied statistics, such as 
 
 * the LASSO in constraint form
@@ -101,18 +102,20 @@ RegReg offers support for a variety of optimization strategies including
 
 * Primal generalized gradient descent 
 
-  * The current implementation is the based on the [FISTA]_ framework 
-  * The primal problem is solved by solving a series of proximal problems
+  * The current implementation is the based on the [FISTA]_ framework.
+  * The primal problem is solved by solving a series of proximal problems.
   * Often the proximal problems are very easy to solve. Sometimes they are more 
-complicated - then the proximal problems can be solved via their dual, 
-which can be solved directly by generalized gradient descent
+    complicated - then the proximal problems can be solved via their dual, 
+    which can be solved directly by proximal gradient descent, though
+    each iteration will involve solving an unpenalized version of the 
+    original problem.
 
 * Dual generalized gradient ascent
 
   * If the conjugate of the differentiable part of the objective is known, 
-then generalized gradient descent can be used to solve the dual problem
+    then generalized gradient descent can be used to solve the dual problem.
   * If the conjugate is not known, it can be evaluated by solving an 
-optimization problem with gradient descent 
+    optimization problem with proximal gradient descent.
 
 * ADMM 
 
@@ -121,10 +124,13 @@ optimization problem with gradient descent
 
 * Seminorm smoothing
 
-  * The function :math:`P(\beta)` can be approximated by a smooth function
+  * The function :math:`P(\beta)` can be approximated by a smooth function as in 
+    [TFOCS]_ or [NESTA]_. See 
   * This approximate problem can be solved directly using simple gradient methods
   * See <Smoothing>
 
 
 .. [ADMM] Boyd, S., Parikh, N., Chu, E., Peleato, B., Eckstein, J. "*Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers*" (http://www.stanford.edu/~boyd//papers/pdf/admm_distr_stats.pdf)
-.. [FISTA] Beck, A., Teboulle, M. "*A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems*" (http://iew3.technion.ac.il/~becka/papers/71654.pdf) TODO: Add formal citation
+.. [FISTA] Beck, A., Teboulle, M. "*A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems*" (http://iew3.technion.ac.il/~becka/papers/71654.pdf)
+.. [NESTA] Becker, S., Bobin, J. Candes, E. "*A Fast and Accurate First-order Method for Sparse Recovery*" (https://statweb.stanford.edu/~candes/nesta/nesta.html)
+.. [TFOCS] Becker, S., Candes, E. Grant, S. "*TFOCS: Templates for First-Order Conic Solvers*" (http://tfocs.stanford.edu/)

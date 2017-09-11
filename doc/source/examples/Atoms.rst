@@ -1,3 +1,4 @@
+.. _atoms_example:
 
 Using constraints
 =================

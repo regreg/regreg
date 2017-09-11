@@ -1,3 +1,4 @@
+.. _lasso_example:
 
 LASSO
 -----

@@ -1,3 +1,4 @@
+.. _lassoR_example:
 
 .. nbplot::
 
