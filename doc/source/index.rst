@@ -24,8 +24,8 @@ If you are interested in contributing as a developer, please see the :ref:`agend
 
    agenda.rst
    documentation.rst
-   docattribute.rst
    examples/index.rst
+   docattribute.rst
 
 Thanks
 ======

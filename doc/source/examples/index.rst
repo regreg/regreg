@@ -10,10 +10,10 @@ Some examples illustrating basic objects in RegReg
 
 * :ref:`lasso_example`:
 
-* :ref:`lassoR_example`: a classic, the diabetes data.
+* :ref:`diabetes_example`: a classic!
 
 * :ref:`group_lasso_example`
 
-* Smoothing atoms in a similar fashion to `TFOCS`_ :ref:`tfocs_example`.
+* :ref:`tfocs_example`: smoothing atoms in a similar fashion to :ref:`TFOCS` and :ref:`NESTA`
 
 
