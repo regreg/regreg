@@ -23,10 +23,9 @@ If you are interested in contributing as a developer, please see the :ref:`agend
 .. toctree::
 
    agenda.rst
-   documentation
-   docattribute
-   algorithms
-   :ref:`examples`_
+   documentation.rst
+   docattribute.rst
+   examples/index.rst
 
 Thanks
 ======

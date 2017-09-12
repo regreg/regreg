@@ -1,12 +1,16 @@
-.. _lassoR_example:
+.. _diabetes_example:
+
+A numerical comparison to R
+
+The Diabetes data from LARS
+---------------------------
 
 .. nbplot::
 
     >>> import numpy as np, regreg.api as rr
     >>> import rpy2.robjects as rpy2
 
-The Diabetes data from LARS
----------------------------
+Let's grab the diabetes data from the lars package in R
 
 .. nbplot::
 
