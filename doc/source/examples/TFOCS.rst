@@ -1,4 +1,4 @@
-.. _tfocs_example_:
+.. _tfocs_example:
 
 .. nbplot::
 
