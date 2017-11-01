@@ -155,10 +155,10 @@ class cone(atom):
 
         >>> from regreg.api import nonnegative
         >>> cone = nonnegative((4,))
-        >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
+        >>> Q = identity_quadratic(1.5, [3, -4, -1, 1],0,0)
         >>> soln = [3, 0, 0, 1]
-        >>> cone.proximal(Q) # doctest: +NORMALIZE_WHITESPACE
-        array([3., 0., 0., 1.])
+        >>> np.allclose(cone.proximal(Q), [3, 0, 0, 1]) # doctest: +NORMALIZE_WHITESPACE
+        True
 
         Parameters
         ----------
