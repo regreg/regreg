@@ -156,8 +156,10 @@ class cone(atom):
         >>> from regreg.api import nonnegative
         >>> cone = nonnegative((4,))
         >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
-        >>> cone.proximal(Q) # doctest: +ELLIPSIS
-        array([ 3.,  0.,  0.,  1.])
+        >>> soln = [3, 0, 0, 1]
+        >>> prox_soln = cone.proximal(Q) 
+        >>> sum([(a - b)**2 for a, b in zip(soln, prox_soln)]) < 0.01
+        True
 
         Parameters
         ----------
