@@ -290,7 +290,7 @@ class selector(linear_transform):
     >>> np.dot(X, np.arange(5)) + offset
     array([ 30,  81, 132, 183, 234, 285])
 
-    >>> apply_to_first5.adjoint_map(np.arange(6))
+    >>> apply_to_first5.adjoint_map(np.arange(6)) # doctest: +NORMALIZE_WHITESPACE
     array([ 275.,  290.,  305.,  320.,  335.,    0.,    0.,    0.,    0.,
               0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,
               0.,    0.])
