@@ -279,20 +279,18 @@ class selector(linear_transform):
     >>> X = np.arange(30).reshape((6,5))
     >>> offset = np.arange(6)
     >>> transform = affine_transform(X, offset)
-    >>> apply_to_first5 = selector(slice(0,5), (20,), transform)
-    >>> apply_to_first5.linear_map(np.arange(20))
+    >>> apply_to_first5 = selector(slice(0,5), (7,), transform)
+    >>> apply_to_first5.linear_map(np.arange(7))
     array([ 30,  80, 130, 180, 230, 280])
     >>> np.dot(X, np.arange(5))
     array([ 30,  80, 130, 180, 230, 280])
 
-    >>> apply_to_first5.affine_map(np.arange(20))
+    >>> apply_to_first5.affine_map(np.arange(7))
     array([ 30,  81, 132, 183, 234, 285])
     >>> np.dot(X, np.arange(5)) + offset
     array([ 30,  81, 132, 183, 234, 285])
 
-    >>> result = np.array([275.,  290.,  305.,  320.,  335.,    0.,    0.,    0.,    0.,
-                           0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,
-                           0.,    0.])
+    >>> result = np.array([275.,  290.,  305.,  320.,  335.,    0.,    0.])
     >>> np.testing.assert_allclose(result, apply_to_first5.adjoint_map(np.arange(6)))
 
     """
