@@ -38,7 +38,7 @@ class group_lasso(seminorm):
     tol = 1.0e-05
 
     def __init__(self, groups,
-                 weights={},
+                 weights,
                  offset=None,
                  lagrange=None,
                  bound=None,
