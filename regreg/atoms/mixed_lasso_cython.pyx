@@ -107,7 +107,10 @@ def seminorm_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] x,
 
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        value += weights[j] * norms[j]
+        if weights[j] < np.inf:
+            value += weights[j] * norms[j]
+        elif norms[j] != 0:
+            return np.inf
 
     tol = 1.e-5
     if check_feasibility:

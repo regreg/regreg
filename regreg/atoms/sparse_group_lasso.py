@@ -63,9 +63,11 @@ class sparse_group_lasso(group_lasso, seminorm):
                                    x,
                                    lagrange=lagrange,
                                    check_feasibility=check_feasibility)
+
         val += self._weighted_l1norm.seminorm(x,
                                               lagrange=lagrange,
                                               check_feasibility=check_feasibility)
+
         return val
 
     @doc_template_user
@@ -285,7 +287,6 @@ def _gauge_function_dual(atom,
           else:
               upper = 0.5 * (upper + lower)
 
-     print(upper)
      return 0.5 * (upper + lower)
 
 def inside_set(atom, point):
@@ -309,7 +310,6 @@ def inside_set(atom, point):
     else:
         raise ValueError('must be a sparse group lasso class')
 
-    print(np.linalg.norm(proj_point - point), 'check')
     if np.linalg.norm(proj_point - point) > max(np.linalg.norm(point), 1) * 1.e-7:
         return False
     return True

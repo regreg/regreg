@@ -35,7 +35,7 @@ from .atoms.group_lasso import (group_lasso, group_lasso_dual,
                                 group_lasso_dual_epigraph_polar)
 from .atoms.sparse_group_lasso import (sparse_group_lasso, 
                                        sparse_group_lasso_dual,
-                                       inside_set as inside_group_lasso_ball)
+                                       inside_set as inside_sparse_group_lasso_ball)
 
 from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
                                    supnorm as weighted_supnorm)
