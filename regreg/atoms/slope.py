@@ -209,7 +209,7 @@ def _basic_proximal_map(center, weights, use_sklearn=have_sklearn_iso):
           _prox_val = np.clip(isotonic_regression_sk(shifted_center), 0, np.inf)
      else:
           _prox_val = np.clip(isotonic_regression_py(shifted_center), 0, np.inf)
-          _return_val = np.zeros_like(_prox_val)
+     _return_val = np.zeros_like(_prox_val)
      _return_val[_arg] = _prox_val
      _return_val *= np.sign(center)
      return _return_val

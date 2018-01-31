@@ -19,6 +19,7 @@ from .weighted_atoms import l1norm as weighted_l1norm
 from ..atoms import _work_out_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
+from ..problems.composite import smooth_conjugate
 
 @objective_doc_templater()
 class sparse_group_lasso(group_lasso, seminorm):
@@ -179,12 +180,28 @@ class sparse_group_lasso_dual(sparse_group_lasso):
      objective_template = r"""{\cal D}^{group sparse}(%(var)s)"""
      objective_vars = seminorm.objective_vars.copy()
 
+     @property
+     def conjugate_atom(self):
+         """
+         For a sparse group LASSO dual in bound form,
+         an atom that agrees with its primal Lagrange form.
+         
+         Note: this conjugate does not take into account the atom's quadratic
+         and offset terms. 
+         """
+         if not hasattr(self, "_conjugate_atom"):
+              self._conjugate_atom = sparse_group_lasso(self.groups,
+                                                        self.lasso_weights,
+                                                        weights=self.weights,
+                                                        lagrange=self.bound)
+         return self._conjugate_atom
+
      @doc_template_user
      def seminorm(self, x, lagrange=None, check_feasibility=False):
           lagrange = seminorm.seminorm(self, x, 
                                        check_feasibility=check_feasibility, 
                                        lagrange=lagrange)
-          return _gauge_function_dual(self.conjugate, x) * lagrange
+          return _gauge_function_dual(self.conjugate_atom, x) * lagrange
 
      @doc_template_user
      def constraint(self, x, bound=None):
@@ -204,7 +221,7 @@ class sparse_group_lasso_dual(sparse_group_lasso):
      @doc_template_user
      def bound_prox(self, x, bound=None):
           bound = seminorm.bound_prox(self, x, bound)
-          resid = self.conjugate.lagrange_prox(x, lagrange=bound)
+          resid = self.conjugate_atom.lagrange_prox(x, lagrange=bound)
           return x - resid
 
 def _gauge_function_dual(atom,
@@ -229,49 +246,71 @@ def _gauge_function_dual(atom,
      if point_inside:
           # gauge is upper bounded by 1
           # find a lower bound
+
           while True:
-               lower /= 2
+               lower = lower / 2
                candidate = point / lower
+
                if not inside_set(atom, candidate):
                     break
                else:
                     upper = lower
+
                iter += 1
                if iter == max_iter:
                     return 0
      else:
           # gauge is lower bounded by 1
           # find an upper bound
+
           while True:
                upper *= 2
                candidate = point / upper
-               if not inside_set(atom, candidate):
+
+               if inside_set(atom, candidate):
                     break
                else:
                     lower = upper
+
+               iter += 1
                if iter == max_iter:
                     return np.inf
 
      # binary search
 
      while (upper - lower) > tol * 0.5 * (upper + lower):
-          candidate = point / 0.5 * (upper + lower)
-          
-def inside_set(atom, candidate):
+          candidate = point / (0.5 * (upper + lower))
+          if not inside_set(atom, candidate):
+              lower = 0.5 * (upper + lower)
+          else:
+              upper = 0.5 * (upper + lower)
+
+     print(upper)
+     return 0.5 * (upper + lower)
+
+def inside_set(atom, point):
     """
-    Are we in the dual ball
+    Is the point in the dual ball?
+
+    If the atom is the primal (necessarily in lagrange form), we check
+    whether point is in the dual ball (i.e.
+    the one determining the norm.
+
+    If the atom is a dual (necessarily in bound form), we just check
+    if we project onto the same point.
     """
 
     if atom.__class__ == sparse_group_lasso:
-        proj_candidate = candidate - atom.lagrange_prox(candidate,
-                                                        lipschitz=1,
-                                                        lagrange=1)
+        proj_point = point - atom.lagrange_prox(point,
+                                                lipschitz=1,
+                                                lagrange=1)
     elif atom.__class__ != sparse_group_lasso_dual:
-        proj_candidate = atom.bound_prox(candidate)
+        proj_point = atom.bound_prox(point)
     else:
         raise ValueError('must be a sparse group lasso class')
 
-    if np.linalg.norm(proj_candidate - candidate) > max(np.linalg.norm(candidate), 1) * 1.e-7:
+    print(np.linalg.norm(proj_point - point), 'check')
+    if np.linalg.norm(proj_point - point) > max(np.linalg.norm(point), 1) * 1.e-7:
         return False
     return True
 

@@ -4,7 +4,9 @@ import nose.tools as nt
 
 import regreg.api as rr
 from regreg.atoms.sparse_group_lasso import (sparse_group_lasso,
-                                             sparse_group_lasso_dual)
+                                             sparse_group_lasso_dual,
+                                             inside_set,
+                                             _gauge_function_dual)
 from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close
@@ -52,6 +54,36 @@ def test_group_lasso_equivalent():
 
     np.testing.assert_allclose(Z, pen1.lagrange_prox(Z) + dual1.bound_prox(Z))
     np.testing.assert_allclose(dual1.bound_prox(Z), dual2.bound_prox(Z))
+
+def test_inside_set():
+    """
+    with 0 as lasso weights should be group lasso
+    """
+    pen = sparse_group_lasso([1,1,2,2,2], 
+                             np.ones(5), 
+                             weights={1:0.2, 2:0.1},
+                             lagrange=0.4)
+    point = np.zeros(5)
+    assert inside_set(pen, point)
+
+    Z = np.random.standard_normal(5) * 20
+    proxZ = pen.lagrange_prox(Z)
+    assert inside_set(pen, Z - proxZ)  # its gauge norm is 0.4, larger than 1
+
+    assert np.fabs(_gauge_function_dual(pen, Z - proxZ) - 0.4) < 1.e-4
+
+    pen2 = sparse_group_lasso([1,1,2,2,2], 
+                             np.ones(5), 
+                             weights={1:0.2, 2:0.1},
+                             lagrange=1.2)
+    point = np.zeros(5)
+    assert inside_set(pen2, point) 
+
+    Z = np.random.standard_normal(5) * 20
+    proxZ = pen2.lagrange_prox(Z)
+    print(Z, proxZ)
+    assert np.fabs(_gauge_function_dual(pen2, Z - proxZ) - 1.2) < 1.e-4
+    assert not inside_set(pen, Z - proxZ) # its gauge norm is 1.2, larger than 1
 
 class SlopeSolverFactory(SolverFactory):
 
