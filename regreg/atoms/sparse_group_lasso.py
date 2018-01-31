@@ -40,6 +40,8 @@ class sparse_group_lasso(group_lasso, seminorm):
                  quadratic=None,
                  initial=None):
 
+         import sys
+         sys.stderr.write(`weights`)
          group_lasso.__init__(self, 
                               groups, 
                               weights,
@@ -62,10 +64,9 @@ class sparse_group_lasso(group_lasso, seminorm):
                                    x,
                                    lagrange=lagrange,
                                    check_feasibility=check_feasibility)
-        val += self._weighted_l1norm(self, 
-                                     x,
-                                     lagrange=lagrange,
-                                     check_feasibility=check_feasibility)
+        val += self._weighted_l1norm.seminorm(x,
+                                              lagrange=lagrange,
+                                              check_feasibility=check_feasibility)
         return val
 
     @doc_template_user

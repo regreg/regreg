@@ -77,7 +77,7 @@ class SlopeSolverFactory(SolverFactory):
             self.coef_stop = coef_stop
             self.L = L
 
-            g, w, l = pen
+            w, l, g = pen
             if self.mode == 'lagrange':
                 atom = self.klass(g, w, l, lagrange=self.lagrange)
             else:

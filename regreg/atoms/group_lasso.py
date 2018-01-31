@@ -37,7 +37,8 @@ class group_lasso(seminorm):
 
     tol = 1.0e-05
 
-    def __init__(self, groups,
+    def __init__(self, 
+                 groups,
                  weights,
                  offset=None,
                  lagrange=None,
@@ -369,8 +370,9 @@ class group_lasso_cone(cone):
     """
 
     seminorm_class = group_lasso
-    def __init__(self, groups,
-                 weights={},
+    def __init__(self, 
+                 groups,
+                 weights,
                  offset=None,
                  quadratic=None,
                  initial=None):

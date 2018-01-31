@@ -16,6 +16,8 @@ class GroupSolverFactory(SolverFactory):
 
     group_choices = [np.arange(10),
                      np.array([1,1,2,2,2,3,3,4,4,4,4,5,5,6,6,6,6])]
+    weight_choices = [dict(zip(np.arange(10), 0.03 * np.arange(10))),
+                      {1:0.2, 2:0.1, 3:0.1, 4:0.1, 5:0.1, 6:5}]
     FISTA_choices = [True]
     L_choices = [0.3]
     coef_stop_choices = [False]
@@ -25,20 +27,21 @@ class GroupSolverFactory(SolverFactory):
         self.mode = mode
 
     def __iter__(self):
-        for offset, FISTA, coef_stop, L, q, groups in itertools.product(self.offset_choices,
-                                                                        self.FISTA_choices,
-                                                                        self.coef_stop_choices,
-                                                                        self.L_choices,
-                                                                        self.quadratic_choices,
-                                                                        self.group_choices):
+        for offset, FISTA, coef_stop, L, q, groups, w in itertools.product(self.offset_choices,
+                                                                           self.FISTA_choices,
+                                                                           self.coef_stop_choices,
+                                                                           self.L_choices,
+                                                                           self.quadratic_choices,
+                                                                           self.group_choices,
+                                                                           self.weight_choices):
             self.FISTA = FISTA
             self.coef_stop = coef_stop
             self.L = L
 
             if self.mode == 'lagrange':
-                atom = self.klass(groups, lagrange=self.lagrange)
+                atom = self.klass(groups, w, lagrange=self.lagrange)
             else:
-                atom = self.klass(groups, bound=self.bound)
+                atom = self.klass(groups, w, bound=self.bound)
 
             if q: 
                 atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
@@ -57,19 +60,22 @@ class GroupConeSolverFactory(ConeSolverFactory):
 
     group_choices = [np.arange(10),
                      np.array([1,1,2,2,2,3,3,4,4,4,4,5,5,6,6,6,6])]
+    weight_choices = [dict(zip(np.arange(10), 0.03 * np.arange(10))),
+                      {1:0.2, 2:0.1, 3:0.1, 4:0.1, 5:0.1, 6:5}]
 
     def __iter__(self):
-        for offset, FISTA, coef_stop, L, q, groups in itertools.product(self.offset_choices,
-                                                                        self.FISTA_choices,
-                                                                        self.coef_stop_choices,
-                                                                        self.L_choices,
-                                                                        self.quadratic_choices,
-                                                                        self.group_choices):
+        for offset, FISTA, coef_stop, L, q, groups, w in itertools.product(self.offset_choices,
+                                                                           self.FISTA_choices,
+                                                                           self.coef_stop_choices,
+                                                                           self.L_choices,
+                                                                           self.quadratic_choices,
+                                                                           self.group_choices,
+                                                                           self.weight_choices):
             self.FISTA = FISTA
             self.coef_stop = coef_stop
             self.L = L
 
-            atom = self.klass(groups)
+            atom = self.klass(groups, w)
 
             if q: 
                 atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
