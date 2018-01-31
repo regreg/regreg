@@ -13,8 +13,10 @@ def test_l1norm_equivalent():
     """
     with equal weights the prox is the same as l1 norm
     """
-    pen1 = sparse_group_lasso([1,1,2,2,2], {1:0, 2:0},
-                              np.ones(5), lagrange=0.4)
+    pen1 = sparse_group_lasso([1,1,2,2,2], 
+                              np.ones(5), 
+                              weights={1:0, 2:0},
+                              lagrange=0.4)
     pen2 = rr.l1norm(5, lagrange=0.4)
 
     Z = np.array([3,2,4,6,7])
@@ -33,8 +35,10 @@ def test_group_lasso_equivalent():
     """
     with 0 as lasso weights should be group lasso
     """
-    pen1 = sparse_group_lasso([1,1,2,2,2], {1:0.2, 2:0.1},
-                              np.zeros(5), lagrange=0.4)
+    pen1 = sparse_group_lasso([1,1,2,2,2], 
+                              np.zeros(5), 
+                              weights={1:0.2, 2:0.1},
+                              lagrange=0.4)
     pen2 = rr.group_lasso([1,1,2,2,2], {1:0.2, 2:0.1}, lagrange=0.4)
 
     Z = np.array([3,2,4,6,7])
@@ -79,9 +83,9 @@ class SlopeSolverFactory(SolverFactory):
 
             w, l, g = pen
             if self.mode == 'lagrange':
-                atom = self.klass(g, w, l, lagrange=self.lagrange)
+                atom = self.klass(g, l, weights=w, lagrange=self.lagrange)
             else:
-                atom = self.klass(g, w, l, bound=self.bound)
+                atom = self.klass(g, l, weights=w, bound=self.bound)
 
             if q: 
                 atom.quadratic = rr.identity_quadratic(0, 0, np.random.standard_normal(atom.shape)*0.02)

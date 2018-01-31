@@ -32,19 +32,17 @@ class sparse_group_lasso(group_lasso, seminorm):
 
     def __init__(self, 
                  groups,
-                 weights,
                  lasso_weights, 
+                 weights={},
                  lagrange=None, 
                  bound=None, 
                  offset=None, 
                  quadratic=None,
                  initial=None):
 
-         import sys
-         sys.stderr.write(`weights`)
          group_lasso.__init__(self, 
                               groups, 
-                              weights,
+                              weights=weights,
                               lagrange=lagrange,
                               bound=bound,
                               offset=offset,
@@ -95,8 +93,8 @@ class sparse_group_lasso(group_lasso, seminorm):
 
     def __copy__(self):
          return self.__class__(self.groups.copy(),
-                               copy(self.weights),
                                self.lasso_weights.copy(),
+                               weights=copy(self.weights),
                                quadratic=self.quadratic,
                                initial=self.coefs,
                                bound=copy(self.bound),
@@ -105,37 +103,37 @@ class sparse_group_lasso(group_lasso, seminorm):
     def __repr__(self):
         if self.lagrange is not None:
             if not self.quadratic.iszero:
-                return "%s(%s, %s, %s, lagrange=%f, offset=%s)" % \
+                return "%s(%s, %s, weights=%s, lagrange=%f, offset=%s)" % \
                     (self.__class__.__name__,
                      str(self.groups),
-                     str(self.weights),
                      str(self.lasso_weights),
+                     str(self.weights),
                      self.lagrange,
                      str(self.offset))
             else:
-                return "%s(%s, %s, %s, lagrange=%f, offset=%s, quadratic=%s)" % \
+                return "%s(%s, %s, weights=%s, lagrange=%f, offset=%s, quadratic=%s)" % \
                     (self.__class__.__name__, 
                      str(self.groups),
-                     str(self.weights),
                      str(self.lasso_weights),
+                     str(self.weights),
                      self.lagrange,
                      str(self.offset),
                      self.quadratic)
         else:
             if not self.quadratic.iszero:
-                return "%s(%s, bound=%f, offset=%s)" % \
+                return "%s(%s, %s, weights=%s, bound=%f, offset=%s)" % \
                     (self.__class__.__name__,
                      str(self.groups),
-                     str(self.weights),
                      str(self.lasso_weights),
+                     str(self.weights),
                      self.bound,
                      str(self.offset))
             else:
-                return "%s(%s, bound=%f, offset=%s, quadratic=%s)" % \
+                return "%s(%s, %s, weights=%s, bound=%f, offset=%s, quadratic=%s)" % \
                     (self.__class__.__name__,
                      str(self.groups),
-                     str(self.weights),
                      str(self.lasso_weights),
+                     str(self.weights),
                      self.bound,
                      str(self.offset),
                      self.quadratic)
@@ -148,8 +146,8 @@ class sparse_group_lasso(group_lasso, seminorm):
              if self.bound is None:
                   cls = conjugate_sparse_group_lasso_pairs[self.__class__]
                   atom = cls(self.groups,
-                             self.weights, 
                              self.lasso_weights,
+                             weights=self.weights, 
                              bound=self.lagrange, 
                              lagrange=None,
                              offset=offset,
@@ -157,8 +155,8 @@ class sparse_group_lasso(group_lasso, seminorm):
              else:
                   cls = conjugate_sparse_group_lasso_pairs[self.__class__]
                   atom = cls(self.groups,
-                             self.weights, 
                              self.lasso_weights,
+                             weights=self.weights, 
                              lagrange=self.bound, 
                              bound=None,
                              offset=offset,
@@ -186,15 +184,13 @@ class sparse_group_lasso_dual(sparse_group_lasso):
           lagrange = seminorm.seminorm(self, x, 
                                        check_feasibility=check_feasibility, 
                                        lagrange=lagrange)
-          xsort = np.sort(np.fabs(x))[::-1]
-          xsort_cumsum = np.cumsum(xsort)
-          w_cumsum = np.cumsum(self.weights)
-          return lagrange * np.fabs(xsort_cumsum / w_cumsum).max()
+          return _gauge_function_dual(self.conjugate, x) * lagrange
 
      @doc_template_user
      def constraint(self, x, bound=None):
           bound = seminorm.constraint(self, x, bound=bound)
-          inbox = self.seminorm(x, lagrange=1,
+          inbox = self.seminorm(x, 
+                                lagrange=1,
                                 check_feasibility=True) <= bound * (1+self.tol)
           if inbox:
                return 0
@@ -224,18 +220,10 @@ def _gauge_function_dual(atom,
 
      point = np.asarray(point)
 
-     def _inside_set(candidate):
-          proj_candidate = atom.lagrange_prox(candidate,
-                                              lipschitz=1,
-                                              lagrange=1)
-          if np.linalg.norm(proj_candidate - candidate) > max(np.linalg.norm(candidate), 1) * 1.e-7:
-               return False
-          return True
-
      # find upper and lower bounds
 
      lower, upper = 1., 1.
-     point_inside = _inside_set(point)
+     point_inside = inside_set(atom, point)
      
      iter = 0
      if point_inside:
@@ -244,7 +232,7 @@ def _gauge_function_dual(atom,
           while True:
                lower /= 2
                candidate = point / lower
-               if not _inside_set(candidate):
+               if not inside_set(atom, candidate):
                     break
                else:
                     upper = lower
@@ -257,7 +245,7 @@ def _gauge_function_dual(atom,
           while True:
                upper *= 2
                candidate = point / upper
-               if not _inside_set(candidate):
+               if not inside_set(atom, candidate):
                     break
                else:
                     lower = upper
@@ -269,6 +257,26 @@ def _gauge_function_dual(atom,
      while (upper - lower) > tol * 0.5 * (upper + lower):
           candidate = point / 0.5 * (upper + lower)
           
+def inside_set(atom, candidate):
+    """
+    Are we in the dual ball
+    """
+
+    if atom.__class__ == sparse_group_lasso:
+        proj_candidate = candidate - atom.lagrange_prox(candidate,
+                                                        lipschitz=1,
+                                                        lagrange=1)
+    elif atom.__class__ != sparse_group_lasso_dual:
+        proj_candidate = atom.bound_prox(candidate)
+    else:
+        raise ValueError('must be a sparse group lasso class')
+
+    if np.linalg.norm(proj_candidate - candidate) > max(np.linalg.norm(candidate), 1) * 1.e-7:
+        return False
+    return True
+
+
+
 conjugate_sparse_group_lasso_pairs = {}
 for n1, n2 in [(sparse_group_lasso, sparse_group_lasso_dual)]:
     conjugate_sparse_group_lasso_pairs[n1] = n2

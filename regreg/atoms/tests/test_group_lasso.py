@@ -16,8 +16,8 @@ class GroupSolverFactory(SolverFactory):
 
     group_choices = [np.arange(10),
                      np.array([1,1,2,2,2,3,3,4,4,4,4,5,5,6,6,6,6])]
-    weight_choices = [dict(zip(np.arange(10), 0.03 * np.arange(10))),
-                      {1:0.2, 2:0.1, 3:0.1, 4:0.1, 5:0.1, 6:5}]
+    weight_choices = [{}, {}]
+
     FISTA_choices = [True]
     L_choices = [0.3]
     coef_stop_choices = [False]
@@ -60,8 +60,7 @@ class GroupConeSolverFactory(ConeSolverFactory):
 
     group_choices = [np.arange(10),
                      np.array([1,1,2,2,2,3,3,4,4,4,4,5,5,6,6,6,6])]
-    weight_choices = [dict(zip(np.arange(10), 0.03 * np.arange(10))),
-                      {1:0.2, 2:0.1, 3:0.1, 4:0.1, 5:0.1, 6:5}]
+    weight_choices = [{}, {}]
 
     def __iter__(self):
         for offset, FISTA, coef_stop, L, q, groups, w in itertools.product(self.offset_choices,
