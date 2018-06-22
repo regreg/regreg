@@ -153,7 +153,7 @@ class quadratic_loss(smooth_atom):
 
         if self.Q is None:
             as_quad = (identity_quadratic(self.coef, self.offset, 0, 0) + self.quadratic).collapsed()
-            return smooth_conjugate(zero(self.shape,quadratic=as_quad))
+            return smooth_conjugate(zero(self.shape, quadratic=as_quad))
         else:
             #XXX this needs to be tested
             sq = self.quadratic.collapsed()
