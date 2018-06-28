@@ -847,6 +847,25 @@ def astransform(X):
     else:
         return linear_transform(X)
 
+class aslinear(linear_transform):
+    """
+    Return only linear part of affine transform
+    """
+    def __init__(self, transform):
+        self._transform = astransform(transform)
+        self.affine_offset = None
+        self.input_shape = self._transform.output_shape
+        self.output_shape = self._transform.input_shape
+
+    def linear_map(self, x):
+        return self._transform.linear_map(x)
+
+    def affine_map(self, x):
+        return self.linear_map(x)
+
+    def adjoint_map(self, x):
+        return self._transform.adjoint_map(x)
+
 class adjoint(linear_transform):
 
     """

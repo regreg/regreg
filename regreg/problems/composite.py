@@ -173,7 +173,7 @@ class nonsmooth(composite):
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
         if quadratic is None:
-            quadratic = sq(0,0,0,0)
+            quadratic = sq(0, 0, 0, 0)
         self.coefs = self.proximal(quadratic)
         if return_optimum:
             return self.objective(self.coefs) + quadratic.objective(self.coefs, 'func'), self.coefs
@@ -212,7 +212,7 @@ class smooth(composite):
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
         if quadratic is None:
-            quadratic = sq(0,0,0,0)
+            quadratic = sq(0, 0, 0, 0)
         oldq, self.quadratic = self.quadratic, self.quadratic + quadratic
         self.solver = FISTA(self)
         self.solver.fit(**fit_args)
