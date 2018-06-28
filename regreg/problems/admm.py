@@ -3,7 +3,10 @@ Simple ADMM implementation
 """
 
 import numpy as np
-from regreg.smooth import sum as smooth_sum
+from ..smooth import sum as smooth_sum
+from ..smooth.quadratic import quadratic_loss
+from ..affine import aslinear, astransform
+from ..identity_quadratic import identity_quadratic
 
 class admm_problem(object):
 
@@ -27,65 +30,68 @@ class admm_problem(object):
                  atom, 
                  transform, 
                  augmented_param, 
-                 quadratic=None):
+                 quadratic=None,
+                 fit_args={}):
+
         (self.loss,
          self.atom,
          self.transform,
          self.augmented_param,
          self.quadratic) = (loss,
                             atom,
-                            transform,
+                            astransform(transform),
                             augmented_param,
                             quadratic)
 
-        self.loss_coef = self.loss.coef                        # x in ADMM notes
-        self.atom_coef = np.zeros(self.transform.output_shape) # z in ADMM notes
-        self.dual_coef = np.zeros(self.transform.output_shape) # y in ADMM notes
-        self.augmented_param = augmented_param                 # rho in ADMM notes
+        self.loss_coefs = self.loss.coefs                       # x in ADMM notes
+        self.dual_coefs = np.zeros(self.transform.output_shape) # y in ADMM notes
+        self.atom_coefs = np.zeros(self.transform.output_shape) # z in ADMM notes
+        self.augmented_param = augmented_param                  # rho in ADMM notes
 
-        linear = 
-        Q = composition
-        qloss = quadratic
-        self.augmented_loss = smooth_sum(self.loss,
-                                         quadratic_loss)
+        self.linear_transform = aslinear(self.transform)                # D
+        qloss = quadratic_loss.squared_transform(self.linear_transform) # x^TD^TDx / 2
+        qloss.coef *= self.augmented_param                              # scale by rho
+        self.augmented_loss = smooth_sum([self.loss,
+                                          qloss])
+
+        self.fit_args = fit_args # for the smooth_sum FISTA run
 
         assert (self.loss.shape == self.transform.output_shape)
 
-    def update_loss_coef(self):
+    def update_loss_coefs(self):
         """
         Minimize over x: self.loss(x) + rho/2 x^TD^TDx + x^T D^T(y -rho * (z - \alpha))
         """
-        
-    def update_atom_coef(self):
+        y, z, rho, alpha = (self.dual_coefs,
+                            self.atom_coefs,
+                            self.augmented_param,
+                            self.transform.affine_offset)
+        if alpha is None:
+            alpha = 0
+        linear_term = self.linear_transform.dot(y - rho * (z - alpha))
+        self.loss_coefs[:] = self.augmented_loss.solve(quadratic=identity_quadratic(0, 0, linear_term, 0),
+                                                       **self.fit_args)
+
+    def update_atom_coefs(self):
         """
         Minimize over z: atom(z) + rho/2 \|z-Dx-\alpha\|^2_2 - z^Ty
         """
         rho = self.augmented_param
-        center_term = self.transform.affine_map(self.loss_coef)
-        linear_term = -self.dual_coef
+        center_term = self.transform.affine_map(self.loss_coefs)
+        linear_term = -self.dual_coefs
         Q = identity_quadratic(rho, center_term, linear_term, 0)
-        self.atom_coef[:] = self.atom.proximal_map(Q)
+        self.atom_coefs[:] = self.atom.proximal(Q)
 
-    def update_dual_coef(self):
+    def update_dual_coefs(self):
         """
         Dual update
         """
         rho = self.augmented_param
-        self.dual_coef[:] += rho * (self.transform.affine_map(self.loss_coef) - self.atom_coef)
+        self.dual_coefs[:] += rho * (self.transform.affine_map(self.loss_coefs) - self.atom_coefs)
 
-def test_admm(n=100, p=10):
+    def solve(self, niter=20):
+        for _ in range(niter):
+            self.update_loss_coefs()
+            self.update_atom_coefs()
+            self.update_dual_coefs()
 
-    import regreg.api as rr, regreg.affine as ra
-    import numpy as np
-
-    X = np.random.standard_normal((n, p))
-    Y = np.random.standard_normal(n)
-    loss = rr.squared_error(X, Y)
-    D = np.identity(p)
-    pen = rr.l1norm(p, lagrange=1.5)
-
-    ADMM = admm_problem(loss, pen, ra.astransform(D), 0.5)
-
-if __name__ == "__main__":
-
-    test_admm()
