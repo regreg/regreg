@@ -19,6 +19,8 @@ from .atoms.block_norms import (l1_l2, linf_l2,
                                 l1_l1, linf_linf,
                                 block_sum, block_max)
 from .atoms.slope import (slope, slope_conjugate)
+from .atoms.group_lasso import (sparse_group_lasso,
+                                sparse_group_lasso_dual)
 
 from .atoms.svd_norms import (nuclear_norm, operator_norm,
                               nuclear_norm_epigraph,
