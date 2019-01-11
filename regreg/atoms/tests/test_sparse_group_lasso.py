@@ -55,6 +55,31 @@ def test_group_lasso_equivalent():
     np.testing.assert_allclose(Z, pen1.lagrange_prox(Z) + dual1.bound_prox(Z))
     np.testing.assert_allclose(dual1.bound_prox(Z), dual2.bound_prox(Z))
 
+def test_prox():
+
+    pen = sparse_group_lasso([1,1,2,2,2], 
+                             np.ones(5), 
+                             weights={1:1, 2:1},
+                             lagrange=1)
+
+    arg = np.array([5,7,3,5,12.])
+
+    prox_arg = pen.lagrange_prox(arg)
+    
+    soft_thresh = arg - 1.
+    final_soln = np.zeros_like(soft_thresh)
+
+    norm1 = np.linalg.norm(soft_thresh[:2])
+    factor1 = (norm1 - 1) / norm1
+    final_soln[:2] = soft_thresh[:2] * factor1
+
+    norm2 = np.linalg.norm(soft_thresh[2:])
+    factor2 = (norm2 - 1) / norm2
+    final_soln[2:] = soft_thresh[2:] * factor2
+
+    print(factor1, factor2)
+    np.testing.assert_allclose(prox_arg, final_soln)
+    
 def test_inside_set():
     """
     with 0 as lasso weights should be group lasso

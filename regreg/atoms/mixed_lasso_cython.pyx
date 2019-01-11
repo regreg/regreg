@@ -42,9 +42,12 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
         if groups[i] >= 0:
             projection[i] = prox_center[i] * factors[groups[i]]
 
-    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, implied_bound / np.fabs(prox_center[l1_penalty]))
+    projection[l1_penalty] = (prox_center[l1_penalty] * 
+                              np.minimum(1, implied_bound / 
+                                         np.fabs(prox_center[l1_penalty])))
     projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(implied_bound, prox_center[positive_part])
+    projection[positive_part] = np.minimum(implied_bound, 
+                                           prox_center[positive_part])
     projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
     return prox_center - projection

@@ -28,7 +28,7 @@ class sparse_group_lasso(group_lasso, seminorm):
     Sparse group LASSO
     """
 
-    objective_template = r""" \sum_j \lambda_j |%(var)s_j| + \sum_g \alpha_g \|%(var)s[g]\|_2"""
+    objective_template = r""" \left[ \sum_j \alpha_j |%(var)s_j| + \sum_g \lambda_g \|%(var)s[g]\|_2 \right]"""
     objective_vars = group_lasso.objective_vars.copy()
 
     def __init__(self, 
