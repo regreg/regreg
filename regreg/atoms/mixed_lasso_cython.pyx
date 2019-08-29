@@ -238,7 +238,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
         failing_nn = np.zeros(g_nn.shape, np.int)
         failing_nn[active_nn] += -g_nn[active_nn] < -nntol
         if debug:
-            print 'nonnegative (dual) tightness:', -g_nn[active_nn] / lagrange - 1
+            print('nonnegative (dual) tightness:', -g_nn[active_nn] / lagrange - 1)
         failing[nonnegative] += failing_nn
 
     # group norms
@@ -343,23 +343,26 @@ def mixed_lasso_bound_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
     cdef np.ndarray[DTYPE_float_t, ndim=1] fweights = np.ones_like(fnorms)
     fweights[:q] = weights
 
-    cdef double cut = find_solution_piecewise_linear(bound, 0,
+    cdef double cut = find_solution_piecewise_linear(bound, 
+                                                     0,
                                                      fnorms,
                                                      fweights)
+    if cut < np.inf:
+        for j in range(weights.shape[0]):
+            factors[j] = min(1., cut * weights[j] / norms[j])
 
-    for j in range(weights.shape[0]):
-        factors[j] = min(1., cut * weights[j] / norms[j])
-    
-    for i in range(p):
-        if groups[i] >= 0:
-            projection[i] = prox_center[i] * factors[groups[i]]
+        for i in range(p):
+            if groups[i] >= 0:
+                projection[i] = prox_center[i] * factors[groups[i]]
 
-    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1., cut / np.fabs(prox_center[l1_penalty]))
-    projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(cut, prox_center[positive_part])
-    projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
+        projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1., cut / np.fabs(prox_center[l1_penalty]))
+        projection[unpenalized] = 0
+        projection[positive_part] = np.minimum(cut, prox_center[positive_part])
+        projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
-    return prox_center - projection
+        return prox_center - projection
+    else:
+        return prox_center
 
 def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                          np.ndarray[DTYPE_int_t, ndim=1] l1_penalty,
@@ -401,7 +404,8 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
     cdef np.ndarray[DTYPE_float_t, ndim=1] fweights = np.ones_like(fnorms)
     fweights[:q] = weights
 
-    cdef double cut = find_solution_piecewise_linear(norm, 1,
+    cdef double cut = find_solution_piecewise_linear(norm, 
+                                                     1,
                                                      fnorms,
                                                      fweights)
 
