@@ -3,6 +3,7 @@ import regreg.api as rr
 import itertools
 from numpy import testing as npt
 from numpy.testing import decorators as dec
+
 from regreg.tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
