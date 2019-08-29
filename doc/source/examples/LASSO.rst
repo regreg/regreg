@@ -1,8 +1,9 @@
+.. _lasso_example:
 
-LASSO
------
+LASSO and variants
+------------------
 
-This notebook covers various optimization problems related to the LASSO.
+Here, we cover various optimization problems related to the LASSO.
 
 .. nbplot::
 
@@ -369,15 +370,7 @@ the third and :math:`\gamma` the fourth.
     >>> enet_term = rr.identity_quadratic(0.5,0,0,0)
     >>> enet_term
 
-
-
 .. math::
-
-    \begin{equation*} \frac{L_{}}{2}\|\beta\|^2_2 \end{equation*} 
-
-
-.. math::
-
 
    \begin{equation*} \frac{L_{}}{2}\|\beta\|^2_2 \end{equation*}
 
@@ -386,15 +379,7 @@ the third and :math:`\gamma` the fourth.
     >>> penalty_enet = rr.l1norm(10, lagrange=4., quadratic=enet_term)
     >>> penalty_enet
 
-
-
 .. math::
-
-    \lambda_{} \|\beta\|_1 + \frac{L_{}}{2}\|\beta\|^2_2
-
-
-.. math::
-
 
    \lambda_{} \|\beta\|_1 + \frac{L_{}}{2}\|\beta\|^2_2
 

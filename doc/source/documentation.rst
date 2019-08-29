@@ -18,7 +18,6 @@ RegReg documentation
 
    download.rst
    algorithms
-   publications
    license
 
 .. htmlonly::

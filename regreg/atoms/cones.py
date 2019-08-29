@@ -103,7 +103,7 @@ class cone(atom):
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]])
         >>> linear_atom = nonnegative.linear(D)
-        >>> linear_atom
+        >>> linear_atom # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
         affine_cone(nonnegative((3,), offset=None), array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]]))
@@ -155,9 +155,10 @@ class cone(atom):
 
         >>> from regreg.api import nonnegative
         >>> cone = nonnegative((4,))
-        >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
-        >>> cone.proximal(Q) # doctest: +ELLIPSIS
-        array([ 3.,  0.,  0.,  1.])
+        >>> Q = identity_quadratic(1.5, [3, -4, -1, 1],0,0)
+        >>> soln = [3, 0, 0, 1]
+        >>> np.allclose(cone.proximal(Q), [3, 0, 0, 1]) # doctest: +NORMALIZE_WHITESPACE
+        True
 
         Parameters
         ----------

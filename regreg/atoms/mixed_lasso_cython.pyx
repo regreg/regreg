@@ -42,9 +42,12 @@ def mixed_lasso_lagrange_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
         if groups[i] >= 0:
             projection[i] = prox_center[i] * factors[groups[i]]
 
-    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, implied_bound / np.fabs(prox_center[l1_penalty]))
+    projection[l1_penalty] = (prox_center[l1_penalty] * 
+                              np.minimum(1, implied_bound / 
+                                         np.fabs(prox_center[l1_penalty])))
     projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(implied_bound, prox_center[positive_part])
+    projection[positive_part] = np.minimum(implied_bound, 
+                                           prox_center[positive_part])
     projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
     return prox_center - projection
@@ -107,7 +110,10 @@ def seminorm_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] x,
 
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        value += weights[j] * norms[j]
+        if weights[j] < np.inf:
+            value += weights[j] * norms[j]
+        elif norms[j] != 0:
+            return np.inf
 
     tol = 1.e-5
     if check_feasibility:
@@ -182,7 +188,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
 
         failing[l1_penalty] += np.fabs(g_l1) > lagrange * (1 + tol)
         if debug:
-            print 'l1 (dual) feasibility:', np.fabs(g_l1) > lagrange * (1 + tol), np.fabs(g_l1), lagrange * (1 + tol)
+            print('l1 (dual) feasibility:', np.fabs(g_l1) > lagrange * (1 + tol), np.fabs(g_l1), lagrange * (1 + tol))
 
         # Check that active coefficients are on the boundary 
         soln_l1 = solution[l1_penalty]
@@ -193,7 +199,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
         failing[l1_penalty] += failing_l1
 
         if debug:
-            print 'l1 (dual) tightness:', failing_l1, np.fabs(-g_l1[active_l1] / lagrange - np.sign(soln_l1[active_l1]))
+            print('l1 (dual) tightness:', failing_l1, np.fabs(-g_l1[active_l1] / lagrange - np.sign(soln_l1[active_l1])))
 
     # Positive part
 
@@ -203,7 +209,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
     if g_pp.shape not in [(), (0,)]:
         failing[positive_part] += -g_pp > lagrange * (1 + tol)
         if debug:
-            print 'positive part (dual) feasibility:', -g_pp > lagrange * (1 + tol)
+            print('positive part (dual) feasibility:', -g_pp > lagrange * (1 + tol))
 
         # Check that active coefficients are on the boundary 
         soln_pp = solution[positive_part]
@@ -212,7 +218,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
         failing_pp = np.zeros(g_pp.shape, np.int)
         failing_pp[active_pp] += np.fabs(-g_pp[active_pp] / lagrange - 1) >= tol 
         if debug:
-            print 'positive part (dual) tightness:', -g_pp[active_pp] / lagrange - 1
+            print('positive part (dual) tightness:', -g_pp[active_pp] / lagrange - 1)
         failing[positive_part] += failing_pp
 
     # Nonnegative
@@ -223,7 +229,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
     if g_nn.shape not in [(), (0,)]:
         failing[nonnegative] += -g_nn > lagrange * tol
         if debug:
-            print 'nonnegative (dual) feasibility:', -g_nn > nntol
+            print('nonnegative (dual) feasibility:', -g_nn > nntol)
 
         # Check that active coefficients are on the boundary 
         soln_nn = solution[nonnegative]
@@ -232,7 +238,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
         failing_nn = np.zeros(g_nn.shape, np.int)
         failing_nn[active_nn] += -g_nn[active_nn] < -nntol
         if debug:
-            print 'nonnegative (dual) tightness:', -g_nn[active_nn] / lagrange - 1
+            print('nonnegative (dual) tightness:', -g_nn[active_nn] / lagrange - 1)
         failing[nonnegative] += failing_nn
 
     # group norms
@@ -337,23 +343,26 @@ def mixed_lasso_bound_prox(np.ndarray[DTYPE_float_t, ndim=1] prox_center,
     cdef np.ndarray[DTYPE_float_t, ndim=1] fweights = np.ones_like(fnorms)
     fweights[:q] = weights
 
-    cdef double cut = find_solution_piecewise_linear(bound, 0,
+    cdef double cut = find_solution_piecewise_linear(bound, 
+                                                     0,
                                                      fnorms,
                                                      fweights)
+    if cut < np.inf:
+        for j in range(weights.shape[0]):
+            factors[j] = min(1., cut * weights[j] / norms[j])
 
-    for j in range(weights.shape[0]):
-        factors[j] = min(1., cut * weights[j] / norms[j])
-    
-    for i in range(p):
-        if groups[i] >= 0:
-            projection[i] = prox_center[i] * factors[groups[i]]
+        for i in range(p):
+            if groups[i] >= 0:
+                projection[i] = prox_center[i] * factors[groups[i]]
 
-    projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1., cut / np.fabs(prox_center[l1_penalty]))
-    projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(cut, prox_center[positive_part])
-    projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
+        projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1., cut / np.fabs(prox_center[l1_penalty]))
+        projection[unpenalized] = 0
+        projection[positive_part] = np.minimum(cut, prox_center[positive_part])
+        projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
-    return prox_center - projection
+        return prox_center - projection
+    else:
+        return prox_center
 
 def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
                          np.ndarray[DTYPE_int_t, ndim=1] l1_penalty,
@@ -395,7 +404,8 @@ def mixed_lasso_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center,
     cdef np.ndarray[DTYPE_float_t, ndim=1] fweights = np.ones_like(fnorms)
     fweights[:q] = weights
 
-    cdef double cut = find_solution_piecewise_linear(norm, 1,
+    cdef double cut = find_solution_piecewise_linear(norm, 
+                                                     1,
                                                      fnorms,
                                                      fweights)
 

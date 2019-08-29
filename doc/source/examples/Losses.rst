@@ -1,3 +1,4 @@
+.. _losses_example:
 
 Some common loss functions
 ==========================

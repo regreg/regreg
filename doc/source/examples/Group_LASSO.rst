@@ -1,3 +1,4 @@
+.. _group_lasso_example:
 
 The group LASSO for least squares
 =================================

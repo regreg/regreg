@@ -279,21 +279,19 @@ class selector(linear_transform):
     >>> X = np.arange(30).reshape((6,5))
     >>> offset = np.arange(6)
     >>> transform = affine_transform(X, offset)
-    >>> apply_to_first5 = selector(slice(0,5), (20,), transform)
-    >>> apply_to_first5.linear_map(np.arange(20))
+    >>> apply_to_first5 = selector(slice(0,5), (7,), transform)
+    >>> apply_to_first5.linear_map(np.arange(7))
     array([ 30,  80, 130, 180, 230, 280])
     >>> np.dot(X, np.arange(5))
     array([ 30,  80, 130, 180, 230, 280])
 
-    >>> apply_to_first5.affine_map(np.arange(20))
+    >>> apply_to_first5.affine_map(np.arange(7))
     array([ 30,  81, 132, 183, 234, 285])
     >>> np.dot(X, np.arange(5)) + offset
     array([ 30,  81, 132, 183, 234, 285])
 
-    >>> apply_to_first5.adjoint_map(np.arange(6))
-    array([ 275.,  290.,  305.,  320.,  335.,    0.,    0.,    0.,    0.,
-              0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.,
-              0.,    0.])
+    >>> result = np.array([275.,  290.,  305.,  320.,  335.,    0.,    0.])
+    >>> np.testing.assert_allclose(result, apply_to_first5.adjoint_map(np.arange(6)))
 
     """
 
@@ -848,6 +846,25 @@ def astransform(X):
         return X
     else:
         return linear_transform(X)
+
+class aslinear(linear_transform):
+    """
+    Return only linear part of affine transform
+    """
+    def __init__(self, transform):
+        self._transform = astransform(transform)
+        self.affine_offset = None
+        self.input_shape = self._transform.output_shape
+        self.output_shape = self._transform.input_shape
+
+    def linear_map(self, x):
+        return self._transform.linear_map(x)
+
+    def affine_map(self, x):
+        return self.linear_map(x)
+
+    def adjoint_map(self, x):
+        return self._transform.adjoint_map(x)
 
 class adjoint(linear_transform):
 

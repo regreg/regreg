@@ -54,7 +54,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.mathjax',
               'sphinx.ext.autosummary',
               'IPython.sphinxext.ipython_console_highlighting',
-              'IPython.sphinxext.ipython_directive',
+              #'IPython.sphinxext.ipython_directive',
               'sphinx.ext.inheritance_diagram',
               'texext.math_dollar', # has to go before numpydoc
               'numpydoc',
@@ -74,7 +74,7 @@ check_r_packages(R_PACKAGES)
 from matplotlib import rc
 rc('text', usetex=True)
 
-extensions.append('matplotlib.sphinxext.only_directives')
+#extensions.append('matplotlib.sphinxext.only_directives')
 extensions.append('matplotlib.sphinxext.plot_directive')
 
 # Add any paths that contain templates here, relative to this directory.

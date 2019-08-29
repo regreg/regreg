@@ -5,7 +5,7 @@ try:
 except ImportError:
     warnings.warn('cannot import some cholesky solvers from scipy')
 
-from ..affine import affine_transform
+from ..affine import affine_transform, astransform, composition
 from ..smooth import smooth_atom
 from ..problems.composite import smooth_conjugate
 from ..atoms.cones import zero
@@ -81,6 +81,19 @@ class quadratic_loss(smooth_atom):
                          initial=initial)
 
     @staticmethod
+    def squared_transform(transform, 
+                          offset=None,
+                          quadratic=None,
+                          initial=None):
+        transform = astransform(transform)
+        Q = composition(transform.T, transform)
+        return quadratic_loss(Q.input_shape, 
+                              Q=Q,
+                              offset=offset,
+                              quadratic=quadratic,
+                              initial=initial)
+
+    @staticmethod
     def diagonal(D, 
                  offset=None,
                  quadratic=None,
@@ -148,12 +161,11 @@ class quadratic_loss(smooth_atom):
             else:
                 raise ValueError("mode incorrectly specified")
 
-
     def get_conjugate(self, factor=False):
 
         if self.Q is None:
             as_quad = (identity_quadratic(self.coef, self.offset, 0, 0) + self.quadratic).collapsed()
-            return smooth_conjugate(zero(self.shape,quadratic=as_quad))
+            return smooth_conjugate(zero(self.shape, quadratic=as_quad))
         else:
             #XXX this needs to be tested
             sq = self.quadratic.collapsed()
@@ -168,7 +180,7 @@ class quadratic_loss(smooth_atom):
                                       Qdiag=True)
             elif factor:
                 return quadratic_loss(self.shape,
-                                      Q=cholesky(self.coef * self.Q + sq.coef*np.identity(self.shape)),
+                                      Q=cholesky(self.coef * self.Q + sq.coef * np.identity(self.shape)),
                                       Qdiag=False,
                                       offset=offset,
                                       quadratic=outq,

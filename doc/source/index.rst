@@ -4,15 +4,12 @@
 The RegReg project
 ==================
 
-RegReg is a simple multi-algorithm Python framework for prototyping and
+RegReg is a proximal gradient algorithm Python framework for prototyping and
 solving regularized regression problems such as the LASSO. The goal is to
 enable practitioners to quickly and easily experiment with a variety of
 different models and choices of regularization. In that spirit, the emphasis
 is on the flexibility of the framework instead of computational speed for any
 particular problem.
-
-For a quick introduction, take a look at the :ref:`tutorial` and the
-:ref:`gallery`.
 
 For more details, see the :ref:`algorithms` page.
 
@@ -25,11 +22,10 @@ If you are interested in contributing as a developer, please see the :ref:`agend
 
 .. toctree::
 
-   tutorial.rst
-   gallery.rst
    agenda.rst
-   documentation
-   docattribute
+   documentation.rst
+   examples/index.rst
+   docattribute.rst
 
 Thanks
 ======

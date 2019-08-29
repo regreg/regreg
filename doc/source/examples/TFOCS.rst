@@ -1,3 +1,4 @@
+.. _tfocs_example:
 
 .. nbplot::
 

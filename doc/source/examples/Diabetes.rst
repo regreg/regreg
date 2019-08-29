@@ -1,16 +1,20 @@
+.. _diabetes_example:
 
-.. nbplot::
-
-    >>> import numpy as np, regreg.api as rr
-    >>> import rpy2.robjects as rpy2
 
 The Diabetes data from LARS
 ---------------------------
 
 .. nbplot::
 
+    >>> import numpy as np, regreg.api as rr
+    >>> import rpy2.robjects as rpy2
+
+Let's grab the diabetes data from the lars package in R
+
+.. nbplot::
+
     >>> rpy2.r('''
-    >>> library(lars)
+    >>> suppressMessages(library(lars))
     >>> data(diabetes)
     >>> X = diabetes$x
     >>> Y = diabetes$y
@@ -20,7 +24,6 @@ The Diabetes data from LARS
     >>> X = rpy2.r('X')
     >>> L = rpy2.r('L')
     >>> Y = rpy2.r('Y')
-    
 
 .. nbplot::
 
@@ -45,6 +48,11 @@ Our loss function and penalty
     \ell^{\text{Gauss}}\left(X_{}\beta\right)
 
 
+.. math::
+
+
+   \ell^{\text{Gauss}}\left(X_{}\beta\right)
+
 Now, our penalty:
 
 .. nbplot::
@@ -58,6 +66,11 @@ Now, our penalty:
 
     \lambda_{} \|\beta\|_1
 
+
+.. math::
+
+
+   \lambda_{} \|\beta\|_1
 
 Let's form the problem
 
@@ -79,6 +92,15 @@ Let's form the problem
 
 
 
+.. math::
+
+
+   \begin{aligned}
+   \text{minimize}_{\beta} & f(\beta) + g(\beta) \\
+   f(\beta) &= \ell^{\text{Gauss}}\left(X_{1}\beta\right) \\
+   g(\beta) &= \lambda_{2} \|\beta\|_1 \\
+   \end{aligned}
+
 and solve it
 
 .. nbplot::
@@ -87,7 +109,7 @@ and solve it
     >>> beta
     array([  0.00000000e+00,  -0.00000000e+00,   4.34757960e+02,
              7.92364469e+01,   0.00000000e+00,   0.00000000e+00,
-            -5.92308425e-11,   0.00000000e+00,   3.74915837e+02,
+            -5.92024207e-11,   0.00000000e+00,   3.74915837e+02,
              0.00000000e+00])
 
 Compare this to ``R``'s solution:
@@ -95,9 +117,13 @@ Compare this to ``R``'s solution:
 .. nbplot::
 
     >>> S = rpy2.r('diabetes_lars$beta[4,]')
+    >>> np.asarray(S)
+    array([   0.        ,    0.        ,  434.75795962,   79.23644688,
+              0.        ,    0.        ,    0.        ,    0.        ,
+            374.91583685,    0.        ])
 
 Bound form
-----------
+==========
 
 We can also solve this in bound form
 
@@ -120,6 +146,15 @@ We can also solve this in bound form
 
 
 
+.. math::
+
+
+   \begin{aligned}
+   \text{minimize}_{\beta} & f(\beta) + g(\beta) \\
+   f(\beta) &= \ell^{\text{Gauss}}\left(X_{1}\beta\right) \\
+   g(\beta) &= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
+   \end{aligned}
+
 Here is the solution
 
 .. nbplot::
@@ -128,7 +163,6 @@ Here is the solution
     >>> beta_bound
     array([ -0.00000000e+00,   0.00000000e+00,   4.34757960e+02,
              7.92364469e+01,  -0.00000000e+00,  -0.00000000e+00,
-            -6.09077233e-11,  -0.00000000e+00,   3.74915837e+02,
+            -6.10214101e-11,  -0.00000000e+00,   3.74915837e+02,
             -0.00000000e+00])
-
 
