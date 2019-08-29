@@ -60,7 +60,8 @@ matrix:
     - python: 2.7
       env:
         - INSTALL_TYPE=requirements
-        - DEPENDS=
+	# pip fails below if DEPENDS is empty
+        - DEPENDS="nose" 
     # test 3.5 against pre-release builds of everything
     - python: 3.5
       env:
