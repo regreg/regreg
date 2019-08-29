@@ -188,7 +188,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
 
         failing[l1_penalty] += np.fabs(g_l1) > lagrange * (1 + tol)
         if debug:
-            print 'l1 (dual) feasibility:', np.fabs(g_l1) > lagrange * (1 + tol), np.fabs(g_l1), lagrange * (1 + tol)
+            print('l1 (dual) feasibility:', np.fabs(g_l1) > lagrange * (1 + tol), np.fabs(g_l1), lagrange * (1 + tol))
 
         # Check that active coefficients are on the boundary 
         soln_l1 = solution[l1_penalty]
@@ -199,7 +199,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
         failing[l1_penalty] += failing_l1
 
         if debug:
-            print 'l1 (dual) tightness:', failing_l1, np.fabs(-g_l1[active_l1] / lagrange - np.sign(soln_l1[active_l1]))
+            print('l1 (dual) tightness:', failing_l1, np.fabs(-g_l1[active_l1] / lagrange - np.sign(soln_l1[active_l1])))
 
     # Positive part
 
@@ -209,7 +209,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
     if g_pp.shape not in [(), (0,)]:
         failing[positive_part] += -g_pp > lagrange * (1 + tol)
         if debug:
-            print 'positive part (dual) feasibility:', -g_pp > lagrange * (1 + tol)
+            print('positive part (dual) feasibility:', -g_pp > lagrange * (1 + tol))
 
         # Check that active coefficients are on the boundary 
         soln_pp = solution[positive_part]
@@ -218,7 +218,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
         failing_pp = np.zeros(g_pp.shape, np.int)
         failing_pp[active_pp] += np.fabs(-g_pp[active_pp] / lagrange - 1) >= tol 
         if debug:
-            print 'positive part (dual) tightness:', -g_pp[active_pp] / lagrange - 1
+            print('positive part (dual) tightness:', -g_pp[active_pp] / lagrange - 1)
         failing[positive_part] += failing_pp
 
     # Nonnegative
@@ -229,7 +229,7 @@ def check_KKT_mixed_lasso(np.ndarray[DTYPE_float_t, ndim=1] grad,
     if g_nn.shape not in [(), (0,)]:
         failing[nonnegative] += -g_nn > lagrange * tol
         if debug:
-            print 'nonnegative (dual) feasibility:', -g_nn > nntol
+            print('nonnegative (dual) feasibility:', -g_nn > nntol)
 
         # Check that active coefficients are on the boundary 
         soln_nn = solution[nonnegative]
