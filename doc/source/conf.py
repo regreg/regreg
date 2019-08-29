@@ -74,7 +74,7 @@ check_r_packages(R_PACKAGES)
 from matplotlib import rc
 rc('text', usetex=True)
 
-extensions.append('matplotlib.sphinxext.only_directives')
+#extensions.append('matplotlib.sphinxext.only_directives')
 extensions.append('matplotlib.sphinxext.plot_directive')
 
 # Add any paths that contain templates here, relative to this directory.
