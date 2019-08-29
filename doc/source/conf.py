@@ -54,7 +54,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.mathjax',
               'sphinx.ext.autosummary',
               'IPython.sphinxext.ipython_console_highlighting',
-              'IPython.sphinxext.ipython_directive',
+              #'IPython.sphinxext.ipython_directive',
               'sphinx.ext.inheritance_diagram',
               'texext.math_dollar', # has to go before numpydoc
               'numpydoc',
