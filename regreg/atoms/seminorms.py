@@ -5,9 +5,11 @@ from copy import copy
 import numpy as np
 
 from ..identity_quadratic import identity_quadratic
-from ..affine import (linear_transform, identity as identity_transform)
+from ..affine import (linear_transform, 
+                      identity as identity_transform)
 from ..objdoctemplates import objective_doc_templater
-from ..doctemplates import (doc_template_user, doc_template_provider)
+from ..doctemplates import (doc_template_user, 
+                            doc_template_provider)
 from ..problems.composite import smooth_conjugate
 from ..atoms import atom, _work_out_conjugate, affine_atom
 from .projl1_cython import projl1
