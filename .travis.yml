@@ -59,7 +59,7 @@ matrix:
         - DEPENDS="cython numpy scipy"
     - python: 2.7
       env:
-	# pip fails below if DEPENDS is empty
+        # pip fails below if DEPENDS is empty
         - INSTALL_TYPE=requirements
         - DEPENDS="nose" 
     # test 3.5 against pre-release builds of everything
