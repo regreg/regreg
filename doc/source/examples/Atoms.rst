@@ -48,6 +48,7 @@ numerical libraries
 .. mpl-interactive::
 
 .. nbplot::
+   :format: python
 
     >>> import matplotlib.pyplot as plt
     >>> import numpy as np
@@ -59,6 +60,7 @@ Next, let's generate an example signal, and solve the Lagrange form of
 the problem
 
 .. nbplot::
+   :format: python
 
     >>> fig = plt.figure(figsize=(12,8))
     >>> ax = fig.gca()
@@ -68,10 +70,9 @@ the problem
 
 
 .. nbplot::
+   :format: python
 
     >>> loss = rr.signal_approximator(Y)
-
-
 
 
 .. math::
@@ -80,6 +81,7 @@ the problem
 
 
 .. nbplot::
+   :format: python
 
     >>> sparsity = rr.l1norm(len(Y), lagrange=1.4)
     >>> D = difference_transform(np.arange(Y.shape[0]))
@@ -94,6 +96,7 @@ the problem
 
 
 .. nbplot::
+   :format: python
 
     >>> problem = rr.dual_problem.fromprimal(loss, sparsity, fused)
     >>> problem
@@ -110,10 +113,12 @@ the problem
     \end{aligned}
 
 .. nbplot::
+   :format: python
 
     >>> solution = problem.solve(tol=1.e-14)
 
 .. nbplot::
+   :format: python
 
     >>> ax.plot(solution, c='yellow', linewidth=5, label='Lagrange')
     >>> fig
@@ -126,6 +131,7 @@ By default, the container class will try to solve this problem with the
 two-loop strategy.
 
 .. nbplot::
+   :format: python
 
     >>> delta1 = np.fabs(D * solution).sum()
     >>> delta2 = np.fabs(solution).sum()
@@ -133,6 +139,7 @@ two-loop strategy.
     >>> sparsity_constraint = rr.l1norm(Y.shape[0], bound=delta2)
 
 .. nbplot::
+   :format: python
 
     >>> constrained_problem = rr.dual_problem.fromprimal(loss, 
     ... fused_constraint, sparsity_constraint)
@@ -149,6 +156,7 @@ two-loop strategy.
     \end{aligned}
 
 .. nbplot::
+   :format: python
 
     >>> constrained_solution = constrained_problem.solve(tol=1.e-12)
     >>> ax.plot(constrained_solution, c='green', linewidth=3, label='Constrained')
@@ -168,6 +176,7 @@ minimizing this objective
    subject to} \ ||D\beta||_{1} \leq \delta.
 
 .. nbplot::
+   :format: python
 
     >>> mixed_problem = rr.dual_problem.fromprimal(loss, fused_constraint, sparsity)
     >>> mixed_problem
@@ -188,6 +197,7 @@ minimizing this objective
 
 
 .. nbplot::
+   :format: python
 
     >>> mixed_solution = mixed_problem.solve(tol=1.e-12)
     >>> ax.plot(mixed_solution, '--', linewidth=6, c='gray', label='Mixed')
@@ -198,6 +208,7 @@ minimizing this objective
 
 
 .. nbplot::
+   :format: python
 
     >>> np.fabs(D * mixed_solution).sum(), fused_constraint.atom.bound
     (33.67439163971784, 33.674299924228016)
@@ -222,6 +233,7 @@ change the second seminorm to have this affine offset.
 Now we can create the problem object, beginning with the loss function
 
 .. nbplot::
+   :format: python
 
     >>> alpha = np.linspace(0,10,500) - 3
     >>> shrink_to_alpha = rr.l1norm(Y.shape, offset=alpha, lagrange=3.)
@@ -247,6 +259,7 @@ an l1norm object with the sparse version of D and
 object, and solve it.
 
 .. nbplot::
+   :format: python
 
     >>> loss_alpha = rr.signal_approximator(Y + alpha)
     >>> fig_alpha = plt.figure(figsize=(12,8))
@@ -280,6 +293,7 @@ The penalty can be smoothed to create a smooth function object which can
 be solved with FISTA.
 
 .. nbplot::
+   :format: python
 
     >>> Q = rr.identity_quadratic(0.1, 0, 0, 0)
     >>> smoothed_sparsity = sparsity.smoothed(Q)
@@ -290,10 +304,12 @@ be solved with FISTA.
      \sup_{u \in \mathbb{R}^{p} } \left[ \langle \beta, u \rangle - \left(I^{\infty}(\|u\|_{\infty} \leq \delta_{}) + \frac{L_{}}{2}\|u\|^2_2 \right) \right]
 
 .. nbplot::
+   :format: python
 
     >>> smoothed_fused = fused.smoothed(Q)
 
 .. nbplot::
+   :format: python
 
     >>> problem = rr.smooth_sum([loss, smoothed_sparsity, smoothed_fused])
     >>> solver = rr.FISTA(problem)
@@ -301,6 +317,7 @@ be solved with FISTA.
     >>> smooth_solution = solver.composite.coefs.copy()
 
 .. nbplot::
+   :format: python
 
     >>> smooth_fig = plt.figure(figsize=(12,8))
     >>> smooth_ax = smooth_fig.gca()
@@ -315,6 +332,7 @@ which has both the loss function and the seminorm represented in it. We
 will estimate :math:`\beta` for various values of :math:`\epsilon`:
 
 .. nbplot::
+   :format: python
 
     >>> solns = []
     >>> for eps in [.5**i for i in range(15)]:
@@ -335,6 +353,7 @@ Of course, we don't have to smooth both atoms. We could just smooth the
 fused term.
 
 .. nbplot::
+   :format: python
 
     >>> smoothed_fused_constraint = fused_constraint.smoothed(rr.identity_quadratic(1e-3,0,0,0))
     >>> smooth_part = rr.smooth_sum([loss, smoothed_fused_constraint])
@@ -342,6 +361,7 @@ fused term.
     >>> smoothed_constrained_solution = smoothed_constrained_problem.solve(tol=1e-12)
 
 .. nbplot::
+   :format: python
 
     >>> ax.plot(smoothed_constrained_solution, c='black', linewidth=1, label='Smoothed')
     >>> ax.legend() 

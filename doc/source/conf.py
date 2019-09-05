@@ -249,4 +249,7 @@ numpydoc_show_class_members = False
 numpydoc_class_members_toctree = False
 
 # For doctesting import
-doctest_global_setup = "import numpy as np"
+doctest_global_setup = """
+import numpy as np
+import regreg.api as rr
+"""
