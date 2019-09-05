@@ -144,10 +144,10 @@ script:
         # try a hard install from old version 
         #sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/gglasso/gglasso_1.3.tar.gz')"
         sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix', 'SLOPE', 'gglasso'), repos='http://cloud.r-project.org');"
-        #git clone https://github.com/jonathan-taylor/rpy2.git # use this fork to avoid f-string
-        #cd rpy2
-        #pip install -e .
-        #cd ..
+        git clone https://github.com/jonathan-taylor/nb2plots.git # use this fork for indentation fix
+        cd nb2plots
+        pip install -e .
+        cd ..
         pip install -r doc-requirements.txt
         cd doc
         # Build without the API documentation, for the doctests
