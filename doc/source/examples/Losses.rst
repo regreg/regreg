@@ -81,8 +81,6 @@ transformation can be used here.
     >>> problem_normalized = rr.simple_problem(loss_normalized, penalty_normalized)
     >>> coefR = problem_normalized.solve(tol=1.e-12, min_its=200)
     >>> coefR
-    array([ 0.00149808, -0.        ,  0.01804867, -0.12388365,  0.15866548,
-            0.02967637])
 
 .. nbplot::
     :format: python
@@ -157,7 +155,7 @@ as a smooth approximation to the function
 inside :math:`K` and :math:`\infty` outside :math:`K`).
 
 .. nbplot::
-     :format: python
+    :format: python
 
     class barrier(rr.smooth_atom):
 
