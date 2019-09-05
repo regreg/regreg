@@ -45,8 +45,6 @@ There are several commonly used smooth loss functions built into
     >>> r_soln = rpy2.r('glm(Y ~ X, family=binomial)$coef')
     >>> loss.solve()
     >>> np.array(r_soln)
-             X1          X2          X3          X4          X5 
-    -0.07111141  0.05295475 -0.15058291  0.17405453  0.03915539 
 
 The losses can very easily be combined with a penalty.
 
