@@ -18,9 +18,8 @@ For a given :math:`X, Y`, here is the squared error loss
 .. nbplot::
 
     >>> loss = rr.squared_error(X, Y)
-    >>> loss
-
-
+    >>> loss #doctest: +ELLIPSIS
+    affine_smooth(...)
 
 .. math::
 
@@ -45,41 +44,27 @@ linear transformation. Its most important API piece is
 
 .. nbplot::
 
-    >>> score_at_zero, X.T.dot(X.dot(np.zeros(loss.shape)) - Y)
-    (array([ -4.09173148,   2.70457691,   3.12078879, -32.7586658 ,
-              9.43343624,   6.84661918, -12.55989746,   2.56336206,
-            -11.58599406,  13.41032376]),
-     array([ -4.09173148,   2.70457691,   3.12078879, -32.7586658 ,
-              9.43343624,   6.84661918, -12.55989746,   2.56336206,
-            -11.58599406,  13.41032376]))
+    >>> score_at_zero, X.T.dot(X.dot(np.zeros(loss.shape)) - Y)  #doctest: +ELLIPSIS
+    (...)
 
 The LASSO uses an :math:`\ell_1` penalty in "Lagrange" form:
 
 .. math::
-
 
    \text{minimize}_{\beta} \frac{1}{2} \|Y-X\beta\|^2_2 + \lambda \|\beta\|_1.
 
 .. nbplot::
 
     >>> penalty = rr.l1norm(10, lagrange=4.)
-    >>> print('penalty:', str(penalty))
-    >>> penalty
-
-    ('penalty:', 'l1norm((10,), lagrange=4.000000, offset=None)')
-
+    >>> print('penalty:', str(penalty)) #doctest: +ELLIPSIS
+    penalty: l1norm(...)
+    >>> penalty 
+    l1norm(...)
 
 .. math::
 
     \lambda_{} \|\beta\|_1
 
-
-('penalty:', 'l1norm((10,), lagrange=4.000000, offset=None)')
-
-.. math::
-
-
-   \lambda_{} \|\beta\|_1
 
 The object penalty is an instance of ``regreg.atoms.seminorm``. The main
 API used in ``regreg`` is the method ``proximal`` which computes the
@@ -178,8 +163,8 @@ where :math:`Q` is a quadratic of the above form. If :math:`g` has a
 
     >>> penalty.lagrange = 4.
     >>> problem_lagrange = rr.simple_problem(loss, penalty)
-    >>> problem_lagrange
-
+    >>> problem_lagrange #doctest: +ELLIPSIS
+    <regreg.problems...>
 
 
 .. math::
@@ -205,82 +190,52 @@ where :math:`Q` is a quadratic of the above form. If :math:`g` has a
 .. nbplot::
 
     >>> coef_lagrange = problem_lagrange.solve(tol=1.e-12)
-    >>> print(coef_lagrange)
-
-    [ 0.         -0.         -0.          0.2564489  -0.09210036 -0.04856382
-      0.07137623  0.          0.04846757 -0.06317577]
-
-[ 0. -0. -0. 0.2564489 -0.09210036 -0.04856382
-    0.07137623 0. 0.04846757 -0.06317577]
+    >>> print(coef_lagrange) #doctest: +ELLIPSIS
+    [...]
 
 .. nbplot::
 
     >>> implied_bound = np.fabs(coef_lagrange).sum()
-    >>> print(implied_bound)
+    >>> print(implied_bound) #doctest: +ELLIPSIS
+    0.5...
 
-    0.580132650282
-
-0.580132650282
 
 .. nbplot::
 
     >>> bound_constraint = rr.l1norm(10, bound=implied_bound)
-    >>> bound_constraint
-
+    >>> bound_constraint #doctest: +ELLIPSIS
+    l1norm(...)
 
 
 .. math::
 
     I^{\infty}(\|\beta\|_1 \leq \delta_{})
 
-
-.. math::
-
-
-   I^{\infty}(\|\beta\|_1 \leq \delta_{})
-
 .. nbplot::
 
     >>> problem_bound = rr.simple_problem(loss, bound_constraint)
-    >>> problem_bound
-
+    >>> problem_bound  #doctest: +ELLIPSIS
+    <...>
 
 
 .. math::
 
-    
     \begin{aligned}
     \text{minimize}_{\beta} & f(\beta) + g(\beta) \\
     f(\beta) &= \frac{C}{2}\left\|X_{1}\beta - Y_{1}\right\|^2_2 \\
     g(\beta) &= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
     \end{aligned}
 
-
-
-.. math::
-
-
-   \begin{aligned}
-   \text{minimize}_{\beta} & f(\beta) + g(\beta) \\
-   f(\beta) &= \frac{C}{2}\left\|X_{1}\beta - Y_{1}\right\|^2_2 \\
-   g(\beta) &= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
-   \end{aligned}
-
 .. nbplot::
 
     >>> coef_bound = problem_bound.solve(tol=1.e-12)
-    >>> print(coef_bound)
-
-    [-0.          0.          0.          0.25644848 -0.09210037 -0.04856321
-      0.07137744 -0.          0.04846725 -0.06317591]
-
-[-0. 0. 0. 0.25644848 -0.09210037 -0.04856321
-    0.07137744 -0. 0.04846725 -0.06317591]
+    >>> print(coef_bound) #doctest: +ELLIPSIS
+    [...]
 
 .. nbplot::
 
-    >>> np.linalg.norm(coef_bound - coef_lagrange) / np.linalg.norm(coef_lagrange)
-    4.9118943989266597e-06
+    >>> np.linalg.norm(coef_bound - coef_lagrange) / np.linalg.norm(coef_lagrange) #doctest: +ELLIPSIS
+    4.9118...
 
 Comparison to ``sklearn``
 -------------------------
@@ -293,9 +248,8 @@ a factor of :math:`1/n`.
     >>> from sklearn.linear_model import Lasso
     >>> clf = Lasso(alpha=penalty.lagrange / X.shape[0])
     >>> sklearn_soln = clf.fit(X, Y).coef_
-    >>> sklearn_soln
-    array([ 0.        , -0.        , -0.        ,  0.25887431, -0.08960121,
-           -0.04907118,  0.07184117,  0.        ,  0.04895601, -0.06854384])
+    >>> sklearn_soln #doctest: +ELLIPSIS
+    array([...])
 
 .. nbplot::
 
@@ -325,27 +279,24 @@ a factor of :math:`1/n`.
     >>> soln1 = rr.simple_problem(loss_t, penalty_t).solve(tol=1.e-6)
     >>> clf = Lasso(alpha=lagrange / Xtiming.shape[0])
     >>> soln2 = clf.fit(Xtiming, Ytiming).coef_
-    >>> print((soln1 != 0).sum(), (soln2 != 0).sum())
-    >>> np.linalg.norm(soln1 - soln2) / np.linalg.norm(soln1)
-    >>> (loss_t.smooth_objective(soln1, 'func') + np.fabs(soln1).sum() * lagrange, loss_t.smooth_objective(soln2, 'func') + np.fabs(soln2).sum() * lagrange)
-    (965.57710749492287, 965.57847510945123)
+    >>> print(((soln1 != 0).sum(), (soln2 != 0).sum())) #doctest: +ELLIPSIS
+    (...)
+    >>> np.linalg.norm(soln1 - soln2) / np.linalg.norm(soln1) #doctest: +ELLIPSIS
+    ...
+    >>> (loss_t.smooth_objective(soln1, 'func') + np.fabs(soln1).sum() * lagrange, loss_t.smooth_objective(soln2, 'func') + np.fabs(soln2).sum() * lagrange) #doctest: +ELLIPSIS
+    (...)
 
-    55 55
-
-
-55 55
 
 .. nbplot::
 
-    >>> sklearn_soln
-    array([ 0.,  0., -0., ...,  0., -0.,  0.])
+    >>> sklearn_soln #doctest: +ELLIPSIS
+    array([...])
 
 .. nbplot::
 
-    >>> np.linalg.norm(sklearn_soln - coef_lagrange) / np.linalg.norm(coef_lagrange)
-    0.017723734004279082
+    >>> np.linalg.norm(sklearn_soln - coef_lagrange) / np.linalg.norm(coef_lagrange) #doctest: +ELLIPSIS
+    ...
 
-0.021751946972055836
 
 Elastic net
 ===========

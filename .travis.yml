@@ -73,7 +73,7 @@ matrix:
     - python: 3.5
       env:
         - INSTALL_TYPE="pip_e"
-    - python: 3.5
+    - python: 3.6
       sudo: true
       dist: trusty
       env:
