@@ -33,7 +33,7 @@ class group_lasso(seminorm):
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['normklass'] = 'group_lasso'
     objective_vars['dualnormklass'] = 'group_lasso_dual'
-    objective_vars['initargs'] = '[1,1,2,2,2]'
+    objective_vars['initargs'] = '[1, 1, 2, 2, 2]'
 
     tol = 1.0e-05
 
@@ -129,16 +129,8 @@ class group_lasso(seminorm):
                      repr(self.quadratic))
 
     @doc_template_user
-    @doc_template_provider
     def get_conjugate(self):
-        """
-        Return the conjugate of an given atom.
 
-        >>> penalty = %(normklass)s([1,1,2,2,2], lagrange=3.4)
-        >>> penalty.get_conjugate() # doctest: +SKIP
-        %(dualnormklass)s([1,1,2,2,2], bound=3.4..., offset=None)
-
-        """
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 
                                                self.quadratic)
@@ -163,7 +155,7 @@ class group_lasso(seminorm):
         in computing the seminorm.
 
         >>> groups = [1,1,2,2,2]
-        >>> penalty = group_lasso(groups, lagrange=1.)
+        >>> penalty = rr.group_lasso(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
         >>> penalty.terms(arg) # doctest: +ELLIPSIS
         [6.3245..., 12.2474...]
@@ -276,11 +268,10 @@ class group_lasso_dual(group_lasso):
         in computing the seminorm.
 
         >>> groups = [1,1,2,2,2]
-        >>> penalty = group_lasso_dual(groups, lagrange=1.)
+        >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
         >>> penalty.terms(arg) # doctest: +ELLIPSIS
         [3.1622..., 4.0824...]
-        >>> import numpy as np
         >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
         (3.1622..., 4.0824...)
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
@@ -370,6 +361,7 @@ class group_lasso_cone(cone):
     """
 
     seminorm_class = group_lasso
+
     def __init__(self, 
                  groups,
                  weights={},
@@ -414,6 +406,7 @@ class group_lasso_cone(cone):
                  repr(self.offset),
                  repr(self.quadratic))
 
+    @doc_template_user
     def get_conjugate(self):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 

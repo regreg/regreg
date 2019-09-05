@@ -28,7 +28,7 @@ class block_sum(seminorms.seminorm):
     objective_vars['var'] = 'B'
     objective_vars['normklass'] = 'block_sum'
     objective_vars['dualnormklass'] = 'block_max'
-    objective_vars['initargs'] = 'l1norm, (5,4)'
+    objective_vars['initargs'] = 'rr.l1norm, (5, 4)'
     objective_vars['shape'] = r'n \times p'
 
     def __init__(self, atom_cls, shape,
@@ -51,7 +51,12 @@ class block_sum(seminorms.seminorm):
                              offset=None,
                              quadratic=quadratic)
 
+    @doc_template_user
+    @doc_template_provider
     def seminorms(self, x, lagrange=None, check_feasibility=False):
+        """
+        Compute all seminorms in the block norm.
+        """
         value = np.empty(self.shape[0])
         for i in range(self.shape[0]):
             value[i] = self.atom.seminorm(x[i], lagrange=lagrange,

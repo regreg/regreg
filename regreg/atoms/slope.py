@@ -32,8 +32,10 @@ class slope(seminorm):
 
     use_sklearn = have_sklearn_iso
 
-    objective_template = r"""\sum_j \lambda_j |(var)s_{(j)}|"""
+    objective_template = r"""\sum_j \lambda_j |%(var)s_{(j)}|"""
     objective_vars = seminorm.objective_vars.copy()
+    objective_vars['normklass'] = 'slope'
+    objective_vars['dualnormklass'] = 'slope_conjugate'
 
     def __init__(self, weights, 
                  lagrange=None, 
@@ -58,6 +60,7 @@ class slope(seminorm):
                            initial=initial,
                            offset=offset)
 
+    @doc_template_user
     def seminorm(self, x, lagrange=None, check_feasibility=False):
          lagrange = seminorm.seminorm(self, x, 
                                       check_feasibility=check_feasibility, 
@@ -123,6 +126,7 @@ class slope(seminorm):
                         self.quadratic)
               
 
+    @doc_template_user
     def get_conjugate(self):
          if self.quadratic.coef == 0:
               offset, outq = _work_out_conjugate(self.offset, self.quadratic)

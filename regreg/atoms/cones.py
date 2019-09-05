@@ -26,8 +26,8 @@ class cone(atom):
                       'shape':'p', 
                       'linear':'D', 
                       'offset':r'\alpha',
-                      'normklass':'nonnegative',
-                      'dualnormklass':'nonpositive',
+                      'coneklass':'nonnegative',
+                      'dualconeklass':'nonpositive',
                       'initargs':'(30,)', # args need to construct penalty
                       }
     tol = 1.0e-05
@@ -56,12 +56,13 @@ class cone(atom):
                  repr(self.offset),
                  repr(self.quadratic))
 
+    @doc_template_user
     @doc_template_provider
     def get_conjugate(self):
         """
         Return the conjugate of an given atom.
 
-        >>> penalty = %(coneklass)s(%(initargs)s)
+        >>> penalty = rr.%(coneklass)s(%(initargs)s)
         >>> penalty.get_conjugate() # doctest: +SKIP
         %(dualconeklass)s(%(initargs)s, offset=None)
 
@@ -80,15 +81,15 @@ class cone(atom):
         return self._conjugate
     conjugate = property(get_conjugate)
 
+    @doc_template_user
     @doc_template_provider
     def get_dual(self):
         r"""
         Return the dual of an atom. This dual is formed by making the  
         substitution $v=Ax$ where $A$ is the `self.linear_transform`.
 
-        >>> from regreg.api import %(coneklass)s
         >>> import numpy as np
-        >>> penalty = %(coneklass)s(%(initargs)s)
+        >>> penalty = rr.%(coneklass)s(%(initargs)s)
         >>> penalty # doctest: +SKIP
         %(coneklass)s(%(initargs)s, offset=None)
         >>> penalty.dual # doctest: +SKIP
@@ -96,13 +97,12 @@ class cone(atom):
 
         If there is a linear part to the penalty, the linear_transform may not be identity:
 
-        >>> from regreg.api import nonnegative
         >>> D = (np.identity(4) + np.diag(-np.ones(3),1))[:-1]
         >>> D
         array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]])
-        >>> linear_atom = nonnegative.linear(D)
+        >>> linear_atom = rr.nonnegative.linear(D)
         >>> linear_atom # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
         affine_cone(nonnegative((3,), offset=None), array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
@@ -119,6 +119,7 @@ class cone(atom):
             self._linear_transform = identity_transform(self.shape)
         return self._linear_transform
     
+    @doc_template_user
     @doc_template_provider
     def constraint(self, x):
         """
@@ -130,16 +131,24 @@ class cone(atom):
         """
         raise NotImplementedError
 
+    @doc_template_user
     @doc_template_provider
     def nonsmooth_objective(self, x, check_feasibility=False):
+        '''
+        >>> cone = rr.nonnegative(4)
+        >>> cone.nonsmooth_objective([3, 4, 5, 9])
+        0.0
+        '''
+        arg = np.asarray(x)
         x_offset = self.apply_offset(x)
         if check_feasibility:
             v = self.constraint(x_offset)
         else:
             v = 0
-        v += self.quadratic.objective(x, 'func')
+        v += self.quadratic.objective(arg, 'func')
         return v
 
+    @doc_template_user
     @doc_template_provider
     def proximal(self, quadratic, prox_control=None):
         r"""
@@ -153,10 +162,8 @@ class cone(atom):
         where :math:`\alpha` is `self.offset`,
         :math:`\eta` is `quadratic.linear_term`.
 
-        >>> from regreg.api import nonnegative
-        >>> cone = nonnegative((4,))
-        >>> Q = identity_quadratic(1.5, [3, -4, -1, 1],0,0)
-        >>> soln = [3, 0, 0, 1]
+        >>> cone = rr.nonnegative((4,))
+        >>> Q = rr.identity_quadratic(1.5, [3, -4, -1, 1], 0, 0)
         >>> np.allclose(cone.proximal(Q), [3, 0, 0, 1]) # doctest: +NORMALIZE_WHITESPACE
         True
 
@@ -192,6 +199,7 @@ class cone(atom):
         else:
             return eta + offset
 
+    @doc_template_user
     @doc_template_provider
     def cone_prox(self, x):
         r"""

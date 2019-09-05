@@ -61,8 +61,7 @@ class seminorm(atom):
         r'''
         Return a LaTeX representation of an object.
 
-        >>> from regreg.api import l1norm
-        >>> penalty = l1norm(10, lagrange=0.9)
+        >>> penalty = rr.l1norm(10, lagrange=0.9)
         >>> penalty.latexify(var=r'\gamma') 
         '\\lambda_{} \\|\\gamma\\|_1'
 
@@ -178,8 +177,8 @@ class seminorm(atom):
         """
         Return the conjugate of an given atom.
 
-        >>> penalty = %(normklass)s(%(initargs)s, lagrange=3.4)
-        >>> penalty.get_conjugate() # doctest: +SKIP
+        >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=3.4)
+        >>> penalty.get_conjugate() # doctest: +ELLIPSIS
         %(dualnormklass)s(..., bound=3.4...)
 
         """
@@ -206,7 +205,7 @@ class seminorm(atom):
         """
         Get method of the lagrange property.
 
-        >>> penalty = %(normklass)s(%(initargs)s, lagrange=3.4)
+        >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=3.4)
         >>> penalty.lagrange
         3.4
 
@@ -219,15 +218,15 @@ class seminorm(atom):
         """
         Set method of the lagrange property.
 
-        >>> penalty = %(normklass)s(%(initargs)s, lagrange=3.4)
+        >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=3.4)
         >>> penalty.lagrange
         3.4
         >>> penalty.lagrange = 2.3
         >>> penalty.lagrange
         2.3
-
-        >>> constraint = %(normklass)s(%(initargs)s, bound=3.4)
-        >>> constraint.lagrange = 3.4 # doctest: +SKIP
+        >>> constraint = rr.%(normklass)s(%(initargs)s, bound=3.4)
+        >>> constraint.lagrange = 3.4 #doctest: +ELLIPSIS +IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
         ...
         AttributeError: atom is in bound mode
 
@@ -244,10 +243,9 @@ class seminorm(atom):
         """
         Get method of the bound property.
 
-        >>> constraint = %(normklass)s(%(initargs)s, bound=2.3)
+        >>> constraint = rr.%(normklass)s(%(initargs)s, bound=2.3) 
         >>> constraint.bound
         2.3
-        >>> 
 
         """
         return self._bound
@@ -258,15 +256,15 @@ class seminorm(atom):
         """
         Set method of the bound property.
 
-        >>> constraint = %(normklass)s(%(initargs)s, bound=3.4)
+        >>> constraint = rr.%(normklass)s(%(initargs)s, bound=3.4) 
         >>> constraint.bound
         3.4
         >>> constraint.bound = 2.3
         >>> constraint.bound
         2.3
-
-        >>> penalty = %(normklass)s(%(initargs)s, lagrange=2.3)
-        >>> penalty.bound = 3.4 # doctest: +SKIP
+        >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=2.3)
+        >>> penalty.bound = 3.4 # doctest: +ELLIPSIS +IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
         ...
         AttributeError: atom is in lagrange mode
         """
@@ -285,8 +283,9 @@ class seminorm(atom):
 
         .. math::
 
-           %(var)s^{\lambda}(\theta) = \text{argmin}_{%(var)s \in \mathbb{R}^{%(shape)s}} \frac{L}{2}
-           \|\theta-%(var)s\|^2_2 + \lambda h(%(var)s-\alpha) + \langle %(var)s, \eta \rangle
+           %(var)s^{\lambda}(\theta) = \text{argmin}_{%(var)s \in
+           \mathbb{R}^{%(shape)s}} \frac{L}{2} \|\theta-%(var)s\|^2_2
+           + \lambda h(%(var)s-\alpha) + \langle %(var)s, \eta \rangle
 
         where :math:`\alpha` is `self.offset`,
         :math:`\eta` is `quadratic.linear_term`, $\theta$ is `quadratic.center` and 
@@ -303,9 +302,8 @@ class seminorm(atom):
            \|\theta-%(var)s\|^2_2 + \langle %(var)s, \eta \rangle \  \text{s.t.} \   
            h(%(var)s - \alpha) \leq \delta
 
-        >>> from regreg.api import l1norm
-        >>> penalty = l1norm(4, lagrange=2)
-        >>> Q = identity_quadratic(1.5, [3,-4,-1,1],0,0)
+        >>> penalty = rr.l1norm(4, lagrange=2)
+        >>> Q = rr.identity_quadratic(1.5, [3, -4, -1, 1], 0, 0)
         >>> penalty.proximal(Q) # doctest: +ELLIPSIS
         array([ 1.6666..., -2.6666..., -0.        ,  0.        ])
 
@@ -448,12 +446,11 @@ class seminorm(atom):
         The nonsmooth objective function of the atom.
         Includes `self.quadratic.objective(arg)`.
 
-        >>> from regreg.api import l1norm
-        >>> penalty = l1norm(4, lagrange=2)
-        >>> penalty.nonsmooth_objective([3,4,5,7])
-        38.0
-        >>> 2*sum([3,4,5,7])
-        38
+        >>> penalty = rr.l1norm(4, lagrange=2)
+        >>> penalty.nonsmooth_objective([3, 4, 5, 9])
+        42.0
+        >>> 2 * sum([3, 4, 5, 9])
+        42
 
 
         Parameters
@@ -491,25 +488,22 @@ class seminorm(atom):
         Return the dual of an atom. This dual is formed by making introducing
         new variables $v=Ax$ where $A$ is `self.linear_transform`. 
 
-        >>> from regreg.api import %(normklass)s
         >>> import numpy as np
-        >>> penalty = %(normklass)s(%(initargs)s, lagrange=2.3)
-        >>> penalty # doctest: +SKIP
-        %(normklass)s(%(initargs)s, lagrange=2.3...)
-        >>> penalty.dual # doctest: +SKIP
+        >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=2.3)
+        >>> penalty # doctest: +ELLIPSIS
+        %(normklass)s(..., lagrange=2.3...)
+        >>> penalty.dual # doctest: +ELLIPSIS
         (<regreg.affine.identity object at 0x...>, %(dualnormklass)s(..., bound=2.3...))
 
         If there is a linear part to the penalty, the linear_transform may not be 
         identity. For example, the 1D fused LASSO penalty:
 
-        >>> from regreg.api import l1norm
         >>> D = (np.identity(4) + np.diag(-np.ones(3),1))[:-1]
         >>> D
         array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
                [ 0.,  0.,  1., -1.]])
-
-        >>> linear_atom = l1norm.linear(D, lagrange=2.3)
+        >>> linear_atom = rr.l1norm.linear(D, lagrange=2.3)
         >>> linear_atom # doctest: +ELLIPSIS
         affine_atom(l1norm((3,), lagrange=2.3...), array([[ 1., -1.,  0.,  0.],
                [ 0.,  1., -1.,  0.],
@@ -850,6 +844,7 @@ def positive_part_lagrange(shape, lagrange,
                   offset=offset, quadratic=linq,
                   initial=initial)
 
+@objective_doc_templater()
 class positive_part(seminorm):
 
     """
