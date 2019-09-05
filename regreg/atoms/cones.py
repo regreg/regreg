@@ -62,6 +62,7 @@ class cone(atom):
         """
         Return the conjugate of an given atom.
 
+        >>> import regreg.api as rr
         >>> penalty = rr.%(coneklass)s(%(initargs)s)
         >>> penalty.get_conjugate() # doctest: +SKIP
         %(dualconeklass)s(%(initargs)s, offset=None)
@@ -88,7 +89,7 @@ class cone(atom):
         Return the dual of an atom. This dual is formed by making the  
         substitution $v=Ax$ where $A$ is the `self.linear_transform`.
 
-        >>> import numpy as np
+        >>> import regreg.api as rr
         >>> penalty = rr.%(coneklass)s(%(initargs)s)
         >>> penalty # doctest: +SKIP
         %(coneklass)s(%(initargs)s, offset=None)
@@ -135,6 +136,7 @@ class cone(atom):
     @doc_template_provider
     def nonsmooth_objective(self, x, check_feasibility=False):
         '''
+        >>> import regreg.api as rr
         >>> cone = rr.nonnegative(4)
         >>> cone.nonsmooth_objective([3, 4, 5, 9])
         0.0
@@ -162,6 +164,7 @@ class cone(atom):
         where :math:`\alpha` is `self.offset`,
         :math:`\eta` is `quadratic.linear_term`.
 
+        >>> import regreg.api as rr
         >>> cone = rr.nonnegative((4,))
         >>> Q = rr.identity_quadratic(1.5, [3, -4, -1, 1], 0, 0)
         >>> np.allclose(cone.proximal(Q), [3, 0, 0, 1]) # doctest: +NORMALIZE_WHITESPACE

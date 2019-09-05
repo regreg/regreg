@@ -49,7 +49,6 @@ class atom(nonsmooth):
         The linear transform applied before a penalty is computed. Defaults to regreg.affine.identity
 
         >>> from regreg.api import l1norm
-        >>> import numpy as np
         >>> penalty = l1norm(30, lagrange=3.4)
         >>> type(penalty.linear_transform)
         <class 'regreg.affine.identity'>

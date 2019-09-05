@@ -61,6 +61,7 @@ class seminorm(atom):
         r'''
         Return a LaTeX representation of an object.
 
+        >>> import regreg.api as rr
         >>> penalty = rr.l1norm(10, lagrange=0.9)
         >>> penalty.latexify(var=r'\gamma') 
         '\\lambda_{} \\|\\gamma\\|_1'
@@ -177,6 +178,7 @@ class seminorm(atom):
         """
         Return the conjugate of an given atom.
 
+        >>> import regreg.api as rr
         >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=3.4)
         >>> penalty.get_conjugate() # doctest: +ELLIPSIS
         %(dualnormklass)s(..., bound=3.4...)
@@ -205,6 +207,7 @@ class seminorm(atom):
         """
         Get method of the lagrange property.
 
+        >>> import regreg.api as rr
         >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=3.4)
         >>> penalty.lagrange
         3.4
@@ -218,6 +221,7 @@ class seminorm(atom):
         """
         Set method of the lagrange property.
 
+        >>> import regreg.api as rr
         >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=3.4)
         >>> penalty.lagrange
         3.4
@@ -243,6 +247,7 @@ class seminorm(atom):
         """
         Get method of the bound property.
 
+        >>> import regreg.api as rr
         >>> constraint = rr.%(normklass)s(%(initargs)s, bound=2.3) 
         >>> constraint.bound
         2.3
@@ -256,6 +261,7 @@ class seminorm(atom):
         """
         Set method of the bound property.
 
+        >>> import regreg.api as rr
         >>> constraint = rr.%(normklass)s(%(initargs)s, bound=3.4) 
         >>> constraint.bound
         3.4
@@ -302,6 +308,7 @@ class seminorm(atom):
            \|\theta-%(var)s\|^2_2 + \langle %(var)s, \eta \rangle \  \text{s.t.} \   
            h(%(var)s - \alpha) \leq \delta
 
+        >>> import regreg.api as rr
         >>> penalty = rr.l1norm(4, lagrange=2)
         >>> Q = rr.identity_quadratic(1.5, [3, -4, -1, 1], 0, 0)
         >>> penalty.proximal(Q) # doctest: +ELLIPSIS
@@ -446,6 +453,7 @@ class seminorm(atom):
         The nonsmooth objective function of the atom.
         Includes `self.quadratic.objective(arg)`.
 
+        >>> import regreg.api as rr
         >>> penalty = rr.l1norm(4, lagrange=2)
         >>> penalty.nonsmooth_objective([3, 4, 5, 9])
         42.0
@@ -488,7 +496,7 @@ class seminorm(atom):
         Return the dual of an atom. This dual is formed by making introducing
         new variables $v=Ax$ where $A$ is `self.linear_transform`. 
 
-        >>> import numpy as np
+        >>> import regreg.api as rr
         >>> penalty = rr.%(normklass)s(%(initargs)s, lagrange=2.3)
         >>> penalty # doctest: +ELLIPSIS
         %(normklass)s(..., lagrange=2.3...)

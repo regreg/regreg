@@ -154,6 +154,7 @@ class group_lasso(seminorm):
         Return the args that are summed
         in computing the seminorm.
 
+        >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
@@ -267,6 +268,7 @@ class group_lasso_dual(group_lasso):
         Return the args that are maximized
         in computing the seminorm.
 
+        >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
