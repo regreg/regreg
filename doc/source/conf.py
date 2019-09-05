@@ -41,7 +41,7 @@ needs_sphinx = '1.0'
 
 # General configuration
 # ---------------------
-for pkg_name in ('numpydoc', 'texext'):
+for pkg_name in ('numpydoc', 'texext'): 
     try:
         __import__(pkg_name)
     except ImportError:
