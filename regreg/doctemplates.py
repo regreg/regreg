@@ -17,6 +17,7 @@ Examples
 
 We can set a docstring template from a method docstring
 
+>>> from regreg.doctemplates import *
 >>> @doc_templater()
 ... class C(object):
 ...     @doc_template_provider
