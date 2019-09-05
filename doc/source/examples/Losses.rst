@@ -54,7 +54,6 @@ The losses can very easily be combined with a penalty.
     >>> penalty = rr.l1norm(5, lagrange=2)
     >>> problem = rr.simple_problem(loss, penalty)
     >>> problem.solve(tol=1.e-12)
-    array([-0.        ,  0.01536866, -0.12404071,  0.15772448,  0.02978098])
 
 .. nbplot::
    :format: python
@@ -89,7 +88,6 @@ transformation can be used here.
    :format: python
 
     >>> coefG = np.array(rpy2.r('as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))'))
-    [1]  0.03052142  0.00000000  0.01805825 -0.12385029  0.15866192  0.02967640
 
 
 .. nbplot::
@@ -117,8 +115,6 @@ Dividing ``regreg``'s coefficients by the ``col_stds`` corrects this.
     >>> problem_normalized = rr.simple_problem(loss_normalized, penalty_normalized)
     >>> coefR = problem_normalized.solve(min_its=300)
     >>> coefR / X_normalized.col_stds
-    array([ 0.00068716, -0.        ,  0.00114705, -0.09708903,  0.13508441,
-            0.01206466])
 
 .. nbplot::
    :format: python
@@ -163,61 +159,55 @@ inside :math:`K` and :math:`\infty` outside :math:`K`).
 .. nbplot::
    :format: python
 
-    >>> class barrier(rr.smooth_atom):
-    ...
-    ...     # the argumenets [coef, offset, quadratic, initial]
-    ...     # are passed when a function is composed with a linear_transform
-    ...
-    ...     objective_template = r"""\ell^{\text{barrier}}\left(%(var)s\right)\
-    >>> """
-    ...
-    ...     def __init__(self, 
-    ...                  shape,
-    ...                  A, 
-    ...                  b,
-    ...                  coef=1.,
-    ...                  offset=None,
-    ...                  quadratic=None,
-    ...                  initial=None):
-    ...         rr.smooth_atom.__init__(self, 
-    ...                                 shape,
-    ...                                 coef=coef,
-    ...                                 offset=offset,
-    ...                                 quadratic=quadratic,
-    ...                                 initial=initial)
-    ...
-    ...         self.A = A
-    ...         self.b = b
-    ...
-    ...     def smooth_objective(self, mean_param, mode='both', check_feasibility=False):
-    ...
-    ...         mean_param = self.apply_offset(mean_param)
-    ...         slack = self.b - self.A.dot(mean_param)
-    ...         if mode == 'both':
-    ...             f = self.scale(np.sum(mean_param**2/2.) - np.log(slack).sum())
-    ...             g = self.scale(mean_param + self.A.T.dot(1. / slack))
-    ...             return f, g
-    ...         elif mode == 'grad':
-    ...             g = self.scale(mean_param + self.A.T.dot(1. / slack))
-    ...             return g
-    ...         elif mode == 'func':
-    ...             f = self.scale(np.sum(mean_param**2/2.) - np.log(slack).sum())
-    ...             return f
-    ...         else:
-    ...             return ValueError('mode incorrectly specified')
-    ...
+    class barrier(rr.smooth_atom):
+
+        # the argumenets [coef, offset, quadratic, initial]
+        # are passed when a function is composed with a linear_transform
+
+        objective_template = r"""\ell^{\text{barrier}}\left(%(var)s\right)\
+        """
+
+        def __init__(self, 
+                     shape,
+                     A, 
+                     b,
+                     coef=1.,
+                     offset=None,
+                     quadratic=None,
+                     initial=None):
+            rr.smooth_atom.__init__(self, 
+                                    shape,
+                                    coef=coef,
+                                    offset=offset,
+                                    quadratic=quadratic,
+                                    initial=initial)
+            self.A = A
+            self.b = b
+
+        def smooth_objective(self, mean_param, mode='both', check_feasibility=False):
+            mean_param = self.apply_offset(mean_param)
+            slack = self.b - self.A.dot(mean_param)
+            if mode == 'both':
+                f = self.scale(np.sum(mean_param**2/2.) - np.log(slack).sum())
+                g = self.scale(mean_param + self.A.T.dot(1. / slack))
+                return f, g
+            elif mode == 'grad':
+                g = self.scale(mean_param + self.A.T.dot(1. / slack))
+                return g
+            elif mode == 'func':
+                f = self.scale(np.sum(mean_param**2/2.) - np.log(slack).sum())
+                return f
+            else:
+                return ValueError('mode incorrectly specified')
 
 
 .. nbplot::
    :format: python
 
-    >>> A = np.array([[1, 0.],
-    ...               [1, 1]])
+    >>> A = np.array([[1, 0.], [1, 1]])
     >>> b = np.array([3., 4])
-    >>>
     >>> barrier_loss = barrier((2,), A, b)
     >>> barrier_loss
-
 
 
 .. math::
@@ -229,7 +219,6 @@ inside :math:`K` and :math:`\infty` outside :math:`K`).
    :format: python
 
     >>> barrier_loss.solve(min_its=100)
-    array([-0.49815853, -0.21229384])
 
 The loss can now be combined with a penalty or constraint very easily.
 
@@ -239,7 +228,6 @@ The loss can now be combined with a penalty or constraint very easily.
     >>> l1_bound = rr.l1norm(2, bound=0.5)
     >>> problem = rr.simple_problem(barrier_loss, l1_bound)
     >>> problem.solve()
-    array([-0.39719293, -0.10280707])
 
 The loss can also be composed with a linear transform:
 
@@ -261,7 +249,7 @@ The loss can also be composed with a linear transform:
    :format: python
 
     >>> lossX.solve()
-    array([ 0.2119373])
+
 
 Huberized lasso
 ===============
@@ -293,8 +281,6 @@ Let's look at the Huber loss for a smoothing parameter of
     >>> huber_fig = plt.figure(figsize=(8,8))
     >>> huber_ax = huber_fig.gca()
     >>> huber_ax.plot(xval, yval)
-    [...]
-
 
 
 The Huber loss is built into regreg, but can also be obtained by
@@ -339,13 +325,11 @@ The Poisson regression problem minimizes the objective
 
 .. math::
 
-
    -2 \left(Y^TX\beta - \sum_{i=1}^n \mbox{exp}(x_i^T\beta) \right), \qquad Y_i \in {0,1,2,\ldots}
 
 which corresponds to the usual Poisson regression model
 
 .. math::
-
 
    P(Y=y|X=x) = \frac{\mbox{exp}(y \cdot x^T\beta-\mbox{exp}(x^T\beta))}{y!}
 
@@ -364,7 +348,6 @@ Now we can create the problem object, beginning with the loss function
 
     >>> loss = rr.glm.poisson(X, Y)
     >>> loss.solve()
-    array([ 1.56850966, -0.824401  , -0.34500184,  0.05754996,  0.45362361])
 
 
 .. nbplot::
@@ -412,9 +395,7 @@ Now we can create the problem object, beginning with the loss function
     >>> loss = rr.glm.logistic(X, Y)
     >>> penalty = rr.identity_quadratic(1., 0., 0., 0.)
     >>> loss.quadratic = penalty
-    >>> #BUG: latex version of loss should show its quadratic part too
     >>> loss
-
 
 
 .. math::
@@ -432,16 +413,12 @@ Now we can create the problem object, beginning with the loss function
    :format: python
 
     >>> loss.solve()
-    array([-0.11751885, -0.05441758, -0.07486549, -0.06784119,  0.13779446,
-            0.00869414,  0.09525317,  0.02321286, -0.1081224 , -0.06982992])
 
 .. nbplot::
    :format: python
 
     >>> penalty.coef = 20.
     >>> loss.solve()
-    array([-0.08469499, -0.03732972, -0.05342471, -0.04807832,  0.09535871,
-            0.0083716 ,  0.06542239,  0.01679631, -0.08288783, -0.05100623])
 
 Multinomial regression
 ======================
@@ -459,7 +436,6 @@ nominal categories (e.g. Agresti, p.g. 272). For :math:`i \ne J` the
 probabilities are measured relative to a baseline category :math:`J`
 
 .. math::
-
 
    \frac{P(\mbox{Category } i)}{P(\mbox{Category } J)} = \mbox{logit}(x^T\beta_i) = \frac{1}{1 + \mbox{exp}(-x^T\beta_i)}
 
@@ -509,20 +485,6 @@ Next, we can solve the problem
    :format: python
 
     >>> loss.solve()
-    array([[-0.00965704,  0.03405388,  0.02815295,  0.03088211],
-           [ 0.01867509, -0.01512404,  0.01047862,  0.0369784 ],
-           [ 0.02609102,  0.03582967, -0.00857568,  0.03298486],
-           [-0.02604499, -0.01884999, -0.01393688, -0.00474996],
-           [ 0.05100418,  0.0972871 ,  0.03025139,  0.04563041],
-           [-0.05061931, -0.05179273,  0.04470324,  0.00895731],
-           [-0.00492412,  0.0079892 , -0.00317075,  0.00974866],
-           [ 0.00666136,  0.05200637,  0.06492176,  0.01425746],
-           [-0.02031894, -0.06342383, -0.01754433,  0.03009873],
-           [ 0.05631602, -0.01620328, -0.0170794 ,  0.07713978]])
-
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:1126: RuntimeWarning: overflow encountered in exp
-      exp_x = np.exp(x)
-
 
 When :math:`J=2` this model should reduce to logistic regression. We can
 easily check that this is the case by first fitting the multinomial
@@ -538,9 +500,6 @@ model
     >>> solver = rr.FISTA(loss)
     >>> solver.fit(tol=1e-6)
     >>> multinomial_coefs = solver.composite.coefs.flatten()
-
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:1109: RuntimeWarning: invalid value encountered in divide
-      saturated = self.counts / (1. * self.trials[:,np.newaxis])
 
 Here is the equivalent logistic regresison model.
 
@@ -564,8 +523,6 @@ Finally we can check that the two models gave the same coefficients
 
     >>> print(np.linalg.norm(multinomial_coefs - logistic_coefs) / np.linalg.norm(logistic_coefs))
 
-    6.35619142025e-16
-
 Hinge loss
 ----------
 
@@ -573,7 +530,6 @@ The SVM can be parametrized various ways, one way to write it as a
 regression problem is to use the hinge loss:
 
 .. math::
-
 
    \ell(r) = \max(1-x, 0)
 
@@ -585,7 +541,6 @@ regression problem is to use the hinge loss:
     >>> ax = fig.gca()
     >>> r = np.linspace(-1,2,100)
     >>> ax.plot(r, hinge(r))
-    [...]
 
 
 The SVM loss is then
@@ -603,7 +558,6 @@ the basic atoms. Specifcally, let
 part function
 
 .. math::
-
 
    g(z) = \sum_{i=1}^n\max(z_i, 0).
 
@@ -623,8 +577,6 @@ Then,
     >>> offset = np.array([1.])
     >>> hinge_rep = rr.positive_part.affine(linear_part, offset, lagrange=1.)
     >>> hinge_rep
-
-
 
 .. math::
 
@@ -661,7 +613,6 @@ Here is a vectorized version.
 
     >>> beta = np.ones(X.shape[1])
     >>> hinge_vec.nonsmooth_objective(beta), np.maximum(1 - Y * X.dot(beta), 0).sum()
-    (5886.0770141346557, 5886.0770141346557)
 
 Smoothed hinge
 --------------
@@ -691,8 +642,6 @@ quadratic term
     >>> smoothing_quadratic = rr.identity_quadratic(epsilon, 0, 0, 0)
     >>> smoothing_quadratic
 
-
-
 .. math::
 
     \begin{equation*} \frac{L_{}}{2}\|\beta\|^2_2 \end{equation*} 
@@ -706,13 +655,11 @@ Moreau smoothing:
 
 .. math::
 
-
    S(g_{\alpha},q)(\beta) = \sup_{z \in \mathbb{R}^p} z^T\beta - g^*_{\alpha}(z) - q(z)
 
 where
 
 .. math::
-
 
    g^*_{\alpha}(z) = \sup_{\beta \in \mathbb{R}^p} z^T\beta - g_{\alpha}(\beta)
 
@@ -731,8 +678,6 @@ of this when computing proximal maps.
 
     >>> hinge_rep.atom
 
-
-
 .. math::
 
     \lambda_{} \left(\sum_{i=1}^{p} (\beta - \alpha_{})_i^+\right)
@@ -742,13 +687,11 @@ of this when computing proximal maps.
    :format: python
 
     >>> hinge_rep.atom.offset
-    array([-1.])
 
 .. nbplot::
    :format: python
 
     >>> hinge_rep.linear_transform.linear_operator
-    array([[-1.]])
 
 As we said before, ``hinge_rep.atom`` knows what its conjugate is
 
@@ -757,7 +700,6 @@ As we said before, ``hinge_rep.atom`` knows what its conjugate is
 
     >>> hinge_conj = hinge_rep.atom.conjugate
     >>> hinge_conj
-
 
 
 .. math::
@@ -784,7 +726,6 @@ stored in ``hinge_conj.quadratic``.
    :format: python
 
     >>> hinge_conj.quadratic.linear_term
-    array([-1.])
 
 Now, let's look at the smoothed hinge loss.
 
@@ -864,46 +805,6 @@ the LASSO. This yields the problem
 
     >>> sparse_soln = problem.solve(tol=1.e-12)
     >>> sparse_soln
-    array([-0.04616537, -0.06461757, -0.        ,  0.05192045, -0.22398497,
-            0.        ,  0.        , -0.07576849,  0.        ,  0.03416214,
-            0.08093884,  0.13025654, -0.02947477,  0.        , -0.        ,
-           -0.        ,  0.04725704,  0.        ,  0.09442795,  0.        ,
-            0.        , -0.        , -0.        ,  0.07720632, -0.        ,
-           -0.02281387,  0.        ,  0.        , -0.        ,  0.        ,
-           -0.01558044, -0.        ,  0.        ,  0.        ,  0.        ,
-            0.        ,  0.        , -0.09524657,  0.        ,  0.        ,
-           -0.08549808,  0.        ,  0.        ,  0.01351924,  0.01589665,
-           -0.        ,  0.04297549, -0.00797402, -0.00089328, -0.        ,
-            0.18413781, -0.        , -0.02541997, -0.        ,  0.        ,
-           -0.00345125, -0.00526981,  0.03931889,  0.        , -0.00043581,
-           -0.03352497, -0.01421498,  0.01842612,  0.        ,  0.14860747,
-           -0.        ,  0.06669068,  0.03531321,  0.01430112,  0.08592777,
-           -0.        ,  0.        ,  0.        , -0.01454267, -0.        ,
-           -0.        , -0.06248778,  0.        ,  0.        ,  0.0758701 ,
-            0.09641543, -0.        , -0.07095271,  0.        , -0.        ,
-            0.        , -0.        ,  0.        , -0.        ,  0.011111  ,
-           -0.        ,  0.00611426, -0.03689076, -0.        , -0.00183332,
-            0.03753234, -0.        , -0.        , -0.        , -0.01574937,
-            0.        , -0.        ,  0.        ,  0.00834637, -0.        ,
-            0.08133231, -0.01853341, -0.06455309,  0.024715  ,  0.11716793,
-           -0.02128728,  0.0230024 , -0.06491615, -0.08352223,  0.        ,
-            0.        ,  0.05522319, -0.03060545, -0.        , -0.03139385,
-           -0.        , -0.        , -0.        , -0.        , -0.        ,
-            0.        ,  0.02927053, -0.03699574, -0.10179246,  0.01822031,
-            0.        , -0.        , -0.        , -0.03919596,  0.        ,
-           -0.05061408, -0.        , -0.        , -0.        , -0.01140187,
-            0.        ,  0.        ,  0.        ,  0.05792942,  0.05750677,
-           -0.01979151, -0.03301722, -0.05944521,  0.0085257 ,  0.        ,
-            0.10083033, -0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        , -0.00784279,  0.00689782,  0.        , -0.        ,
-            0.12610089,  0.05207724,  0.08606621,  0.10908625, -0.07460766,
-           -0.02045894,  0.        ,  0.01987609, -0.00568768, -0.0295508 ,
-            0.05870079,  0.        ,  0.        ,  0.        , -0.        ,
-           -0.        ,  0.06190248, -0.14005334, -0.        , -0.12239733,
-           -0.05390117,  0.00183572, -0.04033297, -0.08125712,  0.        ,
-            0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        , -0.        , -0.        ,  0.11458181,  0.        ,
-           -0.03094569,  0.        , -0.00537387, -0.05853553,  0.15185092])
 
 What value of :math:`\lambda` should we use? For the :math:`\ell_1`
 penalty in Lagrange form, the smallest :math:`\lambda` such that the
@@ -916,12 +817,9 @@ solution is zero can be found by taking the dual norm, the
     >>> linf_norm = penalty.conjugate
     >>> linf_norm
 
-
-
 .. math::
 
     I^{\infty}(\|\beta\|_{\infty} \leq \delta_{})
-
 
 Just computing the conjugate will yield an :math:`\ell_{\infty}`
 constraint, but this object can still be used to compute the desired
@@ -940,68 +838,12 @@ value of :math:`\lambda`.
 
     >>> penalty.lagrange = lam_max * 1.001
     >>> problem.solve(tol=1.e-12, min_its=200)
-    array([-0., -0., -0.,  0., -0.,  0.,  0., -0., -0.,  0.,  0.,  0., -0.,
-           -0., -0., -0.,  0.,  0.,  0.,  0., -0., -0., -0.,  0., -0., -0.,
-            0.,  0., -0.,  0., -0., -0.,  0., -0., -0.,  0.,  0., -0.,  0.,
-            0., -0.,  0.,  0.,  0.,  0., -0.,  0., -0., -0., -0.,  0., -0.,
-           -0., -0., -0., -0., -0.,  0., -0., -0., -0., -0.,  0.,  0.,  0.,
-           -0.,  0.,  0.,  0.,  0., -0.,  0.,  0., -0., -0., -0., -0.,  0.,
-            0.,  0.,  0., -0., -0., -0., -0.,  0.,  0.,  0., -0.,  0., -0.,
-            0., -0., -0., -0.,  0.,  0.,  0.,  0., -0.,  0., -0.,  0.,  0.,
-           -0.,  0., -0., -0.,  0.,  0., -0.,  0., -0., -0., -0.,  0.,  0.,
-           -0., -0., -0.,  0., -0.,  0., -0., -0.,  0.,  0., -0., -0.,  0.,
-            0.,  0., -0., -0.,  0., -0., -0., -0., -0., -0.,  0.,  0.,  0.,
-            0.,  0., -0., -0., -0.,  0.,  0.,  0., -0., -0., -0., -0., -0.,
-           -0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -0., -0.,  0.,  0., -0.,
-           -0.,  0.,  0., -0.,  0., -0., -0.,  0., -0., -0., -0., -0.,  0.,
-           -0., -0.,  0., -0.,  0., -0., -0., -0., -0., -0., -0.,  0.,  0.,
-           -0.,  0., -0., -0.,  0.])
 
 .. nbplot::
    :format: python
 
     >>> penalty.lagrange = lam_max * 0.99
     >>> problem.solve(tol=1.e-12, min_its=200)
-    array([-0.        , -0.        , -0.        ,  0.        , -0.24636462,
-            0.        ,  0.        , -0.        , -0.        ,  0.        ,
-            0.        ,  0.        , -0.        , -0.        , -0.        ,
-           -0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        , -0.        , -0.        ,  0.        , -0.        ,
-           -0.        ,  0.        ,  0.        , -0.        ,  0.        ,
-           -0.        , -0.        ,  0.        , -0.        , -0.        ,
-            0.        ,  0.        , -0.        ,  0.        ,  0.        ,
-           -0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        ,  0.        , -0.        , -0.        , -0.        ,
-            0.        , -0.        , -0.        , -0.        , -0.        ,
-           -0.        , -0.        ,  0.        , -0.        , -0.        ,
-           -0.        , -0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        ,  0.        ,  0.        , -0.        , -0.        ,
-           -0.        , -0.        ,  0.        ,  0.        ,  0.        ,
-            0.        , -0.        , -0.        , -0.        , -0.        ,
-            0.        ,  0.        ,  0.        , -0.        ,  0.        ,
-           -0.        ,  0.        , -0.        , -0.        , -0.        ,
-            0.        ,  0.        ,  0.        ,  0.        , -0.        ,
-            0.        , -0.        ,  0.        ,  0.        , -0.        ,
-            0.        , -0.        , -0.        ,  0.        ,  0.        ,
-           -0.        ,  0.        , -0.        , -0.        , -0.        ,
-            0.        ,  0.        , -0.        , -0.        , -0.        ,
-            0.        , -0.        ,  0.        , -0.        , -0.        ,
-            0.        ,  0.        , -0.        , -0.        ,  0.        ,
-            0.        ,  0.        , -0.        , -0.        ,  0.        ,
-           -0.        , -0.        , -0.        , -0.        , -0.        ,
-            0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-           -0.        , -0.        , -0.        ,  0.        ,  0.        ,
-            0.        , -0.        , -0.        , -0.        , -0.        ,
-           -0.        , -0.        ,  0.        ,  0.        ,  0.        ,
-            0.        ,  0.        ,  0.        ,  0.        , -0.        ,
-           -0.        ,  0.        ,  0.        , -0.        , -0.        ,
-            0.        ,  0.        , -0.        ,  0.        , -0.        ,
-           -0.        ,  0.        , -0.        , -0.        , -0.        ,
-           -0.        ,  0.        , -0.        , -0.        ,  0.        ,
-           -0.        ,  0.        , -0.        , -0.        , -0.        ,
-           -0.        , -0.        , -0.        ,  0.        ,  0.        ,
-           -0.        ,  0.        , -0.        , -0.        ,  0.        ])
 
 Path of solutions
 ~~~~~~~~~~~~~~~~~
@@ -1023,9 +865,6 @@ If we want a path of solutions, we can simply take multiples of
     >>> path = np.array(path)
     >>> ax.plot(path);
 
-
-
-
 Changing the penalty
 --------------------
 
@@ -1034,7 +873,6 @@ to be unpenalized. This can be achieved by introducing possibly non-zero
 feature weights to the :math:`\ell_1` norm
 
 .. math::
-
 
    \beta \mapsto \sum_{j=1}^p w_j|\beta_j|
 
@@ -1046,12 +884,9 @@ feature weights to the :math:`\ell_1` norm
     >>> weighted_penalty = rr.weighted_l1norm(weights, lagrange=1.)
     >>> weighted_penalty
 
-
-
 .. math::
 
     \lambda_{} \|W\beta\|_1
-
 
 .. nbplot::
    :format: python
@@ -1059,20 +894,15 @@ feature weights to the :math:`\ell_1` norm
     >>> weighted_dual = weighted_penalty.conjugate
     >>> weighted_dual
 
-
-
 .. math::
 
     I^{\infty}(\|W\beta\|_{\infty} \leq \delta_{})
-
 
 .. nbplot::
    :format: python
 
     >>> lam_max_weight = weighted_dual.seminorm(score_at_zero, lagrange=1.)
     >>> lam_max_weight
-
-    62.286179149940729
 
 .. nbplot::
    :format: python
@@ -1087,8 +917,6 @@ feature weights to the :math:`\ell_1` norm
     >>> ax = fig.gca()
     >>> path = np.array(path)
     >>> ax.plot(path);
-
-
 
 
 Note that there are 5 coefficients that are not penalized hence they are
@@ -1120,7 +948,6 @@ group. The group LASSO penalty is
     ...     groups.extend([i]*5)
     >>> weights = dict([g, np.random.sample()+1] for g in np.unique(groups))
     >>> group_penalty = rr.group_lasso(groups, weights=weights, lagrange=1.)
-
 
 .. nbplot::
    :format: python
@@ -1164,12 +991,9 @@ easily solve the problem
     >>> bound_l1 = rr.l1norm(P, bound=2.)
     >>> bound_l1
 
-
-
 .. math::
 
     I^{\infty}(\|\beta\|_1 \leq \delta_{})
-
 
 .. nbplot::
    :format: python
@@ -1177,25 +1001,19 @@ easily solve the problem
     >>> bound_problem = rr.simple_problem(smoothed_vec, bound_l1)
     >>> bound_problem
 
-
-
 .. math::
 
-    
     \begin{aligned}
     \text{minimize}_{\beta} & f(\beta) + g(\beta) \\
     f(\beta) &=  \sup_{u \in \mathbb{R}^{p} } \left[ \langle X_{1}\beta, u \rangle - \left(I^{\infty}(\left\|u\right\|_{\infty} + I^{\infty}\left(\min(u) \in [0,+\infty)\right)  \leq \delta_{1}) + \frac{L_{1}}{2}\|u\|^2_2 + \left \langle \eta_{1}, u \right \rangle \right) \right] \\
     g(\beta) &= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
     \end{aligned}
 
-
-
 .. nbplot::
    :format: python
 
     >>> bound_soln = bound_problem.solve()
     >>> np.fabs(bound_soln).sum()
-    2.0
 
 Support vector machine
 ======================
@@ -1206,13 +1024,11 @@ following *ESL* is
 
 .. math::
 
-
    \text{minimize}_{\beta,\gamma} \sum_{i=1}^n (1- y_i(x_i^T\beta+\gamma))^+ + \frac{\lambda}{2} \|\beta\|^2_2
 
 We use the :math:`C` parameterization in (12.25) of *ESL*
 
 .. math::
-
 
    \text{minimize}_{\beta,\gamma} C \sum_{i=1}^n (1- y_i(x_i^T\beta+\gamma))^+  + \frac{1}{2} \|\beta\|^2_2
 
@@ -1246,8 +1062,6 @@ Let's generate some data appropriate for this problem.
     >>> clf.fit(X, y) 
     >>> print(clf.coef_, clf.dual_coef_, clf.support_)
 
-    (array([[ 0.5,  0.5]]), array([[-0.25,  0.25]]), array([0, 2], dtype=int32))
-
 The hinge loss is not smooth, but it can be written as the composition
 of an ``atom`` (``positive_part``) with an affine transform determined
 by the data.
@@ -1275,8 +1089,6 @@ smoothing.
     ...     return soln[0][:-1], soln[1]
     ...
     >>> nesta_svm(X, 2 * (y - 1.5))
-    (array([ 0.54059898,  0.44468378]),
-     array([ 0.23285573,  0.        ,  0.23285573,  0.        ]))
 
 Let's try a little larger data set.
 
@@ -1289,10 +1101,6 @@ Let's try a little larger data set.
     >>> clf = SVC(kernel='linear', C=C)
     >>> clf.fit(X_l, Y_l)
     >>> clf.coef_
-    array([[ 0.03392693, -0.91351163, -0.0260219 , -0.29037068, -0.34668033,
-            -0.48974048, -0.34711183,  0.71658591,  0.05415365, -0.23807212,
-            -0.57111301, -0.21825985, -0.1718904 ,  0.34680402,  0.23467808,
-             0.17192434, -0.01959738,  0.15147373,  0.07052722,  0.11660805]])
 
 .. nbplot::
    :format: python
@@ -1300,9 +1108,6 @@ Let's try a little larger data set.
     >>> solnR_ = nesta_svm(X_l, Y_l, C=C)[0]
     >>> plt.scatter(clf.coef_, solnR_)
     >>> plt.plot([-1,1], [-1,1])
-    [...]
-
-
 
 Using ``regreg``, we can easily add penalty or constraint to the SVM
 objective.
@@ -1323,10 +1128,6 @@ objective.
     ...
     >>> bound = rr.l1norm(20, bound=0.8)
     >>> nesta_svm_pen(X_l, Y_l, bound)
-    array([ 0.        , -0.20155192,  0.        ,  0.        ,  0.        ,
-           -0.03334131, -0.14715379,  0.17509434, -0.        , -0.        ,
-           -0.13078627,  0.        ,  0.        ,  0.02394207,  0.0756029 ,
-            0.01252739, -0.        , -0.        , -0.        , -0.        ])
 
 Sparse Huberized SVM
 --------------------
@@ -1342,9 +1143,6 @@ parameter and solve the problem directly.
     >>> huber_svm = huberized_svm(X_l_inter, Y_l, smoothing_parameter=0.001, coef=C)
     >>> coef_h = huber_svm.solve(min_its=100)[:-1]
     >>> plt.scatter(coef_h, clf.coef_)
-    <...>
-
-
 
 Adding penalties or constraints is again straightforward.
 
@@ -1355,14 +1153,6 @@ Adding penalties or constraints is again straightforward.
     >>> penalty_sep = rr.separable((X_l.shape[1]+1,), [penalty], [slice(0,X_l.shape[1])])
     >>> huberized_problem = rr.simple_problem(huber_svm, penalty_sep)
     >>> huberized_problem.solve()
-    array([ -0.00000000e+00,  -1.61109949e-03,  -2.04221569e-05,
-            -0.00000000e+00,  -0.00000000e+00,  -1.14015248e-04,
-            -1.26655700e-03,   1.56427749e-03,   0.00000000e+00,
-             0.00000000e+00,  -1.05064030e-03,  -0.00000000e+00,
-            -0.00000000e+00,   1.41639879e-04,   3.87575239e-04,
-             9.31330561e-06,   0.00000000e+00,   0.00000000e+00,
-             0.00000000e+00,   0.00000000e+00,  -9.97185214e-01])
-
     >>> numpy2ri.deactivate()  
 
 .. code-links::

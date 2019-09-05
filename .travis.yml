@@ -151,11 +151,11 @@ script:
         pip install -r doc-requirements.txt
         cd doc
         # Build without the API documentation, for the doctests
-        make htmlonly
+        make html
         make doctest
         # Now build the full docs
         make clean
-        make html
+        make htmlonly
       elif [ "$R_TESTS" ]; then
         sudo apt-get install software-properties-common
         sudo add-apt-repository -y ppa:marutter/rrutter
