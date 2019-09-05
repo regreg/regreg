@@ -14,14 +14,14 @@ Here, we cover various optimization problems related to the LASSO.
     >>> X = np.random.standard_normal((100, 10))
     >>> Y = np.random.standard_normal(100)
 
+
 For a given :math:`X, Y`, here is the squared error loss
 
 .. nbplot::
    :format: python
 
     >>> loss = rr.squared_error(X, Y)
-    >>> loss #doctest: +SKIP
-
+    >>> loss 
 
 .. math::
 
@@ -177,15 +177,14 @@ method of the problem.
 .. nbplot::
    :format: python
 
-    coef_lagrange = problem_lagrange.solve(tol=1.e-12)
-    print('blah')
-    print(coef_lagrange)
+    >>> coef_lagrange = problem_lagrange.solve(tol=1.e-12)
+    >>> print(coef_lagrange)
 
 .. nbplot::
    :format: python
 
     >>> implied_bound = np.fabs(coef_lagrange).sum()
-    >>> print(implied_bound) #doctest: +SKIP
+    >>> print(implied_bound)
     0.580132650282
 
 

@@ -4,7 +4,7 @@
 RegReg documentation
 ====================
 
-.. htmlonly::
+.. only:: html
 
    :Release: |version|
    :Date: |today|
@@ -20,7 +20,7 @@ RegReg documentation
    algorithms
    license
 
-.. htmlonly::
+.. only:: html
 
   * :ref:`genindex`
   * :ref:`modindex`

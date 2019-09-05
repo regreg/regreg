@@ -259,6 +259,7 @@ Let's compare objective values.
    :format: python
 
     >>> B_mid = rpy2.r('gglasso(x=X,y=Y,group=group1,loss="ls",lambda=L_half)$beta[,50]')
+    >>> B_mid = np.array(B_mid)
     >>> soln, problem = solve_one(X, Y, groups, L_test)
     >>> problem.objective(soln), problem.objective(B_mid)
     (0.003015701266213722, 0.0030206831554445077)
@@ -398,6 +399,7 @@ Let's generate some larger data and time their performance.
 .. nbplot::
    :format: python
 
+    >>> Bb_mid = np.array(Bb_mid)
     >>> problemb.objective(solnb), problemb.objective(Bb_mid)
     (1.7081065654113237, 1.7081416103445459)
 
@@ -419,6 +421,7 @@ Comparison of objective values
 
     >>> plt.figure(figsize=(6,6))
     >>> obj_vals = []
+    >>> Bb = np.array(Bb)
     >>> for i, lagrange in enumerate(L):
     ...     penalty.lagrange = lagrange
     ...     val1 = problemb.objective(Bb[:,i])
