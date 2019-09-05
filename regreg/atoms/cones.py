@@ -221,9 +221,15 @@ class cone(atom):
     # for atoms, the offset is really the "center"
 
     @classmethod
+    @doc_template_provider
     def linear(cls, linear_operator, diag=False,
                offset=None,
                quadratic=None):
+        """
+        Composition of a cone constraint and a linear
+        transform.
+        """
+
         if not isinstance(linear_operator, linear_transform):
             l = linear_transform(linear_operator, diag=diag)
         else:
@@ -236,8 +242,13 @@ class cone(atom):
         return affine_cone(cone, l)
 
     @classmethod
+    @doc_template_provider
     def affine(cls, linear_operator, offset, diag=False,
                quadratic=None):
+        """
+        Composition of a cone constraint and a linear
+        transform.
+        """
         if not isinstance(linear_operator, linear_transform):
             l = linear_transform(linear_operator, diag=diag)
         else:

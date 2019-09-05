@@ -89,8 +89,8 @@ class linear_constraint(cone):
         return self._conjugate
     conjugate = property(get_conjugate)
 
-    @doc_template_user
     @classmethod
+    @doc_template_user
     def linear(cls, linear_operator, basis, diag=False,
                linear_term=None, offset=None):
         l = linear_transform(linear_operator, diag=diag)
