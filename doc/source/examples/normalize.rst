@@ -21,7 +21,7 @@ The Diabetes data from LARS
 To begin, let's grab the diabetes data from the lars package in R.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import rpy2.robjects as rpy2
     >>> import numpy as np
@@ -39,7 +39,7 @@ To begin, let's grab the diabetes data from the lars package in R.
 We can always manually center and scale the columns of :math:`X`
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Xnorm = (X - np.mean(X,axis=0)) / np.std(X,axis=0)
     >>> print(np.mean(Xnorm, axis=0))
@@ -56,14 +56,14 @@ centering the columns will likely make the matrix dense. Instead we can
 use the normalize affine transformation
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Xnorm_rr = rr.normalize(X, center=True, scale=True) # the default
 
 We can verify that multiplications with Xnorm\_rr are done correctly
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> test_vec1 = np.random.standard_normal(p)
     >>> test_vec2 = np.random.standard_normal(n)
@@ -72,16 +72,11 @@ We can verify that multiplications with Xnorm\_rr are done correctly
     >>> print(np.linalg.norm(np.dot(Xnorm.T, test_vec2) - Xnorm_rr.adjoint_map(test_vec2)))
     >>> print(np.linalg.norm(np.dot(Xnorm.T, test_vec2) - Xnorm_rr.T.dot(test_vec2)))
 
-    1.79514995551e-14
-    1.79514995551e-14
-    4.35469325497e-14
-    4.35469325497e-14
-
 Finally, we can solve the LASSO with both matrices and see that the
 solutions are the same,
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss1 = rr.squared_error(Xnorm, Y)
     >>> sparsity = rr.l1norm(p, lagrange = 800.)
@@ -97,26 +92,20 @@ solutions are the same,
     >>> coefs2 = solver2.composite.coefs
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> print(np.linalg.norm(coefs1-coefs2))
 
     5.03747716687e-14
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> coefs2
-    array([ -0.        ,  -7.5600115 ,  25.04059284,  13.31564146,
-            -0.72193921,  -1.92904486, -10.70843844,   0.        ,
-            22.67989762,   1.37154407])
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> coefs1
-    array([ -0.        ,  -7.5600115 ,  25.04059284,  13.31564146,
-            -0.72193921,  -1.92904486, -10.70843844,   0.        ,
-            22.67989762,   1.37154407])
 
 

@@ -14,7 +14,7 @@ where :math:`g_i` are pairwise distinct subsets of
 :math:`\{1, \dots, p\}`.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # third party imports
     >>> import numpy as np
@@ -35,7 +35,7 @@ supplied by this package. We see that for smaller problems like this,
 convergence.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> rpy2.r('''
     >>> library(gglasso)
@@ -60,7 +60,7 @@ The ``gglasso`` centers ``X`` and ``Y`` by default and its loss is
    \frac{1}{2n} \|Y-X\beta\|^2_2
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Y -= Y.mean()
     >>> X -= X.mean(0)[np.newaxis,:]
@@ -78,7 +78,7 @@ The ``gglasso`` centers ``X`` and ``Y`` by default and its loss is
 The groups used in the example are all of size 5.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> groups = []
     >>> for i in range(20):
@@ -103,7 +103,7 @@ loss we can take the largest eigenvalue of :math:`X^TX/n`:
    \|\nabla {\mathcal L}\|_{\mathrm{Lip}} = \frac{1}{n}\|X\|_{\mathrm{op}}^2
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> lipschitz = rr.power_L(X)**2 / n
 
@@ -112,7 +112,7 @@ problem in that its proximal operator is separable. It can be specified
 with the ``simple_problem`` class.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> problem = rr.simple_problem(loss, penalty)
     >>> problem
@@ -133,7 +133,7 @@ with the ``simple_problem`` class.
 With this choice of ``lagrange`` parameter the solution should be 0.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> coefs = problem.solve()
     >>> (coefs != 0).sum()
@@ -152,7 +152,7 @@ The package ``gglasso`` chooses which penalty parameters to use as
 follows:
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> score0 = loss.smooth_objective(np.zeros(loss.shape), mode='grad')
     >>> dual_penalty = rr.group_lasso_dual(groups, lagrange=1.)
@@ -165,7 +165,7 @@ Let's write a function that solves the group LASSO for a grid of
 :math:`\lambda` values.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> def solve_path(X, Y, groups, lagrange_seq, tol=1.e-8, max_its=50):
     ...
@@ -182,12 +182,12 @@ Let's write a function that solves the group LASSO for a grid of
     ...     return np.array(solns), problem
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %timeit solve_path(X, Y, groups, L)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %%timeit
     >>> _ = rpy2.r('G=gglasso(x=X,y=Y,group=group1,loss="ls");')
@@ -206,14 +206,14 @@ of the so-called `strong rules <strong%20rules%20paper>`__ when solving
 along the path.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> plt.figure(figsize=(6,6))
     >>> solns = solve_path(X, Y, groups, L)[0]
     >>> [plt.plot(np.log(L), solns[:,i]) for i in range(100)];
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> plt.figure(figsize=(6,6))
     >>> [plt.plot(np.log(L), B[i]) for i in range(100)];
@@ -224,7 +224,7 @@ could also use the `strong rules <strong%20rules%20paper>`__ to speed up
 :math:`\lambda`.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> def solve_one(X, Y, groups, lagrange, tol=1.e-8, max_its=100):
     ...     loss = rr.squared_error(X, Y, coef=1./n)
@@ -233,7 +233,7 @@ could also use the `strong rules <strong%20rules%20paper>`__ to speed up
     ...     return problem.solve(tol=tol, max_its=max_its).copy(), problem
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> L_test = L[int(len(L)/2)-1]
     >>> # %timeit solve_one(X, Y, groups, L_test)
@@ -242,13 +242,13 @@ Let's see how ``gglasso`` does to get at the same point. To be fair, we
 will only take 50 steps to get there.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> rpy2.r.assign('L_test', L_test)
     >>> _ = rpy2.r('L_half = exp(seq(log(max(L)), log(L_test), length=50))')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %%timeit
     >>> _ = rpy2.r('gglasso(x=X,y=Y,group=group1,loss="ls",lambda=L_half)')
@@ -256,7 +256,7 @@ will only take 50 steps to get there.
 Let's compare objective values.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> B_mid = rpy2.r('gglasso(x=X,y=Y,group=group1,loss="ls",lambda=L_half)$beta[,50]')
     >>> B_mid = np.array(B_mid)
@@ -267,7 +267,7 @@ Let's compare objective values.
 If we relax the tolerance a bit, ``regreg`` is even faster.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %timeit solve_one(X, Y, groups, L_test, tol=1.e-7)
 
@@ -275,7 +275,7 @@ But, its objective value is still a little worse than before, though
 still better than ``gglasso``.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> soln, problem = solve_one(X, Y, groups, L_test, tol=1.e-7)
     >>> problem.objective(soln), problem.objective(B_mid)
@@ -288,7 +288,7 @@ Let's see how they compare on a random design, perhaps this design is
 particularly fast for the coordinate descent method.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> rpy2.r('''
     >>> Xr = matrix(rnorm(nrow(X)*ncol(X)), nrow(X), ncol(X))
@@ -298,7 +298,7 @@ particularly fast for the coordinate descent method.
     >>> Xr = rpy2.r('Xr')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %timeit rpy2.r('gglasso(x=Xr,y=Y,group=group1,loss="ls")')
     >>> # %timeit solve_path(Xr, Y, groups, Lr)
@@ -309,7 +309,7 @@ Comparison of objective values.
 Let's compare the objective values. They are very close.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss = rr.squared_error(X, Y, coef=1./n)
     >>> penalty = rr.group_lasso(groups, lagrange=L.max())
@@ -331,7 +331,7 @@ For smaller values of the regularization parameter, ``regreg`` reaches a
 lower objective value, though the difference is fairly small.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> plt.figure(figsize=(6,6))
     >>> plt.plot(np.log(L), obj_vals[:,2])
@@ -343,7 +343,7 @@ Larger problems
 Let's generate some larger data and time their performance.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> n, p, s =  1000, 10000, 200
     >>> Xb = np.random.standard_normal((n, p)) / np.sqrt(n)
@@ -359,25 +359,25 @@ Let's generate some larger data and time their performance.
     >>> _ = rpy2.r.assign('groupsb', groups)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %%timeit
     >>> rpy2.r('Lb = gglasso(x=Xb,y=Yb,group=groupsb,loss="ls")$lambda')
     >>> Lb = rpy2.r('Lb')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Yb -= Yb.mean()
     >>> Xb -= Xb.mean(0)[np.newaxis,:]
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %timeit solve_path(Xb, Yb, groupsb, Lb)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Lb_test = Lb[int(len(Lb)/2)]
     >>> rpy2.r.assign('Lb_test', Lb_test)
@@ -386,18 +386,18 @@ Let's generate some larger data and time their performance.
     >>> solnb, problemb = solve_one(Xb, Yb, groupsb, Lb_test, tol=1.e-10, max_its=150)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> # %%timeit
     >>> _ = rpy2.r('gglasso(x=Xb,y=Yb,group=groupsb,loss="ls",lambda=Lb_half)')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Bb_mid = rpy2.r('gglasso(x=Xb, y=Yb, group=groupsb, loss="ls", lambda=Lb_half)$beta[,50]')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Bb_mid = np.array(Bb_mid)
     >>> problemb.objective(solnb), problemb.objective(Bb_mid)
@@ -407,17 +407,17 @@ Comparison of objective values
 ------------------------------
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Bb = rpy2.r('gglasso(x=Xb, y=Yb, group=groupsb, loss="ls")$beta')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> solns, problemb = solve_path(Xb, Yb, groups, Lb)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> plt.figure(figsize=(6,6))
     >>> obj_vals = []
@@ -434,14 +434,14 @@ Comparison of objective values
     <...>
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> plt.figure(figsize=(6,6))
     >>> plt.plot(obj_vals[:,2])
     [...]
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> numpy2ri.deactivate()
 

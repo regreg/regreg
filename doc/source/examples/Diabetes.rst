@@ -5,7 +5,7 @@ The Diabetes data from LARS
 ---------------------------
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import numpy as np, regreg.api as rr
     >>> import rpy2.robjects as rpy2
@@ -13,7 +13,7 @@ The Diabetes data from LARS
 Let's grab the diabetes data from the lars package in R
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> rpy2.r('''
     >>> suppressMessages(library(lars))
@@ -28,7 +28,7 @@ Let's grab the diabetes data from the lars package in R
     >>> Y = rpy2.r('Y')
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> X = np.asarray(X)
     >>> Y = np.asarray(Y)
@@ -40,7 +40,7 @@ Let's grab the diabetes data from the lars package in R
 Our loss function and penalty
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss = rr.glm.gaussian(X, Y)
     >>> loss
@@ -60,7 +60,7 @@ Our loss function and penalty
 Now, our penalty:
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> penalty = rr.l1norm(X.shape[1], lagrange=L[3])
     >>> penalty
@@ -80,7 +80,7 @@ Now, our penalty:
 Let's form the problem
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> problem = rr.simple_problem(loss, penalty)
     >>> problem
@@ -110,7 +110,7 @@ Let's form the problem
 and solve it
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> beta = problem.solve(min_its=100)
     >>> beta
@@ -122,7 +122,7 @@ and solve it
 Compare this to ``R``'s solution:
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> S = rpy2.r('diabetes_lars$beta[4,]')
     >>> np.asarray(S)
@@ -136,7 +136,7 @@ Bound form
 We can also solve this in bound form
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> bound_form = rr.l1norm(p, bound=np.fabs(beta).sum())
     >>> bound_problem = rr.simple_problem(loss, bound_form)
@@ -167,7 +167,7 @@ We can also solve this in bound form
 Here is the solution
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> beta_bound = bound_problem.solve(min_its=100)
     >>> beta_bound

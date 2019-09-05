@@ -6,7 +6,7 @@ LASSO and variants
 Here, we cover various optimization problems related to the LASSO.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import numpy as np
     >>> import regreg.api as rr
@@ -18,7 +18,7 @@ Here, we cover various optimization problems related to the LASSO.
 For a given :math:`X, Y`, here is the squared error loss
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss = rr.squared_error(X, Y)
     >>> loss 
@@ -34,14 +34,14 @@ linear transformation. Its most important API piece is
 ``smooth_objective`` which evaluates the function, its gradient or both.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> value, score_at_zero = loss.smooth_objective(np.zeros(loss.shape), 'both')
     >>> value #doctest: +SKIP
     41.482527733857864
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> score_at_zero, X.T.dot(X.dot(np.zeros(loss.shape)) - Y) #doctest: +SKIP
     (array([ -4.09173148,   2.70457691,   3.12078879, -32.7586658 ,
@@ -59,7 +59,7 @@ The LASSO uses an :math:`\ell_1` penalty in "Lagrange" form:
    \text{minimize}_{\beta} \frac{1}{2} \|Y-X\beta\|^2_2 + \lambda \|\beta\|_1.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> penalty = rr.l1norm(10, lagrange=4.)
     >>> print('penalty:', str(penalty))  #doctest: +SKIP
@@ -115,7 +115,7 @@ In ``regreg``, objects :math:`Q` of the form
 are represented instances of ``rr.identity_quadratic``.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Z = np.random.standard_normal(penalty.shape)
     >>> penalty.lagrange = 0.1
@@ -125,7 +125,7 @@ are represented instances of ``rr.identity_quadratic``.
     array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> threshold = penalty.lagrange / epsilon
     >>> soft_thresh_Z = np.sign(Z) * (np.fabs(Z) - threshold) * (np.fabs(Z) > threshold)
@@ -157,7 +157,7 @@ where :math:`Q` is a quadratic of the above form. If :math:`g` has a
 ``proximal`` method, this step just calls the proximal mapping.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> penalty.lagrange = 4.
     >>> problem_lagrange = rr.simple_problem(loss, penalty)
@@ -175,13 +175,13 @@ method of the problem.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> coef_lagrange = problem_lagrange.solve(tol=1.e-12)
     >>> print(coef_lagrange)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> implied_bound = np.fabs(coef_lagrange).sum()
     >>> print(implied_bound)
@@ -189,7 +189,7 @@ method of the problem.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> bound_constraint = rr.l1norm(10, bound=implied_bound)
     >>> bound_constraint
@@ -201,7 +201,7 @@ method of the problem.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> problem_bound = rr.simple_problem(loss, bound_constraint)
     >>> problem_bound
@@ -229,7 +229,7 @@ method of the problem.
    \end{aligned}
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> coef_bound = problem_bound.solve(tol=1.e-12)
     >>> print(coef_bound)
@@ -241,7 +241,7 @@ method of the problem.
     0.07137744 -0. 0.04846725 -0.06317591]
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> np.linalg.norm(coef_bound - coef_lagrange) / np.linalg.norm(coef_lagrange)
     4.9118943989266597e-06
@@ -253,7 +253,7 @@ The objective function is differs from ``sklearn.linear_model.Lasso`` by
 a factor of :math:`1/n`.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> from sklearn.linear_model import Lasso
     >>> clf = Lasso(alpha=penalty.lagrange / X.shape[0])
@@ -263,14 +263,14 @@ a factor of :math:`1/n`.
            -0.04907118,  0.07184117,  0.        ,  0.04895601, -0.06854384])
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> Xtiming = np.random.standard_normal((2000, 4000))
     >>> Ytiming = np.random.standard_normal(2000)
     >>> lagrange = np.fabs(Xtiming.T.dot(Ytiming)).max() * 0.6
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> clf = Lasso(alpha=lagrange / Xtiming.shape[0])
     >>> sklearn_soln = clf.fit(Xtiming, Ytiming).coef_
@@ -278,7 +278,7 @@ a factor of :math:`1/n`.
 1 loop, best of 3: 296 ms per loop
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss_timing = rr.squared_error(Xtiming, Ytiming)
     >>> penalty_timing = rr.l1norm(Xtiming.shape[1], lagrange=lagrange)
@@ -287,7 +287,7 @@ a factor of :math:`1/n`.
 1 loop, best of 3: 257 ms per loop
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss_t = rr.squared_error(Xtiming, Ytiming)
     >>> penalty_t = rr.l1norm(Xtiming.shape[1], lagrange=lagrange)
@@ -305,13 +305,13 @@ a factor of :math:`1/n`.
 55 55
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> sklearn_soln
     array([ 0.,  0., -0., ...,  0., -0.,  0.])
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> np.linalg.norm(sklearn_soln - coef_lagrange) / np.linalg.norm(coef_lagrange)
     0.017723734004279082
@@ -335,7 +335,7 @@ with :math:`C` the first argument, :math:`\mu` the second, :math:`\eta`
 the third and :math:`\gamma` the fourth.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> enet_term = rr.identity_quadratic(0.5,0,0,0)
     >>> enet_term
@@ -345,7 +345,7 @@ the third and :math:`\gamma` the fourth.
    \begin{equation*} \frac{L_{}}{2}\|\beta\|^2_2 \end{equation*}
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> penalty_enet = rr.l1norm(10, lagrange=4., quadratic=enet_term)
     >>> penalty_enet
@@ -355,7 +355,7 @@ the third and :math:`\gamma` the fourth.
    \lambda_{} \|\beta\|_1 + \frac{L_{}}{2}\|\beta\|^2_2
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> problem_enet = rr.simple_problem(loss, penalty_enet)
     >>> enet_lagrange = problem_enet.solve(min_its=200, tol=1.e-12)
@@ -367,7 +367,7 @@ Quadratic terms can also be added to problems as the first argument to
 ``solve``.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> problem_lagrange.solve(enet_term, min_its=200, tol=1.e-12)
     array([ 0.        , -0.        , -0.        ,  0.25525639, -0.09145288,
@@ -390,7 +390,7 @@ like
    \beta \mapsto \frac{C}{2} \|\beta - \mu\|^2_2 + \beta^T\eta + \gamma.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> C = 0.5
     >>> mu = np.arange(4)
@@ -402,7 +402,7 @@ like
     'identity_quadratic(0.500000, array([0, 1, 2, 3]), array([ 1.,  1.,  1.,  1.]), 2.300000)'
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> beta = -np.ones(4)
     >>> iq.objective(beta, 'func'), 0.5*C*((beta-mu)**2).sum() + (beta*eta).sum() + gamma
@@ -414,7 +414,7 @@ somewhat unnecessary but is sometimes useful to track through
 computations. such that ``center`` is 0.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> str(iq.collapsed())
     'identity_quadratic(0.500000, 0.0, array([ 1. ,  0.5,  0. , -0.5]), 5.800000)'
@@ -423,7 +423,7 @@ As atoms and smooth functions have their own such quadratic terms, one
 sometimes collects them to form an overall quadratic term
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> iq2 = rr.identity_quadratic(0.3, eta, mu, -2.1)
     >>> iq2
@@ -436,13 +436,13 @@ sometimes collects them to form an overall quadratic term
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> str(iq+iq2)
     'identity_quadratic(0.800000, 0.0, array([ 0.7,  1.2,  1.7,  2.2]), 4.300000)'
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> iq.collapsed()
 
@@ -536,7 +536,7 @@ though it can also be solved numerically if our loss was not
 squared-error. This is what the class ``regreg.api.conjugate`` does.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> dual_loss = rr.conjugate(loss, negate=True, quadratic=enet_term, tol=1.e-12)
     >>> Q = np.linalg.inv(X.T.dot(X) + enet_term.coef * np.identity(10))
@@ -552,7 +552,7 @@ squared-error. This is what the class ``regreg.api.conjugate`` does.
     (-33.914399021125028, -33.914399021125021)
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> dual_atom = penalty.conjugate
     >>> print(str(dual_atom))
@@ -561,7 +561,7 @@ squared-error. This is what the class ``regreg.api.conjugate`` does.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> dual_problem = rr.simple_problem(dual_loss, dual_atom)
     >>> dual_soln = dual_problem.solve(min_its=50,tol=1.e-12)
@@ -575,7 +575,7 @@ sometimes referred to as a primal-dual relationship, and is in effect a
 restatement of the KKT conditions.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> - loss.smooth_objective(enet_lagrange, 'grad') - enet_term.objective(enet_lagrange, 'grad')
     array([ 2.54211273, -0.91847349, -3.49504773,  4.        , -4.        ,
@@ -587,12 +587,12 @@ this is actually the solution to our elastic net problem, though it does
 not have exact zeros.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> primal_soln = dual_loss.argmin
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> primal_soln
     array([  1.52772852e-08,  -8.25787539e-07,  -9.38424377e-07,
@@ -601,7 +601,7 @@ not have exact zeros.
             -6.30227801e-02])
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> print(np.linalg.norm(primal_soln - enet_lagrange) / np.linalg.norm(enet_lagrange))
     4.33868837223e-06
@@ -612,7 +612,7 @@ We could alternatively have formed the explicit quadratic function for
 will have to also explicitly solve for the primal solution.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> dual_quadratic = rr.quadratic_loss(Q.shape[0], Q=Q, offset=X.T.dot(Y))
     >>> dual_problem_alt = rr.simple_problem(dual_quadratic, dual_atom)
@@ -622,7 +622,7 @@ will have to also explicitly solve for the primal solution.
            -4.        ,  4.        ,  0.32793405,  4.        , -4.        ])
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> primal_soln_alt = -dual_quadratic.smooth_objective(dual_soln_alt, 'grad')
     >>> print(np.linalg.norm(primal_soln_alt - enet_lagrange) / np.linalg.norm(enet_lagrange))
@@ -642,7 +642,7 @@ pursuit problem
 This can be written as the sum of two atoms.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> l1_part = rr.l1norm(X.shape[1], lagrange=1.)
     >>> l1_part
@@ -654,7 +654,7 @@ This can be written as the sum of two atoms.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> X -= X.mean(0)[None,:]; Y -= Y.mean()
     >>> full_soln = np.linalg.pinv(X).dot(Y)
@@ -670,7 +670,7 @@ This can be written as the sum of two atoms.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> min_norm*1.1, np.linalg.norm(Y)
     (9.0308016267354709, 9.1084703609203732)
@@ -687,7 +687,7 @@ Smoothing out atoms
 -------------------
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> small_q1 = rr.identity_quadratic(1.e-4, 0, 0, 0)
     >>> l2_part_smoothed = l2_part.smoothed(small_q1)
@@ -707,7 +707,7 @@ Smoothing out atoms
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> smoothed_soln = smoothed_problem.solve(min_its=10000)
     >>> smoothed_soln
@@ -724,7 +724,7 @@ the quadratic term is updated along the sequence. The center of the
 quadratic is also updated along the sequence.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> small_q2 = rr.identity_quadratic(1.e-6, 0, 0, 0)
     >>> l1_part2 = rr.l1norm(X.shape[1], lagrange=1., quadratic=small_q2)
@@ -739,7 +739,7 @@ quadratic is also updated along the sequence.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> from regreg.affine import scalar_multiply, adjoint
     >>> transform, dual_atom = l2_part.dual
@@ -761,7 +761,7 @@ quadratic is also updated along the sequence.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> tfocs_soln = tfocs_problem.solve(tol=1.e-12)
 
@@ -770,7 +770,7 @@ The primal solution is stored in the object ``linf_smoothed`` as
 applying ``full_transform``
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> primal_soln = linf_smoothed.grad
     >>> primal_soln
@@ -789,7 +789,7 @@ To solve this problem using RegReg we begin by loading the necessary
 numerical libraries
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import numpy as np
     >>> import regreg.api as rr
@@ -797,7 +797,7 @@ numerical libraries
 Next, let's generate some example data,
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> X = np.random.normal(0,1,500000).reshape((500,1000))
     >>> Y = np.random.normal(0,1,500)
@@ -805,7 +805,7 @@ Next, let's generate some example data,
 Now we can create the problem object, beginning with the loss function
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> loss = rr.quadratic_loss.affine(X,-Y, coef=0.5)
     >>> grouping = rr.quadratic_loss(1000, coef=1.)
@@ -815,7 +815,7 @@ The penalty contains the regularization parameter that can be easily
 accessed and changed,
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> grouping.coef
     >>> grouping.coef += 1
@@ -827,7 +827,7 @@ Now we can create the final problem object by comining the smooth
 functions and the :math:``\\ell_1`` seminorm,
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> problem = rr.container(loss, grouping, sparsity)
 
@@ -838,7 +838,7 @@ Next, we can select our algorithm of choice and use it solve the
 problem,
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> solver = rr.FISTA(problem)
     >>> obj_vals = solver.fit(max_its=100, tol=1e-5)
@@ -848,7 +848,7 @@ Here :code:`max_its` represents primal iterations, and tol is the primal
 tolerance.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> obj_vals
     array([ 133.36952356,   91.17516073,   82.88725763,   79.15453604,
@@ -873,7 +873,7 @@ Let's generate some data first, setting the first 100 coefficients to be
 large.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import regreg.api as R
     >>> import numpy as np
@@ -911,7 +911,7 @@ the :math:`\ell_1` norm achieving an explanation of 90% of the norm of
 The code to construct the loss function looks like this
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import regreg.api as R
     >>> linf_constraint = R.supnorm(1000, bound=1)
@@ -932,7 +932,7 @@ The code to construct the loss function looks like this
 The penalty is specified as
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> norm_Y = np.linalg.norm(Y)
     >>> l2_constraint_value = np.sqrt(0.1) * norm_Y
@@ -942,7 +942,7 @@ The container puts these together, then solves the problem by decreasing
 the smoothing.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> basis_pursuit_dual = R.simple_problem(loss, l2_lagrange)
     >>> basis_pursuit_dual
@@ -959,7 +959,7 @@ the smoothing.
 
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> solver = R.FISTA(basis_pursuit_dual)
     >>> tol = 1.0e-08
@@ -978,7 +978,7 @@ the smoothing.
 The solution should explain about 90% of the norm of *Y*
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> print(1 - (np.linalg.norm(Y-np.dot(X, basis_pursuit_soln)) / norm_Y)**2)
 
@@ -988,7 +988,7 @@ We now solve the corresponding bound form of the LASSO and verify we
 obtain the same solution.
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> sparsity = R.l1norm(1000, bound=np.fabs(basis_pursuit_soln).sum())
     >>> loss = R.quadratic_loss.affine(X, -Y)
@@ -1004,7 +1004,7 @@ obtain the same solution.
     2327.67420379 2327.67420379
 
 .. nbplot::
-   :format: python
+    :format: python
 
     >>> import regreg.api as R
     >>> import numpy as np
