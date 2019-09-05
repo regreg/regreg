@@ -172,6 +172,7 @@ def compute_iterative_svd(transform,
     Examples
     --------
 
+    >>> import regreg.api as rr
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
     >>> U, D, VT = rr.compute_iterative_svd(X)[:3]
