@@ -48,7 +48,7 @@ convergence.
     >>> Lr = gglasso(x=Xr,y=Y,group=group1,loss="ls")$lambda
     >>> DF = gg1$df
     >>> ''')
-    >>> B, DF, L, Y, X, Xr, Lr = [rpy2.r(name) for name in ('B', 'DF', 'L', 'Y', 'X', 'Xr', 'Lr')]
+    >>> B, DF, L, Y, X, Xr, Lr = [np.array(rpy2.r(name)) for name in ('B', 'DF', 'L', 'Y', 'X', 'Xr', 'Lr')]
 
 The ``gglasso`` centers ``X`` and ``Y`` by default and its loss is
 

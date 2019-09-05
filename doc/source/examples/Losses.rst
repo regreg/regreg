@@ -41,9 +41,9 @@ There are several commonly used smooth loss functions built into
 
     >>> rpy2.r.assign('X', X)
     >>> rpy2.r.assign('Y', Y)
-    >>> r_soln = rpy2.r('glm(Y ~ X, family=binomial)')
+    >>> r_soln = rpy2.r('glm(Y ~ X, family=binomial)$coef')
     >>> loss.solve()
-    >>> np.asarray(r_soln)
+    >>> np.array(r_soln)
              X1          X2          X3          X4          X5 
     -0.07111141  0.05295475 -0.15058291  0.17405453  0.03915539 
 
@@ -64,8 +64,9 @@ The losses can very easily be combined with a penalty.
 
     >>> rpy2.r('''
     ... library(glmnet)
-    ... G = glmnet(X, as.numeric(Y), intercept=FALSE, standardize=FALSE, family='binomial')
-    ... print(coef(G, s=2 / nrow(X), exact=TRUE))
+    ... Y = as.numeric(Y)
+    ... G = glmnet(X, Y, intercept=FALSE, standardize=FALSE, family='binomial')
+    ... print(coef(G, s=2 / nrow(X), x=X, y=Y, exact=TRUE))
     ... ''')
 
 
@@ -88,7 +89,7 @@ transformation can be used here.
 
 .. nbplot::
 
-    >>> coefG = np.asarray(rpy2.r('as.numeric(coef(G, s=2 / nrow(X), exact=TRUE))'))
+    >>> coefG = np.array(rpy2.r('as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))'))
     [1]  0.03052142  0.00000000  0.01805825 -0.12385029  0.15866192  0.02967640
 
 
@@ -121,10 +122,11 @@ Dividing ``regreg``'s coefficients by the ``col_stds`` corrects this.
 .. nbplot::
 
     >>> rpy2.r('''
-    ... G = glmnet(X, as.numeric(Y), standardize=TRUE, intercept=TRUE, family='binomial')
-    ... coefG = as.numeric(coef(G, s=2 / nrow(X), exact=TRUE))
+    ... Y = as.numeric(Y)
+    ... G = glmnet(X, Y, standardize=TRUE, intercept=TRUE, family='binomial')
+    ... coefG = as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))
     ... ''')
-    >>> coefG = np.asarray(rpy2.r('coefG'))
+    >>> coefG = np.array(rpy2.r('coefG'))
 
 
 .. nbplot::
@@ -353,7 +355,7 @@ Now we can create the problem object, beginning with the loss function
 
     >>> rpy2.r.assign('Y', Y)
     >>> rpy2.r.assign('X', X)
-    >>> np.asarray(rpy2.r('coef(glm(Y ~ X - 1, family=poisson()))'))
+    >>> np.array(rpy2.r('coef(glm(Y ~ X - 1, family=poisson()))'))
 
 
 Logistic regression with a ridge penalty
@@ -1044,7 +1046,6 @@ Variables may come in groups. A common penalty for this setting is the
 group LASSO. Let
 
 .. math::
-
 
    \{1, \dots, p\} = \cup_{g \in G} g
 
