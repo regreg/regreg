@@ -1140,3 +1140,5 @@ Adding penalties or constraints is again straightforward.
     >>> numpy2ri.deactivate()  
 
 .. code-links::
+   :timeout: -1
+

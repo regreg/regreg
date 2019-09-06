@@ -369,5 +369,6 @@ fused term.
     <...>
 
 
-
+.. code-links::
+   :timeout: -1
 

@@ -108,4 +108,6 @@ solutions are the same,
 
     >>> coefs1
 
+.. code-links::
+   :timeout: -1
 
