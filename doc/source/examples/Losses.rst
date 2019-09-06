@@ -17,19 +17,19 @@ There are several commonly used smooth loss functions built into
 .. nbplot::
     :format: python
 
-    >>> import numpy as np
-    >>> import regreg.api as rr
-    >>> import matplotlib.pyplot as plt
+    import numpy as np
+    import regreg.api as rr
+    import matplotlib.pyplot as plt
 
-    >>> import rpy2.robjects as rpy2
-    >>> from rpy2.robjects import numpy2ri
-    >>> numpy2ri.activate()  
+    import rpy2.robjects as rpy2
+    from rpy2.robjects import numpy2ri
+    numpy2ri.activate()  
 
-    >>> X = np.random.standard_normal((100, 5))
-    >>> X *= np.linspace(1, 3, 5)[None, :]
-    >>> Y = np.random.binomial(1, 0.5, (100,))
-    >>> loss = rr.glm.logistic(X, Y)
-    >>> loss
+    X = np.random.standard_normal((100, 5))
+    X *= np.linspace(1, 3, 5)[None, :]
+    Y = np.random.binomial(1, 0.5, (100,))
+    loss = rr.glm.logistic(X, Y)
+    loss
 
 
 .. math::
@@ -40,30 +40,30 @@ There are several commonly used smooth loss functions built into
 .. nbplot::
     :format: python
 
-    >>> rpy2.r.assign('X', X)
-    >>> rpy2.r.assign('Y', Y)
-    >>> r_soln = rpy2.r('glm(Y ~ X, family=binomial)$coef')
-    >>> loss.solve()
-    >>> np.array(r_soln)
+    rpy2.r.assign('X', X)
+    rpy2.r.assign('Y', Y)
+    r_soln = rpy2.r('glm(Y ~ X, family=binomial)$coef')
+    loss.solve()
+    np.array(r_soln)
 
 The losses can very easily be combined with a penalty.
 
 .. nbplot::
     :format: python
 
-    >>> penalty = rr.l1norm(5, lagrange=2)
-    >>> problem = rr.simple_problem(loss, penalty)
-    >>> problem.solve(tol=1.e-12)
+    penalty = rr.l1norm(5, lagrange=2)
+    problem = rr.simple_problem(loss, penalty)
+    problem.solve(tol=1.e-12)
 
 .. nbplot::
     :format: python
 
-    >>> rpy2.r('''
-    ... library(glmnet)
-    ... Y = as.numeric(Y)
-    ... G = glmnet(X, Y, intercept=FALSE, standardize=FALSE, family='binomial')
-    ... print(coef(G, s=2 / nrow(X), x=X, y=Y, exact=TRUE))
-    ... ''')
+    rpy2.r('''
+    library(glmnet)
+    Y = as.numeric(Y)
+    G = glmnet(X, Y, intercept=FALSE, standardize=FALSE, family='binomial')
+    print(coef(G, s=2 / nrow(X), x=X, y=Y, exact=TRUE))
+    ''')
 
 
 Suppose we want to match ``glmnet`` exactly without having to specify
@@ -73,26 +73,25 @@ transformation can be used here.
 .. nbplot::
     :format: python
 
-    >>> n = X.shape[0]
-    >>> X_intercept = np.hstack([np.ones((X.shape[0], 1)), X])
-    >>> X_normalized = rr.normalize(X_intercept, intercept_column=0, scale=False)
-    >>> loss_normalized = rr.glm.logistic(X_normalized, Y)
-    >>> penalty_normalized = rr.weighted_l1norm([0] + [1]*5, lagrange=2.)
-    >>> problem_normalized = rr.simple_problem(loss_normalized, penalty_normalized)
-    >>> coefR = problem_normalized.solve(tol=1.e-12, min_its=200)
-    >>> coefR
+    n = X.shape[0]
+    X_intercept = np.hstack([np.ones((X.shape[0], 1)), X])
+    X_normalized = rr.normalize(X_intercept, intercept_column=0, scale=False)
+    loss_normalized = rr.glm.logistic(X_normalized, Y)
+    penalty_normalized = rr.weighted_l1norm([0] + [1]*5, lagrange=2.)
+    problem_normalized = rr.simple_problem(loss_normalized, penalty_normalized)
+    coefR = problem_normalized.solve(tol=1.e-12, min_its=200)
+    coefR
 
 .. nbplot::
     :format: python
 
-    >>> coefG = np.array(rpy2.r('as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))'))
+    coefG = np.array(rpy2.r('as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))'))
 
 
 .. nbplot::
     :format: python
 
-    >>> problem_normalized.objective(coefG), problem_normalized.objective(coefR)
-    (66.856620288650447, 66.846599840025803)
+    problem_normalized.objective(coefG), problem_normalized.objective(coefR)
 
 In theory, using the ``standardize=TRUE`` option in ``glmnet`` should be
 the same as using ``scale=True, value=np.sqrt((n-1)/n)`` in
@@ -105,31 +104,31 @@ Dividing ``regreg``'s coefficients by the ``col_stds`` corrects this.
 .. nbplot::
     :format: python
 
-    >>> X_intercept = np.hstack([np.ones((X.shape[0], 1)), X])
-    >>> X_normalized = rr.normalize(X_intercept, intercept_column=0,
-    ...                            value=np.sqrt((n-1.)/n))
-    >>> loss_normalized = rr.glm.logistic(X_normalized, Y)
-    >>> penalty_normalized = rr.weighted_l1norm([0] + [1]*5, lagrange=2.)
-    >>> problem_normalized = rr.simple_problem(loss_normalized, penalty_normalized)
-    >>> coefR = problem_normalized.solve(min_its=300)
-    >>> coefR / X_normalized.col_stds
+    X_intercept = np.hstack([np.ones((X.shape[0], 1)), X])
+    X_normalized = rr.normalize(X_intercept, intercept_column=0,
+                               value=np.sqrt((n-1.)/n))
+    loss_normalized = rr.glm.logistic(X_normalized, Y)
+    penalty_normalized = rr.weighted_l1norm([0] + [1]*5, lagrange=2.)
+    problem_normalized = rr.simple_problem(loss_normalized, penalty_normalized)
+    coefR = problem_normalized.solve(min_its=300)
+    coefR / X_normalized.col_stds
 
 .. nbplot::
     :format: python
 
-    >>> rpy2.r('''
-    ... Y = as.numeric(Y)
-    ... G = glmnet(X, Y, standardize=TRUE, intercept=TRUE, family='binomial')
-    ... coefG = as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))
-    ... ''')
-    >>> coefG = np.array(rpy2.r('coefG'))
+    rpy2.r('''
+    Y = as.numeric(Y)
+    G = glmnet(X, Y, standardize=TRUE, intercept=TRUE, family='binomial')
+    coefG = as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))
+    ''')
+    coefG = np.array(rpy2.r('coefG'))
 
 
 .. nbplot::
     :format: python
 
-    >>> coefG = coefG * X_normalized.col_stds
-    >>> problem_normalized.objective(coefG), problem_normalized.objective(coefR)
+    coefG = coefG * X_normalized.col_stds
+    problem_normalized.objective(coefG), problem_normalized.objective(coefR)
     (67.64597880430388, 67.639665071862495)
 
 Defining a new smooth function
@@ -202,10 +201,10 @@ inside :math:`K` and :math:`\infty` outside :math:`K`).
 .. nbplot::
     :format: python
 
-    >>> A = np.array([[1, 0.], [1, 1]])
-    >>> b = np.array([3., 4])
-    >>> barrier_loss = barrier((2,), A, b)
-    >>> barrier_loss
+    A = np.array([[1, 0.], [1, 1]])
+    b = np.array([3., 4])
+    barrier_loss = barrier((2,), A, b)
+    barrier_loss
 
 
 .. math::
@@ -216,25 +215,25 @@ inside :math:`K` and :math:`\infty` outside :math:`K`).
 .. nbplot::
     :format: python
 
-    >>> barrier_loss.solve(min_its=100)
+    barrier_loss.solve(min_its=100)
 
 The loss can now be combined with a penalty or constraint very easily.
 
 .. nbplot::
     :format: python
 
-    >>> l1_bound = rr.l1norm(2, bound=0.5)
-    >>> problem = rr.simple_problem(barrier_loss, l1_bound)
-    >>> problem.solve()
+    l1_bound = rr.l1norm(2, bound=0.5)
+    problem = rr.simple_problem(barrier_loss, l1_bound)
+    problem.solve()
 
 The loss can also be composed with a linear transform:
 
 .. nbplot::
     :format: python
 
-    >>> X = np.random.standard_normal((2,1))
-    >>> lossX = rr.affine_smooth(barrier_loss, X)
-    >>> lossX
+    X = np.random.standard_normal((2,1))
+    lossX = rr.affine_smooth(barrier_loss, X)
+    lossX
 
 
 
@@ -246,7 +245,7 @@ The loss can also be composed with a linear transform:
 .. nbplot::
     :format: python
 
-    >>> lossX.solve()
+    lossX.solve()
 
 
 Huberized lasso
@@ -272,13 +271,13 @@ Let's look at the Huber loss for a smoothing parameter of
 .. nbplot::
     :format: python
 
-    >>> q = rr.identity_quadratic(1.2, 0., 0., 0.)
-    >>> loss = rr.l1norm(1, lagrange=1).smoothed(q)
-    >>> xval = np.linspace(-2,2,101)
-    >>> yval = [loss.smooth_objective(x, 'func') for x in xval]
-    >>> huber_fig = plt.figure(figsize=(8,8))
-    >>> huber_ax = huber_fig.gca()
-    >>> huber_ax.plot(xval, yval)
+    q = rr.identity_quadratic(1.2, 0., 0., 0.)
+    loss = rr.l1norm(1, lagrange=1).smoothed(q)
+    xval = np.linspace(-2,2,101)
+    yval = [loss.smooth_objective(x, 'func') for x in xval]
+    huber_fig = plt.figure(figsize=(8,8))
+    huber_ax = huber_fig.gca()
+    huber_ax.plot(xval, yval)
 
 
 The Huber loss is built into regreg, but can also be obtained by
@@ -288,27 +287,27 @@ same solutions.
 .. nbplot::
     :format: python
 
-    >>> X = np.random.standard_normal((50, 10))
-    >>> Y = np.random.standard_normal(50)
+    X = np.random.standard_normal((50, 10))
+    Y = np.random.standard_normal(50)
 
 .. nbplot::
     :format: python
 
-    >>> penalty = rr.l1norm(10,lagrange=5.)
-    >>> loss_atom = rr.l1norm.affine(X, -Y, lagrange=1.).smoothed(rr.identity_quadratic(0.5,0,0,0))
-    >>> loss = rr.glm.huber(X, Y, 0.5)
+    penalty = rr.l1norm(10,lagrange=5.)
+    loss_atom = rr.l1norm.affine(X, -Y, lagrange=1.).smoothed(rr.identity_quadratic(0.5,0,0,0))
+    loss = rr.glm.huber(X, Y, 0.5)
 
 .. nbplot::
     :format: python
 
-    >>> problem1 = rr.simple_problem(loss_atom, penalty)
-    >>> print(problem1.solve(tol=1.e-12))
+    problem1 = rr.simple_problem(loss_atom, penalty)
+    print(problem1.solve(tol=1.e-12))
 
 .. nbplot::
     :format: python
 
-    >>> problem2 = rr.simple_problem(loss, penalty)
-    >>> print(problem2.solve(tol=1.e-12))
+    problem2 = rr.simple_problem(loss, penalty)
+    print(problem2.solve(tol=1.e-12))
 
 
 Poisson regression tutorial
@@ -329,26 +328,26 @@ which corresponds to the usual Poisson regression model
 .. nbplot::
     :format: python
 
-    >>> n = 100
-    >>> p = 5
-    >>> X = np.random.standard_normal((n,p))
-    >>> Y = np.random.randint(0,100,n)
+    n = 100
+    p = 5
+    X = np.random.standard_normal((n,p))
+    Y = np.random.randint(0,100,n)
 
 Now we can create the problem object, beginning with the loss function
 
 .. nbplot::
     :format: python
 
-    >>> loss = rr.glm.poisson(X, Y)
-    >>> loss.solve()
+    loss = rr.glm.poisson(X, Y)
+    loss.solve()
 
 
 .. nbplot::
     :format: python
 
-    >>> rpy2.r.assign('Y', Y)
-    >>> rpy2.r.assign('X', X)
-    >>> np.array(rpy2.r('coef(glm(Y ~ X - 1, family=poisson()))'))
+    rpy2.r.assign('Y', Y)
+    rpy2.r.assign('X', X)
+    np.array(rpy2.r('coef(glm(Y ~ X - 1, family=poisson()))'))
 
 
 Logistic regression with a ridge penalty
@@ -377,18 +376,18 @@ Let's generate some sample data.
 .. nbplot::
     :format: python
 
-    >>> X = np.random.standard_normal((200, 10))
-    >>> Y = np.random.randint(0,2,200)
+    X = np.random.standard_normal((200, 10))
+    Y = np.random.randint(0,2,200)
 
 Now we can create the problem object, beginning with the loss function
 
 .. nbplot::
     :format: python
 
-    >>> loss = rr.glm.logistic(X, Y)
-    >>> penalty = rr.identity_quadratic(1., 0., 0., 0.)
-    >>> loss.quadratic = penalty
-    >>> loss
+    loss = rr.glm.logistic(X, Y)
+    penalty = rr.identity_quadratic(1., 0., 0., 0.)
+    loss.quadratic = penalty
+    loss
 
 
 .. math::
@@ -399,19 +398,19 @@ Now we can create the problem object, beginning with the loss function
 .. nbplot::
     :format: python
 
-    >>> penalty.coef
+    penalty.coef
     1.0
 
 .. nbplot::
     :format: python
 
-    >>> loss.solve()
+    loss.solve()
 
 .. nbplot::
     :format: python
 
-    >>> penalty.coef = 20.
-    >>> loss.solve()
+    penalty.coef = 20.
+    loss.solve()
 
 Multinomial regression
 ======================
@@ -435,7 +434,7 @@ probabilities are measured relative to a baseline category :math:`J`
 .. nbplot::
     :format: python
 
-    >>> from regreg.smooth.glm import multinomial_loglike
+    from regreg.smooth.glm import multinomial_loglike
 
 The only code needed to add multinomial regression to RegReg is a class
 with one method which computes the objective and its gradient.
@@ -446,11 +445,11 @@ stored in a :math:`n \times J` array
 .. nbplot::
     :format: python
 
-    >>> J = 5
-    >>> n = 500
-    >>> p = 10
-    >>> X = np.random.standard_normal((n,p))
-    >>> Y = np.random.randint(0,10,n*J).reshape((n,J))
+    J = 5
+    n = 500
+    p = 10
+    X = np.random.standard_normal((n,p))
+    Y = np.random.randint(0,10,n*J).reshape((n,J))
 
 Now we can create the problem object, beginning with the loss function.
 The coefficients will be stored in a :math:`p \times (J-1)` array, and
@@ -461,17 +460,16 @@ linear\_transform object that multiplies by X,
 .. nbplot::
     :format: python
 
-    >>> multX = rr.linear_transform(X, input_shape=(p,J-1))
-    >>> loss = rr.multinomial_loglike.linear(multX, counts=Y)
-    >>> loss.shape
-    (10, 4)
+    multX = rr.linear_transform(X, input_shape=(p,J-1))
+    loss = rr.multinomial_loglike.linear(multX, counts=Y)
+    loss.shape
 
 Next, we can solve the problem
 
 .. nbplot::
     :format: python
 
-    >>> loss.solve()
+    loss.solve()
 
 When :math:`J=2` this model should reduce to logistic regression. We can
 easily check that this is the case by first fitting the multinomial
@@ -480,32 +478,32 @@ model
 .. nbplot::
     :format: python
 
-    >>> J = 2
-    >>> Y = np.random.randint(0,10,n*J).reshape((n,J))
-    >>> multX = rr.linear_transform(X, input_shape=(p,J-1))	
-    >>> loss = rr.multinomial_loglike.linear(multX, counts=Y)
-    >>> solver = rr.FISTA(loss)
-    >>> solver.fit(tol=1e-6)
-    >>> multinomial_coefs = solver.composite.coefs.flatten()
+    J = 2
+    Y = np.random.randint(0,10,n*J).reshape((n,J))
+    multX = rr.linear_transform(X, input_shape=(p,J-1))	
+    loss = rr.multinomial_loglike.linear(multX, counts=Y)
+    solver = rr.FISTA(loss)
+    solver.fit(tol=1e-6)
+    multinomial_coefs = solver.composite.coefs.flatten()
 
 Here is the equivalent logistic regresison model.
 
 .. nbplot::
     :format: python
 
-    >>> successes = Y[:,0]
-    >>> trials = np.sum(Y, axis=1)
-    >>> loss = rr.glm.logistic(X, successes, trials=trials)
-    >>> solver = rr.FISTA(loss)
-    >>> solver.fit(tol=1e-6)
-    >>> logistic_coefs = solver.composite.coefs
+    successes = Y[:,0]
+    trials = np.sum(Y, axis=1)
+    loss = rr.glm.logistic(X, successes, trials=trials)
+    solver = rr.FISTA(loss)
+    solver.fit(tol=1e-6)
+    logistic_coefs = solver.composite.coefs
 
 Finally we can check that the two models gave the same coefficients
 
 .. nbplot::
     :format: python
 
-    >>> print(np.linalg.norm(multinomial_coefs - logistic_coefs) / np.linalg.norm(logistic_coefs))
+    print(np.linalg.norm(multinomial_coefs - logistic_coefs) / np.linalg.norm(logistic_coefs))
 
 Hinge loss
 ----------
@@ -520,11 +518,11 @@ regression problem is to use the hinge loss:
 .. nbplot::
     :format: python
 
-    >>> hinge = lambda x: np.maximum(1-x, 0)
-    >>> fig = plt.figure(figsize=(9,6))
-    >>> ax = fig.gca()
-    >>> r = np.linspace(-1,2,100)
-    >>> ax.plot(r, hinge(r))
+    hinge = lambda x: np.maximum(1-x, 0)
+    fig = plt.figure(figsize=(9,6))
+    ax = fig.gca()
+    r = np.linspace(-1,2,100)
+    ax.plot(r, hinge(r))
 
 
 The SVM loss is then
@@ -557,10 +555,10 @@ Then,
 .. nbplot::
     :format: python
 
-    >>> linear_part = np.array([[-1.]])
-    >>> offset = np.array([1.])
-    >>> hinge_rep = rr.positive_part.affine(linear_part, offset, lagrange=1.)
-    >>> hinge_rep
+    linear_part = np.array([[-1.]])
+    offset = np.array([1.])
+    hinge_rep = rr.positive_part.affine(linear_part, offset, lagrange=1.)
+    hinge_rep
 
 .. math::
 
@@ -572,8 +570,8 @@ Let's plot the loss to be sure it agrees with our original hinge.
 .. nbplot::
     :format: python
 
-    >>> ax.plot(r, [hinge_rep.nonsmooth_objective(v) for v in r])
-    >>> fig
+    ax.plot(r, [hinge_rep.nonsmooth_objective(v) for v in r])
+    fig
 
 
 
@@ -583,20 +581,19 @@ Here is a vectorized version.
 .. nbplot::
     :format: python
 
-    >>> N = 1000
-    >>> P = 200
-    >>>
-    >>> Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
-    >>> X = np.random.standard_normal((N,P))
-    >>> #X[Y==1] += np.array([30,-20] + (P-2)*[0])[np.newaxis,:]
-    >>> X -= X.mean(0)[np.newaxis, :]
-    >>> hinge_vec = rr.positive_part.affine(-Y[:, None] * X, np.ones_like(Y), lagrange=1.)
+    N = 1000
+    P = 200
+    Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
+    X = np.random.standard_normal((N,P))
+    #X[Y==1] += np.array([30,-20] + (P-2)*[0])[np.newaxis,:]
+    X -= X.mean(0)[np.newaxis, :]
+    hinge_vec = rr.positive_part.affine(-Y[:, None] * X, np.ones_like(Y), lagrange=1.)
 
 .. nbplot::
     :format: python
 
-    >>> beta = np.ones(X.shape[1])
-    >>> hinge_vec.nonsmooth_objective(beta), np.maximum(1 - Y * X.dot(beta), 0).sum()
+    beta = np.ones(X.shape[1])
+    hinge_vec.nonsmooth_objective(beta), np.maximum(1 - Y * X.dot(beta), 0).sum()
 
 Smoothed hinge
 --------------
@@ -622,9 +619,9 @@ quadratic term
 .. nbplot::
     :format: python
 
-    >>> epsilon = 0.5
-    >>> smoothing_quadratic = rr.identity_quadratic(epsilon, 0, 0, 0)
-    >>> smoothing_quadratic
+    epsilon = 0.5
+    smoothing_quadratic = rr.identity_quadratic(epsilon, 0, 0, 0)
+    smoothing_quadratic
 
 .. math::
 
@@ -660,7 +657,7 @@ of this when computing proximal maps.
 .. nbplot::
     :format: python
 
-    >>> hinge_rep.atom
+    hinge_rep.atom
 
 .. math::
 
@@ -670,20 +667,20 @@ of this when computing proximal maps.
 .. nbplot::
     :format: python
 
-    >>> hinge_rep.atom.offset
+    hinge_rep.atom.offset
 
 .. nbplot::
     :format: python
 
-    >>> hinge_rep.linear_transform.linear_operator
+    hinge_rep.linear_transform.linear_operator
 
 As we said before, ``hinge_rep.atom`` knows what its conjugate is
 
 .. nbplot::
     :format: python
 
-    >>> hinge_conj = hinge_rep.atom.conjugate
-    >>> hinge_conj
+    hinge_conj = hinge_rep.atom.conjugate
+    hinge_conj
 
 
 .. math::
@@ -709,15 +706,15 @@ stored in ``hinge_conj.quadratic``.
 .. nbplot::
     :format: python
 
-    >>> hinge_conj.quadratic.linear_term
+    hinge_conj.quadratic.linear_term
 
 Now, let's look at the smoothed hinge loss.
 
 .. nbplot::
     :format: python
 
-    >>> smoothed_hinge_loss = hinge_rep.smoothed(smoothing_quadratic)
-    >>> smoothed_hinge_loss
+    smoothed_hinge_loss = hinge_rep.smoothed(smoothing_quadratic)
+    smoothed_hinge_loss
 
 
 
@@ -732,15 +729,15 @@ computed with ``smooth_objective``.
 .. nbplot::
     :format: python
 
-    >>> ax.plot(r, [smoothed_hinge_loss.smooth_objective(v, 'func') for v in r])
-    >>> fig
+    ax.plot(r, [smoothed_hinge_loss.smooth_objective(v, 'func') for v in r])
+    fig
 
 .. nbplot::
     :format: python
 
-    >>> less_smooth = hinge_rep.smoothed(rr.identity_quadratic(5.e-2, 0, 0, 0))
-    >>> ax.plot(r, [less_smooth.smooth_objective(v, 'func') for v in r])
-    >>> fig
+    less_smooth = hinge_rep.smoothed(rr.identity_quadratic(5.e-2, 0, 0, 0))
+    ax.plot(r, [less_smooth.smooth_objective(v, 'func') for v in r])
+    fig
 
 Fitting the SVM
 ---------------
@@ -750,8 +747,8 @@ We can now minimize this objective.
 .. nbplot::
     :format: python
 
-    >>> smoothed_vec = hinge_vec.smoothed(rr.identity_quadratic(0.2, 0, 0, 0))
-    >>> soln = smoothed_vec.solve(tol=1.e-12, min_its=100)
+    smoothed_vec = hinge_vec.smoothed(rr.identity_quadratic(0.2, 0, 0, 0))
+    soln = smoothed_vec.solve(tol=1.e-12, min_its=100)
 
 Sparse SVM
 ----------
@@ -767,9 +764,9 @@ the LASSO. This yields the problem
 .. nbplot::
     :format: python
 
-    >>> penalty = rr.l1norm(smoothed_vec.shape, lagrange=20)
-    >>> problem = rr.simple_problem(smoothed_vec, penalty)
-    >>> problem
+    penalty = rr.l1norm(smoothed_vec.shape, lagrange=20)
+    problem = rr.simple_problem(smoothed_vec, penalty)
+    problem
 
 
 
@@ -787,8 +784,8 @@ the LASSO. This yields the problem
 .. nbplot::
     :format: python
 
-    >>> sparse_soln = problem.solve(tol=1.e-12)
-    >>> sparse_soln
+    sparse_soln = problem.solve(tol=1.e-12)
+    sparse_soln
 
 What value of :math:`\lambda` should we use? For the :math:`\ell_1`
 penalty in Lagrange form, the smallest :math:`\lambda` such that the
@@ -798,8 +795,8 @@ solution is zero can be found by taking the dual norm, the
 .. nbplot::
     :format: python
 
-    >>> linf_norm = penalty.conjugate
-    >>> linf_norm
+    linf_norm = penalty.conjugate
+    linf_norm
 
 .. math::
 
@@ -812,22 +809,21 @@ value of :math:`\lambda`.
 .. nbplot::
     :format: python
 
-    >>> score_at_zero = smoothed_vec.smooth_objective(np.zeros(smoothed_vec.shape), 'grad')
-    >>> lam_max = linf_norm.seminorm(score_at_zero, lagrange=1.)
-    >>> lam_max
-    104.57371241272467
+    score_at_zero = smoothed_vec.smooth_objective(np.zeros(smoothed_vec.shape), 'grad')
+    lam_max = linf_norm.seminorm(score_at_zero, lagrange=1.)
+    lam_max
 
 .. nbplot::
     :format: python
 
-    >>> penalty.lagrange = lam_max * 1.001
-    >>> problem.solve(tol=1.e-12, min_its=200)
+    penalty.lagrange = lam_max * 1.001
+    problem.solve(tol=1.e-12, min_its=200)
 
 .. nbplot::
     :format: python
 
-    >>> penalty.lagrange = lam_max * 0.99
-    >>> problem.solve(tol=1.e-12, min_its=200)
+    penalty.lagrange = lam_max * 0.99
+    problem.solve(tol=1.e-12, min_its=200)
 
 Path of solutions
 ~~~~~~~~~~~~~~~~~
@@ -839,15 +835,15 @@ If we want a path of solutions, we can simply take multiples of
 .. nbplot::
     :format: python
 
-    >>> path = []
-    >>> lam_vals = (np.linspace(0.05, 1.01, 50) * lam_max)[::-1]
-    >>> for lam_val in lam_vals:
-    ...     penalty.lagrange = lam_val
-    ...     path.append(problem.solve(min_its=200).copy())
-    >>> fig = plt.figure(figsize=(12,8))
-    >>> ax = fig.gca()
-    >>> path = np.array(path)
-    >>> ax.plot(path);
+    path = []
+    lam_vals = (np.linspace(0.05, 1.01, 50) * lam_max)[::-1]
+    for lam_val in lam_vals:
+        penalty.lagrange = lam_val
+        path.append(problem.solve(min_its=200).copy())
+    fig = plt.figure(figsize=(12,8))
+    ax = fig.gca()
+    path = np.array(path)
+    ax.plot(path);
 
 Changing the penalty
 --------------------
@@ -863,10 +859,10 @@ feature weights to the :math:`\ell_1` norm
 .. nbplot::
     :format: python
 
-    >>> weights = np.random.sample(P) + 1.
-    >>> weights[:5] = 0.
-    >>> weighted_penalty = rr.weighted_l1norm(weights, lagrange=1.)
-    >>> weighted_penalty
+    weights = np.random.sample(P) + 1.
+    weights[:5] = 0.
+    weighted_penalty = rr.weighted_l1norm(weights, lagrange=1.)
+    weighted_penalty
 
 .. math::
 
@@ -875,8 +871,8 @@ feature weights to the :math:`\ell_1` norm
 .. nbplot::
     :format: python
 
-    >>> weighted_dual = weighted_penalty.conjugate
-    >>> weighted_dual
+    weighted_dual = weighted_penalty.conjugate
+    weighted_dual
 
 .. math::
 
@@ -885,22 +881,22 @@ feature weights to the :math:`\ell_1` norm
 .. nbplot::
     :format: python
 
-    >>> lam_max_weight = weighted_dual.seminorm(score_at_zero, lagrange=1.)
-    >>> lam_max_weight
+    lam_max_weight = weighted_dual.seminorm(score_at_zero, lagrange=1.)
+    lam_max_weight
 
 .. nbplot::
     :format: python
 
-    >>> weighted_problem = rr.simple_problem(smoothed_vec, weighted_penalty)
-    >>> path = []
-    >>> lam_vals = (np.linspace(0.05, 1.01, 50) * lam_max_weight)[::-1]
-    >>> for lam_val in lam_vals:
-    ...     weighted_penalty.lagrange = lam_val
-    ...     path.append(weighted_problem.solve(min_its=200).copy())
-    >>> fig = plt.figure(figsize=(12,8))
-    >>> ax = fig.gca()
-    >>> path = np.array(path)
-    >>> ax.plot(path);
+    weighted_problem = rr.simple_problem(smoothed_vec, weighted_penalty)
+    path = []
+    lam_vals = (np.linspace(0.05, 1.01, 50) * lam_max_weight)[::-1]
+    for lam_val in lam_vals:
+        weighted_penalty.lagrange = lam_val
+        path.append(weighted_problem.solve(min_its=200).copy())
+    fig = plt.figure(figsize=(12,8))
+    ax = fig.gca()
+    path = np.array(path)
+    ax.plot(path);
 
 
 Note that there are 5 coefficients that are not penalized hence they are
@@ -927,31 +923,31 @@ group. The group LASSO penalty is
 .. nbplot::
     :format: python
 
-    >>> groups = []
-    >>> for i in range(int(P/5)):
-    ...     groups.extend([i]*5)
-    >>> weights = dict([g, np.random.sample()+1] for g in np.unique(groups))
-    >>> group_penalty = rr.group_lasso(groups, weights=weights, lagrange=1.)
+    groups = []
+    for i in range(int(P/5)):
+        groups.extend([i]*5)
+    weights = dict([g, np.random.sample()+1] for g in np.unique(groups))
+    group_penalty = rr.group_lasso(groups, weights=weights, lagrange=1.)
 
 .. nbplot::
     :format: python
 
-    >>> group_dual = group_penalty.conjugate
-    >>> lam_max_group = group_dual.seminorm(score_at_zero, lagrange=1.)
+    group_dual = group_penalty.conjugate
+    lam_max_group = group_dual.seminorm(score_at_zero, lagrange=1.)
 
 .. nbplot::
     :format: python
 
-    >>> group_problem = rr.simple_problem(smoothed_vec, group_penalty)
-    >>> path = []
-    >>> lam_vals = (np.linspace(0.05, 1.01, 50) * lam_max_group)[::-1]
-    >>> for lam_val in lam_vals:
-    ...     group_penalty.lagrange = lam_val
-    ...     path.append(group_problem.solve(min_its=200).copy())
-    >>> fig = plt.figure(figsize=(12,8))
-    >>> ax = fig.gca()
-    >>> path = np.array(path)
-    >>> ax.plot(path);
+    group_problem = rr.simple_problem(smoothed_vec, group_penalty)
+    path = []
+    lam_vals = (np.linspace(0.05, 1.01, 50) * lam_max_group)[::-1]
+    for lam_val in lam_vals:
+        group_penalty.lagrange = lam_val
+        path.append(group_problem.solve(min_its=200).copy())
+    fig = plt.figure(figsize=(12,8))
+    ax = fig.gca()
+    path = np.array(path)
+    ax.plot(path);
 
 
 
@@ -972,8 +968,8 @@ easily solve the problem
 .. nbplot::
     :format: python
 
-    >>> bound_l1 = rr.l1norm(P, bound=2.)
-    >>> bound_l1
+    bound_l1 = rr.l1norm(P, bound=2.)
+    bound_l1
 
 .. math::
 
@@ -982,8 +978,8 @@ easily solve the problem
 .. nbplot::
     :format: python
 
-    >>> bound_problem = rr.simple_problem(smoothed_vec, bound_l1)
-    >>> bound_problem
+    bound_problem = rr.simple_problem(smoothed_vec, bound_l1)
+    bound_problem
 
 .. math::
 
@@ -996,8 +992,8 @@ easily solve the problem
 .. nbplot::
     :format: python
 
-    >>> bound_soln = bound_problem.solve()
-    >>> np.fabs(bound_soln).sum()
+    bound_soln = bound_problem.solve()
+    np.fabs(bound_soln).sum()
 
 Support vector machine
 ======================
@@ -1025,26 +1021,26 @@ Let's generate some data appropriate for this problem.
 .. nbplot::
     :format: python
 
-    >>> import numpy as np
+    import numpy as np
     >>>
-    >>> np.random.seed(400) # for reproducibility
-    >>> N = 500
-    >>> P = 2
+    np.random.seed(400) # for reproducibility
+    N = 500
+    P = 2
     >>>
-    >>> Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
-    >>> X = np.random.standard_normal((N,P))
-    >>> X[Y==1] += np.array([3,-2])[np.newaxis,:]
-    >>> X -= X.mean(0)[np.newaxis,:]
+    Y = 2 * np.random.binomial(1, 0.5, size=(N,)) - 1.
+    X = np.random.standard_normal((N,P))
+    X[Y==1] += np.array([3,-2])[np.newaxis,:]
+    X -= X.mean(0)[np.newaxis,:]
 
 .. nbplot::
     :format: python
 
-    >>> from sklearn.svm import SVC
-    >>> clf = SVC(kernel='linear')
-    >>> X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
-    >>> y = np.array([1, 1, 2, 2])
-    >>> clf.fit(X, y) 
-    >>> print(clf.coef_, clf.dual_coef_, clf.support_)
+    from sklearn.svm import SVC
+    clf = SVC(kernel='linear')
+    X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
+    y = np.array([1, 1, 2, 2])
+    clf.fit(X, y) 
+    print(clf.coef_, clf.dual_coef_, clf.support_)
 
 The hinge loss is not smooth, but it can be written as the composition
 of an ``atom`` (``positive_part``) with an affine transform determined
@@ -1062,36 +1058,36 @@ smoothing.
 .. nbplot::
     :format: python
 
-    >>> def nesta_svm(X, y_pm, C=1.):
-    ...     n, p = X.shape
-    ...     X_1 = np.hstack([X, np.ones((X.shape[0], 1))])
-    ...     hinge_loss = rr.positive_part.affine(-y_pm[:,None] * X_1, + np.ones(n),
-    ...                                         lagrange=C)
-    ...     selector = np.identity(p+1)[:p]
-    ...     smooth_ = rr.quadratic_loss.linear(selector)
-    ...     soln = rr.nesta(smooth_, None, hinge_loss)
-    ...     return soln[0][:-1], soln[1]
-    ...
-    >>> nesta_svm(X, 2 * (y - 1.5))
+    def nesta_svm(X, y_pm, C=1.):
+        n, p = X.shape
+        X_1 = np.hstack([X, np.ones((X.shape[0], 1))])
+        hinge_loss = rr.positive_part.affine(-y_pm[:,None] * X_1, + np.ones(n),
+                                            lagrange=C)
+        selector = np.identity(p+1)[:p]
+        smooth_ = rr.quadratic_loss.linear(selector)
+        soln = rr.nesta(smooth_, None, hinge_loss)
+        return soln[0][:-1], soln[1]
+
+    nesta_svm(X, 2 * (y - 1.5))
 
 Let's try a little larger data set.
 
 .. nbplot::
     :format: python
 
-    >>> X_l = np.random.standard_normal((100, 20))
-    >>> Y_l = 2 * np.random.binomial(1, 0.5, (100,)) - 1
-    >>> C = 4.
-    >>> clf = SVC(kernel='linear', C=C)
-    >>> clf.fit(X_l, Y_l)
-    >>> clf.coef_
+    X_l = np.random.standard_normal((100, 20))
+    Y_l = 2 * np.random.binomial(1, 0.5, (100,)) - 1
+    C = 4.
+    clf = SVC(kernel='linear', C=C)
+    clf.fit(X_l, Y_l)
+    clf.coef_
 
 .. nbplot::
     :format: python
 
-    >>> solnR_ = nesta_svm(X_l, Y_l, C=C)[0]
-    >>> plt.scatter(clf.coef_, solnR_)
-    >>> plt.plot([-1,1], [-1,1])
+    solnR_ = nesta_svm(X_l, Y_l, C=C)[0]
+    plt.scatter(clf.coef_, solnR_)
+    plt.plot([-1,1], [-1,1])
 
 Using ``regreg``, we can easily add penalty or constraint to the SVM
 objective.
@@ -1099,19 +1095,19 @@ objective.
 .. nbplot::
     :format: python
 
-    >>> def nesta_svm_pen(X, y_pm, atom, C=1.):
-    ...     n, p = X.shape
-    ...     X_1 = np.hstack([X, np.ones((X.shape[0], 1))])
-    ...     hinge_loss = rr.positive_part.affine(-y_pm[:,None] * X_1, + np.ones(n),
-    ...                                         lagrange=C)
-    ...     selector = np.identity(p+1)[:p]
-    ...     smooth_ = rr.quadratic_loss.linear(selector)
-    ...     atom_sep = rr.separable((p+1,), [atom], [slice(0,p)])
-    ...     soln = rr.nesta(smooth_, atom_sep, hinge_loss)
-    ...     return soln[0][:-1]
-    ...
-    >>> bound = rr.l1norm(20, bound=0.8)
-    >>> nesta_svm_pen(X_l, Y_l, bound)
+    def nesta_svm_pen(X, y_pm, atom, C=1.):
+        n, p = X.shape
+        X_1 = np.hstack([X, np.ones((X.shape[0], 1))])
+        hinge_loss = rr.positive_part.affine(-y_pm[:,None] * X_1, + np.ones(n),
+                                            lagrange=C)
+        selector = np.identity(p+1)[:p]
+        smooth_ = rr.quadratic_loss.linear(selector)
+        atom_sep = rr.separable((p+1,), [atom], [slice(0,p)])
+        soln = rr.nesta(smooth_, atom_sep, hinge_loss)
+        return soln[0][:-1]
+
+    bound = rr.l1norm(20, bound=0.8)
+    nesta_svm_pen(X_l, Y_l, bound)
 
 Sparse Huberized SVM
 --------------------
@@ -1122,22 +1118,22 @@ parameter and solve the problem directly.
 .. nbplot::
     :format: python
 
-    >>> from regreg.smooth.losses import huberized_svm
-    >>> X_l_inter = np.hstack([X_l, np.ones((X_l.shape[0],1))])
-    >>> huber_svm = huberized_svm(X_l_inter, Y_l, smoothing_parameter=0.001, coef=C)
-    >>> coef_h = huber_svm.solve(min_its=100)[:-1]
-    >>> plt.scatter(coef_h, clf.coef_)
+    from regreg.smooth.losses import huberized_svm
+    X_l_inter = np.hstack([X_l, np.ones((X_l.shape[0],1))])
+    huber_svm = huberized_svm(X_l_inter, Y_l, smoothing_parameter=0.001, coef=C)
+    coef_h = huber_svm.solve(min_its=100)[:-1]
+    plt.scatter(coef_h, clf.coef_)
 
 Adding penalties or constraints is again straightforward.
 
 .. nbplot::
     :format: python
 
-    >>> penalty = rr.l1norm(X_l.shape[1], lagrange=8.)
-    >>> penalty_sep = rr.separable((X_l.shape[1]+1,), [penalty], [slice(0,X_l.shape[1])])
-    >>> huberized_problem = rr.simple_problem(huber_svm, penalty_sep)
-    >>> huberized_problem.solve()
-    >>> numpy2ri.deactivate()  
+    penalty = rr.l1norm(X_l.shape[1], lagrange=8.)
+    penalty_sep = rr.separable((X_l.shape[1]+1,), [penalty], [slice(0,X_l.shape[1])])
+    huberized_problem = rr.simple_problem(huber_svm, penalty_sep)
+    huberized_problem.solve()
+    numpy2ri.deactivate()  
 
 .. code-links::
    :timeout: -1
