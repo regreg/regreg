@@ -304,17 +304,12 @@ same solutions.
     >>> problem1 = rr.simple_problem(loss_atom, penalty)
     >>> print(problem1.solve(tol=1.e-12))
 
-    [ 0.         -0.         -0.         -0.15002401 -0.21449046  0.          0.
-      0.36935805 -0.         -0.06902842]
-
 .. nbplot::
     :format: python
 
     >>> problem2 = rr.simple_problem(loss, penalty)
     >>> print(problem2.solve(tol=1.e-12))
 
-    [ 0.         -0.         -0.         -0.15002434 -0.21449094  0.          0.
-      0.36935933 -0.         -0.06902875]
 
 Poisson regression tutorial
 ===========================
