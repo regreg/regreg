@@ -466,12 +466,6 @@ linear\_transform object that multiplies by X,
     >>> loss.shape
     (10, 4)
 
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:1110: RuntimeWarning: divide by zero encountered in log
-      loss_terms = np.log(saturated) * self.counts
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:1110: RuntimeWarning: invalid value encountered in multiply
-      loss_terms = np.log(saturated) * self.counts
-
-
 Next, we can solve the problem
 
 .. nbplot::
@@ -505,9 +499,6 @@ Here is the equivalent logistic regresison model.
     >>> solver = rr.FISTA(loss)
     >>> solver.fit(tol=1e-6)
     >>> logistic_coefs = solver.composite.coefs
-
-    /Users/jonathantaylor/Desktop/git-repos/regreg/regreg/smooth/glm.py:615: RuntimeWarning: invalid value encountered in divide
-      saturated = self.successes / self.trials
 
 Finally we can check that the two models gave the same coefficients
 
