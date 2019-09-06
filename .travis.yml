@@ -59,7 +59,7 @@ matrix:
         - DEPENDS="cython numpy scipy"
     - python: 2.7
       env:
-        # pip fails below if DEPENDS is empty
+        # pip fails below if DEPENDS is empty so we put a depend on nose
         - INSTALL_TYPE=requirements
         - DEPENDS="nose" 
     # test 3.5 against pre-release builds of everything
@@ -142,12 +142,7 @@ script:
         sudo apt-get install -y r-base r-base-dev
         # gglasso has been removed from CRAN archive 
         # try a hard install from old version 
-        #sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/gglasso/gglasso_1.3.tar.gz')"
         sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix', 'SLOPE', 'gglasso'), repos='http://cloud.r-project.org');"
-        #git clone https://github.com/jonathan-taylor/nb2plots.git # use this fork for indentation fix
-        #cd nb2plots
-        #pip install -e .
-        #cd ..
         pip install -r doc-requirements.txt
         cd doc
         # Build without the API documentation, for the doctests
