@@ -160,7 +160,7 @@ class mixed_lasso(atom):
                                  self._nonnegative,
                                  self._groups, 
                                  self._weight_array,
-                                 int(check_feasibility))
+                                 np.int(check_feasibility))
         return v * self.lagrange
 
     def proximal(self, proxq, prox_control=None):
