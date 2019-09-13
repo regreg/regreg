@@ -13,7 +13,6 @@ from ..atoms import _work_out_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 
-
 class seminorm(unweighted_seminorm):
 
     """
@@ -88,7 +87,7 @@ class seminorm(unweighted_seminorm):
                      str(self.offset),
                      self.quadratic)
 
-
+    @doc_template_user
     def get_conjugate(self):
         if self.quadratic.coef == 0:
 
@@ -143,6 +142,7 @@ class l1norm(seminorm):
 
     objective_template = r"""\|W%(var)s\|_1"""
 
+    @doc_template_user
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, x, 
                                  check_feasibility=check_feasibility, 

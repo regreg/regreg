@@ -276,6 +276,7 @@ class selector(linear_transform):
     Apply an affine transform after applying an
     indexing operation to the array.
 
+    >>> from regreg.affine import selector, affine_transform
     >>> X = np.arange(30).reshape((6,5))
     >>> offset = np.arange(6)
     >>> transform = affine_transform(X, offset)
@@ -542,6 +543,7 @@ class normalize(affine_transform):
 
         Examples
         --------
+        >>> from regreg.affine import normalize
         >>> X = np.array([1.2,3.4,5.6,7.8,1.3,4.5,5.6,7.8,1.1,3.4])
         >>> D = np.identity(X.shape[0]) - np.diag(np.ones(X.shape[0]-1),1)
         >>> nD = normalize(D)

@@ -41,7 +41,7 @@ needs_sphinx = '1.0'
 
 # General configuration
 # ---------------------
-for pkg_name in ('numpydoc', 'texext'):
+for pkg_name in ('numpydoc', 'texext'): 
     try:
         __import__(pkg_name)
     except ImportError:
@@ -192,7 +192,7 @@ htmlhelp_basename = project
 # Options for LaTeX output
 # ------------------------
 
-_latex_preamble = """
+_latex_preamble = r"""
    \usepackage{amsmath}
    \usepackage{amssymb}
    \newcommand{\real}{\mathbb{R}}
@@ -221,7 +221,7 @@ latex_elements = {
 
 latex_documents = [
   ('documentation', 'regreg.tex', 'RegReg Documentation',
-   ur'B. Klingenberg & J. Taylor.','manual'),
+   r'B. Klingenberg & J. Taylor.', 'manual'),
   ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -249,4 +249,6 @@ numpydoc_show_class_members = False
 numpydoc_class_members_toctree = False
 
 # For doctesting import
-doctest_global_setup = "import numpy as np"
+doctest_global_setup = """
+import numpy as np
+"""

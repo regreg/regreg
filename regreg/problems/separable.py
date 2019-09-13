@@ -34,6 +34,8 @@ def has_overlap(shape, groups):
 
     Examples
     --------
+
+    >>> from regreg.problems.separable import has_overlap
     >>> has_overlap((4,5), [slice(2,3), slice(4,5)])
     False
     >>> has_overlap((4,5), [slice(2,3), [Ellipsis, slice(4,5)]])

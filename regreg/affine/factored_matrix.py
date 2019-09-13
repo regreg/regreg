@@ -17,7 +17,7 @@ from ..problems.composite import smooth_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import doc_template_user
 
-
+@objective_doc_templater()
 class factored_matrix(object):
 
     """
@@ -171,11 +171,14 @@ def compute_iterative_svd(transform,
 
     Examples
     --------
+
+    >>> import regreg.api as rr
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
-    >>> U, D, VT = compute_iterative_svd(X)[:3]
+    >>> U, D, VT = rr.compute_iterative_svd(X)[:3]
     >>> np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
     True
+
     >>> np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
     True
     """
@@ -296,18 +299,19 @@ def partial_svd(transform,
         An SVD up to `rank` of the transform.
         Ufull is the full set of left singular vectors found.
 
+    Examples
+    --------
+
+    >>> from regreg.affine.factored_matrix import partial_svd
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
     >>> U, D, VT = partial_svd(X, rank=10)[:3]
-    >>> np.linalg.norm(np.dot(U.T, U) - np.identity(10)) < 1.e-4
-    True
-    >>> np.linalg.norm(np.dot(VT, VT.T) - np.identity(10)) < 1.e-4
-    True
+    >>> assert(np.linalg.norm(np.dot(U.T, U) - np.identity(10)) < 1.e-4)
+    >>> assert(np.linalg.norm(np.dot(VT, VT.T) - np.identity(10)) < 1.e-4)
     >>> U_np, D_np, VT_np = np.linalg.svd(X, full_matrices=False)
-    >>> np.linalg.norm(U - np.dot(U, np.dot(U_np.T[:10], U_np[:,:10]))) < 1.e-4
-    True
-    >>> np.linalg.norm(VT - np.dot(VT, np.dot(VT_np[:10].T, VT_np[:10]))) < 1.e-4
-    True
+    >>> assert(np.linalg.norm(U - np.dot(U, np.dot(U_np.T[:10], U_np[:,:10]))) < 1.e-4)
+    >>> assert(np.linalg.norm(VT - np.dot(VT, np.dot(VT_np[:10].T, VT_np[:10]))) < 1.e-4)
+
     """
 
     transform = astransform(transform)
@@ -370,7 +374,7 @@ class nuclear_norm(nuclear_norm_atom):
     """
     prox_tol = 1.0e-5
     svd_tol = 1.e-5
-    objective_template = r"""\|%(var)s\|_*"""
+    objective_vars = nuclear_norm_atom.objective_vars.copy()
 
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
@@ -492,6 +496,7 @@ class nuclear_norm(nuclear_norm_atom):
 class operator_norm(operator_norm_atom):
     prox_tol = 1.0e-5
     svd_tol = 1.e-4
+    objective_vars = operator_norm_atom.objective_vars.copy()
 
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
@@ -546,6 +551,7 @@ class operator_norm(operator_norm_atom):
         return affine_sum([X,dual_lagrange],[1.,-1.])
 
     @property
+    @doc_template_user
     def conjugate(self):
         if self.quadratic.coef == 0:
             offset, outq = _work_out_conjugate(self.offset, 

@@ -28,8 +28,12 @@ class sparse_group_lasso(group_lasso, seminorm):
     Sparse group LASSO
     """
 
-    objective_template = r""" \left[ \sum_j \alpha_j |%(var)s_j| + \sum_g \lambda_g \|%(var)s[g]\|_2 \right]"""
+    objective_template = (r""" \left[ \sum_j \alpha_j |%(var)s_j|""" + 
+                          r""" + \sum_g \lambda_g \|%(var)s[g]\|_2 \right]""")
     objective_vars = group_lasso.objective_vars.copy()
+    objective_vars['normklass'] = 'sparse_group_lasso'
+    objective_vars['dualnormklass'] = 'sparse_group_lasso_dual'
+    objective_vars['initargs'] = '[1, 1, 2, 2, 2], [0, 0.5, 0.2, 0.2, 0.2]'
 
     def __init__(self, 
                  groups,
@@ -56,6 +60,7 @@ class sparse_group_lasso(group_lasso, seminorm):
                                                  bound=bound)
          self._weighted_supnorm = self._weighted_l1norm.conjugate
 
+    @doc_template_user
     def seminorm(self, x, lagrange=None, check_feasibility=False):
 
         lagrange = seminorm.seminorm(self, x, 
@@ -156,6 +161,7 @@ class sparse_group_lasso(group_lasso, seminorm):
                      str(self.offset),
                      self.quadratic)
 
+    @doc_template_user
     def get_conjugate(self):
         if self.quadratic.coef == 0:
 

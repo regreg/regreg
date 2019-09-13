@@ -90,6 +90,7 @@ class linear_constraint(cone):
     conjugate = property(get_conjugate)
 
     @classmethod
+    @doc_template_user
     def linear(cls, linear_operator, basis, diag=False,
                linear_term=None, offset=None):
         l = linear_transform(linear_operator, diag=diag)
@@ -99,6 +100,10 @@ class linear_constraint(cone):
 
 @objective_doc_templater()
 class projection(linear_constraint):
+
+    objective_vars = linear_constraint.objective_vars.copy()
+    objective_vars['coneklass'] = 'projection'
+    objective_vars['dualconeklass'] = 'projection_complement'
 
     """
     An atom representing a linear constraint.

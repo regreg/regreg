@@ -59,8 +59,9 @@ matrix:
         - DEPENDS="cython numpy scipy"
     - python: 2.7
       env:
+        # pip fails below if DEPENDS is empty so we put a depend on nose
         - INSTALL_TYPE=requirements
-        - DEPENDS=
+        - DEPENDS="nose" 
     # test 3.5 against pre-release builds of everything
     - python: 3.5
       env:
@@ -72,7 +73,7 @@ matrix:
     - python: 3.5
       env:
         - INSTALL_TYPE="pip_e"
-    - python: 3.5
+    - python: 3.6
       sudo: true
       dist: trusty
       env:
@@ -141,16 +142,15 @@ script:
         sudo apt-get install -y r-base r-base-dev
         # gglasso has been removed from CRAN archive 
         # try a hard install from old version 
-        sudo Rscript -e "install.packages('https://cran.r-project.org/src/contrib/Archive/gglasso/gglasso_1.3.tar.gz')"
-        sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix', 'SLOPE'), repos='http://cloud.r-project.org');"
+        sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix', 'SLOPE', 'gglasso'), repos='http://cloud.r-project.org');"
         pip install -r doc-requirements.txt
         cd doc
         # Build without the API documentation, for the doctests
-        make htmlonly
+        make html
         make doctest
         # Now build the full docs
         make clean
-        make html
+        make htmlonly
       elif [ "$R_TESTS" ]; then
         sudo apt-get install software-properties-common
         sudo add-apt-repository -y ppa:marutter/rrutter
