@@ -190,11 +190,11 @@ class mixed_lasso(atom):
         prox_arg = -totalq.linear_term / totalq.coef
 
         eta = mixed_lasso_lagrange_prox(prox_arg, self.lagrange, totalq.coef, 
-                               self._l1_penalty,
-                               self._unpenalized,
-                               self._positive_part,
-                               self._nonnegative,
-                               self._groups, 
+                               self._l1_penalty.astype(np.int_),
+                               self._unpenalized.astype(np.int_),
+                               self._positive_part.astype(np.int_),
+                               self._nonnegative.astype(np.int_),
+                               self._groups.astype(np.int_), 
                                self._weight_array)
 
         if offset is None:
