@@ -1,17 +1,17 @@
 import numpy as np, sys
-cimport numpy as np
+cimport numpy as cnp
 
 
 DTYPE_float = np.float
-ctypedef np.float_t DTYPE_float_t
+ctypedef cnp.float_t DTYPE_float_t
 DTYPE_int = np.int
-ctypedef np.int_t DTYPE_int_t
+ctypedef cnp.int_t DTYPE_int_t
 
 
 def find_solution_piecewise_linear(DTYPE_float_t b,
                                    DTYPE_float_t slope,
-                                   np.ndarray[DTYPE_float_t, ndim=1] norms,
-                                   np.ndarray[DTYPE_float_t, ndim=1] weights):
+                                   cnp.ndarray[DTYPE_float_t, ndim=1] norms,
+                                   cnp.ndarray[DTYPE_float_t, ndim=1] weights):
     """
     Given a piecewise linear function of the form
 
@@ -43,8 +43,8 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
     if (weights * norms).sum() < b:
         return np.inf
 
-    cdef np.ndarray[DTYPE_float_t, ndim=1] knots = norms / weights
-    cdef np.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots).astype(np.int_)
+    cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms / weights
+    cdef cnp.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots).astype(np.int_)
 
     slope = - slope # move the linear piece to the LHS
     cdef double curX = knots[order[q-1]]
@@ -78,8 +78,8 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
     return solution
 
 def find_solution_piecewise_linear_c(DTYPE_float_t b,
-                                   DTYPE_float_t slope,
-                                   np.ndarray[DTYPE_float_t, ndim=1] norms):
+                                     DTYPE_float_t slope,
+                                     cnp.ndarray[DTYPE_float_t, ndim=1] norms):
     """
     Given a piecewise linear function of the form
 
@@ -109,8 +109,8 @@ def find_solution_piecewise_linear_c(DTYPE_float_t b,
     if (norms).sum() < b:
         return np.inf
 
-    cdef np.ndarray[DTYPE_float_t, ndim=1] knots = norms
-    cdef np.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots).astype(np.int_)
+    cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms
+    cdef cnp.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots).astype(np.int_)
 
     slope = - slope # move the linear piece to the LHS
     cdef double curX = knots[order[q-1]]
