@@ -62,6 +62,7 @@ install:
   # Pin wheel to 0.26 to avoid Windows ABI tag for built wheel
   - pip install wheel==0.26
   - git submodule update --init
+  - git describe --tags --dirty --always 
   # Dependencies for package
   - pip install numpy==%NP_BUILD_DEP% 
   - pip install scipy==%SCIPY_BUILD_DEP% Cython
