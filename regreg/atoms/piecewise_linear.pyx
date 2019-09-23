@@ -44,7 +44,7 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
         return np.inf
 
     cdef np.ndarray[DTYPE_float_t, ndim=1] knots = norms / weights
-    cdef np.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots)
+    cdef np.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots).astype(np.int_)
 
     slope = - slope # move the linear piece to the LHS
     cdef double curX = knots[order[q-1]]
@@ -110,7 +110,7 @@ def find_solution_piecewise_linear_c(DTYPE_float_t b,
         return np.inf
 
     cdef np.ndarray[DTYPE_float_t, ndim=1] knots = norms
-    cdef np.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots)
+    cdef np.ndarray[DTYPE_int_t, ndim=1] order = np.argsort(knots).astype(np.int_)
 
     slope = - slope # move the linear piece to the LHS
     cdef double curX = knots[order[q-1]]
