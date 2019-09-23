@@ -80,9 +80,10 @@ build_script:
 
 test_script:
   # Run some tests
+  - pip install numpy==%NP_TEST_DEP% nose
   - mkdir tmp
   - cd tmp
-  - pip install numpy==%NP_TEST_DEP% nose
+  - nosetests -v regreg.atoms.tests.test_mixed_lasso
   - nosetests -v regreg
   - cd ..
 

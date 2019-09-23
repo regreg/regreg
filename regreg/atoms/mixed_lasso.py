@@ -29,6 +29,7 @@ try:
                                      seminorm_mixed_lasso,
                                      seminorm_mixed_lasso_dual,
                                      strong_set_mixed_lasso,
+                                     mixed_lasso_epigraph,
                                      check_KKT_mixed_lasso)
 except ImportError:
     raise ImportError('need cython module mixed_lasso_cython')
@@ -43,7 +44,9 @@ class mixed_lasso(atom):
     """
     tol = 1.0e-05
 
-    def __init__(self, penalty_structure, lagrange, 
+    def __init__(self, 
+                 penalty_structure, 
+                 lagrange, 
                  weights={},
                  offset=None,
                  quadratic=None,
@@ -60,10 +63,10 @@ class mixed_lasso(atom):
             set(reserved))
         self._weight_array = np.zeros(len(groups))
 
-        self._l1_penalty = np.nonzero(self.penalty_structure == L1_PENALTY)[0]
-        self._positive_part = np.nonzero(self.penalty_structure == POSITIVE_PART)[0] 
-        self._unpenalized = np.nonzero(self.penalty_structure == UNPENALIZED)[0] 
-        self._nonnegative = np.nonzero(self.penalty_structure == NONNEGATIVE)[0]
+        self._l1_penalty = np.nonzero(self.penalty_structure == L1_PENALTY)[0].astype(np.intp)
+        self._positive_part = np.nonzero(self.penalty_structure == POSITIVE_PART)[0].astype(np.intp) 
+        self._unpenalized = np.nonzero(self.penalty_structure == UNPENALIZED)[0].astype(np.intp) 
+        self._nonnegative = np.nonzero(self.penalty_structure == NONNEGATIVE)[0].astype(np.intp)
 
         for idx, label in enumerate(groups):
             g = self.penalty_structure == label
@@ -225,7 +228,9 @@ class mixed_lasso_dual(mixed_lasso):
                  quadratic=None,
                  initial=None):
 
-        mixed_lasso.__init__(self, penalty_structure, bound, 
+        mixed_lasso.__init__(self, 
+                             penalty_structure, 
+                             bound, 
                              weights=weights,
                              offset=offset,
                              quadratic=quadratic,
