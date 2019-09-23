@@ -55,15 +55,15 @@ class mixed_lasso(atom):
         self.weights = weights
         self.lagrange = lagrange
         self.penalty_structure = penalty_structure
-        self._groups = -np.ones(self.shape, np.int_)
+        self._groups = -np.ones(self.shape, np.intp)
         groups = set(np.unique(self.penalty_structure)).difference(
             set(reserved))
         self._weight_array = np.zeros(len(groups))
 
-        self._l1_penalty = np.nonzero(self.penalty_structure == L1_PENALTY)[0].astype(np.int_)
-        self._positive_part = np.nonzero(self.penalty_structure == POSITIVE_PART)[0].astype(np.int_)
-        self._unpenalized = np.nonzero(self.penalty_structure == UNPENALIZED)[0].astype(np.int_)
-        self._nonnegative = np.nonzero(self.penalty_structure == NONNEGATIVE)[0].astype(np.int_)
+        self._l1_penalty = np.nonzero(self.penalty_structure == L1_PENALTY)[0]
+        self._positive_part = np.nonzero(self.penalty_structure == POSITIVE_PART)[0] 
+        self._unpenalized = np.nonzero(self.penalty_structure == UNPENALIZED)[0] 
+        self._nonnegative = np.nonzero(self.penalty_structure == NONNEGATIVE)[0]
 
         for idx, label in enumerate(groups):
             g = self.penalty_structure == label
@@ -160,7 +160,7 @@ class mixed_lasso(atom):
                                  self._nonnegative,
                                  self._groups,
                                  self._weight_array,
-                                 int(check_feasibility))
+                                 np.int(check_feasibility))
         return v * self.lagrange
 
     def proximal(self, proxq, prox_control=None):
