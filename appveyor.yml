@@ -68,8 +68,6 @@ install:
 
 build_script:
   # Build and install the wheel
-  - git fetch origin
-  - git checkout %BUILD_COMMIT%
   - python setup.py bdist_wheel
   - ps: |
       # Upload artifact to Appveyor immediately after build
@@ -92,10 +90,5 @@ after_test:
   - dir dist
 
 on_success:
-  # Upload the generated wheel package to Rackspace
-  # On Windows, Apache Libcloud cannot find a standard CA cert bundle so we
-  # disable the ssl checks.
-  - pip install wheelhouse-uploader
-  - python -m wheelhouse_uploader upload
-    --local-folder=dist --no-update-index
-    wheels
+  # Let the wheel repo do the uploading
+  - dir ..
