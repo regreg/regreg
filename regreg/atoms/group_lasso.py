@@ -293,10 +293,10 @@ class group_lasso_dual(group_lasso):
                                      check_feasibility=check_feasibility)
         arg = np.asarray(arg, np.float)
         return lagrange * seminorm_mixed_lasso_dual(arg, \
-                                    np.array([], np.int),
-                                    np.array([], np.int),
-                                    np.array([], np.int),
-                                    np.array([], np.int),
+                                    np.array([], np.int_),
+                                    np.array([], np.int_),
+                                    np.array([], np.int_),
+                                    np.array([], np.int_),
                                     self._group_array,
                                     self._weight_array,
                                     False)

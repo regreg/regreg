@@ -154,11 +154,11 @@ class mixed_lasso(atom):
     def seminorm(self, x, check_feasibility=False):
         x_offset = self.apply_offset(x)
         v = seminorm_mixed_lasso(x_offset,
-                                 self._l1_penalty,
-                                 self._unpenalized,
-                                 self._positive_part,
-                                 self._nonnegative,
-                                 self._groups, 
+                                 self._l1_penalty.astype(np.int_),
+                                 self._unpenalized.astype(np.int_),
+                                 self._positive_part.astype(np.int_),
+                                 self._nonnegative.astype(np.int_),
+                                 self._groups.astype(np.int_), 
                                  self._weight_array,
                                  int(check_feasibility))
         return v * self.lagrange
@@ -306,12 +306,12 @@ class mixed_lasso_dual(mixed_lasso):
 
     def seminorm(self, x, lagrange=1, check_feasibility=False):
         x_offset = self.apply_offset(x)
-        v = seminorm_mixed_lasso_dual(x_offset,
-                                 self._l1_penalty,
-                                 self._unpenalized,
-                                 self._positive_part,
-                                 self._nonnegative,          
-                                 self._groups, 
+        v = seminorm_mixed_lasso_dual(x_offset, \
+                                 self._l1_penalty.astype(np.int_),
+                                 self._unpenalized.astype(np.int_),
+                                 self._positive_part.astype(np.int_),
+                                 self._nonnegative.astype(np.int_),          
+                                 self._groups.astype(np.int_), 
                                  self._weight_array)
         return v 
 
@@ -341,10 +341,10 @@ class mixed_lasso_dual(mixed_lasso):
         prox_arg = -totalq.linear_term / totalq.coef
 
         eta = mixed_lasso_dual_bound_prox(prox_arg, self.bound, 
-                                  self._l1_penalty,
-                                  self._unpenalized,
-                                  self._positive_part,
-                                  self._groups, 
+                                  self._l1_penalty.astype(np.int_),
+                                  self._unpenalized.astype(np.int_),
+                                  self._positive_part.astype(np.int_),
+                                  self._groups.astype(np.int_), 
                                   self._weight_array)
 
         if offset is None:
