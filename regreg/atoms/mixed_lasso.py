@@ -55,15 +55,15 @@ class mixed_lasso(atom):
         self.weights = weights
         self.lagrange = lagrange
         self.penalty_structure = penalty_structure
-        self._groups = -np.ones(self.shape, np.int)
+        self._groups = -np.ones(self.shape, np.int_)
         groups = set(np.unique(self.penalty_structure)).difference(
             set(reserved))
         self._weight_array = np.zeros(len(groups))
 
-        self._l1_penalty = np.nonzero(self.penalty_structure == L1_PENALTY)[0]
-        self._positive_part = np.nonzero(self.penalty_structure == POSITIVE_PART)[0]
-        self._unpenalized = np.nonzero(self.penalty_structure == UNPENALIZED)[0]
-        self._nonnegative = np.nonzero(self.penalty_structure == NONNEGATIVE)[0]
+        self._l1_penalty = np.nonzero(self.penalty_structure == L1_PENALTY)[0].astype(np.int_)
+        self._positive_part = np.nonzero(self.penalty_structure == POSITIVE_PART)[0].astype(np.int_)
+        self._unpenalized = np.nonzero(self.penalty_structure == UNPENALIZED)[0].astype(np.int_)
+        self._nonnegative = np.nonzero(self.penalty_structure == NONNEGATIVE)[0].astype(np.int_)
 
         for idx, label in enumerate(groups):
             g = self.penalty_structure == label
@@ -154,11 +154,11 @@ class mixed_lasso(atom):
     def seminorm(self, x, check_feasibility=False):
         x_offset = self.apply_offset(x)
         v = seminorm_mixed_lasso(x_offset,
-                                 self._l1_penalty.astype(np.int_),
-                                 self._unpenalized.astype(np.int_),
-                                 self._positive_part.astype(np.int_),
-                                 self._nonnegative.astype(np.int_),
-                                 self._groups.astype(np.int_), 
+                                 self._l1_penalty,
+                                 self._unpenalized,
+                                 self._positive_part,
+                                 self._nonnegative,
+                                 self._groups,
                                  self._weight_array,
                                  int(check_feasibility))
         return v * self.lagrange
@@ -189,13 +189,15 @@ class mixed_lasso(atom):
 
         prox_arg = -totalq.linear_term / totalq.coef
 
-        eta = mixed_lasso_lagrange_prox(prox_arg, self.lagrange, totalq.coef, 
-                               self._l1_penalty.astype(np.int_),
-                               self._unpenalized.astype(np.int_),
-                               self._positive_part.astype(np.int_),
-                               self._nonnegative.astype(np.int_),
-                               self._groups.astype(np.int_), 
-                               self._weight_array)
+        eta = mixed_lasso_lagrange_prox(prox_arg, 
+                                        self.lagrange, 
+                                        totalq.coef, 
+                                        self._l1_penalty,
+                                        self._unpenalized,
+                                        self._positive_part,
+                                        self._nonnegative,
+                                        self._groups,
+                                        self._weight_array)
 
         if offset is None:
             return eta
@@ -306,13 +308,13 @@ class mixed_lasso_dual(mixed_lasso):
 
     def seminorm(self, x, lagrange=1, check_feasibility=False):
         x_offset = self.apply_offset(x)
-        v = seminorm_mixed_lasso_dual(x_offset, \
-                                 self._l1_penalty.astype(np.int_),
-                                 self._unpenalized.astype(np.int_),
-                                 self._positive_part.astype(np.int_),
-                                 self._nonnegative.astype(np.int_),          
-                                 self._groups.astype(np.int_), 
-                                 self._weight_array)
+        v = seminorm_mixed_lasso_dual(x_offset, 
+                                      self._l1_penalty,
+                                      self._unpenalized,
+                                      self._positive_part,
+                                      self._nonnegative,
+                                      self._groups,
+                                      self._weight_array)
         return v 
 
     def proximal(self, proxq, prox_control=None):
@@ -340,12 +342,13 @@ class mixed_lasso_dual(mixed_lasso):
 
         prox_arg = -totalq.linear_term / totalq.coef
 
-        eta = mixed_lasso_dual_bound_prox(prox_arg, self.bound, 
-                                  self._l1_penalty.astype(np.int_),
-                                  self._unpenalized.astype(np.int_),
-                                  self._positive_part.astype(np.int_),
-                                  self._groups.astype(np.int_), 
-                                  self._weight_array)
+        eta = mixed_lasso_dual_bound_prox(prox_arg, 
+                                          self.bound, 
+                                          self._l1_penalty,
+                                          self._unpenalized,
+                                          self._positive_part,
+                                          self._groups,
+                                          self._weight_array)
 
         if offset is None:
             return eta
