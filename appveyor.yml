@@ -67,7 +67,6 @@ install:
 
 build_script:
   # Build and install the wheel
-  - cd regreg
   - git fetch origin
   - git checkout %BUILD_COMMIT%
   - python setup.py bdist_wheel
