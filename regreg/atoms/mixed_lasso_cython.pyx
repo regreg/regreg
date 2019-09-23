@@ -11,15 +11,16 @@ DTYPE_float = np.float
 ctypedef cnp.float_t DTYPE_float_t
 DTYPE_int = np.int
 ctypedef cnp.int_t DTYPE_int_t
+ctypedef cnp.intp_t DTYPE_intp_t
 
 def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center, 
                               DTYPE_float_t lagrange, 
                               DTYPE_float_t lipschitz,
-                              cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                              cnp.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] groups,
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                               cnp.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef cnp.ndarray norms = np.zeros_like(weights)
@@ -54,11 +55,11 @@ def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
 
 def mixed_lasso_dual_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center, 
                                 DTYPE_float_t bound, 
-                                cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                                cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                                cnp.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                                cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                                cnp.ndarray[DTYPE_int_t, ndim=1] groups,
+                                cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
+                                cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                                cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
+                                cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
+                                cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                                 cnp.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef cnp.ndarray norms = np.zeros_like(weights)
@@ -87,11 +88,11 @@ def mixed_lasso_dual_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
     return projection
 
 def seminorm_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x, 
-                         cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                         cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                         cnp.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                         cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                         cnp.ndarray[DTYPE_int_t, ndim=1] groups,
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                          cnp.ndarray[DTYPE_float_t, ndim=1] weights,
                          DTYPE_int_t check_feasibility,
 			 DTYPE_float_t nntol=1.e-5):
@@ -131,11 +132,11 @@ def strong_set_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                            DTYPE_float_t lagrange_new,
                            DTYPE_float_t lagrange_cur,
                            DTYPE_float_t slope_estimate,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                           cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                           cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                           cnp.ndarray[DTYPE_int_t, ndim=1] groups,
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                            cnp.ndarray[DTYPE_float_t, ndim=1] weights):
     
     cdef cnp.ndarray value = np.zeros_like(x)
@@ -165,11 +166,11 @@ def strong_set_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
 def check_KKT_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] grad, 
                           cnp.ndarray[DTYPE_float_t, ndim=1] solution, 
                           DTYPE_float_t lagrange,
-                          cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                          cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                          cnp.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                          cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                          cnp.ndarray[DTYPE_int_t, ndim=1] groups,
+                          cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
+                          cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                          cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
+                          cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
+                          cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                           cnp.ndarray[DTYPE_float_t, ndim=1] weights,
 			  DTYPE_float_t tol=1.e-2,
 			  DTYPE_float_t nntol=1.e-2):
@@ -265,11 +266,11 @@ def check_KKT_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] grad,
     return failing
    
 def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                              cnp.ndarray[DTYPE_int_t, ndim=1] positive_part, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative, 
-                              cnp.ndarray[DTYPE_int_t, ndim=1] groups,
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
+                              cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                               cnp.ndarray[DTYPE_float_t, ndim=1] weights,
                               DTYPE_float_t nntol=1.e-5,
                               DTYPE_int_t check_feasibility=0):
@@ -307,11 +308,11 @@ def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x,
 
 def mixed_lasso_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                            DTYPE_float_t bound,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] positive_part,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative,
-                           cnp.ndarray[DTYPE_int_t, ndim=1] groups, 
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty,
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part,
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative,
+                           cnp.ndarray[DTYPE_intp_t, ndim=1] groups, 
                            cnp.ndarray[DTYPE_float_t, ndim=1] weights):
 
     cdef int p = groups.shape[0]
@@ -365,11 +366,11 @@ def mixed_lasso_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
         return prox_center
 
 def mixed_lasso_epigraph(cnp.ndarray[DTYPE_float_t, ndim=1] center,
-                         cnp.ndarray[DTYPE_int_t, ndim=1] l1_penalty,
-                         cnp.ndarray[DTYPE_int_t, ndim=1] unpenalized,
-                         cnp.ndarray[DTYPE_int_t, ndim=1] positive_part,
-                         cnp.ndarray[DTYPE_int_t, ndim=1] nonnegative,
-                         cnp.ndarray[DTYPE_int_t, ndim=1] groups, 
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty,
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] unpenalized,
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part,
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative,
+                         cnp.ndarray[DTYPE_intp_t, ndim=1] groups, 
                          cnp.ndarray[DTYPE_float_t, ndim=1] weights):
 
     cdef cnp.ndarray[DTYPE_float_t, ndim=1] x = center[:-1]
