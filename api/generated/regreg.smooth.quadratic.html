@@ -1,142 +1,631 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Some examples illustrating basic objects in RegReg" href="../../examples/index.html" />
+    <link rel="prev" title="smooth.losses" href="regreg.smooth.losses.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">smooth.quadratic</a><ul>
-<li><a class="reference internal" href="#module-smooth-quadratic">Module: <tt class="docutils literal"><span class="pre">smooth.quadratic</span></tt></a></li>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#cholesky"><tt class="docutils literal"><span class="pre">cholesky</span></tt></a></li>
-<li><a class="reference internal" href="#quadratic"><tt class="docutils literal"><span class="pre">quadratic</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">smooth.quadratic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-smooth-quadratic">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth.quadratic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">smooth.quadratic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-smooth-quadratic">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth.quadratic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.smooth.quadratic.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.smooth.quadratic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="smooth-quadratic">
 <h1>smooth.quadratic<a class="headerlink" href="#smooth-quadratic" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-smooth-quadratic">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">smooth.quadratic</span></tt><a class="headerlink" href="#module-smooth-quadratic" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.smooth.quadratic</span></tt>:</p>
-</div>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth.quadratic</span></code><a class="headerlink" href="#module-smooth-quadratic" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.smooth.quadratic</span></code>:</p>
+digraph inheritancebc68210771 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;problems.composite.composite&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.composite&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A generic way to specify a problem in composite form.&quot;];
+  &quot;problems.composite.smooth&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.smooth&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A composite subclass that has 0 as &quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.composite.smooth&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.smooth.smooth_atom&quot; [URL=&quot;regreg.smooth.html#regreg.smooth.smooth_atom&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class for representing a smooth function and its gradient&quot;];
+  &quot;problems.composite.smooth&quot; -&gt; &quot;regreg.smooth.smooth_atom&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;smooth.quadratic.cholesky&quot; [URL=&quot;#regreg.smooth.quadratic.cholesky&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;Given :math:`Q &gt; 0`, returns a linear transform&quot;];
+  &quot;smooth.quadratic.quadratic_loss&quot; [URL=&quot;#regreg.smooth.quadratic.quadratic_loss&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;Half of the square of the l2 norm&quot;];
+  &quot;regreg.smooth.smooth_atom&quot; -&gt; &quot;smooth.quadratic.quadratic_loss&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<span class="target" id="module-regreg.smooth.quadratic"></span></div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="cholesky">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">cholesky</span></tt><a class="headerlink" href="#cholesky" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.smooth.quadratic.cholesky" title="regreg.smooth.quadratic.cholesky"><code class="xref py py-class docutils literal notranslate"><span class="pre">cholesky</span></code></a><a class="headerlink" href="#cholesky" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.quadratic.cholesky">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.smooth.quadratic.</code><code class="sig-name descname">cholesky</code><span class="sig-paren">(</span><em class="sig-param">Q</em>, <em class="sig-param">cholesky=None</em>, <em class="sig-param">banded=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.cholesky" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Given <span class="math notranslate nohighlight">\(Q &gt; 0\)</span>, returns a linear transform
+that is multiplication by <span class="math notranslate nohighlight">\(Q^{-1}\)</span> by
+first computing the Cholesky decomposition of <span class="math notranslate nohighlight">\(Q\)</span>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Q: array</strong></p>
+<blockquote>
+<div><p>positive definite matrix</p>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="method">
+<dt id="regreg.smooth.quadratic.cholesky.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">Q</em>, <em class="sig-param">cholesky=None</em>, <em class="sig-param">banded=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.cholesky.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.cholesky.adjoint_map">
+<code class="sig-name descname">adjoint_map</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.cholesky.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.cholesky.affine_map">
+<code class="sig-name descname">affine_map</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.cholesky.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.cholesky.linear_map">
+<code class="sig-name descname">linear_map</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.cholesky.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="quadratic">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">quadratic</span></tt><a class="headerlink" href="#quadratic" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="quadratic-loss">
+<h3><a class="reference internal" href="#regreg.smooth.quadratic.quadratic_loss" title="regreg.smooth.quadratic.quadratic_loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">quadratic_loss</span></code></a><a class="headerlink" href="#quadratic-loss" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.smooth.quadratic.quadratic_loss">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.smooth.quadratic.</code><code class="sig-name descname">quadratic_loss</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">Q=None</em>, <em class="sig-param">Qdiag=False</em>, <em class="sig-param">coef=1.0</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.smooth.html#regreg.smooth.smooth_atom" title="regreg.smooth.smooth_atom"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.smooth.smooth_atom</span></code></a></p>
+<p>Half of the square of the l2 norm</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> : tuple</p>
+<blockquote>
+<div><p>Shape of argument to <cite>smooth_objective</cite></p>
+</div></blockquote>
+<p><strong>Q: ndarray</strong></p>
+<blockquote>
+<div><p>positive definite matrix (optional),
+defaults to identity. If <cite>Qdiag</cite> then
+<cite>Q</cite> is one-dimensional.</p>
+</div></blockquote>
+<p><strong>Qdiag</strong> : bool</p>
+<blockquote>
+<div><p>Is the quadratic form diagonal?</p>
+</div></blockquote>
+<p><strong>coef</strong> : float (optional)</p>
+<blockquote>
+<div><p>Scalar multiple to be applied (must be nonnegative)</p>
+</div></blockquote>
+<p><strong>offset</strong> : ndarray (optional)</p>
+<blockquote>
+<div><p>Vector to be subtracted before evaluating <cite>smooth_objective</cite>.</p>
+</div></blockquote>
+<p><strong>quadratic</strong> : <cite>identity_quadratic</cite> (optional)</p>
+<blockquote>
+<div><p>Instance of <cite>identity_quadratic</cite> to be added to overall
+objective.</p>
+</div></blockquote>
+<p><strong>initial</strong> : ndarray (optional)</p>
+<blockquote>
+<div><p>Initial value for coefficients.</p>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">Q=None</em>, <em class="sig-param">Qdiag=False</em>, <em class="sig-param">coef=1.0</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.affine">
+<em class="property">classmethod </em><code class="sig-name descname">affine</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">offset</em>, <em class="sig-param">coef=1</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">**kws</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.conjugate">
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.diagonal">
+<em class="property">static </em><code class="sig-name descname">diagonal</code><span class="sig-paren">(</span><em class="sig-param">D</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.diagonal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.fromarray">
+<em class="property">static </em><code class="sig-name descname">fromarray</code><span class="sig-paren">(</span><em class="sig-param">Q</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.fromarray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.get_conjugate">
+<code class="sig-name descname">get_conjugate</code><span class="sig-paren">(</span><em class="sig-param">factor=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.get_lipschitz">
+<code class="sig-name descname">get_lipschitz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.linear">
+<em class="property">classmethod </em><code class="sig-name descname">linear</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">coef=1</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">**kws</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.lipschitz">
+<em class="property">property </em><code class="sig-name descname">lipschitz</code><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.quadratic.quadratic_loss.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = '\\frac{%(coef)s}{2} \\cdot %(var)s^T %(Q)s %(var)s'</em><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.smooth.quadratic.quadratic_loss.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'Q': 'Q', 'coef': 'C', 'offset': '\\alpha+', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.scale">
+<code class="sig-name descname">scale</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">copy=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.set_lipschitz">
+<code class="sig-name descname">set_lipschitz</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.shift">
+<em class="property">classmethod </em><code class="sig-name descname">shift</code><span class="sig-paren">(</span><em class="sig-param">offset</em>, <em class="sig-param">coef=1</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">**kws</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keywords given in kws are passed to cls constructor along with other arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a smooth function and/or its gradient</p>
+<p>if mode == ‘both’, return both function value and gradient
+if mode == ‘grad’, return only the gradient
+if mode == ‘func’, return only the function value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.smooth.quadratic.quadratic_loss.squared_transform">
+<em class="property">static </em><code class="sig-name descname">squared_transform</code><span class="sig-paren">(</span><em class="sig-param">transform</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.quadratic_loss.squared_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.smooth.quadratic.signal_approximator">
+<code class="sig-prename descclassname">regreg.smooth.quadratic.</code><code class="sig-name descname">signal_approximator</code><span class="sig-paren">(</span><em class="sig-param">signal</em>, <em class="sig-param">coef=1</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.signal_approximator" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Least squares with design <span class="math notranslate nohighlight">\(I\)</span></p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+</div></blockquote>
+<p>rac{C}{2} |eta-Y|^2_2</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.smooth.quadratic.squared_error">
+<code class="sig-prename descclassname">regreg.smooth.quadratic.</code><code class="sig-name descname">squared_error</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">coef=1</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.smooth.quadratic.squared_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Least squares with design <span class="math notranslate nohighlight">\(X\)</span></p>
+<div class="math notranslate nohighlight">
+\[\frac{C}{2} \|X\beta-Y\|^2_2\]</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> : affine_transform</p>
+<blockquote>
+<div><p>Design matrix</p>
+</div></blockquote>
+<p><strong>Y</strong> : np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../examples/index.html" class="btn btn-neutral float-right" title="Some examples illustrating basic objects in RegReg" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.smooth.losses.html" class="btn btn-neutral float-left" title="smooth.losses" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

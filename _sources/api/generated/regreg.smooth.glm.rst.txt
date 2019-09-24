@@ -1,0 +1,109 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+smooth.glm
+==========
+
+Module: :mod:`smooth.glm`
+-------------------------
+Inheritance diagram for ``regreg.smooth.glm``:
+
+.. inheritance-diagram:: regreg.smooth.glm 
+   :parts: 3
+
+.. automodule:: regreg.smooth.glm
+
+.. currentmodule:: regreg.smooth.glm
+
+Classes
+-------
+
+:class:`coxph`
+~~~~~~~~~~~~~~
+
+
+.. autoclass:: coxph
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`gaussian_loglike`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: gaussian_loglike
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`glm`
+~~~~~~~~~~~~
+
+
+.. autoclass:: glm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`huber_loss`
+~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: huber_loss
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`logistic_loglike`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: logistic_loglike
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`multinomial_loglike`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: multinomial_loglike
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+:class:`poisson_loglike`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: poisson_loglike
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+Function
+--------
+
+
+.. autofunction:: regreg.smooth.glm.logistic_loss
+

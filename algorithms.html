@@ -1,141 +1,234 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="index.html" />
-    <link rel="up" title="RegReg documentation" href="documentation.html" />
-    <link rel="next" title="Publications" href="publications.html" />
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RegReg License Information" href="license.html" />
     <link rel="prev" title="Downloading and installing RegReg" href="download.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="index.html">
-  <img src="_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="publications.html" title="Publications"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="download.html" title="Downloading and installing RegReg"
-             accesskey="P">previous</a> |</li>
-  <li><a href="index.html">RegReg home</a> |&nbsp;</li>
+          
+        </div>
 
-          <li><a href="documentation.html" accesskey="U">RegReg documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">RegReg algorithms</a><ul>
-<li><a class="reference internal" href="#regularized-regression">Regularized regression</a><ul>
-<li><a class="reference internal" href="#the-generic-problem">The generic problem</a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RegReg algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#regularized-regression">Regularized regression</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-generic-problem">The generic problem</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id2">Algorithms</a><ul>
-<li><a class="reference internal" href="#optimization-strategies">Optimization strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Algorithms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#optimization-strategies">Optimization strategies</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RegReg algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#regularized-regression">Regularized regression</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-generic-problem">The generic problem</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Algorithms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#optimization-strategies">Optimization strategies</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html">API</a></li>
+</ul>
+</li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="download.html"
-                        title="previous chapter">Downloading and installing RegReg</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="publications.html"
-                        title="next chapter">Publications</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/algorithms.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="documentation.html">RegReg documentation</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/algorithms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="regreg-algorithms">
 <span id="algorithms"></span><h1>RegReg algorithms<a class="headerlink" href="#regreg-algorithms" title="Permalink to this headline">¶</a></h1>
-<p>This page gives an overview of the types of problems RegReg is designed to solve and discusses some of the algorithmic tools available to users.</p>
+<p>This page gives an overview of the types of problems RegReg is designed to solve and
+discusses some of the algorithmic tools available to users.</p>
 <div class="section" id="regularized-regression">
 <h2>Regularized regression<a class="headerlink" href="#regularized-regression" title="Permalink to this headline">¶</a></h2>
-<p>RegReg is a framework for solving regularized regression problems such as the <a class="reference external" href="http://www-stat.stanford.edu/~tibs/lasso.html">LASSO</a></p>
-<div class="math">
-\[\frac{1}{2}||y - X\beta||^{2}_{2} + \lambda||\beta||_1\]</div>
-<p>and many others. The general problem is to minimize a combination of a differentiable function and certain non-differentiable penalties or constraints. This includes many problems popular in applied statistics, such as</p>
+<p>RegReg is a framework for solving regularized regression problems
+such as the <a class="reference external" href="http://www-stat.stanford.edu/~tibs/lasso.html">LASSO</a></p>
+<div class="math notranslate nohighlight">
+\[\mbox{minimize}_{\beta} \frac{1}{2}||y - X\beta||^{2}_{2} + \lambda||\beta||_1\]</div>
+<p>and many others. The general problem is to minimize a combination of a
+differentiable function and certain non-differentiable penalties or constraints, i.e.
+a composite problem.</p>
+<p>This includes many problems popular in applied statistics, such as</p>
 <ul>
-<li><p class="first">the LASSO in constraint form</p>
+<li><p>the LASSO in constraint form</p>
 <blockquote>
-<div><div class="math">
+<div><div class="math notranslate nohighlight">
 \[\frac{1}{2}||y - X\beta||^{2}_{2} \ \text{subject to} \  ||\beta||_{1} \leq \delta\]</div>
 </div></blockquote>
 </li>
-<li><p class="first">the <a class="reference external" href="http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2005.00532.x/full">group LASSO</a></p>
+<li><p>the <a class="reference external" href="http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2005.00532.x/full">group LASSO</a></p>
 <blockquote>
-<div><div class="math">
+<div><div class="math notranslate nohighlight">
 \[\frac{1}{2}||y - X\beta||^{2}_{2}  + \lambda \sum_j \|\beta_j\|_{K_J}, \qquad \|\eta\|_{K_j} = \sqrt{\eta^T K \eta}\]</div>
 </div></blockquote>
 </li>
-<li><p class="first"><span class="math">\(\ell_2\)</span> regularized logistic regression</p>
+<li><p><span class="math notranslate nohighlight">\(\ell_2\)</span> regularized logistic regression</p>
 <blockquote>
-<div><div class="math">
+<div><div class="math notranslate nohighlight">
 \[-2\left(Y^TX\beta - \sum_i \log \left[ 1 + \exp(x_i^T\beta) \right] \right) + \lambda \|\beta\|_2^2, \qquad Y_i \in \{0,1\}\]</div>
 </div></blockquote>
 </li>
@@ -143,117 +236,144 @@
 <div class="section" id="the-generic-problem">
 <h3>The generic problem<a class="headerlink" href="#the-generic-problem" title="Permalink to this headline">¶</a></h3>
 <p>RegReg is designed to solve the generic problem</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\mbox{minimize}_\beta \quad \mathcal{L}(\beta) + \mathcal{P}(\beta)\]</div>
-<p>where</p>
-<div class="math">
-\[\mathcal{P}(\beta) = \sum_{i \in \mathcal{I}} \lambda_i h_{K_i}(D_i \beta+ \alpha_i)\]</div>
-<p>and the <span class="math">\(K_i\)</span> are convex sets and the <span class="math">\(h_K\)</span> are support functions</p>
-<div class="math">
-\[h_K(x) = \sup_{v \in K} v^T x.\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{P}\)</span> is a convex function with a simple proximal map. That is,
+the problem</p>
+<div class="math notranslate nohighlight">
+\[\mbox{minimize}_{\beta} \frac{\epsilon}{2} \|\beta\|^2_2 + \alpha^T\beta + \mathcal{P}(\beta)\]</div>
+<p>is easy to solve, perhaps in closed form.</p>
 <p>Many popular seminorms fall into this framework, for example</p>
 <ul class="simple">
-<li>the <span class="math">\(\ell_1\)</span> norm</li>
-<li>the <span class="math">\(\ell_2\)</span> norm</li>
-<li>the element-wise sum of the positive part of a vector</li>
+<li><p>the <span class="math notranslate nohighlight">\(\ell_1\)</span> norm</p></li>
+<li><p>the <span class="math notranslate nohighlight">\(\ell_2\)</span> norm</p></li>
+<li><p>the element-wise sum of the positive part of a vector</p></li>
 </ul>
 <p>Constraints related to these seminorms can also be represented as affine compositions to support functions, for example,</p>
 <ul class="simple">
-<li><span class="math">\(\|D \beta + \alpha\|_1 \leq c\)</span></li>
-<li><span class="math">\(\|D\beta + \alpha\|_2 \leq c\)</span></li>
-<li><span class="math">\(\beta \geq 0\)</span> element-wise.</li>
+<li><p><span class="math notranslate nohighlight">\(\|D \beta + \alpha\|_1 \leq c\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\|D\beta + \alpha\|_2 \leq c\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\beta \geq 0\)</span> element-wise.</p></li>
 </ul>
-<p>While the formulation may seem overly abstract, it allows us to use facts about convex geometry to better understand the class of problems RegReg is designed to solve <a class="reference internal" href="#semipaper" id="id1">[semipaper]</a>.</p>
 </div>
 </div>
-<div class="section" id="id2">
-<h2>Algorithms<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<p>The core RegReg algorithm is generalized gradient descent. In particular, the RegReg implementation is based on <a class="reference internal" href="#fista" id="id3">[FISTA]</a>. This can be used to solve many problems directly, and to solve subproblems in more complicated strategies such as solving the dual problem associated with the general problem described above</p>
-<div class="math">
+<div class="section" id="id1">
+<h2>Algorithms<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The core RegReg algorithm is generalized gradient descent. In particular, the
+RegReg implementation is based on <a class="reference internal" href="#fista" id="id2"><span>[FISTA]</span></a>. This can be used to solve many
+problems directly, and to solve subproblems in more complicated strategies
+such as solving the dual problem associated with the general problem described above</p>
+<div class="math notranslate nohighlight">
 \[\mbox{minimize}_u \quad \frac{1}{2} \| z - \sum_{i \in \mathcal{I}} D_i^T u_i\|_2^2 \quad \mbox{s.t.} \quad u_i \in \lambda_i K_i\]</div>
-<p>or an <a class="reference internal" href="#admm" id="id4">[ADMM]</a> approach</p>
-<div class="math">
+<p>or an <a class="reference internal" href="#admm" id="id3"><span>[ADMM]</span></a> approach</p>
+<div class="math notranslate nohighlight">
 \[\frac{1}{2}||y - \beta||^{2}_{2}  + \sum_i \lambda_i \|z_i\|_1 + \sum_i u_i^T(z_i - D_i \beta) + \frac{\rho}{2} \sum_i \|z_i - D_i\beta\|_2^2\]</div>
 <div class="section" id="optimization-strategies">
 <h3>Optimization strategies<a class="headerlink" href="#optimization-strategies" title="Permalink to this headline">¶</a></h3>
 <p>RegReg offers support for a variety of optimization strategies including</p>
 <ul class="simple">
-<li>Primal generalized gradient descent<ul>
-<li>The current implementation is the based on the <a class="reference internal" href="#fista" id="id5">[FISTA]</a> framework</li>
-<li>The primal problem is solved by solving a series of proximal problems</li>
-<li>Often the proximal problems are very easy to solve. Sometimes they are more complicated - then the proximal problems can be solved via their dual, which can be solved directly by generalized gradient descent</li>
+<li><p>Primal generalized gradient descent</p>
+<ul>
+<li><p>The current implementation is the based on the <a class="reference internal" href="#fista" id="id4"><span>[FISTA]</span></a> framework.</p></li>
+<li><p>The primal problem is solved by solving a series of proximal problems.</p></li>
+<li><p>Often the proximal problems are very easy to solve. Sometimes they are more
+complicated - then the proximal problems can be solved via their dual,
+which can be solved directly by proximal gradient descent, though
+each iteration will involve solving an unpenalized version of the
+original problem.</p></li>
 </ul>
 </li>
-<li>Dual generalized gradient ascent<ul>
-<li>If the conjugate of the differentiable part of the objective is known, then generalized gradient descent can be used to solve the dual problem</li>
-<li>If the conjugate is not known, it can be evaluated by solving an optimization problem with gradient descent</li>
+<li><p>Dual generalized gradient ascent</p>
+<ul>
+<li><p>If the conjugate of the differentiable part of the objective is known,
+then generalized gradient descent can be used to solve the dual problem.</p></li>
+<li><p>If the conjugate is not known, it can be evaluated by solving an
+optimization problem with proximal gradient descent.</p></li>
 </ul>
 </li>
-<li>ADMM<ul>
-<li>The general problem can be solved directly with ADMM</li>
-<li>This approach has the advantage of making it easy to parallelize many problems across features or observations</li>
-<li><a class="reference external" href="http://ipython.scipy.org/moin/">IPython</a> provides an amazingly simple and rich   <a class="reference external" href="http://ipython.scipy.org/doc/rel-0.10.1/html/parallel/index.html">parallel computing environment</a> that can be used with RegReg for distributed optimization. TODO: Add tutorial.</li>
+<li><p>ADMM</p>
+<ul>
+<li><p>The general problem can be solved directly with ADMM</p></li>
+<li><p>This approach has the advantage of making it easy to parallelize many problems across features or observations</p></li>
 </ul>
 </li>
-<li>Seminorm smoothing<ul>
-<li>The function <span class="math">\(P(\beta)\)</span> can be approximated by a smooth function</li>
-<li>This approximate problem can be solved directly using simple gradient methods</li>
-<li>See <em class="xref std std-ref">smoothingtutorial</em></li>
+<li><p>Seminorm smoothing</p>
+<ul>
+<li><p>The function <span class="math notranslate nohighlight">\(P(\beta)\)</span> can be approximated by a smooth function as in
+<a class="reference internal" href="#tfocs" id="id5"><span>[TFOCS]</span></a> or <a class="reference internal" href="#nesta" id="id6"><span>[NESTA]</span></a>. See</p></li>
+<li><p>This approximate problem can be solved directly using simple gradient methods</p></li>
+<li><p>See &lt;Smoothing&gt;</p></li>
 </ul>
 </li>
 </ul>
-<table class="docutils citation" frame="void" id="admm" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[ADMM]</a></td><td>Boyd, S., Parikh, N., Chu, E., Peleato, B., Eckstein, J. &#8220;<em>Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers</em>&#8221; (<a class="reference external" href="http://www.stanford.edu/~boyd//papers/pdf/admm_distr_stats.pdf">http://www.stanford.edu/~boyd//papers/pdf/admm_distr_stats.pdf</a>)</td></tr>
-</tbody>
-</table>
-<table class="docutils citation" frame="void" id="semipaper" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[semipaper]</a></td><td>Mazumder, R., Taylor, T., Tibshirani, R.J. &#8220;<em>Simple, flexible and scalable algorithms for penalized regression.</em>&#8221; <strong>In preparation</strong></td></tr>
-</tbody>
-</table>
-<table class="docutils citation" frame="void" id="fista" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[FISTA]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id5">2</a>)</em> Beck, A., Teboulle, M. &#8220;<em>A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems</em>&#8221; (<a class="reference external" href="http://iew3.technion.ac.il/~becka/papers/71654.pdf">http://iew3.technion.ac.il/~becka/papers/71654.pdf</a>) TODO: Add formal citation</td></tr>
-</tbody>
-</table>
+<dl class="citation">
+<dt class="label" id="admm"><span class="brackets"><a class="fn-backref" href="#id3">ADMM</a></span></dt>
+<dd><p>Boyd, S., Parikh, N., Chu, E., Peleato, B., Eckstein, J. “<em>Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers</em>” (<a class="reference external" href="http://www.stanford.edu/~boyd//papers/pdf/admm_distr_stats.pdf">http://www.stanford.edu/~boyd//papers/pdf/admm_distr_stats.pdf</a>)</p>
+</dd>
+<dt class="label" id="fista"><span class="brackets">FISTA</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>Beck, A., Teboulle, M. “<em>A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems</em>” (<a class="reference external" href="http://iew3.technion.ac.il/~becka/papers/71654.pdf">http://iew3.technion.ac.il/~becka/papers/71654.pdf</a>)</p>
+</dd>
+<dt class="label" id="nesta"><span class="brackets"><a class="fn-backref" href="#id6">NESTA</a></span></dt>
+<dd><p>Becker, S., Bobin, J. Candes, E. “<em>A Fast and Accurate First-order Method for Sparse Recovery</em>” (<a class="reference external" href="https://statweb.stanford.edu/~candes/nesta/nesta.html">https://statweb.stanford.edu/~candes/nesta/nesta.html</a>)</p>
+</dd>
+<dt class="label" id="tfocs"><span class="brackets"><a class="fn-backref" href="#id5">TFOCS</a></span></dt>
+<dd><p>Becker, S., Candes, E. Grant, S. “<em>TFOCS: Templates for First-Order Conic Solvers</em>” (<a class="reference external" href="http://tfocs.stanford.edu/">http://tfocs.stanford.edu/</a>)</p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="license.html" class="btn btn-neutral float-right" title="RegReg License Information" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="download.html" class="btn btn-neutral float-left" title="Downloading and installing RegReg" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="publications.html" title="Publications"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="download.html" title="Downloading and installing RegReg"
-             >previous</a> |</li>
-  <li><a href="index.html">RegReg home</a> |&nbsp;</li>
 
-          <li><a href="documentation.html" >RegReg documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

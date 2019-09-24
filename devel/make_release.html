@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../agenda.html">RegReg development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/devel/make_release.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="a-guide-to-making-a-regreg-release">
+<span id="release-guide"></span><h1>A guide to making a Regreg release<a class="headerlink" href="#a-guide-to-making-a-regreg-release" title="Permalink to this headline">¶</a></h1>
+<p>This is a guide for developers who are doing a Regreg release.</p>
+<p>The general idea of these instructions is to go through the following steps:</p>
+<ul class="simple">
+<li><p>Make sure that the code is in the right state for release;</p></li>
+<li><p>update release-related docs such as the Changelog;</p></li>
+<li><p>update various documents giving dependencies, dates and so on;</p></li>
+<li><p>check all standard and release-specific tests pass;</p></li>
+<li><p>make the <em>release commit</em> and release tag;</p></li>
+<li><p>check Windows binary builds and slow / big memory tests;</p></li>
+<li><p>push source and windows builds to pypi;</p></li>
+<li><p>push docs;</p></li>
+<li><p>push release commit and tag to github;</p></li>
+<li><p>announce.</p></li>
+</ul>
+<p>We leave pushing the tag to the last possible moment, because it’s very bad
+practice to change a Git tag once it has reached the public servers (in our
+case, Github).  So we want to make sure of the contents of the release before
+pushing the tag.</p>
+<div class="section" id="release-checklist">
+<span id="id1"></span><h2>Release checklist<a class="headerlink" href="#release-checklist" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Review the open list of <a class="reference external" href="http://github.com/regreg/regreg/issues">regreg issues</a>.  Check whether there are
+outstanding issues that can be closed, and whether there are any issues that
+should delay the release.  Label them !</p></li>
+<li><p>Review and update the release notes.  Review and update the <code class="docutils literal notranslate"><span class="pre">Changelog</span></code>
+file.  Get a partial list of contributors with something like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span> <span class="mf">0.1</span><span class="o">.</span><span class="mf">0.</span><span class="o">.</span> <span class="o">|</span> <span class="n">grep</span> <span class="s1">&#39;^Author&#39;</span> <span class="o">|</span> <span class="n">cut</span> <span class="o">-</span><span class="n">d</span><span class="s1">&#39; &#39;</span> <span class="o">-</span><span class="n">f</span> <span class="mi">2</span><span class="o">-</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">|</span> <span class="n">uniq</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code> was the last release tag name.</p>
+<p>Then manually go over <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">shortlog</span> <span class="pre">0.1.0..</span></code> to make sure the release
+notes are as complete as possible and that every contributor was recognized.</p>
+</li>
+<li><p>Look at <code class="docutils literal notranslate"><span class="pre">doc/source/index.rst</span></code> and add any authors not yet acknowledged.
+You might want to use the following to list authors by the date of their
+contributions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%a</span><span class="s2">N &lt;</span><span class="si">%a</span><span class="s2">E&gt;&quot;</span> <span class="o">--</span><span class="n">reverse</span> <span class="o">|</span> <span class="n">perl</span> <span class="o">-</span><span class="n">e</span> <span class="s1">&#39;my </span><span class="si">%d</span><span class="s1">edupe; while (&lt;STDIN&gt;) { print unless $dedupe{$_}++}&#39;</span>
+</pre></div>
+</div>
+<p>(From:
+<a class="reference external" href="http://stackoverflow.com/questions/6482436/list-of-authors-in-git-since-a-given-commit#6482473">http://stackoverflow.com/questions/6482436/list-of-authors-in-git-since-a-given-commit#6482473</a>)</p>
+<p>Consider any updates to the <code class="docutils literal notranslate"><span class="pre">AUTHOR</span></code> file.</p>
+</li>
+<li><p>Use the opportunity to update the <code class="docutils literal notranslate"><span class="pre">.mailmap</span></code> file if there are any
+duplicate authors listed from <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">shortlog</span> <span class="pre">-nse</span></code>.</p></li>
+<li><p>Check the copyright year in <code class="docutils literal notranslate"><span class="pre">doc/source/conf.py</span></code> and <code class="docutils literal notranslate"><span class="pre">LICENSE</span></code>.</p></li>
+<li><p>Check the output of:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rst2html</span><span class="o">.</span><span class="n">py</span> <span class="n">README</span><span class="o">.</span><span class="n">rst</span> <span class="o">&gt;</span> <span class="o">~/</span><span class="n">tmp</span><span class="o">/</span><span class="n">readme</span><span class="o">.</span><span class="n">html</span>
+</pre></div>
+</div>
+<p>because this will be the output used by <a href="#id2"><span class="problematic" id="id3">pypi_</span></a>.  <code class="docutils literal notranslate"><span class="pre">rst2html.py</span></code> is a script
+installed by <a class="reference external" href="http://docutils.sourceforge.net">docutils</a> (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">docutils</span></code>).</p>
+</li>
+<li><p>Check the dependencies listed in <code class="docutils literal notranslate"><span class="pre">regreg/info.py</span></code> (e.g.
+<code class="docutils literal notranslate"><span class="pre">NUMPY_MIN_VERSION</span></code>) and in <code class="docutils literal notranslate"><span class="pre">doc/source/installation.rst</span></code> and in
+<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and in <code class="docutils literal notranslate"><span class="pre">.travis.yml</span></code>.  They should at least match. Do
+they still hold?  Make sure <a href="#id4"><span class="problematic" id="id5">`regreg on travis`_</span></a> is testing the minimum
+dependencies specifically.</p></li>
+<li><p>Do a final check on the <a href="#id6"><span class="problematic" id="id7">`nipy buildbot`_</span></a>.  Use the <code class="docutils literal notranslate"><span class="pre">try_branch.py</span></code>
+scheduler available in <a href="#id8"><span class="problematic" id="id9">nibotmi_</span></a> to test particular schedulers.</p></li>
+<li><p>Make sure all tests pass (from the Regreg root directory):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nosetests</span> <span class="o">--</span><span class="k">with</span><span class="o">-</span><span class="n">doctest</span> <span class="n">regreg</span>
+</pre></div>
+</div>
+</li>
+<li><p>Make sure you are set up to use the <code class="docutils literal notranslate"><span class="pre">try_branch.py</span></code> - see
+<a class="reference external" href="https://github.com/nipy/nibotmi/blob/master/install.rst#trying-a-set-of-changes-on-the-buildbots">https://github.com/nipy/nibotmi/blob/master/install.rst#trying-a-set-of-changes-on-the-buildbots</a></p></li>
+<li><p>Make sure all your changes are committed or removed, because
+<code class="docutils literal notranslate"><span class="pre">try_branch.py</span></code> pushes up the changes in the working tree;</p>
+<ul>
+<li><p>Check the documentation doctests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">doc</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">clean</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">doctest</span>
+</pre></div>
+</div>
+<p>This should also be tested by <a href="#id10"><span class="problematic" id="id11">`regreg on travis`_</span></a>.</p>
+</li>
+<li><p>Check everything compiles without syntax errors:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">compileall</span> <span class="o">.</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Check on different platforms, particularly windows and PPC. Look at the
+<a href="#id12"><span class="problematic" id="id13">`nipy buildbot`_</span></a> automated test runs for this;</p></li>
+<li><p>Build and test the Regreg wheels.  See the <a class="reference external" href="https://github.com/MacPython/regreg-wheels">wheel builder README</a> for instructions.  In
+summary, clone the wheel-building repo, edit the <code class="docutils literal notranslate"><span class="pre">.travis.yml</span></code> text files
+with the branch or commit for the release, commit and then push back up to
+github.  This will trigger a wheel build and test on OSX and Linux. Check
+the build has passed on on the Travis-CI interface at
+<a class="reference external" href="https://travis-ci.org/MacPython/regreg-wheels">https://travis-ci.org/MacPython/regreg-wheels</a>.  You’ll need commit
+privileges to the <code class="docutils literal notranslate"><span class="pre">regreg-wheels</span></code> repo.</p></li>
+<li><p>Make sure you have <a href="#id14"><span class="problematic" id="id15">travis-ci_</span></a> building set up for your own repo. Make a new
+<code class="docutils literal notranslate"><span class="pre">release-check</span></code> (or similar) branch, and push the code in its current
+state to a branch that will build, e.g:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">branch</span> <span class="o">-</span><span class="n">D</span> <span class="n">release</span><span class="o">-</span><span class="n">check</span> <span class="c1"># in case branch already exists</span>
+<span class="n">git</span> <span class="n">co</span> <span class="o">-</span><span class="n">b</span> <span class="n">release</span><span class="o">-</span><span class="n">check</span>
+<span class="c1"># You might need the --force flag here</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">your</span><span class="o">-</span><span class="n">github</span><span class="o">-</span><span class="n">user</span> <span class="n">release</span><span class="o">-</span><span class="n">check</span> <span class="o">-</span><span class="n">u</span>
+</pre></div>
+</div>
+</li>
+<li><p>Once everything looks good, you are ready to upload the source release to
+PyPi.  See <a class="reference external" href="https://pythonhosted.org/an_example_pypi_project/setuptools.html">setuptools intro</a>.  Make sure you have a file
+<code class="docutils literal notranslate"><span class="pre">\$HOME/.pypirc</span></code>, of form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">distutils</span><span class="p">]</span>
+<span class="n">index</span><span class="o">-</span><span class="n">servers</span> <span class="o">=</span>
+    <span class="n">pypi</span>
+    <span class="n">warehouse</span>
+
+<span class="p">[</span><span class="n">pypi</span><span class="p">]</span>
+<span class="n">username</span><span class="p">:</span><span class="n">your</span><span class="o">.</span><span class="n">pypi</span><span class="o">.</span><span class="n">username</span>
+<span class="n">password</span><span class="p">:</span><span class="n">your</span><span class="o">-</span><span class="n">password</span>
+
+<span class="p">[</span><span class="n">warehouse</span><span class="p">]</span>
+<span class="n">repository</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">upload</span><span class="o">.</span><span class="n">pypi</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">legacy</span><span class="o">/</span>
+<span class="n">username</span><span class="p">:</span><span class="n">your</span><span class="o">.</span><span class="n">pypi</span><span class="o">.</span><span class="n">username</span>
+<span class="n">password</span><span class="p">:</span><span class="n">your</span><span class="o">-</span><span class="n">password</span>
+</pre></div>
+</div>
+</li>
+<li><p>Clean:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">distclean</span>
+<span class="c1"># Check no files outside version control that you want to keep</span>
+<span class="n">git</span> <span class="n">status</span>
+<span class="c1"># Nuke</span>
+<span class="n">git</span> <span class="n">clean</span> <span class="o">-</span><span class="n">fxd</span>
+</pre></div>
+</div>
+</li>
+<li><p>When ready:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">register</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">sdist</span> <span class="o">--</span><span class="n">formats</span><span class="o">=</span><span class="nb">zip</span>
+<span class="c1"># -s flag to sign the release</span>
+<span class="n">twine</span> <span class="n">upload</span> <span class="o">-</span><span class="n">r</span> <span class="n">warehouse</span> <span class="o">-</span><span class="n">s</span> <span class="n">dist</span><span class="o">/</span><span class="n">regreg</span><span class="o">*</span>
+</pre></div>
+</div>
+</li>
+<li><p>Tag the release with signed tag of form <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">s</span> <span class="mf">0.1</span><span class="o">.</span><span class="mi">0</span>
+</pre></div>
+</div>
+</li>
+<li><p>Push the tag and any other changes to trunk with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="mf">0.1</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">git</span> <span class="n">push</span>
+</pre></div>
+</div>
+</li>
+<li><p>Now the version number is OK, push the docs to github pages with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">upload</span><span class="o">-</span><span class="n">html</span>
+</pre></div>
+</div>
+</li>
+<li><p>Set up maintenance / development branches</p>
+<p>If this is this is a full release you need to set up two branches, one for
+further substantial development (often called ‘trunk’) and another for
+maintenance releases.</p>
+<ul>
+<li><p>Branch to maintenance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">co</span> <span class="o">-</span><span class="n">b</span> <span class="n">maint</span><span class="o">/</span><span class="mf">0.1</span><span class="o">.</span><span class="n">x</span>
+</pre></div>
+</div>
+<p>Commit.  Don’t forget to push upstream with something like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">upstream</span><span class="o">-</span><span class="n">remote</span> <span class="n">maint</span><span class="o">/</span><span class="mf">0.1</span><span class="o">.</span><span class="n">x</span> <span class="o">--</span><span class="nb">set</span><span class="o">-</span><span class="n">upstream</span>
+</pre></div>
+</div>
+</li>
+<li><p>Start next development series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">co</span> <span class="n">main</span><span class="o">-</span><span class="n">master</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Push the main branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">upstream</span><span class="o">-</span><span class="n">remote</span> <span class="n">main</span><span class="o">-</span><span class="n">master</span>
+</pre></div>
+</div>
+</li>
+<li><p>Announce to the mailing lists.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

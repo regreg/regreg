@@ -1,0 +1,27 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+smooth.losses
+=============
+
+Module: :mod:`smooth.losses`
+----------------------------
+Inheritance diagram for ``regreg.smooth.losses``:
+
+.. inheritance-diagram:: regreg.smooth.losses 
+   :parts: 3
+
+.. automodule:: regreg.smooth.losses
+
+.. currentmodule:: regreg.smooth.losses
+
+:class:`huberized_svm`
+----------------------
+
+
+.. autoclass:: huberized_svm
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__

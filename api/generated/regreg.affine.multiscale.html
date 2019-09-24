@@ -1,113 +1,288 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="algorithms" href="regreg.algorithms.html" />
+    <link rel="prev" title="affine.image2d" href="regreg.affine.image2d.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">affine.multiscale</a><ul>
-<li><a class="reference internal" href="#module-affine-multiscale">Module: <tt class="docutils literal"><span class="pre">affine.multiscale</span></tt></a></li>
-<li><a class="reference internal" href="#multiscale"><tt class="docutils literal"><span class="pre">multiscale</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">affine.multiscale</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-affine-multiscale">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.multiscale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class">Class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multiscale"><code class="xref py py-class docutils literal notranslate"><span class="pre">multiscale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">affine.multiscale</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-affine-multiscale">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.multiscale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class">Class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multiscale"><code class="xref py py-class docutils literal notranslate"><span class="pre">multiscale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.affine.multiscale.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.affine.multiscale.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="affine-multiscale">
 <h1>affine.multiscale<a class="headerlink" href="#affine-multiscale" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-affine-multiscale">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">affine.multiscale</span></tt><a class="headerlink" href="#module-affine-multiscale" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.affine.multiscale</span></tt>:</p>
-<p class="graphviz">
-<img src="../../_images/inheritance-33bbc20a9e4d77542087f5b0356a291b59cc0637.png" alt="Inheritance diagram of regreg.affine.multiscale" usemap="#inheritancee63cf90c1b" class="inheritance"/>
-<map id="inheritancee63cf90c1b" name="inheritancee63cf90c1b">
-<area shape="rect" id="node1" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform" alt="" coords="5,5,220,32"/>
-<area shape="rect" id="node2" href="#regreg.affine.multiscale.multiscale" title="An affine transform representing the" alt="" coords="268,5,464,32"/>
-</map>
-</p>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.multiscale</span></code><a class="headerlink" href="#module-affine-multiscale" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.affine.multiscale</span></code>:</p>
+digraph inheritancee63cf90c1b {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;affine.multiscale.multiscale&quot; [URL=&quot;#regreg.affine.multiscale.multiscale&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;An affine transform representing the&quot;];
+  &quot;regreg.affine.affine_transform&quot; -&gt; &quot;affine.multiscale.multiscale&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.affine.affine_transform&quot; [URL=&quot;regreg.affine.html#regreg.affine.affine_transform&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+}
 <span class="target" id="module-regreg.affine.multiscale"></span></div>
+<div class="section" id="class">
+<h2>Class<a class="headerlink" href="#class" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="multiscale">
-<h2><a class="reference internal" href="#regreg.affine.multiscale.multiscale" title="regreg.affine.multiscale.multiscale"><tt class="xref py py-class docutils literal"><span class="pre">multiscale</span></tt></a><a class="headerlink" href="#multiscale" title="Permalink to this headline">¶</a></h2>
+<h2><a class="reference internal" href="#regreg.affine.multiscale.multiscale" title="regreg.affine.multiscale.multiscale"><code class="xref py py-class docutils literal notranslate"><span class="pre">multiscale</span></code></a><a class="headerlink" href="#multiscale" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="regreg.affine.multiscale.multiscale">
-<em class="property">class </em><tt class="descclassname">regreg.affine.multiscale.</tt><tt class="descname">multiscale</tt><big>(</big><em>p</em>, <em>minsize=None</em>, <em>slices=</em><span class="optional">[</span><span class="optional">]</span>, <em>scaling=None</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><tt class="xref py py-class docutils literal"><span class="pre">regreg.affine.affine_transform</span></tt></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.affine.multiscale.</code><code class="sig-name descname">multiscale</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">minsize=None</em>, <em class="sig-param">slices=[]</em>, <em class="sig-param">scaling=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.affine.html#regreg.affine.affine_transform" title="regreg.affine.affine_transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.affine.affine_transform</span></code></a></p>
 <p>An affine transform representing the
 multiscale changepoint transform.</p>
 <p>This transform centers the input
@@ -115,12 +290,10 @@ and then computes the average over
 all intervals of a minimum size.</p>
 <dl class="method">
 <dt id="regreg.affine.multiscale.multiscale.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>p</em>, <em>minsize=None</em>, <em>slices=</em><span class="optional">[</span><span class="optional">]</span>, <em>scaling=None</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>p</strong> : int</p>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">minsize=None</em>, <em class="sig-param">slices=[]</em>, <em class="sig-param">scaling=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> : int</p>
 <blockquote>
 <div><p>Length of signal.</p>
 </div></blockquote>
@@ -132,110 +305,247 @@ Defaults to p**(1/3.)</p>
 <p><strong>slices</strong> : []</p>
 <blockquote>
 <div><p>A list of intervals to use in the transform.
-Will be coerced to have dtype([(&#8216;start&#8217;, np.int), (&#8216;end&#8217;, np.int)])</p>
+Will be coerced to have dtype([(‘start’, np.int), (‘end’, np.int)])</p>
 </div></blockquote>
 <p><strong>scaling</strong> : np.float((slices.shape))</p>
-<blockquote class="last">
+<blockquote>
 <div><p>An optional scaling to apply after computing
 mean over each interval.</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.T">
+<em class="property">property </em><code class="sig-name descname">T</code><a class="headerlink" href="#regreg.affine.multiscale.multiscale.T" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="regreg.affine.multiscale.multiscale.adjoint_map">
-<tt class="descname">adjoint_map</tt><big>(</big><em>v</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.adjoint_map" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>v</strong> : np.float(self.output_shape)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>v</strong> : np.float(self.input_shape)</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">adjoint_map</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.adjoint_map" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> : np.float(self.output_shape)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>v</strong> : np.float(self.input_shape)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.affine.multiscale.multiscale.affine_map">
-<tt class="descname">affine_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.affine_map" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">affine_map</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.affine_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear and affine offset to <cite>x</cite></p>
+<p>Return <span class="math notranslate nohighlight">\(Dx+\alpha\)</span></p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+<p><strong>copy</strong> : {True, False}, optional</p>
+<blockquote>
+<div><p>If True, in situations where return is identical to <cite>x</cite>, ensure
+returned value is a copy.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Dx_a</strong> : ndarray</p>
+<blockquote>
+<div><p><cite>x</cite> transformed with linear and offset components</p>
+</div></blockquote>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This routine is subclassed in affine_atom as a matrix multiplications,
+but could also call FFTs if D is a DFT matrix, in a subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.dot">
+<code class="sig-name descname">dot</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply linear part of transform to <cite>x</cite>.
+Returns <cite>self.linear_map(x)</cite> unless <cite>x</cite>
+is a transform, in which case it returns the composition.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>array to which to apply transform.  Can be 1D or 2D</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Dx</strong> : ndarray</p>
+<blockquote>
+<div><p><cite>x</cite> transformed with linear component</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.affine.multiscale.multiscale.dtype">
-<tt class="descname">dtype</tt><em class="property"> = dtype([('start', '&lt;i8'), ('end', '&lt;i8')])</em><a class="headerlink" href="#regreg.affine.multiscale.multiscale.dtype" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dtype</code><em class="property"> = dtype([('start', '&lt;i8'), ('end', '&lt;i8')])</em><a class="headerlink" href="#regreg.affine.multiscale.multiscale.dtype" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="regreg.affine.multiscale.multiscale.linear_map">
-<tt class="descname">linear_map</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.linear_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a p-vector <cite>x</cite> compute the average of
-<cite>x - x.mean()</cite> over each interval
-of size greater than <cite>self.minsize</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> : np.float(self.input_shape)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>v</strong> : np.float(self.output_shape)</td>
-</tr>
-</tbody>
-</table>
+<dt id="regreg.affine.multiscale.multiscale.form_matrix">
+<code class="sig-name descname">form_matrix</code><span class="sig-paren">(</span><em class="sig-param">slices</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.form_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Form a matrix with given slices of multiscale transform.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.linear_map">
+<code class="sig-name descname">linear_map</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.linear_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a p-vector <cite>x</cite> compute the average of
+<cite>x - x.mean()</cite> over each interval
+of size greater than <cite>self.minsize</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> : np.float(self.input_shape)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>v</strong> : np.float(self.output_shape)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.ndim">
+<em class="property">property </em><code class="sig-name descname">ndim</code><a class="headerlink" href="#regreg.affine.multiscale.multiscale.ndim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.affine.multiscale.multiscale.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#regreg.affine.multiscale.multiscale.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="regreg.affine.multiscale.multiscale.update_slices">
-<tt class="descname">update_slices</tt><big>(</big><em>slices</em>, <em>scaling=None</em><big>)</big><a class="headerlink" href="#regreg.affine.multiscale.multiscale.update_slices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_slices</code><span class="sig-paren">(</span><em class="sig-param">slices</em>, <em class="sig-param">scaling=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.multiscale.update_slices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the intervals computed by the multiscale
 transform.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>slices</strong> : []</p>
-<blockquote class="last">
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slices</strong> : []</p>
+<blockquote>
 <div><p>List of (i,j) intervals to compute.
-Will be converted to have dtype([(&#8216;start&#8217;, np.int), (&#8216;end&#8217;, np.int)])</p>
+Will be converted to have dtype([(‘start’, np.int), (‘end’, np.int)])</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.affine.multiscale.SMUCE_stat">
+<code class="sig-prename descclassname">regreg.affine.multiscale.</code><code class="sig-name descname">SMUCE_stat</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">Z</em>, <em class="sig-param">sigma=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.SMUCE_stat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute multiscale test statistic of Chan and Walther. Used
+in the SMUCE algorithm and in the multiscale change point
+algorithm in the square-root LASSO selective inference paper.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>M</strong> : instance of <cite>multiscale</cite></p>
+<p><strong>Z</strong> : np.ndarray</p>
+<blockquote>
+<div><p>Data on which to compute the statistic.</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float</p>
+<blockquote>
+<div><p>Noise level. Defaults to np.std(Z).</p>
+</div></blockquote>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>M’s scaling is ignored, even if not None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.affine.multiscale.choose_tuning_parameter">
+<code class="sig-prename descclassname">regreg.affine.multiscale.</code><code class="sig-name descname">choose_tuning_parameter</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">ndraw=100</em>, <em class="sig-param">quantile=0.95</em>, <em class="sig-param">sigma=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.affine.multiscale.choose_tuning_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose tuning parameter 
+in the SMUCE algorithm and in the multiscale change point
+algorithm in the square-root LASSO selective inference paper.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>M</strong> : instance of <cite>multiscale</cite></p>
+<p><strong>ndraw</strong> : int</p>
+<blockquote>
+<div><p>How many Monte Carlo draws.</p>
+</div></blockquote>
+<p><strong>quantile</strong> : float</p>
+<blockquote>
+<div><p>Which quantile of Monte Carlo draws to choose.</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float</p>
+<blockquote>
+<div><p>Passed to <cite>SMUCE_stat</cite></p>
+</div></blockquote>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>M’s scaling is ignored, even if not None.</p>
 </dd></dl>
 
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.algorithms.html" class="btn btn-neutral float-right" title="algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.affine.image2d.html" class="btn btn-neutral float-left" title="affine.image2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

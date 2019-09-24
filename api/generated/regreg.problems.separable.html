@@ -1,142 +1,706 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="problems.simple" href="regreg.problems.simple.html" />
+    <link rel="prev" title="problems.dual_problem" href="regreg.problems.dual_problem.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">problems.separable</a><ul>
-<li><a class="reference internal" href="#module-problems-separable">Module: <tt class="docutils literal"><span class="pre">problems.separable</span></tt></a></li>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#separable"><tt class="docutils literal"><span class="pre">separable</span></tt></a></li>
-<li><a class="reference internal" href="#separable-problem"><tt class="docutils literal"><span class="pre">separable_problem</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">problems.separable</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-problems-separable">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.separable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function">Function</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#function">Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">problems.separable</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-problems-separable">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.separable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.problems.separable.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.problems.separable.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="problems-separable">
 <h1>problems.separable<a class="headerlink" href="#problems-separable" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-problems-separable">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">problems.separable</span></tt><a class="headerlink" href="#module-problems-separable" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.problems.separable</span></tt>:</p>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.separable</span></code><a class="headerlink" href="#module-problems-separable" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.problems.separable</span></code>:</p>
+digraph inheritance4da4916872 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;problems.composite.composite&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.composite&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A generic way to specify a problem in composite form.&quot;];
+  &quot;problems.composite.nonsmooth&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.nonsmooth&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A composite subclass that explicitly returns 0&quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.composite.nonsmooth&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;problems.separable.separable&quot; [URL=&quot;#regreg.problems.separable.separable&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;regreg.atoms.atom&quot; -&gt; &quot;problems.separable.separable&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;problems.separable.separable_problem&quot; [URL=&quot;#regreg.problems.separable.separable_problem&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;problems.simple.simple_problem&quot; -&gt; &quot;problems.separable.separable_problem&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;problems.simple.simple_problem&quot; [URL=&quot;regreg.problems.simple.html#regreg.problems.simple.simple_problem&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.simple.simple_problem&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.atoms.atom&quot; [URL=&quot;regreg.atoms.html#regreg.atoms.atom&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class that defines the API for support functions.&quot;];
+  &quot;problems.composite.nonsmooth&quot; -&gt; &quot;regreg.atoms.atom&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<span class="target" id="module-regreg.problems.separable"></span><p>This module implements the notion of a separable support function / constraint
+regularizer or penalty.</p>
+<p>The penalty is specified by a primal shape, a sequence of atoms and
+a sequence of slicing objects.</p>
 </div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="separable">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">separable</span></tt><a class="headerlink" href="#separable" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.problems.separable.separable" title="regreg.problems.separable.separable"><code class="xref py py-class docutils literal notranslate"><span class="pre">separable</span></code></a><a class="headerlink" href="#separable" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.problems.separable.separable">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.separable.</code><code class="sig-name descname">separable</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">atoms</em>, <em class="sig-param">groups</em>, <em class="sig-param">test_for_overlap=False</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.atoms.html#regreg.atoms.atom" title="regreg.atoms.atom"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.atoms.atom</span></code></a></p>
+<dl class="method">
+<dt id="regreg.problems.separable.separable.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">atoms</em>, <em class="sig-param">groups</em>, <em class="sig-param">test_for_overlap=False</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.conjugate">
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.problems.separable.separable.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd><p>The conjugate of an atom.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.constraint">
+<code class="sig-name descname">constraint</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.dual">
+<em class="property">property </em><code class="sig-name descname">dual</code><a class="headerlink" href="#regreg.problems.separable.separable.dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.get_conjugate">
+<code class="sig-name descname">get_conjugate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.get_dual">
+<code class="sig-name descname">get_dual</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.get_dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.linear_transform">
+<em class="property">property </em><code class="sig-name descname">linear_transform</code><a class="headerlink" href="#regreg.problems.separable.separable.linear_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>The linear transform applied before a penalty is computed. Defaults to regreg.affine.identity</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">regreg.api</span> <span class="k">import</span> <span class="n">l1norm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">l1norm</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">penalty</span><span class="o">.</span><span class="n">linear_transform</span><span class="p">)</span>
+<span class="go">&lt;class &#39;regreg.affine.identity&#39;&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.separable.separable.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.separable.separable.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.separable.separable.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'dualklass': 'dualnorm', 'klass': 'norm', 'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.separable.separable.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.separable.separable.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">proxq</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.separable.separable.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.selectors">
+<em class="property">property </em><code class="sig-name descname">selectors</code><a class="headerlink" href="#regreg.problems.separable.separable.selectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.seminorm">
+<code class="sig-name descname">seminorm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.seminorm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The zero function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.separable.separable.tol">
+<code class="sig-name descname">tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.problems.separable.separable.tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="separable-problem">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">separable_problem</span></tt><a class="headerlink" href="#separable-problem" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.problems.separable.separable_problem" title="regreg.problems.separable.separable_problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">separable_problem</span></code></a><a class="headerlink" href="#separable-problem" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.problems.separable.separable_problem">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.separable.</code><code class="sig-name descname">separable_problem</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em>, <em class="sig-param">shape</em>, <em class="sig-param">atoms</em>, <em class="sig-param">groups</em>, <em class="sig-param">test_for_overlap=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.problems.simple.html#regreg.problems.simple.simple_problem" title="regreg.problems.simple.simple_problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.problems.simple.simple_problem</span></code></a></p>
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em>, <em class="sig-param">shape</em>, <em class="sig-param">atoms</em>, <em class="sig-param">groups</em>, <em class="sig-param">test_for_overlap=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.fromatom">
+<em class="property">static </em><code class="sig-name descname">fromatom</code><span class="sig-paren">(</span><em class="sig-param">separable_atom</em>, <em class="sig-param">smooth_f</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.fromatom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.nonsmooth">
+<em class="property">static </em><code class="sig-name descname">nonsmooth</code><span class="sig-paren">(</span><em class="sig-param">proximal_atom</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.nonsmooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>A problem with no nonsmooth part except possibly
+the quadratic of smooth_atom.</p>
+<p>The proximal function is (almost) a nullop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.separable.separable_problem.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.separable.separable_problem.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.separable.separable_problem.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.separable.separable_problem.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.separable.separable_problem.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">proxq</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.separable.separable_problem.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.selectors">
+<em class="property">property </em><code class="sig-name descname">selectors</code><a class="headerlink" href="#regreg.problems.separable.separable_problem.selectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.singleton">
+<em class="property">static </em><code class="sig-name descname">singleton</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">smooth_f</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.singleton" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.smooth">
+<em class="property">static </em><code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>A problem with no nonsmooth part except possibly
+the quadratic of smooth_atom.</p>
+<p>The proximal function is (almost) a nullop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class explicitly assumes that
+the proximal_atom has 0 for smooth_objective.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.separable.separable_problem.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.separable_problem.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="function">
 <h2>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.problems.separable.has_overlap">
+<code class="sig-prename descclassname">regreg.problems.separable.</code><code class="sig-name descname">has_overlap</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">groups</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.separable.has_overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether the groups, viewed as slices of an array
+with given shape, have any overlap.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> : tuple</p>
+<blockquote>
+<div><p>A tuple of integers representing a shape for an array.</p>
+</div></blockquote>
+<p><strong>groups</strong> : sequence</p>
+<blockquote>
+<div><p>A sequence of objects that can be viewed as slices of
+an ndarray with shape==shape.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> : boolean</p>
+<blockquote>
+<div><p>True if the slices overlap, else False.</p>
+</div></blockquote>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">regreg.problems.separable</span> <span class="k">import</span> <span class="n">has_overlap</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_overlap</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_overlap</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)]])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.problems.simple.html" class="btn btn-neutral float-right" title="problems.simple" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.problems.dual_problem.html" class="btn btn-neutral float-left" title="problems.dual_problem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

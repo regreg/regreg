@@ -1,0 +1,40 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+affine.multiscale
+=================
+
+Module: :mod:`affine.multiscale`
+--------------------------------
+Inheritance diagram for ``regreg.affine.multiscale``:
+
+.. inheritance-diagram:: regreg.affine.multiscale 
+   :parts: 3
+
+.. automodule:: regreg.affine.multiscale
+
+.. currentmodule:: regreg.affine.multiscale
+
+Class
+-----
+
+:class:`multiscale`
+-------------------
+
+
+.. autoclass:: multiscale
+  :members:
+  :undoc-members:
+  :show-inheritance:
+  :inherited-members:
+
+  .. automethod:: __init__
+
+Functions
+---------
+
+
+.. autofunction:: regreg.affine.multiscale.SMUCE_stat
+
+
+.. autofunction:: regreg.affine.multiscale.choose_tuning_parameter
+

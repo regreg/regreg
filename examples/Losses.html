@@ -1,0 +1,1007 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../agenda.html">RegReg development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/Losses.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="some-common-loss-functions">
+<span id="losses-example"></span><h1>Some common loss functions<a class="headerlink" href="#some-common-loss-functions" title="Permalink to this headline">¶</a></h1>
+<p>There are several commonly used smooth loss functions built into
+<code class="docutils literal notranslate"><span class="pre">regreg</span></code>:</p>
+<ul class="simple">
+<li><p>squared error loss (<code class="docutils literal notranslate"><span class="pre">regreg.api.squared_error</span></code>)</p></li>
+<li><p>Logistic loss (<code class="docutils literal notranslate"><span class="pre">regreg.glm.glm.logistic</span></code>)</p></li>
+<li><p>Poisson loss (<code class="docutils literal notranslate"><span class="pre">regreg.glm.glm.poisson</span></code>)</p></li>
+<li><p>Cox proportional hazards (<code class="docutils literal notranslate"><span class="pre">regreg.glm.glm.coxph</span></code>, depends on
+<code class="docutils literal notranslate"><span class="pre">statsmodels</span></code>)</p></li>
+<li><p>Huber loss (<code class="docutils literal notranslate"><span class="pre">regreg.glm.glm.huber</span></code>)</p></li>
+<li><p>Huberized SVM (<code class="docutils literal notranslate"><span class="pre">regreg.smooth.losses.huberized_svm</span></code>)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">regreg.api</span> <span class="kn">as</span> <span class="nn">rr</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">rpy2.robjects</span> <span class="kn">as</span> <span class="nn">rpy2</span>
+<span class="kn">from</span> <span class="nn">rpy2.robjects</span> <span class="kn">import</span> <span class="n">numpy2ri</span>
+<span class="n">numpy2ri</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">X</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,))</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">logistic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">loss</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\ell^{\text{logit}}\left(X_{}\beta\right)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">r_soln</span> <span class="o">=</span> <span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;glm(Y ~ X, family=binomial)$coef&#39;</span><span class="p">)</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">r_soln</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The losses can very easily be combined with a penalty.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+<span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">library(glmnet)</span>
+<span class="s1">Y = as.numeric(Y)</span>
+<span class="s1">G = glmnet(X, Y, intercept=FALSE, standardize=FALSE, family=&#39;binomial&#39;)</span>
+<span class="s1">print(coef(G, s=2 / nrow(X), x=X, y=Y, exact=TRUE))</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Suppose we want to match <code class="docutils literal notranslate"><span class="pre">glmnet</span></code> exactly without having to specify
+<code class="docutils literal notranslate"><span class="pre">intercept=FALSE</span></code> and <code class="docutils literal notranslate"><span class="pre">standardize=FALSE</span></code>. The <code class="docutils literal notranslate"><span class="pre">normalize</span></code>
+transformation can be used here.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">X_intercept</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">X</span><span class="p">])</span>
+<span class="n">X_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">X_intercept</span><span class="p">,</span> <span class="n">intercept_column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">loss_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">logistic</span><span class="p">(</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">penalty_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">weighted_l1norm</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.</span><span class="p">)</span>
+<span class="n">problem_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss_normalized</span><span class="p">,</span> <span class="n">penalty_normalized</span><span class="p">)</span>
+<span class="n">coefR</span> <span class="o">=</span> <span class="n">problem_normalized</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">,</span> <span class="n">min_its</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">coefR</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coefG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem_normalized</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">coefG</span><span class="p">),</span> <span class="n">problem_normalized</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">coefR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In theory, using the <code class="docutils literal notranslate"><span class="pre">standardize=TRUE</span></code> option in <code class="docutils literal notranslate"><span class="pre">glmnet</span></code> should be
+the same as using <code class="docutils literal notranslate"><span class="pre">scale=True,</span> <span class="pre">value=np.sqrt((n-1)/n)</span></code> in
+<code class="docutils literal notranslate"><span class="pre">normalize</span></code>, though the results don’t match without some adjustment.
+This is because <code class="docutils literal notranslate"><span class="pre">glmnet</span></code> returns coefficients that are on the scale of
+the original <span class="math notranslate nohighlight">\(X\)</span>.</p>
+<p>Dividing <code class="docutils literal notranslate"><span class="pre">regreg</span></code>’s coefficients by the <code class="docutils literal notranslate"><span class="pre">col_stds</span></code> corrects this.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X_intercept</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">X</span><span class="p">])</span>
+<span class="n">X_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">X_intercept</span><span class="p">,</span> <span class="n">intercept_column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                           <span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span><span class="o">/</span><span class="n">n</span><span class="p">))</span>
+<span class="n">loss_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">logistic</span><span class="p">(</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">penalty_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">weighted_l1norm</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.</span><span class="p">)</span>
+<span class="n">problem_normalized</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss_normalized</span><span class="p">,</span> <span class="n">penalty_normalized</span><span class="p">)</span>
+<span class="n">coefR</span> <span class="o">=</span> <span class="n">problem_normalized</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">coefR</span> <span class="o">/</span> <span class="n">X_normalized</span><span class="o">.</span><span class="n">col_stds</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">Y = as.numeric(Y)</span>
+<span class="s1">G = glmnet(X, Y, standardize=TRUE, intercept=TRUE, family=&#39;binomial&#39;)</span>
+<span class="s1">coefG = as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">coefG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;coefG&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coefG</span> <span class="o">=</span> <span class="n">coefG</span> <span class="o">*</span> <span class="n">X_normalized</span><span class="o">.</span><span class="n">col_stds</span>
+<span class="n">problem_normalized</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">coefG</span><span class="p">),</span> <span class="n">problem_normalized</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">coefR</span><span class="p">)</span>
+<span class="p">(</span><span class="mf">67.64597880430388</span><span class="p">,</span> <span class="mf">67.639665071862495</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="defining-a-new-smooth-function">
+<h2>Defining a new smooth function<a class="headerlink" href="#defining-a-new-smooth-function" title="Permalink to this headline">¶</a></h2>
+<p>A smooth function only really needs a <code class="docutils literal notranslate"><span class="pre">smooth_objective</span></code> method in
+order to be used in <code class="docutils literal notranslate"><span class="pre">regreg</span></code>.</p>
+<p>For example, suppose we want to define the loss</p>
+<div class="math notranslate nohighlight">
+\[\mu \mapsto \frac{1}{2} \|\mu\|^2_2  - \sum_{i=1}^k \log(b_i - a_i^T\mu)\]</div>
+<p>as a smooth approximation to the function</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}  \mu \mapsto \frac{1}{2} \|\mu\|^2_2 + I^{\infty}_K(\mu)\\where :math:`I^{\infty}_K` is the indicator of\end{aligned}\end{align} \]</div>
+<p><span class="math notranslate nohighlight">\(K=\left\{\mu: a_i^T\mu\leq b_i, 1 \leq i \leq k\right\}\)</span> (i.e. 0
+inside <span class="math notranslate nohighlight">\(K\)</span> and <span class="math notranslate nohighlight">\(\infty\)</span> outside <span class="math notranslate nohighlight">\(K\)</span>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">barrier</span><span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">smooth_atom</span><span class="p">):</span>
+
+    <span class="c1"># the argumenets [coef, offset, quadratic, initial]</span>
+    <span class="c1"># are passed when a function is composed with a linear_transform</span>
+
+    <span class="n">objective_template</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;\ell^{\text{barrier}}\left(</span><span class="si">%(var)s</span><span class="s2">\right)\</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">shape</span><span class="p">,</span>
+                 <span class="n">A</span><span class="p">,</span>
+                 <span class="n">b</span><span class="p">,</span>
+                 <span class="n">coef</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">quadratic</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">initial</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">rr</span><span class="o">.</span><span class="n">smooth_atom</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                <span class="n">shape</span><span class="p">,</span>
+                                <span class="n">coef</span><span class="o">=</span><span class="n">coef</span><span class="p">,</span>
+                                <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+                                <span class="n">quadratic</span><span class="o">=</span><span class="n">quadratic</span><span class="p">,</span>
+                                <span class="n">initial</span><span class="o">=</span><span class="n">initial</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+
+    <span class="k">def</span> <span class="nf">smooth_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean_param</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">check_feasibility</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">mean_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_offset</span><span class="p">(</span><span class="n">mean_param</span><span class="p">)</span>
+        <span class="n">slack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mean_param</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mean_param</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">mean_param</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">slack</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">g</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;grad&#39;</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">mean_param</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">slack</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">g</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;func&#39;</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mean_param</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">f</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mode incorrectly specified&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="n">barrier_loss</span> <span class="o">=</span> <span class="n">barrier</span><span class="p">((</span><span class="mi">2</span><span class="p">,),</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">barrier_loss</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\ell^{\text{barrier}}\left(\beta\right)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">barrier_loss</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The loss can now be combined with a penalty or constraint very easily.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1_bound</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">barrier_loss</span><span class="p">,</span> <span class="n">l1_bound</span><span class="p">)</span>
+<span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The loss can also be composed with a linear transform:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">lossX</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">affine_smooth</span><span class="p">(</span><span class="n">barrier_loss</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">lossX</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\ell^{\text{barrier}}\left(X_{}\beta\right)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lossX</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="huberized-lasso">
+<h1>Huberized lasso<a class="headerlink" href="#huberized-lasso" title="Permalink to this headline">¶</a></h1>
+<p>The Huberized lasso minimizes the following objective</p>
+<div class="math notranslate nohighlight">
+\[H_{\delta}(Y - X\beta) + \lambda \|\beta\|_1\]</div>
+<p>where <span class="math notranslate nohighlight">\(H_{\delta}(\cdot)\)</span> is a function applied element-wise,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} H_{\delta}(r) = \left\{\begin{array}{ll} r^2/2 &amp; \mbox{ if } |r| \leq
+\delta \\ \delta r - \delta^2/2 &amp; \mbox{ else}\end{array} \right.\end{split}\]</div>
+<p>Let’s look at the Huber loss for a smoothing parameter of
+<span class="math notranslate nohighlight">\(\delta=1.2\)</span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+<span class="n">xval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">101</span><span class="p">)</span>
+<span class="n">yval</span> <span class="o">=</span> <span class="p">[</span><span class="n">loss</span><span class="o">.</span><span class="n">smooth_objective</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xval</span><span class="p">]</span>
+<span class="n">huber_fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">huber_ax</span> <span class="o">=</span> <span class="n">huber_fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">huber_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xval</span><span class="p">,</span> <span class="n">yval</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-17.png">png</a>, <a class="reference external" href="../examples/Losses-17.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-17.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-17.png" src="../_images/Losses-17.png" />
+</div>
+<p>The Huber loss is built into regreg, but can also be obtained by
+smoothing the <code class="docutils literal notranslate"><span class="pre">l1norm</span></code> atom. We will verify the two methods yield the
+same solutions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="n">lagrange</span><span class="o">=</span><span class="mf">5.</span><span class="p">)</span>
+<span class="n">loss_atom</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="o">.</span><span class="n">affine</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">-</span><span class="n">Y</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">huber</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem1</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss_atom</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">problem1</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem2</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">problem2</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="poisson-regression-tutorial">
+<h1>Poisson regression tutorial<a class="headerlink" href="#poisson-regression-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>The Poisson regression problem minimizes the objective</p>
+<div class="math notranslate nohighlight">
+\[-2 \left(Y^TX\beta - \sum_{i=1}^n \mbox{exp}(x_i^T\beta) \right), \qquad Y_i \in {0,1,2,\ldots}\]</div>
+<p>which corresponds to the usual Poisson regression model</p>
+<div class="math notranslate nohighlight">
+\[P(Y=y|X=x) = \frac{\mbox{exp}(y \cdot x^T\beta-\mbox{exp}(x^T\beta))}{y!}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we can create the problem object, beginning with the loss function</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;coef(glm(Y ~ X - 1, family=poisson()))&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="logistic-regression-with-a-ridge-penalty">
+<h1>Logistic regression with a ridge penalty<a class="headerlink" href="#logistic-regression-with-a-ridge-penalty" title="Permalink to this headline">¶</a></h1>
+<p>In <code class="docutils literal notranslate"><span class="pre">regreg</span></code>, ridge penalties can be specified by the <code class="docutils literal notranslate"><span class="pre">quadratic</span></code>
+attribute of a loss (or a penalty).</p>
+<p>The regularized ridge logistic regression problem minimizes the
+objective</p>
+<div class="math notranslate nohighlight">
+\[-2\left(Y^TX\beta - \sum_i \log \left[ 1 + \exp(x_i^T\beta) \right] \right) + \lambda \|\beta\|_2^2\]</div>
+<p>which corresponds to the usual logistic regression model</p>
+<div class="math notranslate nohighlight">
+\[P(Y=1|X=x) = \mbox{logit}(x^T\beta) = \frac{1}{1 + \mbox{exp}(-x^T\beta)}\]</div>
+<p>Let’s generate some sample data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we can create the problem object, beginning with the loss function</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">logistic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">quadratic</span> <span class="o">=</span> <span class="n">penalty</span>
+<span class="n">loss</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\ell^{\text{logit}}\left(X_{}\beta\right)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span><span class="o">.</span><span class="n">coef</span>
+<span class="mf">1.0</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span><span class="o">.</span><span class="n">coef</span> <span class="o">=</span> <span class="mf">20.</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multinomial-regression">
+<h1>Multinomial regression<a class="headerlink" href="#multinomial-regression" title="Permalink to this headline">¶</a></h1>
+<p>The multinomial regression problem minimizes the objective</p>
+<div class="math notranslate nohighlight">
+\[-\left[ \sum_{j=1}^{J-1} \sum_{k=1}^p \beta_{jk}\sum_{i=1}^n x_{ik}y_{ij}
+ - \sum_{i=1}^n \log \left(1 + \mbox{exp}(x_i^T\beta_j) \right)\right]\]</div>
+<p>which corresponds to a baseline category logit model for <span class="math notranslate nohighlight">\(J\)</span>
+nominal categories (e.g. Agresti, p.g. 272). For <span class="math notranslate nohighlight">\(i \ne J\)</span> the
+probabilities are measured relative to a baseline category <span class="math notranslate nohighlight">\(J\)</span></p>
+<div class="math notranslate nohighlight">
+\[\frac{P(\mbox{Category } i)}{P(\mbox{Category } J)} = \mbox{logit}(x^T\beta_i) = \frac{1}{1 + \mbox{exp}(-x^T\beta_i)}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">regreg.smooth.glm</span> <span class="kn">import</span> <span class="n">multinomial_loglike</span>
+</pre></div>
+</div>
+<p>The only code needed to add multinomial regression to RegReg is a class
+with one method which computes the objective and its gradient.</p>
+<p>Next, let’s generate some example data. The multinomial counts will be
+stored in a <span class="math notranslate nohighlight">\(n \times J\)</span> array</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">J</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">n</span><span class="o">*</span><span class="n">J</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">J</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Now we can create the problem object, beginning with the loss function.
+The coefficients will be stored in a <span class="math notranslate nohighlight">\(p \times (J-1)\)</span> array, and
+we need to let RegReg know that the coefficients will be a 2d array
+instead of a vector. We can do this by defining the input_shape in a
+linear_transform object that multiplies by X,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">multX</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">linear_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">multinomial_loglike</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">multX</span><span class="p">,</span> <span class="n">counts</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+<p>Next, we can solve the problem</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>When <span class="math notranslate nohighlight">\(J=2\)</span> this model should reduce to logistic regression. We can
+easily check that this is the case by first fitting the multinomial
+model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">J</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">n</span><span class="o">*</span><span class="n">J</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">J</span><span class="p">))</span>
+<span class="n">multX</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">linear_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">multinomial_loglike</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">multX</span><span class="p">,</span> <span class="n">counts</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">FISTA</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">multinomial_coefs</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">composite</span><span class="o">.</span><span class="n">coefs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here is the equivalent logistic regresison model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">successes</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">trials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">logistic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">successes</span><span class="p">,</span> <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">FISTA</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">logistic_coefs</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">composite</span><span class="o">.</span><span class="n">coefs</span>
+</pre></div>
+</div>
+<p>Finally we can check that the two models gave the same coefficients</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">multinomial_coefs</span> <span class="o">-</span> <span class="n">logistic_coefs</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">logistic_coefs</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="section" id="hinge-loss">
+<h2>Hinge loss<a class="headerlink" href="#hinge-loss" title="Permalink to this headline">¶</a></h2>
+<p>The SVM can be parametrized various ways, one way to write it as a
+regression problem is to use the hinge loss:</p>
+<div class="math notranslate nohighlight">
+\[\ell(r) = \max(1-x, 0)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hinge</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">hinge</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-37.png">png</a>, <a class="reference external" href="../examples/Losses-37.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-37.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-37.png" src="../_images/Losses-37.png" />
+</div>
+<p>The SVM loss is then</p>
+<div class="math notranslate nohighlight">
+\[\ell(\beta) = C \sum_{i=1}^n h(Y_i X_i^T\beta) + \frac{1}{2} \|\beta\|^2_2\]</div>
+<p>where <span class="math notranslate nohighlight">\(Y_i \in \{-1,1\}\)</span> and <span class="math notranslate nohighlight">\(X_i \in \mathbb{R}^p\)</span> is one
+of the feature vectors.</p>
+<p>In regreg, the hinge loss can be represented by composition of some of
+the basic atoms. Specifcally, let
+<span class="math notranslate nohighlight">\(g:\mathbb{R}^n \rightarrow \mathbb{R}\)</span> be the sum of positive
+part function</p>
+<div class="math notranslate nohighlight">
+\[g(z) = \sum_{i=1}^n\max(z_i, 0).\]</div>
+<p>Then,</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}  \ell(\beta) = g\left(Y \cdot X\beta \right)\\where the product in the parentheses is elementwise multiplication.\end{aligned}\end{align} \]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">linear_part</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">1.</span><span class="p">]])</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">])</span>
+<span class="n">hinge_rep</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">positive_part</span><span class="o">.</span><span class="n">affine</span><span class="p">(</span><span class="n">linear_part</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">hinge_rep</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \left(\sum_{i=1}^{p} (X_{}\beta - \alpha_{})_i^+\right)\]</div>
+<p>Let’s plot the loss to be sure it agrees with our original hinge.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="p">[</span><span class="n">hinge_rep</span><span class="o">.</span><span class="n">nonsmooth_objective</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r</span><span class="p">])</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+<p>Here is a vectorized version.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,))</span> <span class="o">-</span> <span class="mf">1.</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">P</span><span class="p">))</span>
+<span class="c1">#X[Y==1] += np.array([30,-20] + (P-2)*[0])[np.newaxis,:]</span>
+<span class="n">X</span> <span class="o">-=</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">hinge_vec</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">positive_part</span><span class="o">.</span><span class="n">affine</span><span class="p">(</span><span class="o">-</span><span class="n">Y</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">Y</span><span class="p">),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">hinge_vec</span><span class="o">.</span><span class="n">nonsmooth_objective</span><span class="p">(</span><span class="n">beta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Y</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">beta</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="smoothed-hinge">
+<h2>Smoothed hinge<a class="headerlink" href="#smoothed-hinge" title="Permalink to this headline">¶</a></h2>
+<p>For optimization, the hinge loss is not differentiable so it is often
+smoothed first.</p>
+<p>The smoothing is applicable to general functions of the form</p>
+<div class="math notranslate nohighlight">
+\[g(X\beta-\alpha) = g_{\alpha}(X\beta)\]</div>
+<p>where <span class="math notranslate nohighlight">\(g_{\alpha}(z) = g(z-\alpha)\)</span> and is determined by a small
+quadratic term</p>
+<div class="math notranslate nohighlight">
+\[q(z) = \frac{C_0}{2} \|z-x_0\|^2_2 + v_0^Tz + c_0.\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">smoothing_quadratic</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">smoothing_quadratic</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{equation*} \frac{L_{}}{2}\|\beta\|^2_2 \end{equation*}\]</div>
+<p>The quadratic terms are determined by four parameters with
+<span class="math notranslate nohighlight">\((C_0, x_0, v_0, c_0)\)</span>.</p>
+<p>Smoothing of the function by the quadratic <span class="math notranslate nohighlight">\(q\)</span> is performed by
+Moreau smoothing:</p>
+<div class="math notranslate nohighlight">
+\[S(g_{\alpha},q)(\beta) = \sup_{z \in \mathbb{R}^p} z^T\beta - g^*_{\alpha}(z) - q(z)\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}  g^*_{\alpha}(z) = \sup_{\beta \in \mathbb{R}^p} z^T\beta - g_{\alpha}(\beta)\\is the convex (Fenchel) conjugate of the composition :math:`g` with the\end{aligned}\end{align} \]</div>
+<p>translation by <span class="math notranslate nohighlight">\(-\alpha\)</span>.</p>
+<p>The basic atoms in <code class="docutils literal notranslate"><span class="pre">regreg</span></code> know what their conjugate is. Our hinge
+loss, <code class="docutils literal notranslate"><span class="pre">hinge_rep</span></code>, is the composition of an <code class="docutils literal notranslate"><span class="pre">atom</span></code>, and an affine
+transform. This affine transform is split into two pieces, the linear
+part, stored as <code class="docutils literal notranslate"><span class="pre">linear_transform</span></code> and its offset stored as
+<code class="docutils literal notranslate"><span class="pre">atom.offset</span></code>. It is stored with <code class="docutils literal notranslate"><span class="pre">atom</span></code> as <code class="docutils literal notranslate"><span class="pre">atom</span></code> needs knowledge
+of this when computing proximal maps.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hinge_rep</span><span class="o">.</span><span class="n">atom</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \left(\sum_{i=1}^{p} (\beta - \alpha_{})_i^+\right)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hinge_rep</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">offset</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hinge_rep</span><span class="o">.</span><span class="n">linear_transform</span><span class="o">.</span><span class="n">linear_operator</span>
+</pre></div>
+</div>
+<p>As we said before, <code class="docutils literal notranslate"><span class="pre">hinge_rep.atom</span></code> knows what its conjugate is</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hinge_conj</span> <span class="o">=</span> <span class="n">hinge_rep</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">conjugate</span>
+<span class="n">hinge_conj</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[I^{\infty}(\left\|\beta\right\|_{\infty} + I^{\infty}\left(\min(\beta) \in [0,+\infty)\right)  \leq \delta_{}) + \left \langle \eta_{}, \beta \right \rangle\]</div>
+<p>The notation <span class="math notranslate nohighlight">\(I^{\infty}\)</span> denotes a constraint. The expression can
+therefore be parsed as a linear function <span class="math notranslate nohighlight">\(\eta^T\beta\)</span> plus the
+function</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}g^*(z) = \begin{cases}
+0 &amp; 0 \leq z_i \leq \delta \, \forall i \\
+\infty &amp; \text{otherwise.}
+\end{cases}\end{split}\]</div>
+<p>The term <span class="math notranslate nohighlight">\(\eta\)</span> is derived from <code class="docutils literal notranslate"><span class="pre">hinge_rep.atom.offset</span></code> and is
+stored in <code class="docutils literal notranslate"><span class="pre">hinge_conj.quadratic</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hinge_conj</span><span class="o">.</span><span class="n">quadratic</span><span class="o">.</span><span class="n">linear_term</span>
+</pre></div>
+</div>
+<p>Now, let’s look at the smoothed hinge loss.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">smoothed_hinge_loss</span> <span class="o">=</span> <span class="n">hinge_rep</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">smoothing_quadratic</span><span class="p">)</span>
+<span class="n">smoothed_hinge_loss</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\sup_{u \in \mathbb{R}^{p} } \left[ \langle X_{}\beta, u \rangle - \left(I^{\infty}(\left\|u\right\|_{\infty} + I^{\infty}\left(\min(u) \in [0,+\infty)\right)  \leq \delta_{}) + \frac{L_{}}{2}\|u\|^2_2 + \left \langle \eta_{}, u \right \rangle \right) \right]\]</div>
+<p>It is now a smooth function and its objective value and gradient can be
+computed with <code class="docutils literal notranslate"><span class="pre">smooth_objective</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="p">[</span><span class="n">smoothed_hinge_loss</span><span class="o">.</span><span class="n">smooth_objective</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r</span><span class="p">])</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">less_smooth</span> <span class="o">=</span> <span class="n">hinge_rep</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">5.e-2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="p">[</span><span class="n">less_smooth</span><span class="o">.</span><span class="n">smooth_objective</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r</span><span class="p">])</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fitting-the-svm">
+<h2>Fitting the SVM<a class="headerlink" href="#fitting-the-svm" title="Permalink to this headline">¶</a></h2>
+<p>We can now minimize this objective.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">smoothed_vec</span> <span class="o">=</span> <span class="n">hinge_vec</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">soln</span> <span class="o">=</span> <span class="n">smoothed_vec</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">,</span> <span class="n">min_its</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sparse-svm">
+<h2>Sparse SVM<a class="headerlink" href="#sparse-svm" title="Permalink to this headline">¶</a></h2>
+<p>We might want to fit a sparse version, adding a sparsifying penalty like
+the LASSO. This yields the problem</p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_{\beta} \ell(\beta) + \lambda \|\beta\|_1\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">smoothed_vec</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">smoothed_vec</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+<span class="n">problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;=  \sup_{u \in \mathbb{R}^{p} } \left[ \langle X_{1}\beta, u \rangle - \left(I^{\infty}(\left\|u\right\|_{\infty} + I^{\infty}\left(\min(u) \in [0,+\infty)\right)  \leq \delta_{1}) + \frac{L_{1}}{2}\|u\|^2_2 + \left \langle \eta_{1}, u \right \rangle \right) \right] \\
+g(\beta) &amp;= \lambda_{2} \|\beta\|_1 \\
+\end{aligned}\end{split}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sparse_soln</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">)</span>
+<span class="n">sparse_soln</span>
+</pre></div>
+</div>
+<p>What value of <span class="math notranslate nohighlight">\(\lambda\)</span> should we use? For the <span class="math notranslate nohighlight">\(\ell_1\)</span>
+penalty in Lagrange form, the smallest <span class="math notranslate nohighlight">\(\lambda\)</span> such that the
+solution is zero can be found by taking the dual norm, the
+<span class="math notranslate nohighlight">\(\ell_{\infty}\)</span> norm, of the gradient of the smooth part at 0.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">linf_norm</span> <span class="o">=</span> <span class="n">penalty</span><span class="o">.</span><span class="n">conjugate</span>
+<span class="n">linf_norm</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[I^{\infty}(\|\beta\|_{\infty} \leq \delta_{})\]</div>
+<p>Just computing the conjugate will yield an <span class="math notranslate nohighlight">\(\ell_{\infty}\)</span>
+constraint, but this object can still be used to compute the desired
+value of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">score_at_zero</span> <span class="o">=</span> <span class="n">smoothed_vec</span><span class="o">.</span><span class="n">smooth_objective</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">smoothed_vec</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="s1">&#39;grad&#39;</span><span class="p">)</span>
+<span class="n">lam_max</span> <span class="o">=</span> <span class="n">linf_norm</span><span class="o">.</span><span class="n">seminorm</span><span class="p">(</span><span class="n">score_at_zero</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">lam_max</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="n">lam_max</span> <span class="o">*</span> <span class="mf">1.001</span>
+<span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">,</span> <span class="n">min_its</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="n">lam_max</span> <span class="o">*</span> <span class="mf">0.99</span>
+<span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">,</span> <span class="n">min_its</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="path-of-solutions">
+<h3>Path of solutions<a class="headerlink" href="#path-of-solutions" title="Permalink to this headline">¶</a></h3>
+<p>If we want a path of solutions, we can simply take multiples of
+<code class="docutils literal notranslate"><span class="pre">lam_max</span></code>. This is similar to the strategy that packages like
+<code class="docutils literal notranslate"><span class="pre">glmnet</span></code> use</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">lam_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">lam_max</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">lam_val</span> <span class="ow">in</span> <span class="n">lam_vals</span><span class="p">:</span>
+    <span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="n">lam_val</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">path</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-58.png">png</a>, <a class="reference external" href="../examples/Losses-58.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-58.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-58.png" src="../_images/Losses-58.png" />
+</div>
+</div>
+</div>
+<div class="section" id="changing-the-penalty">
+<h2>Changing the penalty<a class="headerlink" href="#changing-the-penalty" title="Permalink to this headline">¶</a></h2>
+<p>We may not want to penalize features the same. We may want some features
+to be unpenalized. This can be achieved by introducing possibly non-zero
+feature weights to the <span class="math notranslate nohighlight">\(\ell_1\)</span> norm</p>
+<div class="math notranslate nohighlight">
+\[\beta \mapsto \sum_{j=1}^p w_j|\beta_j|\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.</span>
+<span class="n">weights</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">weighted_penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">weighted_l1norm</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">weighted_penalty</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \|W\beta\|_1\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">weighted_dual</span> <span class="o">=</span> <span class="n">weighted_penalty</span><span class="o">.</span><span class="n">conjugate</span>
+<span class="n">weighted_dual</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[I^{\infty}(\|W\beta\|_{\infty} \leq \delta_{})\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lam_max_weight</span> <span class="o">=</span> <span class="n">weighted_dual</span><span class="o">.</span><span class="n">seminorm</span><span class="p">(</span><span class="n">score_at_zero</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">lam_max_weight</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">weighted_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">smoothed_vec</span><span class="p">,</span> <span class="n">weighted_penalty</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">lam_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">lam_max_weight</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">lam_val</span> <span class="ow">in</span> <span class="n">lam_vals</span><span class="p">:</span>
+    <span class="n">weighted_penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="n">lam_val</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weighted_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">path</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-62.png">png</a>, <a class="reference external" href="../examples/Losses-62.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-62.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-62.png" src="../_images/Losses-62.png" />
+</div>
+<p>Note that there are 5 coefficients that are not penalized hence they are
+nonzero the entire path.</p>
+<p>Variables may come in groups. A common penalty for this setting is the
+group LASSO. Let</p>
+<div class="math notranslate nohighlight">
+\[\{1, \dots, p\} = \cup_{g \in G} g\]</div>
+<p>be a partition of the set of features and <span class="math notranslate nohighlight">\(w_g\)</span> a weight for each
+group. The group LASSO penalty is</p>
+<div class="math notranslate nohighlight">
+\[\beta \mapsto \sum_{g \in G} w_g \|\beta_g\|_2.\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">P</span><span class="o">/</span><span class="mi">5</span><span class="p">)):</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span><span class="n">g</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+<span class="n">group_penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">group_lasso</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">group_dual</span> <span class="o">=</span> <span class="n">group_penalty</span><span class="o">.</span><span class="n">conjugate</span>
+<span class="n">lam_max_group</span> <span class="o">=</span> <span class="n">group_dual</span><span class="o">.</span><span class="n">seminorm</span><span class="p">(</span><span class="n">score_at_zero</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">group_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">smoothed_vec</span><span class="p">,</span> <span class="n">group_penalty</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">lam_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">lam_max_group</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">lam_val</span> <span class="ow">in</span> <span class="n">lam_vals</span><span class="p">:</span>
+    <span class="n">group_penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="n">lam_val</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">path</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-65.png">png</a>, <a class="reference external" href="../examples/Losses-65.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-65.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-65.png" src="../_images/Losses-65.png" />
+</div>
+<p>As expected, variables enter in groups here.</p>
+<div class="section" id="bound-form">
+<h3>Bound form<a class="headerlink" href="#bound-form" title="Permalink to this headline">¶</a></h3>
+<p>The common norm atoms also have a bound form. That is, we can just as
+easily solve the problem</p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_{\beta: \|\beta\|_1 \leq \delta}\ell(\beta)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bound_l1</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="mf">2.</span><span class="p">)</span>
+<span class="n">bound_l1</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[I^{\infty}(\|\beta\|_1 \leq \delta_{})\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bound_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">smoothed_vec</span><span class="p">,</span> <span class="n">bound_l1</span><span class="p">)</span>
+<span class="n">bound_problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;=  \sup_{u \in \mathbb{R}^{p} } \left[ \langle X_{1}\beta, u \rangle - \left(I^{\infty}(\left\|u\right\|_{\infty} + I^{\infty}\left(\min(u) \in [0,+\infty)\right)  \leq \delta_{1}) + \frac{L_{1}}{2}\|u\|^2_2 + \left \langle \eta_{1}, u \right \rangle \right) \right] \\
+g(\beta) &amp;= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
+\end{aligned}\end{split}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bound_soln</span> <span class="o">=</span> <span class="n">bound_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">bound_soln</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="support-vector-machine">
+<h1>Support vector machine<a class="headerlink" href="#support-vector-machine" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial illustrates one version of the support vector machine, a
+linear example. The minimization problem for the support vector machine,
+following <em>ESL</em> is</p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_{\beta,\gamma} \sum_{i=1}^n (1- y_i(x_i^T\beta+\gamma))^+ + \frac{\lambda}{2} \|\beta\|^2_2\]</div>
+<p>We use the <span class="math notranslate nohighlight">\(C\)</span> parameterization in (12.25) of <em>ESL</em></p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_{\beta,\gamma} C \sum_{i=1}^n (1- y_i(x_i^T\beta+\gamma))^+  + \frac{1}{2} \|\beta\|^2_2\]</div>
+<p>This is an example of the positive part atom combined with a smooth
+quadratic penalty. Above, the <span class="math notranslate nohighlight">\(x_i\)</span> are rows of a matrix of
+features and the <span class="math notranslate nohighlight">\(y_i\)</span> are labels coded as <span class="math notranslate nohighlight">\(\pm 1\)</span>.</p>
+<p>Let’s generate some data appropriate for this problem.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span> <span class="c1"># for reproducibility</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,))</span> <span class="o">-</span> <span class="mf">1.</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">P</span><span class="p">))</span>
+<span class="n">X</span><span class="p">[</span><span class="n">Y</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">])[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+<span class="n">X</span> <span class="o">-=</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span class="n">clf</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span> <span class="n">clf</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">,</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The hinge loss is not smooth, but it can be written as the composition
+of an <code class="docutils literal notranslate"><span class="pre">atom</span></code> (<code class="docutils literal notranslate"><span class="pre">positive_part</span></code>) with an affine transform determined
+by the data.</p>
+<p>Such objective functions can be smoothed. <a class="reference external" href="TODO">NESTA</a> and
+<a class="reference external" href="TODO">TFOCS</a> describe schemes in which smoothing of these atoms can
+be used to produce optimization problems with smooth objectives which
+can have additional structure imposed through optimization.</p>
+<p>Let us try smoothing the objective and using NESTA by smoothing the
+hinge loss. Of course, one can also solve the usual SVC dual problem by
+smoothing.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">nesta_svm</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_pm</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">X_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))])</span>
+    <span class="n">hinge_loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">positive_part</span><span class="o">.</span><span class="n">affine</span><span class="p">(</span><span class="o">-</span><span class="n">y_pm</span><span class="p">[:,</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">X_1</span><span class="p">,</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">),</span>
+                                        <span class="n">lagrange</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="n">selector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:</span><span class="n">p</span><span class="p">]</span>
+    <span class="n">smooth_</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">quadratic_loss</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
+    <span class="n">soln</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">nesta</span><span class="p">(</span><span class="n">smooth_</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">hinge_loss</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">soln</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">soln</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">nesta_svm</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Let’s try a little larger data set.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">Y_l</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,))</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">C</span> <span class="o">=</span> <span class="mf">4.</span>
+<span class="n">clf</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_l</span><span class="p">,</span> <span class="n">Y_l</span><span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">solnR_</span> <span class="o">=</span> <span class="n">nesta_svm</span><span class="p">(</span><span class="n">X_l</span><span class="p">,</span> <span class="n">Y_l</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span> <span class="n">solnR_</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-73.png">png</a>, <a class="reference external" href="../examples/Losses-73.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-73.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-73.png" src="../_images/Losses-73.png" />
+</div>
+<p>Using <code class="docutils literal notranslate"><span class="pre">regreg</span></code>, we can easily add penalty or constraint to the SVM
+objective.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">nesta_svm_pen</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_pm</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">X_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))])</span>
+    <span class="n">hinge_loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">positive_part</span><span class="o">.</span><span class="n">affine</span><span class="p">(</span><span class="o">-</span><span class="n">y_pm</span><span class="p">[:,</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">X_1</span><span class="p">,</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">),</span>
+                                        <span class="n">lagrange</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="n">selector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:</span><span class="n">p</span><span class="p">]</span>
+    <span class="n">smooth_</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">quadratic_loss</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
+    <span class="n">atom_sep</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">separable</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,),</span> <span class="p">[</span><span class="n">atom</span><span class="p">],</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">p</span><span class="p">)])</span>
+    <span class="n">soln</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">nesta</span><span class="p">(</span><span class="n">smooth_</span><span class="p">,</span> <span class="n">atom_sep</span><span class="p">,</span> <span class="n">hinge_loss</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">soln</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">bound</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">nesta_svm_pen</span><span class="p">(</span><span class="n">X_l</span><span class="p">,</span> <span class="n">Y_l</span><span class="p">,</span> <span class="n">bound</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="sparse-huberized-svm">
+<h2>Sparse Huberized SVM<a class="headerlink" href="#sparse-huberized-svm" title="Permalink to this headline">¶</a></h2>
+<p>Instead of using NESTA we can just smooth the SVM with a fixed smoothing
+parameter and solve the problem directly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">regreg.smooth.losses</span> <span class="kn">import</span> <span class="n">huberized_svm</span>
+<span class="n">X_l_inter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X_l</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">X_l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))])</span>
+<span class="n">huber_svm</span> <span class="o">=</span> <span class="n">huberized_svm</span><span class="p">(</span><span class="n">X_l_inter</span><span class="p">,</span> <span class="n">Y_l</span><span class="p">,</span> <span class="n">smoothing_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">coef</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+<span class="n">coef_h</span> <span class="o">=</span> <span class="n">huber_svm</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">100</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">coef_h</span><span class="p">,</span> <span class="n">clf</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Losses-75.png">png</a>, <a class="reference external" href="../examples/Losses-75.hires.png">hires.png</a>, <a class="reference external" href="../examples/Losses-75.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Losses-75.png" src="../_images/Losses-75.png" />
+</div>
+<p>Adding penalties or constraints is again straightforward.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">X_l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">8.</span><span class="p">)</span>
+<span class="n">penalty_sep</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">separable</span><span class="p">((</span><span class="n">X_l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,),</span> <span class="p">[</span><span class="n">penalty</span><span class="p">],</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">X_l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+<span class="n">huberized_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">huber_svm</span><span class="p">,</span> <span class="n">penalty_sep</span><span class="p">)</span>
+<span class="n">huberized_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">numpy2ri</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference download internal" href="examples/Losses_full.ipynb">Download this page as a Jupyter notebook (with outputs)</a></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

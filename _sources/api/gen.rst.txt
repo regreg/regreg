@@ -1,0 +1,36 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+.. toctree::
+
+   generated/regreg.affine
+   generated/regreg.affine.factored_matrix
+   generated/regreg.affine.fused_lasso
+   generated/regreg.affine.image2d
+   generated/regreg.affine.multiscale
+   generated/regreg.algorithms
+   generated/regreg.atoms
+   generated/regreg.atoms.block_norms
+   generated/regreg.atoms.cones
+   generated/regreg.atoms.group_lasso
+   generated/regreg.atoms.linear_constraints
+   generated/regreg.atoms.mixed_lasso
+   generated/regreg.atoms.seminorms
+   generated/regreg.atoms.slope
+   generated/regreg.atoms.sparse_group_lasso
+   generated/regreg.atoms.svd_norms
+   generated/regreg.atoms.weighted_atoms
+   generated/regreg.doctemplates
+   generated/regreg.identity_quadratic
+   generated/regreg.objdoctemplates
+   generated/regreg.paths
+   generated/regreg.problems.admm
+   generated/regreg.problems.composite
+   generated/regreg.problems.conjugate
+   generated/regreg.problems.container
+   generated/regreg.problems.dual_problem
+   generated/regreg.problems.separable
+   generated/regreg.problems.simple
+   generated/regreg.smooth
+   generated/regreg.smooth.glm
+   generated/regreg.smooth.losses
+   generated/regreg.smooth.quadratic

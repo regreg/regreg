@@ -1,154 +1,775 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="problems.admm" href="regreg.problems.admm.html" />
+    <link rel="prev" title="objdoctemplates" href="regreg.objdoctemplates.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">paths</a><ul>
-<li><a class="reference internal" href="#module-paths">Module: <tt class="docutils literal"><span class="pre">paths</span></tt></a></li>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#lasso"><tt class="docutils literal"><span class="pre">lasso</span></tt></a></li>
-<li><a class="reference internal" href="#logistic-factory"><tt class="docutils literal"><span class="pre">logistic_factory</span></tt></a></li>
-<li><a class="reference internal" href="#loss-factory"><tt class="docutils literal"><span class="pre">loss_factory</span></tt></a></li>
-<li><a class="reference internal" href="#nesta"><tt class="docutils literal"><span class="pre">nesta</span></tt></a></li>
-<li><a class="reference internal" href="#squared-error-factory"><tt class="docutils literal"><span class="pre">squared_error_factory</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paths</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-paths">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function">Function</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#function">Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">paths</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-paths">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.paths.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.paths.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="paths">
 <h1>paths<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-paths">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">paths</span></tt><a class="headerlink" href="#module-paths" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.paths</span></tt>:</p>
-</div>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">paths</span></code><a class="headerlink" href="#module-paths" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.paths</span></code>:</p>
+digraph inheritanceb2000cc0b2 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;regreg.paths.lasso&quot; [URL=&quot;#regreg.paths.lasso&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;regreg.paths.logistic_factory&quot; [URL=&quot;#regreg.paths.logistic_factory&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;regreg.paths.loss_factory&quot; -&gt; &quot;regreg.paths.logistic_factory&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.paths.loss_factory&quot; [URL=&quot;#regreg.paths.loss_factory&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;regreg.paths.nesta&quot; [URL=&quot;#regreg.paths.nesta&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;regreg.paths.lasso&quot; -&gt; &quot;regreg.paths.nesta&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.paths.squared_error_factory&quot; [URL=&quot;#regreg.paths.squared_error_factory&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;regreg.paths.loss_factory&quot; -&gt; &quot;regreg.paths.squared_error_factory&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<span class="target" id="module-regreg.paths"></span></div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="lasso">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">lasso</span></tt><a class="headerlink" href="#lasso" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.paths.lasso" title="regreg.paths.lasso"><code class="xref py py-class docutils literal notranslate"><span class="pre">lasso</span></code></a><a class="headerlink" href="#lasso" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.paths.lasso">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.paths.</code><code class="sig-name descname">lasso</code><span class="sig-paren">(</span><em class="sig-param">loss_factory</em>, <em class="sig-param">X</em>, <em class="sig-param">penalty_structure=None</em>, <em class="sig-param">group_weights={}</em>, <em class="sig-param">elastic_net=identity_quadratic(0.000000</em>, <em class="sig-param">0.0</em>, <em class="sig-param">0.0</em>, <em class="sig-param">0.000000)</em>, <em class="sig-param">alpha=0.0</em>, <em class="sig-param">intercept=True</em>, <em class="sig-param">positive_part=None</em>, <em class="sig-param">unpenalized=None</em>, <em class="sig-param">lagrange_proportion=0.05</em>, <em class="sig-param">nstep=100</em>, <em class="sig-param">scale=True</em>, <em class="sig-param">center=True</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="regreg.paths.lasso.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">loss_factory</em>, <em class="sig-param">X</em>, <em class="sig-param">penalty_structure=None</em>, <em class="sig-param">group_weights={}</em>, <em class="sig-param">elastic_net=identity_quadratic(0.000000</em>, <em class="sig-param">0.0</em>, <em class="sig-param">0.0</em>, <em class="sig-param">0.000000)</em>, <em class="sig-param">alpha=0.0</em>, <em class="sig-param">intercept=True</em>, <em class="sig-param">positive_part=None</em>, <em class="sig-param">unpenalized=None</em>, <em class="sig-param">lagrange_proportion=0.05</em>, <em class="sig-param">nstep=100</em>, <em class="sig-param">scale=True</em>, <em class="sig-param">center=True</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.Xn">
+<em class="property">property </em><code class="sig-name descname">Xn</code><a class="headerlink" href="#regreg.paths.lasso.Xn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.active">
+<em class="property">property </em><code class="sig-name descname">active</code><a class="headerlink" href="#regreg.paths.lasso.active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.construct_loss">
+<code class="sig-name descname">construct_loss</code><span class="sig-paren">(</span><em class="sig-param">candidate_set</em>, <em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.construct_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.elastic_net">
+<em class="property">property </em><code class="sig-name descname">elastic_net</code><a class="headerlink" href="#regreg.paths.lasso.elastic_net" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.get_lagrange">
+<code class="sig-name descname">get_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.get_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.get_lagrange_sequence">
+<code class="sig-name descname">get_lagrange_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.get_lagrange_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.grad">
+<code class="sig-name descname">grad</code><span class="sig-paren">(</span><em class="sig-param">loss=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.grad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gradient at current value. This includes the gradient
+of the smooth loss as well as the gradient of the elastic net part.
+This is used for determining whether the KKT conditions are met
+and which coefficients are in the strong set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.lagrange">
+<em class="property">property </em><code class="sig-name descname">lagrange</code><a class="headerlink" href="#regreg.paths.lasso.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.lagrange_max">
+<em class="property">property </em><code class="sig-name descname">lagrange_max</code><a class="headerlink" href="#regreg.paths.lasso.lagrange_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.lagrange_sequence">
+<em class="property">property </em><code class="sig-name descname">lagrange_sequence</code><a class="headerlink" href="#regreg.paths.lasso.lagrange_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.lipschitz">
+<em class="property">property </em><code class="sig-name descname">lipschitz</code><a class="headerlink" href="#regreg.paths.lasso.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.logistic">
+<em class="property">classmethod </em><code class="sig-name descname">logistic</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">*args</em>, <em class="sig-param">**keyword_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.logistic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.loss">
+<em class="property">property </em><code class="sig-name descname">loss</code><a class="headerlink" href="#regreg.paths.lasso.loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.main">
+<code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">inner_tol=1e-05</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.nonzero">
+<em class="property">property </em><code class="sig-name descname">nonzero</code><a class="headerlink" href="#regreg.paths.lasso.nonzero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.null_solution">
+<em class="property">property </em><code class="sig-name descname">null_solution</code><a class="headerlink" href="#regreg.paths.lasso.null_solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.problem">
+<em class="property">property </em><code class="sig-name descname">problem</code><a class="headerlink" href="#regreg.paths.lasso.problem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.restricted_problem">
+<code class="sig-name descname">restricted_problem</code><span class="sig-paren">(</span><em class="sig-param">candidate_set</em>, <em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.restricted_problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assumes the candidate set includes intercept as first column.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.set_lagrange">
+<code class="sig-name descname">set_lagrange</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.set_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.set_lagrange_sequence">
+<code class="sig-name descname">set_lagrange_sequence</code><span class="sig-paren">(</span><em class="sig-param">lagrange_sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.set_lagrange_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#regreg.paths.lasso.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.slice_columns">
+<code class="sig-name descname">slice_columns</code><span class="sig-paren">(</span><em class="sig-param">columns</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.slice_columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.solution">
+<em class="property">property </em><code class="sig-name descname">solution</code><a class="headerlink" href="#regreg.paths.lasso.solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.solve_subproblem">
+<code class="sig-name descname">solve_subproblem</code><span class="sig-paren">(</span><em class="sig-param">candidate_set</em>, <em class="sig-param">lagrange_new</em>, <em class="sig-param">**solve_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.solve_subproblem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.squared_error">
+<em class="property">classmethod </em><code class="sig-name descname">squared_error</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">*args</em>, <em class="sig-param">**keyword_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.squared_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.lasso.strong_set">
+<code class="sig-name descname">strong_set</code><span class="sig-paren">(</span><em class="sig-param">lagrange_cur</em>, <em class="sig-param">lagrange_new</em>, <em class="sig-param">grad=None</em>, <em class="sig-param">slope_estimate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.lasso.strong_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="logistic-factory">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">logistic_factory</span></tt><a class="headerlink" href="#logistic-factory" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.paths.logistic_factory" title="regreg.paths.logistic_factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">logistic_factory</span></code></a><a class="headerlink" href="#logistic-factory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.paths.logistic_factory">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.paths.</code><code class="sig-name descname">logistic_factory</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.logistic_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.paths.loss_factory" title="regreg.paths.loss_factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.paths.loss_factory</span></code></a></p>
+<dl class="method">
+<dt id="regreg.paths.logistic_factory.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.logistic_factory.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.logistic_factory.get_response">
+<code class="sig-name descname">get_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.logistic_factory.get_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.logistic_factory.response">
+<em class="property">property </em><code class="sig-name descname">response</code><a class="headerlink" href="#regreg.paths.logistic_factory.response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.logistic_factory.set_response">
+<code class="sig-name descname">set_response</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.logistic_factory.set_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="loss-factory">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">loss_factory</span></tt><a class="headerlink" href="#loss-factory" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.paths.loss_factory" title="regreg.paths.loss_factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">loss_factory</span></code></a><a class="headerlink" href="#loss-factory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.paths.loss_factory">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.paths.</code><code class="sig-name descname">loss_factory</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.loss_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="regreg.paths.loss_factory.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.loss_factory.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.loss_factory.get_response">
+<code class="sig-name descname">get_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.loss_factory.get_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.loss_factory.response">
+<em class="property">property </em><code class="sig-name descname">response</code><a class="headerlink" href="#regreg.paths.loss_factory.response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.loss_factory.set_response">
+<code class="sig-name descname">set_response</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.loss_factory.set_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="nesta">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">nesta</span></tt><a class="headerlink" href="#nesta" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.paths.nesta" title="regreg.paths.nesta"><code class="xref py py-class docutils literal notranslate"><span class="pre">nesta</span></code></a><a class="headerlink" href="#nesta" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.paths.nesta">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.paths.</code><code class="sig-name descname">nesta</code><span class="sig-paren">(</span><em class="sig-param">loss_factory</em>, <em class="sig-param">X</em>, <em class="sig-param">atom_factory</em>, <em class="sig-param">epsilon=None</em>, <em class="sig-param">**lasso_keywords</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.paths.lasso" title="regreg.paths.lasso"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.paths.lasso</span></code></a></p>
+<dl class="method">
+<dt id="regreg.paths.nesta.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">loss_factory</em>, <em class="sig-param">X</em>, <em class="sig-param">atom_factory</em>, <em class="sig-param">epsilon=None</em>, <em class="sig-param">**lasso_keywords</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.Xn">
+<em class="property">property </em><code class="sig-name descname">Xn</code><a class="headerlink" href="#regreg.paths.nesta.Xn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.active">
+<em class="property">property </em><code class="sig-name descname">active</code><a class="headerlink" href="#regreg.paths.nesta.active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.construct_loss">
+<code class="sig-name descname">construct_loss</code><span class="sig-paren">(</span><em class="sig-param">candidate_set</em>, <em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.construct_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.elastic_net">
+<em class="property">property </em><code class="sig-name descname">elastic_net</code><a class="headerlink" href="#regreg.paths.nesta.elastic_net" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.epsilon">
+<em class="property">property </em><code class="sig-name descname">epsilon</code><a class="headerlink" href="#regreg.paths.nesta.epsilon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.final_step">
+<em class="property">property </em><code class="sig-name descname">final_step</code><a class="headerlink" href="#regreg.paths.nesta.final_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.get_dual_term">
+<code class="sig-name descname">get_dual_term</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.get_dual_term" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.get_epsilon">
+<code class="sig-name descname">get_epsilon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.get_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.get_final_step">
+<code class="sig-name descname">get_final_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.get_final_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.get_lagrange">
+<code class="sig-name descname">get_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.get_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.get_lagrange_sequence">
+<code class="sig-name descname">get_lagrange_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.get_lagrange_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.grad">
+<code class="sig-name descname">grad</code><span class="sig-paren">(</span><em class="sig-param">loss=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.grad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gradient at current value. This includes the gradient
+of the smooth loss as well as the gradient of the elastic net part.
+This is used for determining whether the KKT conditions are met
+and which coefficients are in the strong set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.lagrange">
+<em class="property">property </em><code class="sig-name descname">lagrange</code><a class="headerlink" href="#regreg.paths.nesta.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.lagrange_max">
+<em class="property">property </em><code class="sig-name descname">lagrange_max</code><a class="headerlink" href="#regreg.paths.nesta.lagrange_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.lagrange_sequence">
+<em class="property">property </em><code class="sig-name descname">lagrange_sequence</code><a class="headerlink" href="#regreg.paths.nesta.lagrange_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.lipschitz">
+<em class="property">property </em><code class="sig-name descname">lipschitz</code><a class="headerlink" href="#regreg.paths.nesta.lipschitz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.logistic">
+<em class="property">classmethod </em><code class="sig-name descname">logistic</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">*args</em>, <em class="sig-param">**keyword_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.logistic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.loss">
+<em class="property">property </em><code class="sig-name descname">loss</code><a class="headerlink" href="#regreg.paths.nesta.loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.main">
+<code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">inner_tol=1e-05</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.nonzero">
+<em class="property">property </em><code class="sig-name descname">nonzero</code><a class="headerlink" href="#regreg.paths.nesta.nonzero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.null_solution">
+<em class="property">property </em><code class="sig-name descname">null_solution</code><a class="headerlink" href="#regreg.paths.nesta.null_solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.problem">
+<em class="property">property </em><code class="sig-name descname">problem</code><a class="headerlink" href="#regreg.paths.nesta.problem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.restricted_problem">
+<code class="sig-name descname">restricted_problem</code><span class="sig-paren">(</span><em class="sig-param">candidate_set</em>, <em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.restricted_problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assumes the candidate set includes intercept as first column.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.set_dual_term">
+<code class="sig-name descname">set_dual_term</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em>, <em class="sig-param">dual_term</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.set_dual_term" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.set_epsilon">
+<code class="sig-name descname">set_epsilon</code><span class="sig-paren">(</span><em class="sig-param">epsilon</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.set_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.set_final_step">
+<code class="sig-name descname">set_final_step</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.set_final_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.set_lagrange">
+<code class="sig-name descname">set_lagrange</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.set_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.set_lagrange_sequence">
+<code class="sig-name descname">set_lagrange_sequence</code><span class="sig-paren">(</span><em class="sig-param">lagrange_sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.set_lagrange_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#regreg.paths.nesta.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.slice_columns">
+<code class="sig-name descname">slice_columns</code><span class="sig-paren">(</span><em class="sig-param">columns</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.slice_columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.solution">
+<em class="property">property </em><code class="sig-name descname">solution</code><a class="headerlink" href="#regreg.paths.nesta.solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.solve_subproblem">
+<code class="sig-name descname">solve_subproblem</code><span class="sig-paren">(</span><em class="sig-param">candidate_set</em>, <em class="sig-param">lagrange_new</em>, <em class="sig-param">**solve_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.solve_subproblem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.squared_error">
+<em class="property">classmethod </em><code class="sig-name descname">squared_error</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">*args</em>, <em class="sig-param">**keyword_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.squared_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.nesta.strong_set">
+<code class="sig-name descname">strong_set</code><span class="sig-paren">(</span><em class="sig-param">lagrange_cur</em>, <em class="sig-param">lagrange_new</em>, <em class="sig-param">grad=None</em>, <em class="sig-param">slope_estimate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.nesta.strong_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="squared-error-factory">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">squared_error_factory</span></tt><a class="headerlink" href="#squared-error-factory" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.paths.squared_error_factory" title="regreg.paths.squared_error_factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">squared_error_factory</span></code></a><a class="headerlink" href="#squared-error-factory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.paths.squared_error_factory">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.paths.</code><code class="sig-name descname">squared_error_factory</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.squared_error_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.paths.loss_factory" title="regreg.paths.loss_factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.paths.loss_factory</span></code></a></p>
+<dl class="method">
+<dt id="regreg.paths.squared_error_factory.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.squared_error_factory.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.squared_error_factory.get_response">
+<code class="sig-name descname">get_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.squared_error_factory.get_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.squared_error_factory.response">
+<em class="property">property </em><code class="sig-name descname">response</code><a class="headerlink" href="#regreg.paths.squared_error_factory.response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.paths.squared_error_factory.set_response">
+<code class="sig-name descname">set_response</code><span class="sig-paren">(</span><em class="sig-param">response</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.squared_error_factory.set_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="function">
 <h2>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.paths.newsgroup">
+<code class="sig-prename descclassname">regreg.paths.</code><code class="sig-name descname">newsgroup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.paths.newsgroup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.problems.admm.html" class="btn btn-neutral float-right" title="problems.admm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.objdoctemplates.html" class="btn btn-neutral float-left" title="objdoctemplates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

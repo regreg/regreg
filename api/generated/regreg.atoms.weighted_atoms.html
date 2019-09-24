@@ -1,142 +1,1784 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="doctemplates" href="regreg.doctemplates.html" />
+    <link rel="prev" title="atoms.svd_norms" href="regreg.atoms.svd_norms.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">atoms.weighted_atoms</a><ul>
-<li><a class="reference internal" href="#module-atoms-weighted-atoms">Module: <tt class="docutils literal"><span class="pre">atoms.weighted_atoms</span></tt></a></li>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#l1norm"><tt class="docutils literal"><span class="pre">l1norm</span></tt></a></li>
-<li><a class="reference internal" href="#seminorm"><tt class="docutils literal"><span class="pre">seminorm</span></tt></a></li>
-<li><a class="reference internal" href="#supnorm"><tt class="docutils literal"><span class="pre">supnorm</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">atoms.weighted_atoms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-atoms-weighted-atoms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.weighted_atoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">atoms.weighted_atoms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-atoms-weighted-atoms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.weighted_atoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.atoms.weighted_atoms.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.atoms.weighted_atoms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="atoms-weighted-atoms">
 <h1>atoms.weighted_atoms<a class="headerlink" href="#atoms-weighted-atoms" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-atoms-weighted-atoms">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">atoms.weighted_atoms</span></tt><a class="headerlink" href="#module-atoms-weighted-atoms" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.atoms.weighted_atoms</span></tt>:</p>
-</div>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.weighted_atoms</span></code><a class="headerlink" href="#module-atoms-weighted-atoms" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.atoms.weighted_atoms</span></code>:</p>
+digraph inheritance62fdcbdc70 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;atoms.seminorms.seminorm&quot; [URL=&quot;regreg.atoms.seminorms.html#regreg.atoms.seminorms.seminorm&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;An atom that can be in lagrange or bound form.&quot;];
+  &quot;regreg.atoms.atom&quot; -&gt; &quot;atoms.seminorms.seminorm&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;atoms.weighted_atoms.l1norm&quot; [URL=&quot;#regreg.atoms.weighted_atoms.l1norm&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The l1 norm&quot;];
+  &quot;atoms.weighted_atoms.seminorm&quot; -&gt; &quot;atoms.weighted_atoms.l1norm&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;atoms.weighted_atoms.seminorm&quot; [URL=&quot;#regreg.atoms.weighted_atoms.seminorm&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class that defines the API for support functions.&quot;];
+  &quot;atoms.seminorms.seminorm&quot; -&gt; &quot;atoms.weighted_atoms.seminorm&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;atoms.weighted_atoms.supnorm&quot; [URL=&quot;#regreg.atoms.weighted_atoms.supnorm&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The :math:`\ell_{\infty}` norm&quot;];
+  &quot;atoms.weighted_atoms.seminorm&quot; -&gt; &quot;atoms.weighted_atoms.supnorm&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;problems.composite.composite&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.composite&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A generic way to specify a problem in composite form.&quot;];
+  &quot;problems.composite.nonsmooth&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.nonsmooth&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A composite subclass that explicitly returns 0&quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.composite.nonsmooth&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.atoms.atom&quot; [URL=&quot;regreg.atoms.html#regreg.atoms.atom&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class that defines the API for support functions.&quot;];
+  &quot;problems.composite.nonsmooth&quot; -&gt; &quot;regreg.atoms.atom&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<span class="target" id="module-regreg.atoms.weighted_atoms"></span></div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="l1norm">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">l1norm</span></tt><a class="headerlink" href="#l1norm" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.atoms.weighted_atoms.l1norm" title="regreg.atoms.weighted_atoms.l1norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1norm</span></code></a><a class="headerlink" href="#l1norm" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.atoms.weighted_atoms.l1norm">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.atoms.weighted_atoms.</code><code class="sig-name descname">l1norm</code><span class="sig-paren">(</span><em class="sig-param">weights</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.atoms.weighted_atoms.seminorm" title="regreg.atoms.weighted_atoms.seminorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.atoms.weighted_atoms.seminorm</span></code></a></p>
+<p>The l1 norm</p>
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">weights</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.affine">
+<em class="property">classmethod </em><code class="sig-name descname">affine</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">offset</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the same as the linear class method but with offset as a positional argument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.bound">
+<em class="property">property </em><code class="sig-name descname">bound</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.bound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.bound_prox">
+<code class="sig-name descname">bound_prox</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.bound_prox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return unique minimizer</p>
+<div class="math notranslate nohighlight">
+\[{\beta}^{\delta}(\theta) =
+\text{argmin}_{\beta \in \mathbb{R}^{p}} 
+\frac{1}{2}
+\|\theta-\beta\|^2_2  \ 
+\text{s.t.} \   \|W\beta\|_1 \leq \delta\]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is the bound parameter and <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>arg</cite>.</p>
+<p>If the argument <cite>bound</cite> is None and the atom is in bound mode,
+<code class="docutils literal notranslate"><span class="pre">self.bound</span></code> is used as the bound parameter, else an exception is
+raised.</p>
+<p>The class atom’s bound_prox just returns the appropriate bound
+parameter for use by the subclasses.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the proximal map.</p>
+</div></blockquote>
+<p><strong>bound</strong> : <cite>float</cite> (optional)</p>
+<blockquote>
+<div><p>Bound for the constraint on the seminorm.
+Defaults to <cite>self.bound</cite>.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.check_subgradient">
+<em class="property">static </em><code class="sig-name descname">check_subgradient</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">prox_center</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.check_subgradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a given seminorm, verify the KKT condition for
+the problem for the proximal problem</p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)\]</div>
+<p>where <span class="math notranslate nohighlight">\(z\)</span> is the <cite>prox_center</cite> and <span class="math notranslate nohighlight">\(h\)</span> is <cite>atom</cite>
+which may be in Lagrange or bound form.</p>
+<p>If the atom is in Lagrange form, this function should
+return two values equal to the seminorm of the 
+minimizer. If it is bound form it should return two values
+equal to the dual seminorm of the residual, i.e.
+the prox_center minus the minimizer.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atom</strong> : <cite>seminorm</cite></p>
+<p><strong>prox_center</strong> : np.ndarray(np.float)</p>
+<blockquote>
+<div><p>Center for the proximal map.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>v1, v2</strong> : float</p>
+<blockquote>
+<div><p>Two values that should be equal if the proximal map is correct.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.conjugate">
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.constraint">
+<code class="sig-name descname">constraint</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify <span class="math notranslate nohighlight">\(\|W\beta\|_1 \leq \delta\)</span>, where <span class="math notranslate nohighlight">\(\delta\)</span>
+is <cite>bound</cite>.</p>
+<p>If the result is <cite>True</cite>, returns 0, else returns <cite>np.inf</cite>.</p>
+<p>The class seminorm’s constraint just returns the appropriate bound
+parameter for use by the subclasses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.dual">
+<em class="property">property </em><code class="sig-name descname">dual</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.form_transform">
+<code class="sig-name descname">form_transform</code><span class="sig-paren">(</span><em class="sig-param">subsample=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.form_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>By subsampling we can get rid of some variables that have 0 weights.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.get_bound">
+<code class="sig-name descname">get_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.get_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method of the bound property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">2.3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.get_conjugate">
+<code class="sig-name descname">get_conjugate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the conjugate of an given atom.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">get_conjugate</span><span class="p">()</span> 
+<span class="go">supnorm(..., bound=3.4...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.get_dual">
+<code class="sig-name descname">get_dual</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.get_dual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dual of an atom. This dual is formed by making introducing
+new variables <span class="math notranslate nohighlight">\(v=Ax\)</span> where <span class="math notranslate nohighlight">\(A\)</span> is <cite>self.linear_transform</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> 
+<span class="go">l1norm(..., lagrange=2.3...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">dual</span> 
+<span class="go">(&lt;regreg.affine.identity object at 0x...&gt;, supnorm(..., bound=2.3...))</span>
+</pre></div>
+</div>
+<p>If there is a linear part to the penalty, the linear_transform may not be 
+identity. For example, the 1D fused LASSO penalty:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="mi">1</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span>
+<span class="go">array([[ 1., -1.,  0.,  0.],</span>
+<span class="go">       [ 0.,  1., -1.,  0.],</span>
+<span class="go">       [ 0.,  0.,  1., -1.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span> 
+<span class="go">affine_atom(l1norm((3,), lagrange=2.3...), array([[ 1., -1.,  0.,  0.],</span>
+<span class="go">       [ 0.,  1., -1.,  0.],</span>
+<span class="go">       [ 0.,  0.,  1., -1.]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span><span class="o">.</span><span class="n">dual</span> 
+<span class="go">(&lt;regreg.affine.linear_transform object at 0x...&gt;, supnorm((3,), bound=2.3...))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.get_lagrange">
+<code class="sig-name descname">get_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.get_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method of the lagrange property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">3.4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.lagrange">
+<em class="property">property </em><code class="sig-name descname">lagrange</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.lagrange_prox">
+<code class="sig-name descname">lagrange_prox</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">lipschitz=1</em>, <em class="sig-param">lagrange=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.lagrange_prox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return unique minimizer</p>
+<div class="math notranslate nohighlight">
+\[{\beta}^{\lambda}(\theta) =
+\text{argmin}_{\beta \in \mathbb{R}^{p}} 
+\frac{L}{2}
+\|\theta-\beta\|^2_2 + \lambda \|W\beta\|_1 \]</div>
+<p>Above, <span class="math notranslate nohighlight">\(\lambda\)</span> is the Lagrange parameter and <span class="math notranslate nohighlight">\(L\)</span>
+is the Lipschitz parameter and <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>arg</cite>.</p>
+<p>If the argument <cite>lagrange</cite> is None and the atom is in lagrange mode,
+<code class="docutils literal notranslate"><span class="pre">self.lagrange</span></code> is used as the lagrange parameter, else an exception
+is raised.</p>
+<p>The class atom’s lagrange_prox just returns the appropriate lagrange
+parameter for use by the subclasses.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the proximal map.</p>
+</div></blockquote>
+<p><strong>lipschitz</strong> : <cite>float</cite></p>
+<blockquote>
+<div><p>Coefficient in front of the quadratic.</p>
+</div></blockquote>
+<p><strong>lagrange</strong> : <cite>float</cite> (optional)</p>
+<blockquote>
+<div><p>Lagrange factor in front of the seminorm. 
+Defaults to <cite>self.lagrange</cite>.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.latexify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a LaTeX representation of an object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">latexify</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\gamma&#39;</span><span class="p">)</span> 
+<span class="go">&#39;\\lambda_{} \\|\\gamma\\|_1&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>var</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>Argument of the functions</p>
+</div></blockquote>
+<p><strong>idx</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>Optional subscript index.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>L</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>A LaTeX representation of the atom.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.linear">
+<em class="property">classmethod </em><code class="sig-name descname">linear</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">offset=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.linear_transform">
+<em class="property">property </em><code class="sig-name descname">linear_transform</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.linear_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>By subsampling we can get rid of some variables that have 0 weights.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The nonsmooth objective function of the atom.
+Includes <cite>self.quadratic.objective(arg)</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">nonsmooth_objective</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">42.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mi">2</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">42</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the seminorm.</p>
+</div></blockquote>
+<p><strong>check_feasibility</strong> : <cite>bool</cite></p>
+<blockquote>
+<div><p>If <cite>True</cite>, then return <cite>np.inf</cite> if appropriate.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>value</strong> : <cite>np.float</cite></p>
+<blockquote>
+<div><p>The seminorm of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.l1norm.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = '\\|W%(var)s\\|_1'</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.l1norm.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'dualnormklass': 'supnorm', 'initargs': '(30,)', 'linear': 'D', 'normklass': 'l1norm', 'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.l1norm.prox_tol">
+<code class="sig-name descname">prox_tol</code><em class="property"> = 1e-10</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.prox_tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.proximal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The proximal operator. If the atom is in
+Lagrange mode, this has the form</p>
+<div class="math notranslate nohighlight">
+\[\beta^{\lambda}(\theta) = \text{argmin}_{\beta \in
+\mathbb{R}^{p}} \frac{L}{2} \|\theta-\beta\|^2_2
++ \lambda h(\beta-\alpha) + \langle \beta, \eta \rangle\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is <cite>self.offset</cite>,
+<span class="math notranslate nohighlight">\(\eta\)</span> is <cite>quadratic.linear_term</cite>, <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>quadratic.center</cite> and</p>
+<div class="math notranslate nohighlight">
+\[h(\beta) = \|\beta\|\]</div>
+<p>If the atom is in bound mode, then this has the form</p>
+<div class="math notranslate nohighlight">
+\[\beta^{\delta}(\theta) = \text{argmin}_{\beta \in \mathbb{R}^{p}} \frac{L}{2}
+\|\theta-\beta\|^2_2 + \langle \beta, \eta \rangle \  \text{s.t.} \   
+h(\beta - \alpha) \leq \delta\]</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">proximal</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> 
+<span class="go">array([ 1.6666..., -2.6666..., -0.        ,  0.        ])</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>quadratic</strong> : <cite>regreg.identity_quadratic.identity_quadratic</cite></p>
+<blockquote>
+<div><p>A quadratic added to the atom before minimizing.</p>
+</div></blockquote>
+<p><strong>prox_control</strong> : <cite>[None, dict]</cite></p>
+<blockquote>
+<div><p>This argument is ignored for seminorms, but otherwise
+is passed to <cite>regreg.algorithms.FISTA</cite> if the atom
+needs to be solved iteratively.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of the implied center of <cite>quadratic</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.seminorm">
+<code class="sig-name descname">seminorm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.seminorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(\lambda \cdot \|W\beta\|_1\)</span>, where
+<span class="math notranslate nohighlight">\(\lambda\)</span> is <cite>lagrange</cite>. If <cite>check_feasibility</cite>
+is <cite>True</cite>, and seminorm is unbounded, will return <cite>np.inf</cite>
+if appropriate.</p>
+<p>The class seminorm’s seminorm just returns the appropriate lagrange
+parameter for use by the subclasses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.set_bound">
+<code class="sig-name descname">set_bound</code><span class="sig-paren">(</span><em class="sig-param">bound</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.set_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set method of the bound property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">3.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="mf">3.4</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AttributeError</span>: <span class="n">atom is in lagrange mode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.set_lagrange">
+<code class="sig-name descname">set_lagrange</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.set_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set method of the lagrange property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">3.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="mf">3.4</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AttributeError</span>: <span class="n">atom is in bound mode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.shift">
+<em class="property">classmethod </em><code class="sig-name descname">shift</code><span class="sig-paren">(</span><em class="sig-param">offset</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The zero function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.l1norm.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.l1norm.tol">
+<code class="sig-name descname">tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.l1norm.tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="seminorm">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">seminorm</span></tt><a class="headerlink" href="#seminorm" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.atoms.weighted_atoms.seminorm" title="regreg.atoms.weighted_atoms.seminorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">seminorm</span></code></a><a class="headerlink" href="#seminorm" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.atoms.weighted_atoms.seminorm">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.atoms.weighted_atoms.</code><code class="sig-name descname">seminorm</code><span class="sig-paren">(</span><em class="sig-param">weights</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.atoms.seminorms.html#regreg.atoms.seminorms.seminorm" title="regreg.atoms.seminorms.seminorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.atoms.seminorms.seminorm</span></code></a></p>
+<p>A class that defines the API for support functions.</p>
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">weights</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.affine">
+<em class="property">classmethod </em><code class="sig-name descname">affine</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">offset</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the same as the linear class method but with offset as a positional argument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.bound">
+<em class="property">property </em><code class="sig-name descname">bound</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.bound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.bound_prox">
+<code class="sig-name descname">bound_prox</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.bound_prox" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.check_subgradient">
+<em class="property">static </em><code class="sig-name descname">check_subgradient</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">prox_center</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.check_subgradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a given seminorm, verify the KKT condition for
+the problem for the proximal problem</p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)\]</div>
+<p>where <span class="math notranslate nohighlight">\(z\)</span> is the <cite>prox_center</cite> and <span class="math notranslate nohighlight">\(h\)</span> is <cite>atom</cite>
+which may be in Lagrange or bound form.</p>
+<p>If the atom is in Lagrange form, this function should
+return two values equal to the seminorm of the 
+minimizer. If it is bound form it should return two values
+equal to the dual seminorm of the residual, i.e.
+the prox_center minus the minimizer.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atom</strong> : <cite>seminorm</cite></p>
+<p><strong>prox_center</strong> : np.ndarray(np.float)</p>
+<blockquote>
+<div><p>Center for the proximal map.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>v1, v2</strong> : float</p>
+<blockquote>
+<div><p>Two values that should be equal if the proximal map is correct.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.conjugate">
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.constraint">
+<code class="sig-name descname">constraint</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.dual">
+<em class="property">property </em><code class="sig-name descname">dual</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.form_transform">
+<code class="sig-name descname">form_transform</code><span class="sig-paren">(</span><em class="sig-param">subsample=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.form_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>By subsampling we can get rid of some variables that have 0 weights.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.get_bound">
+<code class="sig-name descname">get_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.get_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method of the bound property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">2.3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.get_conjugate">
+<code class="sig-name descname">get_conjugate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the conjugate of an given atom.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">get_conjugate</span><span class="p">()</span> 
+<span class="go">supnorm(..., bound=3.4...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.get_dual">
+<code class="sig-name descname">get_dual</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.get_dual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dual of an atom. This dual is formed by making introducing
+new variables <span class="math notranslate nohighlight">\(v=Ax\)</span> where <span class="math notranslate nohighlight">\(A\)</span> is <cite>self.linear_transform</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> 
+<span class="go">l1norm(..., lagrange=2.3...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">dual</span> 
+<span class="go">(&lt;regreg.affine.identity object at 0x...&gt;, supnorm(..., bound=2.3...))</span>
+</pre></div>
+</div>
+<p>If there is a linear part to the penalty, the linear_transform may not be 
+identity. For example, the 1D fused LASSO penalty:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="mi">1</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span>
+<span class="go">array([[ 1., -1.,  0.,  0.],</span>
+<span class="go">       [ 0.,  1., -1.,  0.],</span>
+<span class="go">       [ 0.,  0.,  1., -1.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span> 
+<span class="go">affine_atom(l1norm((3,), lagrange=2.3...), array([[ 1., -1.,  0.,  0.],</span>
+<span class="go">       [ 0.,  1., -1.,  0.],</span>
+<span class="go">       [ 0.,  0.,  1., -1.]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span><span class="o">.</span><span class="n">dual</span> 
+<span class="go">(&lt;regreg.affine.linear_transform object at 0x...&gt;, supnorm((3,), bound=2.3...))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.get_lagrange">
+<code class="sig-name descname">get_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.get_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method of the lagrange property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">3.4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.lagrange">
+<em class="property">property </em><code class="sig-name descname">lagrange</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.lagrange_prox">
+<code class="sig-name descname">lagrange_prox</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">lipschitz=1</em>, <em class="sig-param">lagrange=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.lagrange_prox" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.latexify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a LaTeX representation of an object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">latexify</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\gamma&#39;</span><span class="p">)</span> 
+<span class="go">&#39;\\lambda_{} \\|\\gamma\\|_1&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>var</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>Argument of the functions</p>
+</div></blockquote>
+<p><strong>idx</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>Optional subscript index.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>L</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>A LaTeX representation of the atom.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.linear">
+<em class="property">classmethod </em><code class="sig-name descname">linear</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">offset=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.linear_transform">
+<em class="property">property </em><code class="sig-name descname">linear_transform</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.linear_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>By subsampling we can get rid of some variables that have 0 weights.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The nonsmooth objective function of the atom.
+Includes <cite>self.quadratic.objective(arg)</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">nonsmooth_objective</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">42.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mi">2</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">42</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the seminorm.</p>
+</div></blockquote>
+<p><strong>check_feasibility</strong> : <cite>bool</cite></p>
+<blockquote>
+<div><p>If <cite>True</cite>, then return <cite>np.inf</cite> if appropriate.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>value</strong> : <cite>np.float</cite></p>
+<blockquote>
+<div><p>The seminorm of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.seminorm.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = '\\|%(var)s\\|'</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.seminorm.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'dualnormklass': 'supnorm', 'initargs': '(30,)', 'linear': 'D', 'normklass': 'l1norm', 'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.proximal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The proximal operator. If the atom is in
+Lagrange mode, this has the form</p>
+<div class="math notranslate nohighlight">
+\[\beta^{\lambda}(\theta) = \text{argmin}_{\beta \in
+\mathbb{R}^{p}} \frac{L}{2} \|\theta-\beta\|^2_2
++ \lambda h(\beta-\alpha) + \langle \beta, \eta \rangle\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is <cite>self.offset</cite>,
+<span class="math notranslate nohighlight">\(\eta\)</span> is <cite>quadratic.linear_term</cite>, <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>quadratic.center</cite> and</p>
+<div class="math notranslate nohighlight">
+\[h(\beta) = \|\beta\|\]</div>
+<p>If the atom is in bound mode, then this has the form</p>
+<div class="math notranslate nohighlight">
+\[\beta^{\delta}(\theta) = \text{argmin}_{\beta \in \mathbb{R}^{p}} \frac{L}{2}
+\|\theta-\beta\|^2_2 + \langle \beta, \eta \rangle \  \text{s.t.} \   
+h(\beta - \alpha) \leq \delta\]</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">proximal</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> 
+<span class="go">array([ 1.6666..., -2.6666..., -0.        ,  0.        ])</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>quadratic</strong> : <cite>regreg.identity_quadratic.identity_quadratic</cite></p>
+<blockquote>
+<div><p>A quadratic added to the atom before minimizing.</p>
+</div></blockquote>
+<p><strong>prox_control</strong> : <cite>[None, dict]</cite></p>
+<blockquote>
+<div><p>This argument is ignored for seminorms, but otherwise
+is passed to <cite>regreg.algorithms.FISTA</cite> if the atom
+needs to be solved iteratively.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of the implied center of <cite>quadratic</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.seminorm">
+<code class="sig-name descname">seminorm</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.seminorm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.set_bound">
+<code class="sig-name descname">set_bound</code><span class="sig-paren">(</span><em class="sig-param">bound</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.set_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set method of the bound property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">3.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="mf">3.4</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AttributeError</span>: <span class="n">atom is in lagrange mode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.set_lagrange">
+<code class="sig-name descname">set_lagrange</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.set_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set method of the lagrange property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">3.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="mf">3.4</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AttributeError</span>: <span class="n">atom is in bound mode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.shift">
+<em class="property">classmethod </em><code class="sig-name descname">shift</code><span class="sig-paren">(</span><em class="sig-param">offset</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The zero function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.seminorm.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.seminorm.tol">
+<code class="sig-name descname">tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.seminorm.tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="supnorm">
-<h3><tt class="xref py py-class docutils literal"><span class="pre">supnorm</span></tt><a class="headerlink" href="#supnorm" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.atoms.weighted_atoms.supnorm" title="regreg.atoms.weighted_atoms.supnorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">supnorm</span></code></a><a class="headerlink" href="#supnorm" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="regreg.atoms.weighted_atoms.supnorm">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.atoms.weighted_atoms.</code><code class="sig-name descname">supnorm</code><span class="sig-paren">(</span><em class="sig-param">weights</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.atoms.weighted_atoms.seminorm" title="regreg.atoms.weighted_atoms.seminorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.atoms.weighted_atoms.seminorm</span></code></a></p>
+<p>The <span class="math notranslate nohighlight">\(\ell_{\infty}\)</span> norm</p>
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">weights</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.affine">
+<em class="property">classmethod </em><code class="sig-name descname">affine</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">offset</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the same as the linear class method but with offset as a positional argument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.bound">
+<em class="property">property </em><code class="sig-name descname">bound</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.bound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.bound_prox">
+<code class="sig-name descname">bound_prox</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.bound_prox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return unique minimizer</p>
+<div class="math notranslate nohighlight">
+\[{\beta}^{\delta}(\theta) =
+\text{argmin}_{\beta \in \mathbb{R}^{p}} 
+\frac{1}{2}
+\|\theta-\beta\|^2_2  \ 
+\text{s.t.} \   \|W\beta\|_{\infty} \leq \delta\]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is the bound parameter and <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>arg</cite>.</p>
+<p>If the argument <cite>bound</cite> is None and the atom is in bound mode,
+<code class="docutils literal notranslate"><span class="pre">self.bound</span></code> is used as the bound parameter, else an exception is
+raised.</p>
+<p>The class atom’s bound_prox just returns the appropriate bound
+parameter for use by the subclasses.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the proximal map.</p>
+</div></blockquote>
+<p><strong>bound</strong> : <cite>float</cite> (optional)</p>
+<blockquote>
+<div><p>Bound for the constraint on the seminorm.
+Defaults to <cite>self.bound</cite>.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.check_subgradient">
+<em class="property">static </em><code class="sig-name descname">check_subgradient</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">prox_center</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.check_subgradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a given seminorm, verify the KKT condition for
+the problem for the proximal problem</p>
+<div class="math notranslate nohighlight">
+\[\text{minimize}_u \frac{1}{2} \|u-z\|^2_2 + h(z)\]</div>
+<p>where <span class="math notranslate nohighlight">\(z\)</span> is the <cite>prox_center</cite> and <span class="math notranslate nohighlight">\(h\)</span> is <cite>atom</cite>
+which may be in Lagrange or bound form.</p>
+<p>If the atom is in Lagrange form, this function should
+return two values equal to the seminorm of the 
+minimizer. If it is bound form it should return two values
+equal to the dual seminorm of the residual, i.e.
+the prox_center minus the minimizer.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atom</strong> : <cite>seminorm</cite></p>
+<p><strong>prox_center</strong> : np.ndarray(np.float)</p>
+<blockquote>
+<div><p>Center for the proximal map.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>v1, v2</strong> : float</p>
+<blockquote>
+<div><p>Two values that should be equal if the proximal map is correct.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.conjugate">
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.conjugate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.constraint">
+<code class="sig-name descname">constraint</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">bound=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify <span class="math notranslate nohighlight">\(\|W\beta\|_{\infty} \leq \delta\)</span>, where <span class="math notranslate nohighlight">\(\delta\)</span>
+is <cite>bound</cite>.</p>
+<p>If the result is <cite>True</cite>, returns 0, else returns <cite>np.inf</cite>.</p>
+<p>The class seminorm’s constraint just returns the appropriate bound
+parameter for use by the subclasses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.dual">
+<em class="property">property </em><code class="sig-name descname">dual</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.form_transform">
+<code class="sig-name descname">form_transform</code><span class="sig-paren">(</span><em class="sig-param">subsample=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.form_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>By subsampling we can get rid of some variables that have 0 weights.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.get_bound">
+<code class="sig-name descname">get_bound</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.get_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method of the bound property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">2.3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.get_conjugate">
+<code class="sig-name descname">get_conjugate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the conjugate of an given atom.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">get_conjugate</span><span class="p">()</span> 
+<span class="go">supnorm(..., bound=3.4...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.get_dual">
+<code class="sig-name descname">get_dual</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.get_dual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dual of an atom. This dual is formed by making introducing
+new variables <span class="math notranslate nohighlight">\(v=Ax\)</span> where <span class="math notranslate nohighlight">\(A\)</span> is <cite>self.linear_transform</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> 
+<span class="go">l1norm(..., lagrange=2.3...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">dual</span> 
+<span class="go">(&lt;regreg.affine.identity object at 0x...&gt;, supnorm(..., bound=2.3...))</span>
+</pre></div>
+</div>
+<p>If there is a linear part to the penalty, the linear_transform may not be 
+identity. For example, the 1D fused LASSO penalty:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="mi">1</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span>
+<span class="go">array([[ 1., -1.,  0.,  0.],</span>
+<span class="go">       [ 0.,  1., -1.,  0.],</span>
+<span class="go">       [ 0.,  0.,  1., -1.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span> 
+<span class="go">affine_atom(l1norm((3,), lagrange=2.3...), array([[ 1., -1.,  0.,  0.],</span>
+<span class="go">       [ 0.,  1., -1.,  0.],</span>
+<span class="go">       [ 0.,  0.,  1., -1.]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_atom</span><span class="o">.</span><span class="n">dual</span> 
+<span class="go">(&lt;regreg.affine.linear_transform object at 0x...&gt;, supnorm((3,), bound=2.3...))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.get_lagrange">
+<code class="sig-name descname">get_lagrange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.get_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method of the lagrange property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">3.4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.lagrange">
+<em class="property">property </em><code class="sig-name descname">lagrange</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.lagrange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.lagrange_prox">
+<code class="sig-name descname">lagrange_prox</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">lipschitz=1</em>, <em class="sig-param">lagrange=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.lagrange_prox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return unique minimizer</p>
+<div class="math notranslate nohighlight">
+\[{\beta}^{\lambda}(\theta) =
+\text{argmin}_{\beta \in \mathbb{R}^{p}} 
+\frac{L}{2}
+\|\theta-\beta\|^2_2 + \lambda \|W\beta\|_{\infty} \]</div>
+<p>Above, <span class="math notranslate nohighlight">\(\lambda\)</span> is the Lagrange parameter and <span class="math notranslate nohighlight">\(L\)</span>
+is the Lipschitz parameter and <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>arg</cite>.</p>
+<p>If the argument <cite>lagrange</cite> is None and the atom is in lagrange mode,
+<code class="docutils literal notranslate"><span class="pre">self.lagrange</span></code> is used as the lagrange parameter, else an exception
+is raised.</p>
+<p>The class atom’s lagrange_prox just returns the appropriate lagrange
+parameter for use by the subclasses.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the proximal map.</p>
+</div></blockquote>
+<p><strong>lipschitz</strong> : <cite>float</cite></p>
+<blockquote>
+<div><p>Coefficient in front of the quadratic.</p>
+</div></blockquote>
+<p><strong>lagrange</strong> : <cite>float</cite> (optional)</p>
+<blockquote>
+<div><p>Lagrange factor in front of the seminorm. 
+Defaults to <cite>self.lagrange</cite>.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.latexify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a LaTeX representation of an object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">latexify</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\gamma&#39;</span><span class="p">)</span> 
+<span class="go">&#39;\\lambda_{} \\|\\gamma\\|_1&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>var</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>Argument of the functions</p>
+</div></blockquote>
+<p><strong>idx</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>Optional subscript index.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>L</strong> : <cite>string</cite></p>
+<blockquote>
+<div><p>A LaTeX representation of the atom.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.linear">
+<em class="property">classmethod </em><code class="sig-name descname">linear</code><span class="sig-paren">(</span><em class="sig-param">linear_operator</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">offset=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.linear_transform">
+<em class="property">property </em><code class="sig-name descname">linear_transform</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.linear_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>By subsampling we can get rid of some variables that have 0 weights.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">arg</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The nonsmooth objective function of the atom.
+Includes <cite>self.quadratic.objective(arg)</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">nonsmooth_objective</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">42.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mi">2</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="go">42</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arg</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Argument of the seminorm.</p>
+</div></blockquote>
+<p><strong>check_feasibility</strong> : <cite>bool</cite></p>
+<blockquote>
+<div><p>If <cite>True</cite>, then return <cite>np.inf</cite> if appropriate.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>value</strong> : <cite>np.float</cite></p>
+<blockquote>
+<div><p>The seminorm of <cite>arg</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.supnorm.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = '\\|W%(var)s\\|_{\\infty}'</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.supnorm.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'dualnormklass': 'supnorm', 'initargs': '(30,)', 'linear': 'D', 'normklass': 'l1norm', 'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.proximal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The proximal operator. If the atom is in
+Lagrange mode, this has the form</p>
+<div class="math notranslate nohighlight">
+\[\beta^{\lambda}(\theta) = \text{argmin}_{\beta \in
+\mathbb{R}^{p}} \frac{L}{2} \|\theta-\beta\|^2_2
++ \lambda h(\beta-\alpha) + \langle \beta, \eta \rangle\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is <cite>self.offset</cite>,
+<span class="math notranslate nohighlight">\(\eta\)</span> is <cite>quadratic.linear_term</cite>, <span class="math notranslate nohighlight">\(\theta\)</span> is <cite>quadratic.center</cite> and</p>
+<div class="math notranslate nohighlight">
+\[h(\beta) = \|\beta\|\]</div>
+<p>If the atom is in bound mode, then this has the form</p>
+<div class="math notranslate nohighlight">
+\[\beta^{\delta}(\theta) = \text{argmin}_{\beta \in \mathbb{R}^{p}} \frac{L}{2}
+\|\theta-\beta\|^2_2 + \langle \beta, \eta \rangle \  \text{s.t.} \   
+h(\beta - \alpha) \leq \delta\]</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">proximal</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> 
+<span class="go">array([ 1.6666..., -2.6666..., -0.        ,  0.        ])</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>quadratic</strong> : <cite>regreg.identity_quadratic.identity_quadratic</cite></p>
+<blockquote>
+<div><p>A quadratic added to the atom before minimizing.</p>
+</div></blockquote>
+<p><strong>prox_control</strong> : <cite>[None, dict]</cite></p>
+<blockquote>
+<div><p>This argument is ignored for seminorms, but otherwise
+is passed to <cite>regreg.algorithms.FISTA</cite> if the atom
+needs to be solved iteratively.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Z</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>The proximal map of the implied center of <cite>quadratic</cite>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.seminorm">
+<code class="sig-name descname">seminorm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.seminorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <span class="math notranslate nohighlight">\(\lambda \cdot \|W\beta\|_{\infty}\)</span>, where
+<span class="math notranslate nohighlight">\(\lambda\)</span> is <cite>lagrange</cite>. If <cite>check_feasibility</cite>
+is <cite>True</cite>, and seminorm is unbounded, will return <cite>np.inf</cite>
+if appropriate.</p>
+<p>The class seminorm’s seminorm just returns the appropriate lagrange
+parameter for use by the subclasses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.set_bound">
+<code class="sig-name descname">set_bound</code><span class="sig-paren">(</span><em class="sig-param">bound</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.set_bound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set method of the bound property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">3.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">bound</span>
+<span class="go">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">2.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="mf">3.4</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AttributeError</span>: <span class="n">atom is in lagrange mode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.set_lagrange">
+<code class="sig-name descname">set_lagrange</code><span class="sig-paren">(</span><em class="sig-param">lagrange</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.set_lagrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set method of the lagrange property.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">3.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">penalty</span><span class="o">.</span><span class="n">lagrange</span>
+<span class="go">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">((</span><span class="mi">30</span><span class="p">,),</span> <span class="n">bound</span><span class="o">=</span><span class="mf">3.4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span><span class="o">.</span><span class="n">lagrange</span> <span class="o">=</span> <span class="mf">3.4</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">AttributeError</span>: <span class="n">atom is in bound mode</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.shift">
+<em class="property">classmethod </em><code class="sig-name descname">shift</code><span class="sig-paren">(</span><em class="sig-param">offset</em>, <em class="sig-param">lagrange=None</em>, <em class="sig-param">diag=False</em>, <em class="sig-param">bound=None</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The zero function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.atoms.weighted_atoms.supnorm.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.atoms.weighted_atoms.supnorm.tol">
+<code class="sig-name descname">tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.atoms.weighted_atoms.supnorm.tol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.doctemplates.html" class="btn btn-neutral float-right" title="doctemplates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.atoms.svd_norms.html" class="btn btn-neutral float-left" title="atoms.svd_norms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>
