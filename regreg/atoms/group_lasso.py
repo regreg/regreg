@@ -55,7 +55,7 @@ class group_lasso(seminorm):
                           bound=bound)
 
         self.weights = copy(weights)
-        self._group_array = np.zeros(shape, np.int)
+        self._group_array = np.zeros(shape, np.intp)
         self._group_dict = {}
 
         sg = self._sorted_groupids = sorted(np.unique(self.groups))
@@ -182,10 +182,10 @@ class group_lasso(seminorm):
                                      check_feasibility=check_feasibility)
         arg = np.asarray(arg, np.float)
         return lagrange * seminorm_mixed_lasso(arg, \
-                                    np.array([], np.int),
-                                    np.array([], np.int),
-                                    np.array([], np.int),
-                                    np.array([], np.int),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
                                     self._group_array,
                                     self._weight_array,
                                     False)
@@ -197,10 +197,10 @@ class group_lasso(seminorm):
         return mixed_lasso_lagrange_prox(arg, 
                                          float(lagrange),
                                          float(lipschitz),
-                                         np.array([], np.int),
-                                         np.array([], np.int),
-                                         np.array([], np.int),
-                                         np.array([], np.int),
+                                         np.array([], np.intp),
+                                         np.array([], np.intp),
+                                         np.array([], np.intp),
+                                         np.array([], np.intp),
                                          self._group_array,
                                          self._weight_array)
 
@@ -209,10 +209,10 @@ class group_lasso(seminorm):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg, np.float)
         return mixed_lasso_bound_prox(arg, float(bound),
-                                      np.array([], np.int),
-                                      np.array([], np.int),
-                                      np.array([], np.int),
-                                      np.array([], np.int),
+                                      np.array([], np.intp),
+                                      np.array([], np.intp),
+                                      np.array([], np.intp),
+                                      np.array([], np.intp),
                                       self._group_array,
                                       self._weight_array)
 
@@ -293,10 +293,10 @@ class group_lasso_dual(group_lasso):
                                      check_feasibility=check_feasibility)
         arg = np.asarray(arg, np.float)
         return lagrange * seminorm_mixed_lasso_dual(arg, \
-                                    np.array([], np.int_),
-                                    np.array([], np.int_),
-                                    np.array([], np.int_),
-                                    np.array([], np.int_),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
                                     self._group_array,
                                     self._weight_array,
                                     False)
@@ -306,10 +306,10 @@ class group_lasso_dual(group_lasso):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg, np.float)
         return mixed_lasso_dual_bound_prox(arg, float(bound),
-                                           np.array([], np.int),
-                                           np.array([], np.int),
-                                           np.array([], np.int),
-                                           np.array([], np.int),
+                                           np.array([], np.intp),
+                                           np.array([], np.intp),
+                                           np.array([], np.intp),
+                                           np.array([], np.intp),
                                            self._group_array,
                                            self._weight_array)
 
@@ -318,10 +318,10 @@ class group_lasso_dual(group_lasso):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg, np.float)
         r = mixed_lasso_bound_prox(arg, lagrange / lipschitz,
-                                   np.array([], np.int),
-                                   np.array([], np.int),
-                                   np.array([], np.int),
-                                   np.array([], np.int),
+                                   np.array([], np.intp),
+                                   np.array([], np.intp),
+                                   np.array([], np.intp),
+                                   np.array([], np.intp),
                                    self._group_array,
                                    self._weight_array)
         return arg - r
@@ -461,10 +461,10 @@ class group_lasso_epigraph(group_lasso_cone):
     def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
         return mixed_lasso_epigraph(arg,
-                                    np.array([], np.int),
-                                    np.array([], np.int),
-                                    np.array([], np.int),
-                                    np.array([], np.int),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
+                                    np.array([], np.intp),
                                     self.snorm._group_array,
                                     self.snorm._weight_array)
 
@@ -500,10 +500,10 @@ class group_lasso_epigraph_polar(group_lasso_cone):
     def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
         return arg - mixed_lasso_epigraph(arg,
-                                          np.array([], np.int),
-                                          np.array([], np.int),
-                                          np.array([], np.int),
-                                          np.array([], np.int),
+                                          np.array([], np.intp),
+                                          np.array([], np.intp),
+                                          np.array([], np.intp),
+                                          np.array([], np.intp),
                                           self.snorm._group_array,
                                           self.snorm._weight_array)
 
@@ -547,10 +547,10 @@ class group_lasso_dual_epigraph(group_lasso_cone):
     def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
         return arg + mixed_lasso_epigraph(-arg,
-                                           np.array([], np.int),
-                                           np.array([], np.int),
-                                           np.array([], np.int),
-                                           np.array([], np.int),
+                                           np.array([], np.intp),
+                                           np.array([], np.intp),
+                                           np.array([], np.intp),
+                                           np.array([], np.intp),
                                            self.snorm._group_array,
                                            self.snorm._weight_array)
 
@@ -595,10 +595,10 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
     def cone_prox(self, arg,  lipschitz=1):
         arg = np.asarray(arg, np.float)
         return -mixed_lasso_epigraph(-arg,
-                                      np.array([], np.int),
-                                      np.array([], np.int),
-                                      np.array([], np.int),
-                                      np.array([], np.int),
+                                      np.array([], np.intp),
+                                      np.array([], np.intp),
+                                      np.array([], np.intp),
+                                      np.array([], np.intp),
                                       self.snorm._group_array,
                                       self.snorm._weight_array)
 
