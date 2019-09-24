@@ -1,647 +1,799 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="problems.conjugate" href="regreg.problems.conjugate.html" />
+    <link rel="prev" title="problems.admm" href="regreg.problems.admm.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">problems.composite</a><ul>
-<li><a class="reference internal" href="#module-problems-composite">Module: <tt class="docutils literal"><span class="pre">problems.composite</span></tt></a></li>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#composite"><tt class="docutils literal"><span class="pre">composite</span></tt></a></li>
-<li><a class="reference internal" href="#nonsmooth"><tt class="docutils literal"><span class="pre">nonsmooth</span></tt></a></li>
-<li><a class="reference internal" href="#smooth"><tt class="docutils literal"><span class="pre">smooth</span></tt></a></li>
-<li><a class="reference internal" href="#smooth-conjugate"><tt class="docutils literal"><span class="pre">smooth_conjugate</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">problems.composite</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-problems-composite">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.composite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">problems.composite</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-problems-composite">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.composite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.problems.composite.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.problems.composite.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="problems-composite">
 <h1>problems.composite<a class="headerlink" href="#problems-composite" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-problems-composite">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">problems.composite</span></tt><a class="headerlink" href="#module-problems-composite" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.problems.composite</span></tt>:</p>
-<p class="graphviz">
-<img src="../../_images/inheritance-082cf490818b13ddbaa8b1c5f73c692d0e4a86c9.png" alt="Inheritance diagram of regreg.problems.composite" usemap="#inheritance6673bcf0dd" class="inheritance"/>
-<map id="inheritance6673bcf0dd" name="inheritance6673bcf0dd">
-<area shape="rect" id="node1" href="#regreg.problems.composite.composite" title="A generic way to specify a problem in composite form." alt="" coords="5,28,210,52"/>
-<area shape="rect" id="node2" href="#regreg.problems.composite.nonsmooth" title="A composite subclass that explicitly returns 0" alt="" coords="254,5,466,29"/>
-<area shape="rect" id="node3" href="#regreg.problems.composite.smooth" title="A composite subclass that has 0 as " alt="" coords="266,52,454,76"/>
-<area shape="rect" id="node4" href="#regreg.problems.composite.smooth_conjugate" title="problems.composite.smooth_conjugate" alt="" coords="510,52,763,76"/>
-</map>
-</p>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.composite</span></code><a class="headerlink" href="#module-problems-composite" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.problems.composite</span></code>:</p>
+digraph inheritance6673bcf0dd {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;problems.composite.composite&quot; [URL=&quot;#regreg.problems.composite.composite&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A generic way to specify a problem in composite form.&quot;];
+  &quot;problems.composite.nonsmooth&quot; [URL=&quot;#regreg.problems.composite.nonsmooth&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A composite subclass that explicitly returns 0&quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.composite.nonsmooth&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;problems.composite.smooth&quot; [URL=&quot;#regreg.problems.composite.smooth&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A composite subclass that has 0 as &quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.composite.smooth&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;problems.composite.smooth_conjugate&quot; [URL=&quot;#regreg.problems.composite.smooth_conjugate&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;problems.composite.smooth&quot; -&gt; &quot;problems.composite.smooth_conjugate&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
 <span class="target" id="module-regreg.problems.composite"></span></div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="composite">
-<h3><a class="reference internal" href="#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><tt class="xref py py-class docutils literal"><span class="pre">composite</span></tt></a><a class="headerlink" href="#composite" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><code class="xref py py-class docutils literal notranslate"><span class="pre">composite</span></code></a><a class="headerlink" href="#composite" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="regreg.problems.composite.composite">
-<em class="property">class </em><tt class="descclassname">regreg.problems.composite.</tt><tt class="descname">composite</tt><big>(</big><em>shape</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.composite.</code><code class="sig-name descname">composite</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A generic way to specify a problem in composite form.</p>
 <dl class="method">
 <dt id="regreg.problems.composite.composite.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.apply_offset">
-<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.apply_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.apply_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.get_offset">
-<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.get_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.get_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.get_quadratic">
-<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.get_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.latexify">
-<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.latexify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.latexify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.nonsmooth_objective">
-<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.objective">
-<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.composite.objective_template">
-<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.composite.objective_template" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.composite.objective_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.composite.objective_vars">
-<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha'}</em><a class="headerlink" href="#regreg.problems.composite.composite.objective_vars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.composite.composite.objective_vars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.composite.offset">
-<tt class="descname">offset</tt><a class="headerlink" href="#regreg.problems.composite.composite.offset" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.composite.composite.offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.proximal_optimum">
-<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.proximal_optimum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.proximal_step">
-<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.proximal_step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.proximal_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the proximal optimization</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
-<blockquote class="last">
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
 <div><p>If not None, then a dictionary of parameters for the prox procedure</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.composite.quadratic">
-<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.problems.composite.composite.quadratic" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.composite.composite.quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.set_offset">
-<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.set_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.set_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.set_quadratic">
-<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.set_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.smooth_objective">
-<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.smooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>The smooth_objective and the quadratic_objective combined.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.smoothed">
-<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.smoothed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.smoothed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add quadratic smoothing term</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.composite.solve">
-<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.composite.solve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.composite.solve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="nonsmooth">
-<h3><a class="reference internal" href="#regreg.problems.composite.nonsmooth" title="regreg.problems.composite.nonsmooth"><tt class="xref py py-class docutils literal"><span class="pre">nonsmooth</span></tt></a><a class="headerlink" href="#nonsmooth" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.problems.composite.nonsmooth" title="regreg.problems.composite.nonsmooth"><code class="xref py py-class docutils literal notranslate"><span class="pre">nonsmooth</span></code></a><a class="headerlink" href="#nonsmooth" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="regreg.problems.composite.nonsmooth">
-<em class="property">class </em><tt class="descclassname">regreg.problems.composite.</tt><tt class="descname">nonsmooth</tt><big>(</big><em>shape</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><tt class="xref py py-class docutils literal"><span class="pre">regreg.problems.composite.composite</span></tt></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.composite.</code><code class="sig-name descname">nonsmooth</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.problems.composite.composite</span></code></a></p>
 <p>A composite subclass that explicitly returns 0
 as smooth_objective.</p>
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.apply_offset">
-<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.apply_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.apply_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.get_offset">
-<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.get_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.get_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.get_quadratic">
-<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.get_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.latexify">
-<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.latexify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.latexify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.nonsmooth_objective">
-<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.objective">
-<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.nonsmooth.objective_template">
-<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.nonsmooth.objective_template" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.nonsmooth.objective_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.nonsmooth.objective_vars">
-<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'offset': '\\alpha'}</em><a class="headerlink" href="#regreg.problems.composite.nonsmooth.objective_vars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.composite.nonsmooth.objective_vars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.offset">
-<tt class="descname">offset</tt><a class="headerlink" href="#regreg.problems.composite.nonsmooth.offset" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.composite.nonsmooth.offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.proximal_optimum">
-<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.proximal_optimum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.proximal_step">
-<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.proximal_step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.proximal_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the proximal optimization</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
-<blockquote class="last">
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
 <div><p>If not None, then a dictionary of parameters for the prox procedure</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.quadratic">
-<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.problems.composite.nonsmooth.quadratic" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.composite.nonsmooth.quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.set_offset">
-<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.set_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.set_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.set_quadratic">
-<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.set_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.smooth_objective">
-<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.smooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>The zero function.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.smoothed">
-<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.smoothed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.smoothed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add quadratic smoothing term</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.nonsmooth.solve">
-<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.nonsmooth.solve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.nonsmooth.solve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="smooth">
-<h3><a class="reference internal" href="#regreg.problems.composite.smooth" title="regreg.problems.composite.smooth"><tt class="xref py py-class docutils literal"><span class="pre">smooth</span></tt></a><a class="headerlink" href="#smooth" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.problems.composite.smooth" title="regreg.problems.composite.smooth"><code class="xref py py-class docutils literal notranslate"><span class="pre">smooth</span></code></a><a class="headerlink" href="#smooth" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="regreg.problems.composite.smooth">
-<em class="property">class </em><tt class="descclassname">regreg.problems.composite.</tt><tt class="descname">smooth</tt><big>(</big><em>shape</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><tt class="xref py py-class docutils literal"><span class="pre">regreg.problems.composite.composite</span></tt></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.composite.</code><code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.problems.composite.composite</span></code></a></p>
 <p>A composite subclass that has 0 as 
 nonsmooth_objective and the proximal
 is a null-op.</p>
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>shape</em>, <em>offset=None</em>, <em>quadratic=None</em>, <em>initial=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">quadratic=None</em>, <em class="sig-param">initial=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.apply_offset">
-<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.apply_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.apply_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.get_lipschitz">
-<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_lipschitz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.get_lipschitz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.get_offset">
-<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.get_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.get_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.get_quadratic">
-<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.get_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.latexify">
-<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.latexify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.latexify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth.lipschitz">
-<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.problems.composite.smooth.lipschitz" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lipschitz</code><a class="headerlink" href="#regreg.problems.composite.smooth.lipschitz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.nonsmooth_objective">
-<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.objective">
-<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.smooth.objective_template">
-<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.smooth.objective_template" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.smooth.objective_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.smooth.objective_vars">
-<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'coef': 'C', 'offset': '\\alpha'}</em><a class="headerlink" href="#regreg.problems.composite.smooth.objective_vars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'coef': 'C', 'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.composite.smooth.objective_vars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth.offset">
-<tt class="descname">offset</tt><a class="headerlink" href="#regreg.problems.composite.smooth.offset" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.composite.smooth.offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.proximal">
-<tt class="descname">proximal</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.proximal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.proximal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.proximal_optimum">
-<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.proximal_optimum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.proximal_step">
-<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.proximal_step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.proximal_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the proximal optimization</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
-<blockquote class="last">
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
 <div><p>If not None, then a dictionary of parameters for the prox procedure</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth.quadratic">
-<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.problems.composite.smooth.quadratic" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.composite.smooth.quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.set_lipschitz">
-<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_lipschitz</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.set_lipschitz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.set_offset">
-<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.set_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.set_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.set_quadratic">
-<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.set_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.smooth_objective">
-<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='func'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.smooth_objective" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='func'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The smooth_objective and the quadratic_objective combined.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.smoothed">
-<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.smoothed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.smoothed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add quadratic smoothing term</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth.solve">
-<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth.solve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth.solve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="smooth-conjugate">
-<h3><a class="reference internal" href="#regreg.problems.composite.smooth_conjugate" title="regreg.problems.composite.smooth_conjugate"><tt class="xref py py-class docutils literal"><span class="pre">smooth_conjugate</span></tt></a><a class="headerlink" href="#smooth-conjugate" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.problems.composite.smooth_conjugate" title="regreg.problems.composite.smooth_conjugate"><code class="xref py py-class docutils literal notranslate"><span class="pre">smooth_conjugate</span></code></a><a class="headerlink" href="#smooth-conjugate" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="regreg.problems.composite.smooth_conjugate">
-<em class="property">class </em><tt class="descclassname">regreg.problems.composite.</tt><tt class="descname">smooth_conjugate</tt><big>(</big><em>atom</em>, <em>smoothing_quadratic=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#regreg.problems.composite.smooth" title="regreg.problems.composite.smooth"><tt class="xref py py-class docutils literal"><span class="pre">regreg.problems.composite.smooth</span></tt></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.composite.</code><code class="sig-name descname">smooth_conjugate</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">smoothing_quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.problems.composite.smooth" title="regreg.problems.composite.smooth"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.problems.composite.smooth</span></code></a></p>
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>atom</em>, <em>smoothing_quadratic=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">smoothing_quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given an atom,
 compute the conjugate of this atom plus 
 an identity_quadratic which will be 
 a smooth version of the conjugate of the atom.</p>
-<p>should we have an argument &#8220;collapse&#8221; that makes a copy?</p>
+<p>should we have an argument “collapse” that makes a copy?</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.apply_offset">
-<tt class="descname">apply_offset</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.apply_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.apply_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.conjugate">
-<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.conjugate" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.conjugate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.get_conjugate">
-<tt class="descname">get_conjugate</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_conjugate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_conjugate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_conjugate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.get_lipschitz">
-<tt class="descname">get_lipschitz</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_lipschitz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_lipschitz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_lipschitz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.get_offset">
-<tt class="descname">get_offset</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.get_quadratic">
-<tt class="descname">get_quadratic</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.get_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.latexify">
-<tt class="descname">latexify</tt><big>(</big><em>var=None</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.latexify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.latexify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.lipschitz">
-<tt class="descname">lipschitz</tt><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.lipschitz" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lipschitz</code><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.lipschitz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.nonsmooth_objective">
-<tt class="descname">nonsmooth_objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.objective">
-<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.smooth_conjugate.objective_template">
-<tt class="descname">objective_template</tt><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.objective_template" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.objective_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.problems.composite.smooth_conjugate.objective_vars">
-<tt class="descname">objective_vars</tt><em class="property"> = {'var': '\\beta', 'shape': 'p', 'coef': 'C', 'offset': '\\alpha'}</em><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.objective_vars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'coef': 'C', 'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.objective_vars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.offset">
-<tt class="descname">offset</tt><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.offset" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.proximal">
-<tt class="descname">proximal</tt><big>(</big><em>proxq</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.proximal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">proxq</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.proximal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.proximal_optimum">
-<tt class="descname">proximal_optimum</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.proximal_optimum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.proximal_step">
-<tt class="descname">proximal_step</tt><big>(</big><em>quadratic</em>, <em>prox_control=None</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.proximal_step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.proximal_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the proximal optimization</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prox_control: [None, dict]</strong></p>
-<blockquote class="last">
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
 <div><p>If not None, then a dictionary of parameters for the prox procedure</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.quadratic">
-<tt class="descname">quadratic</tt><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.quadratic" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.set_lipschitz">
-<tt class="descname">set_lipschitz</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.set_lipschitz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_lipschitz</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.set_lipschitz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.set_offset">
-<tt class="descname">set_offset</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.set_offset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.set_offset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.set_quadratic">
-<tt class="descname">set_quadratic</tt><big>(</big><em>quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.set_quadratic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the quadratic part of the composite.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.smooth_objective">
-<tt class="descname">smooth_objective</tt><big>(</big><em>x</em>, <em>mode='both'</em>, <em>check_feasibility=False</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.smooth_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate a smooth function and/or its gradient</p>
-<p>if mode == &#8216;both&#8217;, return both function value and gradient
-if mode == &#8216;grad&#8217;, return only the gradient
-if mode == &#8216;func&#8217;, return only the function value</p>
+<p>if mode == ‘both’, return both function value and gradient
+if mode == ‘grad’, return only the gradient
+if mode == ‘func’, return only the function value</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.smoothed">
-<tt class="descname">smoothed</tt><big>(</big><em>smoothing_quadratic</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.smoothed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.smoothed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add quadratic smoothing term</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.problems.composite.smooth_conjugate.solve">
-<tt class="descname">solve</tt><big>(</big><em>quadratic=None</em>, <em>return_optimum=False</em>, <em>**fit_args</em><big>)</big><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.solve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.composite.smooth_conjugate.solve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -651,28 +803,55 @@ if mode == &#8216;func&#8217;, return only the function value</p>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.problems.conjugate.html" class="btn btn-neutral float-right" title="problems.conjugate" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.problems.admm.html" class="btn btn-neutral float-left" title="problems.admm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../agenda.html">RegReg development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/Diabetes.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-diabetes-data-from-lars">
+<span id="diabetes-example"></span><h1>The Diabetes data from LARS<a class="headerlink" href="#the-diabetes-data-from-lars" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span><span class="o">,</span> <span class="nn">regreg.api</span> <span class="kn">as</span> <span class="nn">rr</span>
+<span class="kn">import</span> <span class="nn">rpy2.robjects</span> <span class="kn">as</span> <span class="nn">rpy2</span>
+</pre></div>
+</div>
+<p>Let’s grab the diabetes data from the lars package in R</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">suppressMessages(library(lars))</span>
+<span class="s1">data(diabetes)</span>
+<span class="s1">X = diabetes$x</span>
+<span class="s1">Y = diabetes$y</span>
+<span class="s1">diabetes_lars = lars(diabetes$x, diabetes$y, type=&#39;lasso&#39;)</span>
+<span class="s1">L = diabetes_lars$lambda</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">)</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+<span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+<span class="n">n</span><span class="p">,</span> <span class="n">p</span>
+</pre></div>
+</div>
+<p>Our loss function and penalty</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">glm</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="n">loss</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\ell^{\text{Gauss}}\left(X_{}\beta\right)\]</div>
+<div class="math notranslate nohighlight">
+\[\ell^{\text{Gauss}}\left(X_{}\beta\right)\]</div>
+<p>Now, our penalty:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">penalty</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lagrange</span><span class="o">=</span><span class="n">L</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">penalty</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \|\beta\|_1\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \|\beta\|_1\]</div>
+<p>Let’s form the problem</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+<span class="n">problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \ell^{\text{Gauss}}\left(X_{1}\beta\right) \\
+g(\beta) &amp;= \lambda_{2} \|\beta\|_1 \\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \ell^{\text{Gauss}}\left(X_{1}\beta\right) \\
+g(\beta) &amp;= \lambda_{2} \|\beta\|_1 \\
+\end{aligned}\end{split}\]</div>
+<p>and solve it</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">beta</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">beta</span>
+</pre></div>
+</div>
+<p>Compare this to <code class="docutils literal notranslate"><span class="pre">R</span></code>’s solution:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">S</span> <span class="o">=</span> <span class="n">rpy2</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;diabetes_lars$beta[4,]&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="bound-form">
+<h2>Bound form<a class="headerlink" href="#bound-form" title="Permalink to this headline">¶</a></h2>
+<p>We can also solve this in bound form</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bound_form</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="n">bound_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">bound_form</span><span class="p">)</span>
+<span class="n">bound_problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \ell^{\text{Gauss}}\left(X_{1}\beta\right) \\
+g(\beta) &amp;= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \ell^{\text{Gauss}}\left(X_{1}\beta\right) \\
+g(\beta) &amp;= I^{\infty}(\|\beta\|_1 \leq \delta_{2}) \\
+\end{aligned}\end{split}\]</div>
+<p>Here is the solution</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">beta_bound</span> <span class="o">=</span> <span class="n">bound_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">min_its</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">beta_bound</span>
+</pre></div>
+</div>
+<a class="reference download internal" href="examples/Diabetes_full.ipynb">Download this page as a Jupyter notebook (with outputs)</a></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

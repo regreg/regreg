@@ -1,6 +1,0 @@
-<map id="inheritance6673bcf0dd" name="inheritance6673bcf0dd">
-<area shape="rect" id="node1" href="#regreg.problems.composite.composite" title="A generic way to specify a problem in composite form." alt="" coords="5,28,210,52"/>
-<area shape="rect" id="node2" href="#regreg.problems.composite.nonsmooth" title="A composite subclass that explicitly returns 0" alt="" coords="254,5,466,29"/>
-<area shape="rect" id="node3" href="#regreg.problems.composite.smooth" title="A composite subclass that has 0 as " alt="" coords="266,52,454,76"/>
-<area shape="rect" id="node4" href="#regreg.problems.composite.smooth_conjugate" title="problems.composite.smooth_conjugate" alt="" coords="510,52,763,76"/>
-</map>

@@ -1,136 +1,639 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="smooth" href="regreg.smooth.html" />
+    <link rel="prev" title="problems.separable" href="regreg.problems.separable.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">problems.simple</a><ul>
-<li><a class="reference internal" href="#module-problems-simple">Module: <tt class="docutils literal"><span class="pre">problems.simple</span></tt></a></li>
-<li><a class="reference internal" href="#class">Class</a></li>
-<li><a class="reference internal" href="#simple-problem"><tt class="docutils literal"><span class="pre">simple_problem</span></tt></a></li>
-<li><a class="reference internal" href="#functions">Functions</a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">problems.simple</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-problems-simple">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class">Class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simple-problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">simple_problem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">problems.simple</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-problems-simple">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.simple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class">Class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simple-problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">simple_problem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.problems.simple.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.problems.simple.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="problems-simple">
 <h1>problems.simple<a class="headerlink" href="#problems-simple" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-problems-simple">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">problems.simple</span></tt><a class="headerlink" href="#module-problems-simple" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.problems.simple</span></tt>:</p>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.simple</span></code><a class="headerlink" href="#module-problems-simple" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.problems.simple</span></code>:</p>
+digraph inheritance183615db30 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;problems.composite.composite&quot; [URL=&quot;regreg.problems.composite.html#regreg.problems.composite.composite&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A generic way to specify a problem in composite form.&quot;];
+  &quot;problems.simple.simple_problem&quot; [URL=&quot;#regreg.problems.simple.simple_problem&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+  &quot;problems.composite.composite&quot; -&gt; &quot;problems.simple.simple_problem&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<span class="target" id="module-regreg.problems.simple"></span><p>This module has a class for specifying a problem from just
+a smooth function and a single penalty.</p>
 </div>
 <div class="section" id="class">
 <h2>Class<a class="headerlink" href="#class" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="simple-problem">
-<h2><tt class="xref py py-class docutils literal"><span class="pre">simple_problem</span></tt><a class="headerlink" href="#simple-problem" title="Permalink to this headline">¶</a></h2>
+<h2><a class="reference internal" href="#regreg.problems.simple.simple_problem" title="regreg.problems.simple.simple_problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">simple_problem</span></code></a><a class="headerlink" href="#simple-problem" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="regreg.problems.simple.simple_problem">
+<em class="property">class </em><code class="sig-prename descclassname">regreg.problems.simple.</code><code class="sig-name descname">simple_problem</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em>, <em class="sig-param">proximal_atom</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="regreg.problems.composite.html#regreg.problems.composite.composite" title="regreg.problems.composite.composite"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.problems.composite.composite</span></code></a></p>
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em>, <em class="sig-param">proximal_atom</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.apply_offset">
+<code class="sig-name descname">apply_offset</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.apply_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If self.offset is not None, return x-self.offset, else return x.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.get_offset">
+<code class="sig-name descname">get_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.get_quadratic">
+<code class="sig-name descname">get_quadratic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.get_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.latexify">
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.latexify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.nonsmooth">
+<em class="property">static </em><code class="sig-name descname">nonsmooth</code><span class="sig-paren">(</span><em class="sig-param">proximal_atom</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.nonsmooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>A problem with no nonsmooth part except possibly
+the quadratic of smooth_atom.</p>
+<p>The proximal function is (almost) a nullop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.nonsmooth_objective">
+<code class="sig-name descname">nonsmooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.nonsmooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.simple.simple_problem.objective_template">
+<code class="sig-name descname">objective_template</code><em class="property"> = 'f(%(var)s)'</em><a class="headerlink" href="#regreg.problems.simple.simple_problem.objective_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.problems.simple.simple_problem.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.problems.simple.simple_problem.objective_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.offset">
+<em class="property">property </em><code class="sig-name descname">offset</code><a class="headerlink" href="#regreg.problems.simple.simple_problem.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.proximal">
+<code class="sig-name descname">proximal</code><span class="sig-paren">(</span><em class="sig-param">proxq</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.proximal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.proximal_optimum">
+<code class="sig-name descname">proximal_optimum</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.proximal_optimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.proximal_step">
+<code class="sig-name descname">proximal_step</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em>, <em class="sig-param">prox_control=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.proximal_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the proximal optimization</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prox_control: [None, dict]</strong></p>
+<blockquote>
+<div><p>If not None, then a dictionary of parameters for the prox procedure</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.quadratic">
+<em class="property">property </em><code class="sig-name descname">quadratic</code><a class="headerlink" href="#regreg.problems.simple.simple_problem.quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic part of the object, instance of <cite>regreg.identity_quadratic.identity_quadratic</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.set_offset">
+<code class="sig-name descname">set_offset</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.set_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.set_quadratic">
+<code class="sig-name descname">set_quadratic</code><span class="sig-paren">(</span><em class="sig-param">quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.set_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the quadratic part of the composite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.smooth">
+<em class="property">static </em><code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>A problem with no nonsmooth part except possibly
+the quadratic of smooth_atom.</p>
+<p>The proximal function is (almost) a nullop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.smooth_objective">
+<code class="sig-name descname">smooth_objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em>, <em class="sig-param">check_feasibility=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.smooth_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class explicitly assumes that
+the proximal_atom has 0 for smooth_objective.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.smoothed">
+<code class="sig-name descname">smoothed</code><span class="sig-paren">(</span><em class="sig-param">smoothing_quadratic</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.smoothed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add quadratic smoothing term</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regreg.problems.simple.simple_problem.solve">
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">quadratic=None</em>, <em class="sig-param">return_optimum=False</em>, <em class="sig-param">**fit_args</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.simple_problem.solve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="regreg.problems.simple.gengrad">
+<code class="sig-prename descclassname">regreg.problems.simple.</code><code class="sig-name descname">gengrad</code><span class="sig-paren">(</span><em class="sig-param">simple_problem</em>, <em class="sig-param">lipschitz</em>, <em class="sig-param">tol=1e-08</em>, <em class="sig-param">max_its=1000</em>, <em class="sig-param">debug=False</em>, <em class="sig-param">coef_stop=False</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.gengrad" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple generalized gradient solver</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.problems.simple.nesta">
+<code class="sig-prename descclassname">regreg.problems.simple.</code><code class="sig-name descname">nesta</code><span class="sig-paren">(</span><em class="sig-param">smooth_atom</em>, <em class="sig-param">proximal_atom</em>, <em class="sig-param">conjugate_atom</em>, <em class="sig-param">epsilon=None</em>, <em class="sig-param">tol=1e-06</em>, <em class="sig-param">max_iters=100</em>, <em class="sig-param">min_iters=5</em>, <em class="sig-param">coef_tol=1e-06</em>, <em class="sig-param">initial_primal=None</em>, <em class="sig-param">initial_dual=None</em>, <em class="sig-param">coef_stop=False</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.nesta" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>smooth_atom: smooth_composite</strong></p>
+<blockquote>
+<div><p>A smooth function, i.e. having a smooth_objective method.</p>
+</div></blockquote>
+<p><strong>proximal_atom:</strong></p>
+<blockquote>
+<div><p>An atom with a proximal method.</p>
+</div></blockquote>
+<p><strong>conjugate_atom:</strong></p>
+<blockquote>
+<div><p>An atom that will be smoothed, by adding a quadratic to its
+conjugate.</p>
+</div></blockquote>
+<p><strong>epsilon: np.array</strong></p>
+<blockquote>
+<div><p>A decreasing array of positive constants for Moreau-Yosida smoothing.</p>
+</div></blockquote>
+<p><strong>tol</strong> : np.float</p>
+<blockquote>
+<div><p>Tolerance to which each problem is solved is max(tol, epsilon)</p>
+</div></blockquote>
+<p><strong>max_iter s: int</strong></p>
+<blockquote>
+<div><p>Maximum number of iterations. If epsilon is not supplied,
+it is taken to be [1]*max_iters</p>
+</div></blockquote>
+<p><strong>initial_primal, initial_dual</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Initial conditions for both primal and dual variables.</p>
+</div></blockquote>
+<p><strong>coef_tol</strong> : float</p>
+<blockquote>
+<div><p>Tolerance for assessing convergence of coefficients.</p>
+</div></blockquote>
+<p><strong>quadratic</strong> : <cite>regreg.identity_quadratic</cite></p>
+<blockquote>
+<div><p>A quadratic term that is added to the total objective.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>primal: np.array</p>
+<blockquote>
+<div><p>Primal coefficients.</p>
+</div></blockquote>
+<p>dual: np.array</p>
+<blockquote>
+<div><p>Dual coefficients.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="regreg.problems.simple.tfocs">
+<code class="sig-prename descclassname">regreg.problems.simple.</code><code class="sig-name descname">tfocs</code><span class="sig-paren">(</span><em class="sig-param">primal_atom</em>, <em class="sig-param">transform</em>, <em class="sig-param">dual_proximal_atom</em>, <em class="sig-param">epsilon=None</em>, <em class="sig-param">tol=1e-06</em>, <em class="sig-param">max_iters=100</em>, <em class="sig-param">coef_tol=1e-06</em>, <em class="sig-param">quadratic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.problems.simple.tfocs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is based on the setup of problems
+described in <a class="reference external" href="http://tfocs.stanford.edu/">TFOCS</a>.
+Generally speaking, these are the same type of problems
+that nesta can handle, though without the additional smooth part.</p>
+<p>This solver is suited to solving problems of the form</p>
+<p>minimize_v f(v) + h(Dv+a)</p>
+<p>when both f and h (and hence f^* and h^*) 
+have simple proximal operators.</p>
+<p>Here is an example for minimum <span class="math notranslate nohighlight">\(\ell_1\)</span> norm reconstruction.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span><span class="o">,</span> <span class="nn">regreg.api</span> <span class="k">as</span> <span class="nn">rr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5000</span>
+</pre></div>
+</div>
+<p>The problem assumes Y=np.dot(X,beta) for some sparse beta.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>
+</pre></div>
+</div>
+<p>The problem is formally,</p>
+<p>minimize_v np.fabs(v).sum() subject to Y=np.dot(X,v)</p>
+<p>The <span class="math notranslate nohighlight">\(\ell_1\)</span> norm is described as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">l1</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The constraint is specified as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">zero_constraint</span><span class="o">.</span><span class="n">affine</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="o">-</span><span class="n">Y</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transform</span><span class="p">,</span> <span class="n">zero</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">dual</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">epsilon</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span><span class="o">*</span><span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">primal_tfocs</span><span class="p">,</span> <span class="n">dual_tfocs</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">tfocs</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">primal_tfocs</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">primal_tfocs</span><span class="p">[</span><span class="mi">10</span><span class="p">:])</span> <span class="o">&lt;</span> <span class="mf">1.e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">primal_tfocs</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>primal_atom: atom</strong></p>
+<blockquote>
+<div><p>An atom that will be smoothed,
+then composed with the transform.</p>
+</div></blockquote>
+<p><strong>transform</strong> : affine_transform</p>
+<blockquote>
+<div><p>An affine transform for the composition.</p>
+</div></blockquote>
+<p><strong>dual_proximal_atom: atom</strong></p>
+<blockquote>
+<div><p>An atom with a proximal method.</p>
+</div></blockquote>
+<p><strong>epsilon: np.array</strong></p>
+<blockquote>
+<div><p>A decreasing array of positive constants for Moreau-Yosida smoothing.</p>
+</div></blockquote>
+<p><strong>tol: np.float</strong></p>
+<blockquote>
+<div><p>Tolerance to which each problem is solved is max(tol, epsilon)</p>
+</div></blockquote>
+<p><strong>max_iters: int</strong></p>
+<blockquote>
+<div><p>Maximum number of iterations. If epsilon is not supplied,
+it is taken to be [1]*max_iters</p>
+</div></blockquote>
+<p><strong>initial_primal, initial_dual</strong> : <cite>np.ndarray(np.float)</cite></p>
+<blockquote>
+<div><p>Initial conditions for both primal and dual variables.</p>
+</div></blockquote>
+<p><strong>coef_tol</strong> : float</p>
+<blockquote>
+<div><p>Tolerance for assessing convergence of coefficients.</p>
+</div></blockquote>
+<p><strong>quadratic</strong> : <cite>regreg.identity_quadratic</cite></p>
+<blockquote>
+<div><p>A quadratic term that is added to the total objective.</p>
+</div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>primal: np.array</p>
+<blockquote>
+<div><p>Primal coefficients.</p>
+</div></blockquote>
+<p>dual: np.array</p>
+<blockquote>
+<div><p>Dual coefficients.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.smooth.html" class="btn btn-neutral float-right" title="smooth" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.problems.separable.html" class="btn btn-neutral float-left" title="problems.separable" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

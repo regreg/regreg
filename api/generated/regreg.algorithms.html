@@ -1,159 +1,322 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="atoms" href="regreg.atoms.html" />
+    <link rel="prev" title="affine.multiscale" href="regreg.affine.multiscale.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">algorithms</a><ul>
-<li><a class="reference internal" href="#module-algorithms">Module: <tt class="docutils literal"><span class="pre">algorithms</span></tt></a></li>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#fista"><tt class="docutils literal"><span class="pre">FISTA</span></tt></a></li>
-<li><a class="reference internal" href="#algorithm"><tt class="docutils literal"><span class="pre">algorithm</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">algorithms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-algorithms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">algorithms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-algorithms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.identity_quadratic.html">identity_quadratic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.algorithms.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.algorithms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="algorithms">
 <h1>algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-algorithms">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">algorithms</span></tt><a class="headerlink" href="#module-algorithms" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.algorithms</span></tt>:</p>
-<p class="graphviz">
-<img src="../../_images/inheritance-be222cfe1448c20ee5cacf8628cf13c0d574988a.png" alt="Inheritance diagram of regreg.algorithms" usemap="#inheritance51d2b39f6a" class="inheritance"/>
-<map id="inheritance51d2b39f6a" name="inheritance51d2b39f6a">
-<area shape="rect" id="node1" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm" alt="" coords="5,5,209,32"/>
-<area shape="rect" id="node2" href="#regreg.algorithms.FISTA" title="The FISTA generalized gradient algorithm" alt="" coords="257,5,433,32"/>
-</map>
-</p>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms</span></code><a class="headerlink" href="#module-algorithms" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.algorithms</span></code>:</p>
+digraph inheritance51d2b39f6a {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;regreg.algorithms.FISTA&quot; [URL=&quot;#regreg.algorithms.FISTA&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The FISTA generalized gradient algorithm&quot;];
+  &quot;regreg.algorithms.algorithm&quot; -&gt; &quot;regreg.algorithms.FISTA&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;regreg.algorithms.algorithm&quot; [URL=&quot;#regreg.algorithms.algorithm&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;];
+}
 <span class="target" id="module-regreg.algorithms"></span></div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="fista">
-<h3><a class="reference internal" href="#regreg.algorithms.FISTA" title="regreg.algorithms.FISTA"><tt class="xref py py-class docutils literal"><span class="pre">FISTA</span></tt></a><a class="headerlink" href="#fista" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.algorithms.FISTA" title="regreg.algorithms.FISTA"><code class="xref py py-class docutils literal notranslate"><span class="pre">FISTA</span></code></a><a class="headerlink" href="#fista" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="regreg.algorithms.FISTA">
-<em class="property">class </em><tt class="descclassname">regreg.algorithms.</tt><tt class="descname">FISTA</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm"><tt class="xref py py-class docutils literal"><span class="pre">regreg.algorithms.algorithm</span></tt></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.algorithms.</code><code class="sig-name descname">FISTA</code><span class="sig-paren">(</span><em class="sig-param">composite</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.FISTA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">regreg.algorithms.algorithm</span></code></a></p>
 <p>The FISTA generalized gradient algorithm</p>
 <dl class="method">
 <dt id="regreg.algorithms.FISTA.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">composite</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.FISTA.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.alpha">
-<tt class="descname">alpha</tt><em class="property"> = 1.1</em><a class="headerlink" href="#regreg.algorithms.FISTA.alpha" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">alpha</code><em class="property"> = 1.1</em><a class="headerlink" href="#regreg.algorithms.FISTA.alpha" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.attempt_decrease">
-<tt class="descname">attempt_decrease</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.FISTA.attempt_decrease" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">attempt_decrease</code><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.FISTA.attempt_decrease" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.algorithms.FISTA.backtrack">
-<tt class="descname">backtrack</tt><big>(</big><em>itercount</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.backtrack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">backtrack</code><span class="sig-paren">(</span><em class="sig-param">itercount</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.FISTA.backtrack" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.debug">
-<tt class="descname">debug</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.FISTA.debug" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">debug</code><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.FISTA.debug" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.default_tol">
-<tt class="descname">default_tol</tt><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.algorithms.FISTA.default_tol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.algorithms.FISTA.default_tol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.algorithms.FISTA.fit">
-<tt class="descname">fit</tt><big>(</big><em>tol=None</em>, <em>min_its=None</em>, <em>max_its=None</em>, <em>FISTA=True</em>, <em>start_step=1.0</em>, <em>restart=inf</em>, <em>coef_stop=False</em>, <em>return_objective_hist=True</em>, <em>monotonicity_restart=True</em>, <em>debug=None</em>, <em>prox_control={}</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">tol=None</em>, <em class="sig-param">min_its=None</em>, <em class="sig-param">max_its=None</em>, <em class="sig-param">FISTA=True</em>, <em class="sig-param">start_step=1.0</em>, <em class="sig-param">restart=inf</em>, <em class="sig-param">coef_stop=False</em>, <em class="sig-param">return_objective_hist=True</em>, <em class="sig-param">monotonicity_restart=True</em>, <em class="sig-param">debug=None</em>, <em class="sig-param">prox_control={}</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.FISTA.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use the FISTA (or ISTA) algorithm to fit the problem</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>FISTA</strong> : bool</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>FISTA</strong> : bool</p>
 <blockquote>
 <div><p>use Nesterov weights? If False, this is just gradient descent</p>
 </div></blockquote>
@@ -185,115 +348,114 @@
 <blockquote>
 <div><p>A dictionary of arguments for fit(), used when the composite.proximal_step itself is a FISTA problem</p>
 </div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>objective_hist</strong> : ndarray</p>
-<blockquote class="last">
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>objective_hist</strong> : ndarray</p>
+<blockquote>
 <div><p>A vector of objective values. Only return if return_objective_hist is True.</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.max_its">
-<tt class="descname">max_its</tt><em class="property"> = 10000</em><a class="headerlink" href="#regreg.algorithms.FISTA.max_its" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_its</code><em class="property"> = 10000</em><a class="headerlink" href="#regreg.algorithms.FISTA.max_its" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.min_its">
-<tt class="descname">min_its</tt><em class="property"> = 5</em><a class="headerlink" href="#regreg.algorithms.FISTA.min_its" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">min_its</code><em class="property"> = 5</em><a class="headerlink" href="#regreg.algorithms.FISTA.min_its" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.algorithms.FISTA.output">
-<tt class="descname">output</tt><a class="headerlink" href="#regreg.algorithms.FISTA.output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the &#8216;interesting&#8217; part of the composite arguments.
+<em class="property">property </em><code class="sig-name descname">output</code><a class="headerlink" href="#regreg.algorithms.FISTA.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ‘interesting’ part of the composite arguments.
 In the regression case, this is the tuple (beta, r).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.perform_backtrack">
-<tt class="descname">perform_backtrack</tt><em class="property"> = True</em><a class="headerlink" href="#regreg.algorithms.FISTA.perform_backtrack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">perform_backtrack</code><em class="property"> = True</em><a class="headerlink" href="#regreg.algorithms.FISTA.perform_backtrack" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.FISTA.step">
-<tt class="descname">step</tt><em class="property"> = None</em><a class="headerlink" href="#regreg.algorithms.FISTA.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><em class="property"> = None</em><a class="headerlink" href="#regreg.algorithms.FISTA.step" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.algorithms.FISTA.update_working_coefs">
-<tt class="descname">update_working_coefs</tt><big>(</big><em>proposed_coefs</em><big>)</big><a class="headerlink" href="#regreg.algorithms.FISTA.update_working_coefs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_working_coefs</code><span class="sig-paren">(</span><em class="sig-param">proposed_coefs</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.FISTA.update_working_coefs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="algorithm">
-<h3><a class="reference internal" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm"><tt class="xref py py-class docutils literal"><span class="pre">algorithm</span></tt></a><a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#regreg.algorithms.algorithm" title="regreg.algorithms.algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">algorithm</span></code></a><a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="regreg.algorithms.algorithm">
-<em class="property">class </em><tt class="descclassname">regreg.algorithms.</tt><tt class="descname">algorithm</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.algorithm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.algorithms.</code><code class="sig-name descname">algorithm</code><span class="sig-paren">(</span><em class="sig-param">composite</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="regreg.algorithms.algorithm.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>composite</em><big>)</big><a class="headerlink" href="#regreg.algorithms.algorithm.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">composite</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.algorithm.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.alpha">
-<tt class="descname">alpha</tt><em class="property"> = 1.1</em><a class="headerlink" href="#regreg.algorithms.algorithm.alpha" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">alpha</code><em class="property"> = 1.1</em><a class="headerlink" href="#regreg.algorithms.algorithm.alpha" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.attempt_decrease">
-<tt class="descname">attempt_decrease</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.algorithm.attempt_decrease" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">attempt_decrease</code><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.algorithm.attempt_decrease" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.debug">
-<tt class="descname">debug</tt><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.algorithm.debug" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">debug</code><em class="property"> = False</em><a class="headerlink" href="#regreg.algorithms.algorithm.debug" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.default_tol">
-<tt class="descname">default_tol</tt><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.algorithms.algorithm.default_tol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#regreg.algorithms.algorithm.default_tol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.algorithms.algorithm.fit">
-<tt class="descname">fit</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.algorithms.algorithm.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.algorithms.algorithm.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract method.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.max_its">
-<tt class="descname">max_its</tt><em class="property"> = 10000</em><a class="headerlink" href="#regreg.algorithms.algorithm.max_its" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_its</code><em class="property"> = 10000</em><a class="headerlink" href="#regreg.algorithms.algorithm.max_its" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.min_its">
-<tt class="descname">min_its</tt><em class="property"> = 5</em><a class="headerlink" href="#regreg.algorithms.algorithm.min_its" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">min_its</code><em class="property"> = 5</em><a class="headerlink" href="#regreg.algorithms.algorithm.min_its" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.algorithms.algorithm.output">
-<tt class="descname">output</tt><a class="headerlink" href="#regreg.algorithms.algorithm.output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the &#8216;interesting&#8217; part of the composite arguments.
+<em class="property">property </em><code class="sig-name descname">output</code><a class="headerlink" href="#regreg.algorithms.algorithm.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ‘interesting’ part of the composite arguments.
 In the regression case, this is the tuple (beta, r).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.perform_backtrack">
-<tt class="descname">perform_backtrack</tt><em class="property"> = True</em><a class="headerlink" href="#regreg.algorithms.algorithm.perform_backtrack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">perform_backtrack</code><em class="property"> = True</em><a class="headerlink" href="#regreg.algorithms.algorithm.perform_backtrack" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="regreg.algorithms.algorithm.step">
-<tt class="descname">step</tt><em class="property"> = None</em><a class="headerlink" href="#regreg.algorithms.algorithm.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><em class="property"> = None</em><a class="headerlink" href="#regreg.algorithms.algorithm.step" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -303,28 +465,55 @@ In the regression case, this is the tuple (beta, r).</p>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.atoms.html" class="btn btn-neutral float-right" title="atoms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.affine.multiscale.html" class="btn btn-neutral float-left" title="affine.multiscale" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

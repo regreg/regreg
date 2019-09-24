@@ -1,180 +1,353 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
     
-    <title>RegReg &mdash; RegReg Documentation</title>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <link rel="stylesheet" href="../../_static/regreg.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.0.1.dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="RegReg Documentation" href="../../index.html" />
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="objdoctemplates" href="regreg.objdoctemplates.html" />
+    <link rel="prev" title="doctemplates" href="regreg.doctemplates.html" />
   <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
 				 series">
 
-  </head>
-  <body>
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
- <a href="../../index.html">
-  <img src="../../_static/templogo2.png" alt="NIPY logo"  border="0" />
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
+          
+        </div>
 
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">identity_quadratic</a><ul>
-<li><a class="reference internal" href="#module-identity-quadratic">Module: <tt class="docutils literal"><span class="pre">identity_quadratic</span></tt></a></li>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">identity_quadratic</span></tt></a></li>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agenda.html">RegReg development</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">identity_quadratic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-identity-quadratic">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="xref py py-class docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../documentation.html">RegReg documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../download.html">Downloading and installing RegReg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../algorithms.html">RegReg algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html">RegReg License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../docattribute.html">RegReg documentation attribution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.html">affine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.factored_matrix.html">affine.factored_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.fused_lasso.html">affine.fused_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.image2d.html">affine.image2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.affine.multiscale.html">affine.multiscale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.algorithms.html">algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.html">atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.block_norms.html">atoms.block_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.cones.html">atoms.cones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.group_lasso.html">atoms.group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.linear_constraints.html">atoms.linear_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.seminorms.html">atoms.seminorms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.slope.html">atoms.slope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.svd_norms.html">atoms.svd_norms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.doctemplates.html">doctemplates</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">identity_quadratic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-identity-quadratic">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="xref py py-class docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.objdoctemplates.html">objdoctemplates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.paths.html">paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.admm.html">problems.admm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.composite.html">problems.composite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.conjugate.html">problems.conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.container.html">problems.container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.dual_problem.html">problems.dual_problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.separable.html">problems.separable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.problems.simple.html">problems.simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.html">smooth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.glm.html">smooth.glm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.losses.html">smooth.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regreg.smooth.quadratic.html">smooth.quadratic</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../../_sources/api/generated/regreg.identity_quadratic.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-
-<div id="searchbox-site" style="display: none">
-  <h3>Search this site</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="13" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox-ml').show(0);</script>
-<script type="text/javascript">$('#searchbox-site').show(0);</script>
-
-
+            
+          
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../documentation.html">RegReg documentation</a> &raquo;</li>
+        
+          <li><a href="../index.html">API</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/regreg.identity_quadratic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="identity-quadratic">
 <h1>identity_quadratic<a class="headerlink" href="#identity-quadratic" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-identity-quadratic">
-<h2>Module: <tt class="xref py py-mod docutils literal"><span class="pre">identity_quadratic</span></tt><a class="headerlink" href="#module-identity-quadratic" title="Permalink to this headline">¶</a></h2>
-<p>Inheritance diagram for <tt class="docutils literal"><span class="pre">regreg.identity_quadratic</span></tt>:</p>
-<p class="graphviz">
-<img src="../../_images/inheritance-197685876a6e48013c86e166a6a8535c71b2b555.png" alt="Inheritance diagram of regreg.identity_quadratic" usemap="#inheritance5ebd16c831" class="inheritance"/>
-<map id="inheritance5ebd16c831" name="inheritance5ebd16c831">
-<area shape="rect" id="node1" href="#regreg.identity_quadratic.identity_quadratic" title="This object is a quadratic function" alt="" coords="5,5,310,32"/>
-</map>
-</p>
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">identity_quadratic</span></code><a class="headerlink" href="#module-identity-quadratic" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">regreg.identity_quadratic</span></code>:</p>
+digraph inheritance5ebd16c831 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;regreg.identity_quadratic.identity_quadratic&quot; [URL=&quot;#regreg.identity_quadratic.identity_quadratic&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;This object is a quadratic function&quot;];
+}
 <span class="target" id="module-regreg.identity_quadratic"></span><p>This module contains a single class that is meant to represent
 a quadratic of the form</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma\]</div>
-<p>with <span class="math">\(L, \mu, \eta, \gamma\)</span> = (coef, center, linear_term,
+<p>with <span class="math notranslate nohighlight">\(L, \mu, \eta, \gamma\)</span> = (coef, center, linear_term,
 constant_term).</p>
 </div>
 <div class="section" id="id1">
-<h2><a class="reference internal" href="#regreg.identity_quadratic.identity_quadratic" title="regreg.identity_quadratic.identity_quadratic"><tt class="xref py py-class docutils literal"><span class="pre">identity_quadratic</span></tt></a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2><a class="reference internal" href="#regreg.identity_quadratic.identity_quadratic" title="regreg.identity_quadratic.identity_quadratic"><code class="xref py py-class docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="regreg.identity_quadratic.identity_quadratic">
-<em class="property">class </em><tt class="descclassname">regreg.identity_quadratic.</tt><tt class="descname">identity_quadratic</tt><big>(</big><em>coef</em>, <em>center</em>, <em>linear_term</em>, <em>constant_term=0</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="sig-prename descclassname">regreg.identity_quadratic.</code><code class="sig-name descname">identity_quadratic</code><span class="sig-paren">(</span><em class="sig-param">coef</em>, <em class="sig-param">center</em>, <em class="sig-param">linear_term</em>, <em class="sig-param">constant_term=0</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This object is a quadratic function</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[x \mapsto \frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma\]</div>
 <p>used in the proximal methods of all atoms.</p>
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>coef</em>, <em>center</em>, <em>linear_term</em>, <em>constant_term=0</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">coef</em>, <em class="sig-param">center</em>, <em class="sig-param">linear_term</em>, <em class="sig-param">constant_term=0</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.collapsed">
-<tt class="descname">collapsed</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.collapsed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">collapsed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.collapsed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an identity quadratic with center of 0,
 would be nice to have None, but there are some 
 places we are still multiplying by -1</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.conjugate">
-<tt class="descname">conjugate</tt><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.conjugate" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">conjugate</code><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.conjugate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.get_shapes">
-<tt class="descname">get_shapes</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.get_shapes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.get_shapes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine shape of any pieces and make sure they agree</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.iszero">
-<tt class="descname">iszero</tt><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.iszero" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">iszero</code><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.iszero" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.latexify">
-<tt class="descname">latexify</tt><big>(</big><em>var='\beta'</em>, <em>idx=''</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.latexify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">var='\\beta'</em>, <em class="sig-param">idx=''</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.latexify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.noneify">
-<tt class="descname">noneify</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.noneify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">noneify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.noneify" title="Permalink to this definition">¶</a></dt>
 <dd><p>replace zeros with nones</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.objective">
-<tt class="descname">objective</tt><big>(</big><em>x</em>, <em>mode='both'</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.objective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mode='both'</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="regreg.identity_quadratic.identity_quadratic.objective_vars">
+<code class="sig-name descname">objective_vars</code><em class="property"> = {'offset': '\\alpha', 'shape': 'p', 'var': '\\beta'}</em><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.objective_vars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.recenter">
-<tt class="descname">recenter</tt><big>(</big><em>offset</em><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.recenter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">recenter</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.recenter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.true_center">
-<tt class="descname">true_center</tt><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.true_center" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">true_center</code><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.true_center" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="regreg.identity_quadratic.identity_quadratic.zeroify">
-<tt class="descname">zeroify</tt><big>(</big><big>)</big><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.zeroify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">zeroify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#regreg.identity_quadratic.identity_quadratic.zeroify" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -183,28 +356,55 @@ places we are still multiplying by -1</p>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="regreg.objdoctemplates.html" class="btn btn-neutral float-right" title="objdoctemplates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regreg.doctemplates.html" class="btn btn-neutral float-left" title="doctemplates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-  <li><a href="../../index.html">RegReg home</a> |&nbsp;</li>
- 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2011-2015, B. Klingenberg &amp; J. Taylor.
-      Last updated on Dec 21, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

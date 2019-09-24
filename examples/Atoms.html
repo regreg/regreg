@@ -1,0 +1,463 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../agenda.html">RegReg development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/Atoms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-constraints">
+<span id="atoms-example"></span><h1>Using constraints<a class="headerlink" href="#using-constraints" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial illustrates how to use RegReg to solve problems using the
+container class. We illustrate with an example:</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2}||y - \beta||^{2}_{2} \ \text{subject to} \
+||D\beta||_{1} \leq \delta_1, \|\beta\|_1 \leq \delta_2\]</div>
+<p>This problem is solved by solving a dual problem, following the general
+derivation in the TFOCS paper</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}  \frac{1}{2}||y - D^Tu_1 - u_2||^{2}_{2} + \delta_1 \|u_1\|_{\infty}
+  + \delta_2 \|u_2\|_{\infty}\\For a general loss function, the general objective has the form\end{aligned}\end{align} \]</div>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}  {\cal L}_{\epsilon}(\beta) \ \text{subject to} \ ||D\beta||_{1}
+  \leq \delta_1, \|\beta\|_1 \leq \delta_2\\which is solved by minimizing the dual\end{aligned}\end{align} \]</div>
+<div class="math notranslate nohighlight">
+\[{\cal L}^*_{\epsilon}(-D^Tu_1-u_2) + \delta_1 \|u_1\|_{\infty} +
+\delta_2 \|u_2\|_{\infty}\]</div>
+<p>Recall that for the sparse fused LASSO</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}D = \left(\begin{array}{rrrrrr} -1 &amp; 1 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp;
+-1 &amp; 1 &amp; 0 &amp; \cdots &amp; 0 \\ &amp;&amp;&amp;&amp;\cdots &amp;\\ 0 &amp;0&amp;0&amp;\cdots &amp; -1 &amp; 1
+\end{array}\right)\end{split}\]</div>
+<p>To solve this problem using RegReg we begin by loading the necessary
+numerical libraries</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>If running in the IPython console, consider running <code class="docutils literal notranslate"><span class="pre">%matplotlib</span></code> to enable
+interactive plots.  If running in the Jupyter Notebook, use <code class="docutils literal notranslate"><span class="pre">%matplotlib</span>
+<span class="pre">inline</span></code>.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
+<span class="kn">import</span> <span class="nn">regreg.api</span> <span class="kn">as</span> <span class="nn">rr</span>
+<span class="kn">from</span> <span class="nn">regreg.affine.fused_lasso</span> <span class="kn">import</span> <span class="n">difference_transform</span>
+</pre></div>
+</div>
+<p>Next, let’s generate an example signal, and solve the Lagrange form of
+the problem</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span> <span class="n">Y</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">150</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">7</span><span class="p">;</span> <span class="n">Y</span><span class="p">[</span><span class="mi">250</span><span class="p">:</span><span class="mi">300</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">14</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">Y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Atoms-2.png">png</a>, <a class="reference external" href="../examples/Atoms-2.hires.png">hires.png</a>, <a class="reference external" href="../examples/Atoms-2.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Atoms-2.png" src="../_images/Atoms-2.png" />
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">signal_approximator</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\frac{C}{2}\left\|\beta - Y_{}\right\|^2_2\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sparsity</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Y</span><span class="p">),</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">difference_transform</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">fused</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">15.5</span><span class="p">)</span>
+<span class="n">fused</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \|X_{}\beta\|_1\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">dual_problem</span><span class="o">.</span><span class="n">fromprimal</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">sparsity</span><span class="p">,</span> <span class="n">fused</span><span class="p">)</span>
+<span class="n">problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned} \text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \sup_{u \in \mathbb{R}^{p} } \left[ \langle
+X_{1}\beta, u \rangle - \left({\cal Z}(u) +
+\frac{L_{1}}{2}\|u\|^2_2 + \left \langle \eta_{1}, u \right
+\rangle + \gamma_{1} \right) \right] \\ g(\beta) &amp;=
+I^{\infty}(\|\beta[g0]\|_{\infty} \leq \delta_{0}) +
+I^{\infty}(\|\beta[g1]\|_{\infty} \leq \delta_{1}) \\
+\end{aligned}\end{split}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">solution</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-14</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Lagrange&#39;</span><span class="p">)</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+<p>We will now solve this problem in constraint form, using the achieved
+values
+<span class="math notranslate nohighlight">\(\delta_1 = \|D\widehat{\beta}\|_1, \delta_2=\|\widehat{\beta}\|_1\)</span>.
+By default, the container class will try to solve this problem with the
+two-loop strategy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">delta1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">D</span> <span class="o">*</span> <span class="n">solution</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">delta2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">fused_constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">delta1</span><span class="p">)</span>
+<span class="n">sparsity_constraint</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bound</span><span class="o">=</span><span class="n">delta2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">constrained_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">dual_problem</span><span class="o">.</span><span class="n">fromprimal</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span>
+<span class="n">fused_constraint</span><span class="p">,</span> <span class="n">sparsity_constraint</span><span class="p">)</span>
+<span class="n">constrained_problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned} \text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \sup_{u \in \mathbb{R}^{p} } \left[ \langle
+X_{1}\beta, u \rangle - \left({\cal Z}(u) +
+\frac{L_{1}}{2}\|u\|^2_2 + \left \langle \eta_{1}, u \right
+\rangle + \gamma_{1} \right) \right] \\ g(\beta) &amp;= \lambda_{0}
+\|\beta[g0]\|_{\infty} + \lambda_{1} \|\beta[g1]\|_{\infty} \\
+\end{aligned}\end{split}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">constrained_solution</span> <span class="o">=</span> <span class="n">constrained_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">constrained_solution</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Constrained&#39;</span><span class="p">)</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+<div class="section" id="mixing-penalties-and-constraints">
+<h2>Mixing penalties and constraints<a class="headerlink" href="#mixing-penalties-and-constraints" title="Permalink to this headline">¶</a></h2>
+<p>As atoms generally have both bound form and Lagrange form, we can solve
+problems with a mix of the two penalties. For instance, we might try
+minimizing this objective</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2}||y - \beta||^{2}_{2} + \lambda \|\beta\|_1 \text{
+subject to} \ ||D\beta||_{1} \leq \delta.\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mixed_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">dual_problem</span><span class="o">.</span><span class="n">fromprimal</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">fused_constraint</span><span class="p">,</span> <span class="n">sparsity</span><span class="p">)</span>
+<span class="n">mixed_problem</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned} \text{minimize}_{\beta} &amp; f(\beta) + g(\beta) \\
+f(\beta) &amp;= \sup_{u \in \mathbb{R}^{p} } \left[ \langle
+X_{1}\beta, u \rangle - \left({\cal Z}(u) +
+\frac{L_{1}}{2}\|u\|^2_2 + \left \langle \eta_{1}, u \right
+\rangle + \gamma_{1} \right) \right] \\ g(\beta) &amp;= \lambda_{0}
+\|\beta[g0]\|_{\infty} + I^{\infty}(\|\beta[g1]\|_{\infty} \leq
+\delta_{1}) \\ \end{aligned}\end{split}\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mixed_solution</span> <span class="o">=</span> <span class="n">mixed_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-12</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mixed_solution</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mixed&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">D</span> <span class="o">*</span> <span class="n">mixed_solution</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">fused_constraint</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">bound</span>
+<span class="p">(</span><span class="mf">33.67439163971784</span><span class="p">,</span> <span class="mf">33.674299924228016</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="atoms-have-affine-offsets">
+<h2>Atoms have affine offsets<a class="headerlink" href="#atoms-have-affine-offsets" title="Permalink to this headline">¶</a></h2>
+<p>Suppose that instead of shrinking the values in the fused LASSO to 0, we
+want to shrink them all towards a given vector <span class="math notranslate nohighlight">\(\alpha\)</span></p>
+<p>This can be achieved, at least conceptually by minimizing</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||D\beta||_{1} + \lambda_2 \|\beta-\alpha\|_1\]</div>
+<p>with</p>
+<p>Everything is roughly the same as in the fused LASSO, we just need to
+change the second seminorm to have this affine offset.</p>
+<p>Now we can create the problem object, beginning with the loss function</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">500</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span>
+<span class="n">shrink_to_alpha</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">l1norm</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">lagrange</span><span class="o">=</span><span class="mf">3.</span><span class="p">)</span>
+<span class="n">shrink_to_alpha</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{} \|\beta - \alpha_{}\|_1\]</div>
+<p>which creates an affine_atom object with <span class="math notranslate nohighlight">\(\lambda_2=3\)</span>. That is,
+it creates the penalty</p>
+<div class="math notranslate nohighlight">
+\[3 \|\beta-\alpha\|_{1}\]</div>
+<p>that will be added to a smooth loss function. Next, we create the fused
+lasso matrix and the associated l1norm object,</p>
+<p>Here we first created D, converted it a sparse matrix, and then created
+an l1norm object with the sparse version of D and
+<span class="math notranslate nohighlight">\(\lambda_1 = 25.5\)</span>. Finally, we can create the final problem
+object, and solve it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss_alpha</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">signal_approximator</span><span class="p">(</span><span class="n">Y</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span>
+<span class="n">fig_alpha</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax_alpha</span> <span class="o">=</span> <span class="n">fig_alpha</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">alpha_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">dual_problem</span><span class="o">.</span><span class="n">fromprimal</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">shrink_to_alpha</span><span class="p">,</span> <span class="n">fused</span><span class="p">)</span>
+<span class="n">alpha_solution</span> <span class="o">=</span> <span class="n">alpha_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-14</span><span class="p">)</span>
+<span class="n">ax_alpha</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">Y</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span>
+<span class="n">ax_alpha</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha_solution</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\hat{Y}$&#39;</span><span class="p">)</span>
+<span class="n">ax_alpha</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\alpha$&#39;</span><span class="p">)</span>
+<span class="n">ax_alpha</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Atoms-15.png">png</a>, <a class="reference external" href="../examples/Atoms-15.hires.png">hires.png</a>, <a class="reference external" href="../examples/Atoms-15.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Atoms-15.png" src="../_images/Atoms-15.png" />
+</div>
+<p>We can then plot solution to see the result of the regression,</p>
+</div>
+</div>
+<div class="section" id="atoms-can-be-smoothed">
+<h1>Atoms can be smoothed<a class="headerlink" href="#atoms-can-be-smoothed" title="Permalink to this headline">¶</a></h1>
+<p>Atoms can be smoothed using the same smoothing techniques described in
+<a class="reference external" href="http://statweb.stanford.edu/~candes/nesta/">NESTA</a> and
+<a class="reference external" href="http://cvxr.com/tfocs/paper/">TFOCS</a></p>
+<p>Recall that the sparse fused lasso minimizes the objective</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2}||y - \beta||^{2}_{2} + \lambda_{1}||D\beta||_{1} + \lambda_2 \|\beta\|_1\]</div>
+<p>The penalty can be smoothed to create a smooth function object which can
+be solved with FISTA.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Q</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">smoothed_sparsity</span> <span class="o">=</span> <span class="n">sparsity</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+<span class="n">smoothed_sparsity</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\sup_{u \in \mathbb{R}^{p} } \left[ \langle \beta, u \rangle - \left(I^{\infty}(\|u\|_{\infty} \leq \delta_{}) + \frac{L_{}}{2}\|u\|^2_2 \right) \right]\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">smoothed_fused</span> <span class="o">=</span> <span class="n">fused</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">smooth_sum</span><span class="p">([</span><span class="n">loss</span><span class="p">,</span> <span class="n">smoothed_sparsity</span><span class="p">,</span> <span class="n">smoothed_fused</span><span class="p">])</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">FISTA</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+<span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-10</span><span class="p">)</span>
+<span class="n">smooth_solution</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">composite</span><span class="o">.</span><span class="n">coefs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">smooth_fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">smooth_ax</span> <span class="o">=</span> <span class="n">smooth_fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="n">smooth_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Unsmoothed&#39;</span><span class="p">)</span>
+<span class="n">smooth_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">smooth_solution</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Smoothed&#39;</span><span class="p">)</span>
+<span class="n">smooth_ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span> <span class="c1">#doctest: +ELLIPSIS</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../examples/Atoms-19.png">png</a>, <a class="reference external" href="../examples/Atoms-19.hires.png">hires.png</a>, <a class="reference external" href="../examples/Atoms-19.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/Atoms-19.png" src="../_images/Atoms-19.png" />
+</div>
+<p>which has both the loss function and the seminorm represented in it. We
+will estimate <span class="math notranslate nohighlight">\(\beta\)</span> for various values of <span class="math notranslate nohighlight">\(\epsilon\)</span>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">solns</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">eps</span> <span class="ow">in</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)]:</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">smoothed_sparsity</span> <span class="o">=</span> <span class="n">sparsity</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+    <span class="n">smoothed_fused</span> <span class="o">=</span> <span class="n">fused</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">smooth_sum</span><span class="p">([</span><span class="n">loss</span><span class="p">,</span> <span class="n">smoothed_sparsity</span><span class="p">,</span> <span class="n">smoothed_fused</span><span class="p">])</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">FISTA</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+    <span class="n">solver</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1.e-10</span><span class="p">)</span>
+    <span class="n">solns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solver</span><span class="o">.</span><span class="n">composite</span><span class="o">.</span><span class="n">coefs</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">smooth_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">solns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">smooth_fig</span>
+</pre></div>
+</div>
+<p>Of course, we don’t have to smooth both atoms. We could just smooth the
+fused term.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">smoothed_fused_constraint</span> <span class="o">=</span> <span class="n">fused_constraint</span><span class="o">.</span><span class="n">smoothed</span><span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">identity_quadratic</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">smooth_part</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">smooth_sum</span><span class="p">([</span><span class="n">loss</span><span class="p">,</span> <span class="n">smoothed_fused_constraint</span><span class="p">])</span>
+<span class="n">smoothed_constrained_problem</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">simple_problem</span><span class="p">(</span><span class="n">smooth_part</span><span class="p">,</span> <span class="n">sparsity_constraint</span><span class="p">)</span>
+<span class="n">smoothed_constrained_solution</span> <span class="o">=</span> <span class="n">smoothed_constrained_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">smoothed_constrained_solution</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Smoothed&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">fig</span>
+</pre></div>
+</div>
+<a class="reference download internal" href="examples/Atoms_full.ipynb">Download this page as a Jupyter notebook (with outputs)</a></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

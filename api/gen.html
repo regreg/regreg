@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RegReg &mdash; RegReg Docuentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/templogo2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.3+9.g60e3aef
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../agenda.html">RegReg development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Some examples illustrating basic objects in RegReg</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">RegReg documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">regreg</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>RegReg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/gen.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.affine.html">affine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.html#module-affine">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#affineerror"><code class="xref py py-class docutils literal notranslate"><span class="pre">AffineError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#adjoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">adjoint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#affine-sum"><code class="xref py py-class docutils literal notranslate"><span class="pre">affine_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#affine-transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">affine_transform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#aslinear"><code class="xref py py-class docutils literal notranslate"><span class="pre">aslinear</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#composition"><code class="xref py py-class docutils literal notranslate"><span class="pre">composition</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#hstack"><code class="xref py py-class docutils literal notranslate"><span class="pre">hstack</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#identity"><code class="xref py py-class docutils literal notranslate"><span class="pre">identity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#linear-transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">linear_transform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#normalize"><code class="xref py py-class docutils literal notranslate"><span class="pre">normalize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#posneg"><code class="xref py py-class docutils literal notranslate"><span class="pre">posneg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#product"><code class="xref py py-class docutils literal notranslate"><span class="pre">product</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#reshape"><code class="xref py py-class docutils literal notranslate"><span class="pre">reshape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#residual"><code class="xref py py-class docutils literal notranslate"><span class="pre">residual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#scalar-multiply"><code class="xref py py-class docutils literal notranslate"><span class="pre">scalar_multiply</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#selector"><code class="xref py py-class docutils literal notranslate"><span class="pre">selector</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#tensorize"><code class="xref py py-class docutils literal notranslate"><span class="pre">tensorize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.html#vstack"><code class="xref py py-class docutils literal notranslate"><span class="pre">vstack</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html">affine.factored_matrix</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html#module-affine-factored-matrix">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.factored_matrix</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html#factored-matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">factored_matrix</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html#nuclear-norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">nuclear_norm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html#operator-norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">operator_norm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.factored_matrix.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.affine.fused_lasso.html">affine.fused_lasso</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.fused_lasso.html#module-affine-fused-lasso">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.fused_lasso</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.fused_lasso.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.fused_lasso.html#trend-filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">trend_filter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.affine.fused_lasso.html#trend-filter-inverse"><code class="xref py py-class docutils literal notranslate"><span class="pre">trend_filter_inverse</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.fused_lasso.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.affine.image2d.html">affine.image2d</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.image2d.html#module-affine-image2d">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.image2d</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.image2d.html#class">Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.image2d.html#image2d-differences"><code class="xref py py-class docutils literal notranslate"><span class="pre">image2d_differences</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.image2d.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.affine.multiscale.html">affine.multiscale</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.multiscale.html#module-affine-multiscale">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">affine.multiscale</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.multiscale.html#class">Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.multiscale.html#multiscale"><code class="xref py py-class docutils literal notranslate"><span class="pre">multiscale</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.affine.multiscale.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.algorithms.html">algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.algorithms.html#module-algorithms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.algorithms.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.algorithms.html#fista"><code class="xref py py-class docutils literal notranslate"><span class="pre">FISTA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.algorithms.html#algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">algorithm</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.html">atoms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.html#module-atoms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.html#affine-atom"><code class="xref py py-class docutils literal notranslate"><span class="pre">affine_atom</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.html#atom"><code class="xref py py-class docutils literal notranslate"><span class="pre">atom</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.block_norms.html">atoms.block_norms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#module-atoms-block-norms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.block_norms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#block-max"><code class="xref py py-class docutils literal notranslate"><span class="pre">block_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#block-sum"><code class="xref py py-class docutils literal notranslate"><span class="pre">block_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#l1-l1"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1_l1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#l1-l2"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1_l2</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#linf-l2"><code class="xref py py-class docutils literal notranslate"><span class="pre">linf_l2</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.block_norms.html#linf-linf"><code class="xref py py-class docutils literal notranslate"><span class="pre">linf_linf</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.cones.html">atoms.cones</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.cones.html#module-atoms-cones">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.cones</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.cones.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#affine-cone"><code class="xref py py-class docutils literal notranslate"><span class="pre">affine_cone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#cone"><code class="xref py py-class docutils literal notranslate"><span class="pre">cone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#l1-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#l1-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1_epigraph_polar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#l2-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">l2_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#l2-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">l2_epigraph_polar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#linf-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">linf_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#linf-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">linf_epigraph_polar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#nonnegative"><code class="xref py py-class docutils literal notranslate"><span class="pre">nonnegative</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#nonpositive"><code class="xref py py-class docutils literal notranslate"><span class="pre">nonpositive</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#zero"><code class="xref py py-class docutils literal notranslate"><span class="pre">zero</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.cones.html#zero-constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zero_constraint</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html">atoms.group_lasso</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#module-atoms-group-lasso">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.group_lasso</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso-cone"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso_cone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso-dual"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso_dual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso-dual-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso_dual_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso-dual-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso_dual_epigraph_polar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.group_lasso.html#group-lasso-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">group_lasso_epigraph_polar</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.linear_constraints.html">atoms.linear_constraints</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.linear_constraints.html#module-atoms-linear-constraints">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.linear_constraints</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.linear_constraints.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.linear_constraints.html#linear-constraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">linear_constraint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.linear_constraints.html#projection"><code class="xref py py-class docutils literal notranslate"><span class="pre">projection</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.linear_constraints.html#projection-complement"><code class="xref py py-class docutils literal notranslate"><span class="pre">projection_complement</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.mixed_lasso.html">atoms.mixed_lasso</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.mixed_lasso.html#module-atoms-mixed-lasso">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.mixed_lasso</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.mixed_lasso.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.mixed_lasso.html#mixed-lasso"><code class="xref py py-class docutils literal notranslate"><span class="pre">mixed_lasso</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.mixed_lasso.html#mixed-lasso-dual"><code class="xref py py-class docutils literal notranslate"><span class="pre">mixed_lasso_dual</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.mixed_lasso.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.seminorms.html">atoms.seminorms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#module-atoms-seminorms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.seminorms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#constrained-max"><code class="xref py py-class docutils literal notranslate"><span class="pre">constrained_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#constrained-positive-part"><code class="xref py py-class docutils literal notranslate"><span class="pre">constrained_positive_part</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#l1norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1norm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#l2norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">l2norm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#max-positive-part"><code class="xref py py-class docutils literal notranslate"><span class="pre">max_positive_part</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#positive-part"><code class="xref py py-class docutils literal notranslate"><span class="pre">positive_part</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#seminorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">seminorm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#supnorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">supnorm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.seminorms.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.slope.html">atoms.slope</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.slope.html#module-atoms-slope">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.slope</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.slope.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.slope.html#slope"><code class="xref py py-class docutils literal notranslate"><span class="pre">slope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.slope.html#slope-conjugate"><code class="xref py py-class docutils literal notranslate"><span class="pre">slope_conjugate</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.sparse_group_lasso.html">atoms.sparse_group_lasso</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.sparse_group_lasso.html#module-atoms-sparse-group-lasso">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.sparse_group_lasso</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.sparse_group_lasso.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.sparse_group_lasso.html#sparse-group-lasso"><code class="xref py py-class docutils literal notranslate"><span class="pre">sparse_group_lasso</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.sparse_group_lasso.html#sparse-group-lasso-dual"><code class="xref py py-class docutils literal notranslate"><span class="pre">sparse_group_lasso_dual</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.sparse_group_lasso.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html">atoms.svd_norms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#module-atoms-svd-norms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.svd_norms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#nuclear-norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">nuclear_norm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#nuclear-norm-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">nuclear_norm_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#nuclear-norm-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">nuclear_norm_epigraph_polar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#operator-norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">operator_norm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#operator-norm-epigraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">operator_norm_epigraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#operator-norm-epigraph-polar"><code class="xref py py-class docutils literal notranslate"><span class="pre">operator_norm_epigraph_polar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#svd-atom"><code class="xref py py-class docutils literal notranslate"><span class="pre">svd_atom</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.svd_norms.html#svd-cone"><code class="xref py py-class docutils literal notranslate"><span class="pre">svd_cone</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.atoms.weighted_atoms.html">atoms.weighted_atoms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.weighted_atoms.html#module-atoms-weighted-atoms">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">atoms.weighted_atoms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.atoms.weighted_atoms.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.weighted_atoms.html#l1norm"><code class="xref py py-class docutils literal notranslate"><span class="pre">l1norm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.weighted_atoms.html#seminorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">seminorm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.atoms.weighted_atoms.html#supnorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">supnorm</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.doctemplates.html">doctemplates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.doctemplates.html#module-regreg.doctemplates">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">doctemplates</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.doctemplates.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.doctemplates.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.identity_quadratic.html">identity_quadratic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.identity_quadratic.html#module-identity-quadratic">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.identity_quadratic.html#id1"><code class="xref py py-class docutils literal notranslate"><span class="pre">identity_quadratic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.objdoctemplates.html">objdoctemplates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.objdoctemplates.html#module-regreg.objdoctemplates">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">objdoctemplates</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.paths.html">paths</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.paths.html#module-paths">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.paths.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.paths.html#lasso"><code class="xref py py-class docutils literal notranslate"><span class="pre">lasso</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.paths.html#logistic-factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">logistic_factory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.paths.html#loss-factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">loss_factory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.paths.html#nesta"><code class="xref py py-class docutils literal notranslate"><span class="pre">nesta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.paths.html#squared-error-factory"><code class="xref py py-class docutils literal notranslate"><span class="pre">squared_error_factory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.paths.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.admm.html">problems.admm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.admm.html#module-problems-admm">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.admm</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.admm.html#admm-problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">admm_problem</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.composite.html">problems.composite</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.composite.html#module-problems-composite">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.composite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.composite.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.problems.composite.html#composite"><code class="xref py py-class docutils literal notranslate"><span class="pre">composite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.problems.composite.html#nonsmooth"><code class="xref py py-class docutils literal notranslate"><span class="pre">nonsmooth</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.problems.composite.html#smooth"><code class="xref py py-class docutils literal notranslate"><span class="pre">smooth</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.problems.composite.html#smooth-conjugate"><code class="xref py py-class docutils literal notranslate"><span class="pre">smooth_conjugate</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.conjugate.html">problems.conjugate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.conjugate.html#module-problems-conjugate">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.conjugate</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.conjugate.html#conjugate"><code class="xref py py-class docutils literal notranslate"><span class="pre">conjugate</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.container.html">problems.container</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.container.html#module-problems-container">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.container</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.container.html#container"><code class="xref py py-class docutils literal notranslate"><span class="pre">container</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.dual_problem.html">problems.dual_problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.dual_problem.html#module-problems-dual-problem">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.dual_problem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.dual_problem.html#dual-problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">dual_problem</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.separable.html">problems.separable</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.separable.html#module-problems-separable">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.separable</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.separable.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.problems.separable.html#separable"><code class="xref py py-class docutils literal notranslate"><span class="pre">separable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.problems.separable.html#separable-problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">separable_problem</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.separable.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.problems.simple.html">problems.simple</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.simple.html#module-problems-simple">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">problems.simple</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.simple.html#class">Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.simple.html#simple-problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">simple_problem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.problems.simple.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.smooth.html">smooth</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.html#module-smooth">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.html#affine-smooth"><code class="xref py py-class docutils literal notranslate"><span class="pre">affine_smooth</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.html#smooth-atom"><code class="xref py py-class docutils literal notranslate"><span class="pre">smooth_atom</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.html#sum"><code class="xref py py-class docutils literal notranslate"><span class="pre">sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.html#zero"><code class="xref py py-class docutils literal notranslate"><span class="pre">zero</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.smooth.glm.html">smooth.glm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.glm.html#module-smooth-glm">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth.glm</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.glm.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#coxph"><code class="xref py py-class docutils literal notranslate"><span class="pre">coxph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#gaussian-loglike"><code class="xref py py-class docutils literal notranslate"><span class="pre">gaussian_loglike</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#glm"><code class="xref py py-class docutils literal notranslate"><span class="pre">glm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#huber-loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">huber_loss</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#logistic-loglike"><code class="xref py py-class docutils literal notranslate"><span class="pre">logistic_loglike</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#multinomial-loglike"><code class="xref py py-class docutils literal notranslate"><span class="pre">multinomial_loglike</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.glm.html#poisson-loglike"><code class="xref py py-class docutils literal notranslate"><span class="pre">poisson_loglike</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.glm.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.smooth.losses.html">smooth.losses</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.losses.html#module-smooth-losses">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth.losses</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.losses.html#huberized-svm"><code class="xref py py-class docutils literal notranslate"><span class="pre">huberized_svm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/regreg.smooth.quadratic.html">smooth.quadratic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.quadratic.html#module-smooth-quadratic">Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">smooth.quadratic</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.quadratic.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.quadratic.html#cholesky"><code class="xref py py-class docutils literal notranslate"><span class="pre">cholesky</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/regreg.smooth.quadratic.html#quadratic-loss"><code class="xref py py-class docutils literal notranslate"><span class="pre">quadratic_loss</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/regreg.smooth.quadratic.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011-2017, B. Klingenberg &amp; J. Taylor
+      <span class="lastupdated">
+        Last updated on Sep 24, 2019.
+      </span>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

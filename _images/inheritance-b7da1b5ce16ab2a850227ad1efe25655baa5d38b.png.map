@@ -1,6 +1,0 @@
-<map id="inheritance01b1b4fad8" name="inheritance01b1b4fad8">
-<area shape="rect" id="node1" href="regreg.problems.composite.html#regreg.problems.composite.composite" title="A generic way to specify a problem in composite form." alt="" coords="5,56,228,82"/>
-<area shape="rect" id="node2" href="regreg.problems.composite.html#regreg.problems.composite.nonsmooth" title="A composite subclass that explicitly returns 0" alt="" coords="276,56,506,82"/>
-<area shape="rect" id="node3" href="#regreg.atoms.atom" title="A class that defines the API for support functions." alt="" coords="554,56,698,82"/>
-<area shape="rect" id="node4" href="#regreg.atoms.affine_atom" title="Given a seminorm on :math:`\mathbb{R}^p`, i.e. &#160;:math:`\beta \mapsto" alt="" coords="23,5,210,32"/>
-</map>
