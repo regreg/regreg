@@ -15,5 +15,5 @@ if __name__ == '__main__':
     outdir = os.path.join('source','api','generated')
     docwriter = ApiDocWriter(package)
     docwriter.write_api_docs(outdir)
-    docwriter.write_index(outdir, 'gen', relative_to='api')
+    docwriter.write_index(outdir, 'gen', relative_to=os.path.join('source', 'api'))
     print('%d files written' % len(docwriter.written_modules))
