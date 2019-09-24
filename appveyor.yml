@@ -83,7 +83,6 @@ test_script:
   - pip install numpy==%NP_TEST_DEP% nose
   - mkdir tmp
   - cd tmp
-  - nosetests -v regreg.atoms.tests.test_mixed_lasso
   - nosetests -v regreg
   - cd ..
 
