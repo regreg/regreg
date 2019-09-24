@@ -21,11 +21,11 @@ If you are interested in contributing as a developer, please see the :ref:`agend
 .. in the document heirarchy - see http://sphinx.pocoo.org/concepts.html
 
 .. toctree::
+   :maxdepth: 2
 
    agenda.rst
    documentation.rst
    examples/index.rst
-   docattribute.rst
 
 Thanks
 ======
