@@ -5,7 +5,7 @@ import regreg.api as rr
 from ..sklearn_mixin import (sklearn_regression,
                              sklearn_classifier)
 
-def test_sklearn_regression():
+def test_sklearn_regression_gaussian():
 
     n, p = 100, 20
     X = np.random.standard_normal((n, p))
@@ -13,11 +13,17 @@ def test_sklearn_regression():
 
     pen = rr.l1norm(p, lagrange=2 * np.sqrt(n))
     gaussian_lasso = sklearn_regression.gaussian(pen)
-    huber_lasso = sklearn_regression.huber(pen)
-
     print(cross_validate(gaussian_lasso, X, y, cv=3))
-    print(cross_validate(huber_lasso, X, y, cv=3))
 
+def test_sklearn_regression_huber():
+
+    n, p = 100, 20
+    X = np.random.standard_normal((n, p))
+    y = np.random.standard_normal(n)
+
+    pen = rr.l1norm(p, lagrange=2 * np.sqrt(n))
+    huber_lasso = sklearn_regression.huber(0.2, pen)
+    print(cross_validate(huber_lasso, X, y, cv=3))
 
 def test_sklearn_classifier():
 
