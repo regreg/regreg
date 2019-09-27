@@ -46,19 +46,3 @@ class sklearn_classifier(BaseEstimator, ClassifierMixin):
         return sklearn_classifier(glm.logistic, atom)
 
 
-if __name__ == "__main__":
-
-    import numpy as np
-    from sklearn.model_selection import cross_val_score, cross_validate
-    from regreg.api import l1norm
-
-    n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
-    ybin = y > 0
-    loss = glm.gaussian(X, y)
-    pen = l1norm(20, lagrange=2 * np.sqrt(n))
-    gaussian_lasso = sklearn_regression.gaussian(pen)
-    logistic_lasso = sklearn_classifier.logistic(pen)
-    print(cross_validate(gaussian_lasso, X, y, cv=3))
-    print(cross_validate(logistic_lasso, X, y, cv=3))
