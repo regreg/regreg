@@ -179,7 +179,7 @@ class sklearn_classifier(BaseEstimator, ClassifierMixin):
             Preictions from regression model.
 
         """
-        return X.dot(self._coefs)
+        return X.dot(self._coefs) > 0
     
     @staticmethod
     def logistic(atom):
