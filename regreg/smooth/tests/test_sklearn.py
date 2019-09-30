@@ -1,14 +1,13 @@
 import numpy as np
 try:
     from sklearn.model_selection import cross_validate
-    have_skleatn = True
+    from ..sklearn_mixin import (sklearn_regression,
+                                 sklearn_classifier)
+    have_sklearn = True
 except ImportError:
     have_sklearn = False
 
 from ...api import l1norm
-
-from ..sklearn_mixin import (sklearn_regression,
-                             sklearn_classifier)
 from ...tests.decorators import set_seed_for_test
 
 @np.testing.dec.skipif(not have_sklearn)
