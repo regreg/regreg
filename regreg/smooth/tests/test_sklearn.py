@@ -1,5 +1,9 @@
 import numpy as np
-from sklearn.model_selection import cross_validate
+try:
+    from sklearn.model_selection import cross_validate
+    have_skleatn = True
+except ImportError:
+    have_sklearn = False
 
 from ...api import l1norm
 
@@ -7,6 +11,7 @@ from ..sklearn_mixin import (sklearn_regression,
                              sklearn_classifier)
 from ...tests.decorators import set_seed_for_test
 
+@np.testing.dec.skipif(not have_sklearn)
 @set_seed_for_test()
 def test_sklearn_regression_gaussian():
 
@@ -18,6 +23,7 @@ def test_sklearn_regression_gaussian():
     gaussian_lasso = sklearn_regression.gaussian(pen)
     print(cross_validate(gaussian_lasso, X, y, cv=10))
 
+@np.testing.dec.skipif(not have_sklearn)
 @set_seed_for_test()
 def test_sklearn_regression_huber():
 
@@ -29,6 +35,7 @@ def test_sklearn_regression_huber():
     huber_lasso = sklearn_regression.huber(0.2, pen)
     print(cross_validate(huber_lasso, X, y, cv=10))
 
+@np.testing.dec.skipif(not have_sklearn)
 @set_seed_for_test()
 def test_sklearn_logistic():
 
