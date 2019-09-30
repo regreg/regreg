@@ -80,3 +80,15 @@ from .identity_quadratic import identity_quadratic
 
 from .paths import (lasso, nesta as nesta_path, UNPENALIZED, L1_PENALTY,
                     POSITIVE_PART, NONNEGATIVE)
+
+# sklearn mixin
+
+have_sklearn = True
+try:
+    from sklearn.base import (BaseEstimator, 
+                              RegressorMixin,
+                              ClassifierMixin)
+    from sklearn_mixin import (sklearn_regression,
+                               sklearn_classifier)
+except ImportError:
+    have_sklearn = False

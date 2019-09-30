@@ -1,204 +1,217 @@
-from sklearn.base import (BaseEstimator, 
-                          RegressorMixin,
-                          ClassifierMixin)
+"""
+
+If `sklearn` is importable, this module defines mixin classes that pair
+regression or classification losses with an atom so that cross-validation
+error can be evaluated.
+
+"""
 
 from regreg.smooth.glm import glm
 from regreg.api import simple_problem
 
-class sklearn_regression(BaseEstimator, RegressorMixin): 
+have_sklearn = True
+try:
+    from sklearn.base import (BaseEstimator, 
+                              RegressorMixin,
+                              ClassifierMixin)
+except ImportError:
+    have_sklearn = False
 
-    """
-
-    A simple regression mixin for sklearn
-    that allows any atom to be used as a regularizer.
-
-    """
-
-    def __init__(self, loglike_factory, atom):
-
-        """
-
-        Parameters
-        ----------
-
-        loglike_factory : callable
-            Loss constructor with signature (X, y)
-
-        atom : regreg.atoms.atom
-            Atom to be used as a regularizer.
-            Should be solvable with `simple_problem(loss, atom)`.
+if have_sklearn:
+    class sklearn_regression(BaseEstimator, RegressorMixin): 
 
         """
 
-        self.loglike_factory = loglike_factory
-        self.atom = atom
-
-    def fit(self, X, y):
-        """
-        Fit a regularized regression estimator.
-
-        Parameters
-        ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
-
-        y : np.ndarray(n)
-            Response vector.
-        
-        Returns
-        -------
-
-        None
+        A simple regression mixin for sklearn
+        that allows any atom to be used as a regularizer.
 
         """
 
-        loglike = self.loglike_factory(X, y)
-        problem = simple_problem(loglike, self.atom)
-        self._coefs = problem.solve()
+        def __init__(self, loglike_factory, atom):
 
-    def predict(self, X):
-        """
-        Predict new response in regression setting.
+            """
 
-        Parameters
-        ----------
+            Parameters
+            ----------
 
-        X : np.ndarray((n, p))
-            Feature matrix.
+            loglike_factory : callable
+                Loss constructor with signature (X, y)
 
-        Returns
-        -------
+            atom : regreg.atoms.atom
+                Atom to be used as a regularizer.
+                Should be solvable with `simple_problem(loss, atom)`.
 
-        yhat : np.ndarray(n)
-            Preictions from regression model.
+            """
 
-        """
-        return X.dot(self._coefs)
-    
-    @staticmethod
-    def gaussian(atom):
-        """
-        Create a Gaussian loss mixin for sklearn.
+            self.loglike_factory = loglike_factory
+            self.atom = atom
 
-        Parameters
-        ----------
+        def fit(self, X, y):
+            """
+            Fit a regularized regression estimator.
 
-        atom : regreg.atoms.atom
-            Atom to be used as a regularizer.
-            Should be solvable with `simple_problem(loss, atom)`.
+            Parameters
+            ----------
 
-        Returns
-        -------
+            X : np.ndarray((n, p))
+                Feature matrix.
 
-        mixin : sklearn_regression
+            y : np.ndarray(n)
+                Response vector.
 
-        """
+            Returns
+            -------
 
-        return sklearn_regression(glm.gaussian, atom)
+            None
 
-    @staticmethod
-    def huber(smoothing_parameter, atom):
-        """
-        Create a Huber loss mixin for sklearn.
+            """
 
-        Parameters
-        ----------
+            loglike = self.loglike_factory(X, y)
+            problem = simple_problem(loglike, self.atom)
+            self._coefs = problem.solve()
 
-        atom : regreg.atoms.atom
-            Atom to be used as a regularizer.
-            Should be solvable with `simple_problem(loss, atom)`.
+        def predict(self, X):
+            """
+            Predict new response in regression setting.
 
-        Returns
-        -------
+            Parameters
+            ----------
 
-        mixin : sklearn_regression
+            X : np.ndarray((n, p))
+                Feature matrix.
 
-        """
-        huber_factory = lambda X, y: glm.huber(X, y, smoothing_parameter)
-        return sklearn_regression(huber_factory, atom)
+            Returns
+            -------
 
-class sklearn_classifier(BaseEstimator, ClassifierMixin): 
+            yhat : np.ndarray(n)
+                Preictions from regression model.
 
-    def __init__(self, loglike_factory, atom):
+            """
+            return X.dot(self._coefs)
 
-        """
+        @staticmethod
+        def gaussian(atom):
+            """
+            Create a Gaussian loss mixin for sklearn.
 
-        Parameters
-        ----------
+            Parameters
+            ----------
 
-        loglike_factory : callable
-            Loss constructor with signature (X, y)
+            atom : regreg.atoms.atom
+                Atom to be used as a regularizer.
+                Should be solvable with `simple_problem(loss, atom)`.
 
-        atom : regreg.atoms.atom
-            Atom to be used as a regularizer.
-            Should be solvable with `simple_problem(loss, atom)`.
+            Returns
+            -------
 
-        """
+            mixin : sklearn_regression
 
-        self.loglike_factory = loglike_factory
-        self.atom = atom
+            """
 
-    def fit(self, X, y):
-        """
-        Fit a regularized regression estimator.
+            return sklearn_regression(glm.gaussian, atom)
 
-        Parameters
-        ----------
+        @staticmethod
+        def huber(smoothing_parameter, atom):
+            """
+            Create a Huber loss mixin for sklearn.
 
-        X : np.ndarray((n, p))
-            Feature matrix.
+            Parameters
+            ----------
 
-        y : np.ndarray(n)
-            Response vector.
-        
-        Returns
-        -------
+            atom : regreg.atoms.atom
+                Atom to be used as a regularizer.
+                Should be solvable with `simple_problem(loss, atom)`.
 
-        None
+            Returns
+            -------
 
-        """
-        loglike = self.loglike_factory(X, y)
-        problem = simple_problem(loglike, self.atom)
-        self._coefs = problem.solve()
+            mixin : sklearn_regression
 
-    def predict(self, X):
-        """
-        Predict new response in regression setting.
+            """
+            huber_factory = lambda X, y: glm.huber(X, y, smoothing_parameter)
+            return sklearn_regression(huber_factory, atom)
 
-        Parameters
-        ----------
+    class sklearn_classifier(BaseEstimator, ClassifierMixin): 
 
-        X : np.ndarray((n, p))
-            Feature matrix.
+        def __init__(self, loglike_factory, atom):
 
-        Returns
-        -------
+            """
 
-        yhat : np.ndarray(n)
-            Preictions from regression model.
+            Parameters
+            ----------
 
-        """
-        return X.dot(self._coefs) > 0
-    
-    @staticmethod
-    def logistic(atom):
-        """
-        Create a logistic loss mixin for sklearn.
+            loglike_factory : callable
+                Loss constructor with signature (X, y)
 
-        Parameters
-        ----------
+            atom : regreg.atoms.atom
+                Atom to be used as a regularizer.
+                Should be solvable with `simple_problem(loss, atom)`.
 
-        atom : regreg.atoms.atom
-            Atom to be used as a regularizer.
-            Should be solvable with `simple_problem(loss, atom)`.
+            """
 
-        Returns
-        -------
+            self.loglike_factory = loglike_factory
+            self.atom = atom
 
-        mixin : sklearn_classifier
+        def fit(self, X, y):
+            """
+            Fit a regularized regression estimator.
 
-        """
-        return sklearn_classifier(glm.logistic, atom)
+            Parameters
+            ----------
+
+            X : np.ndarray((n, p))
+                Feature matrix.
+
+            y : np.ndarray(n)
+                Response vector.
+
+            Returns
+            -------
+
+            None
+
+            """
+            loglike = self.loglike_factory(X, y)
+            problem = simple_problem(loglike, self.atom)
+            self._coefs = problem.solve()
+
+        def predict(self, X):
+            """
+            Predict new response in regression setting.
+
+            Parameters
+            ----------
+
+            X : np.ndarray((n, p))
+                Feature matrix.
+
+            Returns
+            -------
+
+            yhat : np.ndarray(n)
+                Preictions from regression model.
+
+            """
+            return X.dot(self._coefs) > 0
+
+        @staticmethod
+        def logistic(atom):
+            """
+            Create a logistic loss mixin for sklearn.
+
+            Parameters
+            ----------
+
+            atom : regreg.atoms.atom
+                Atom to be used as a regularizer.
+                Should be solvable with `simple_problem(loss, atom)`.
+
+            Returns
+            -------
+
+            mixin : sklearn_classifier
+
+            """
+            return sklearn_classifier(glm.logistic, atom)
 
 
