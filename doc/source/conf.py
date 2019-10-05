@@ -16,7 +16,7 @@ import sys, os
 from os.path import join as pjoin
 from importlib import import_module
 
-import sphinx
+import sphinx, sphinx_rtd_theme
 
 # Required R packages
 R_PACKAGES = ['Matrix', 'gglasso', 'glmnet', 'lars']
@@ -54,8 +54,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.mathjax',
               'sphinx.ext.autosummary',
               'IPython.sphinxext.ipython_console_highlighting',
-              #'IPython.sphinxext.ipython_directive',
               'sphinx.ext.inheritance_diagram',
+              'sphinx_rtd_theme',
               'texext.math_dollar', # has to go before numpydoc
               'numpydoc',
               'nb2plots'
@@ -134,20 +134,15 @@ pygments_style = 'sphinx'
 #
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'sphinxdoc'
+html_theme = 'sphinx_rtd_theme'
+html_title = 'RegReg Docuentation'
 
-# The style sheet to use for HTML and HTML Help pages. A file of that name
-# must exist either in Sphinx' static/ path, or in one of the custom paths
-# given in html_static_path.
-html_style = 'regreg.css'
-
-# The name for this set of Sphinx documents.  If None, it defaults to
-# "<project> v<release> documentation".
-html_title = 'RegReg Documentation'
-
-# The name of an image file (within the static path) to place at the top of
-# the sidebar.
-#html_logo = None
+html_theme_options = {
+    'logo_only': True
+}
+html_theme_path = ["../.."]
+html_logo = "_static/templogo2.png"
+html_show_sourcelink = True
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -252,3 +247,4 @@ numpydoc_class_members_toctree = False
 doctest_global_setup = """
 import numpy as np
 """
+

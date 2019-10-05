@@ -8,4 +8,4 @@ matplotlib
 texext
 nb2plots
 sklearn
-
+sphinx_rtd_theme

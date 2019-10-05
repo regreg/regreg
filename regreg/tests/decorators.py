@@ -26,28 +26,28 @@ def set_seed_for_test(seed=10):
     import nose
     def set_seed_decorator(f):
 
-        def skipper_func(*args, **kwargs):
-            """Skipper for normal test functions."""
+        def setseed_func(*args, **kwargs):
+            """Setseed for normal test functions."""
             old_state = np.random.get_state()
             np.random.seed(seed)
             value = f(*args, **kwargs)
             np.random.set_state(old_state)
             return value
 
-        def skipper_gen(*args, **kwargs):
-            """Skipper for test generators."""
+        def setseed_gen(*args, **kwargs):
+            """Setseed for test generators."""
             old_state = np.random.get_state()
             np.random.seed(seed)
             for x in f(*args, **kwargs):
                 yield x
             np.random.set_state(old_state)
 
-        # Choose the right skipper to use when building the actual decorator.
+        # Choose the right setseed to use when building the actual decorator.
         if nose.util.isgenerator(f):
-            skipper = skipper_gen
+            setseed = setseed_gen
         else:
-            skipper = skipper_func
+            setseed = setseed_func
 
-        return nose.tools.make_decorator(f)(skipper)
+        return nose.tools.make_decorator(f)(setseed)
 
     return set_seed_decorator

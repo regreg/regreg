@@ -764,9 +764,9 @@ class logistic_loglike(smooth_atom):
 
         if sparse.issparse(successes):
             #Convert sparse success vector to an array
-            self.successes = successes.toarray().flatten()
+            self.successes = successes.toarray().flatten() * 1.
         else:
-            self.successes = np.asarray(successes)
+            self.successes = np.asarray(successes).astype(np.float)
 
         if trials is None and hasattr(self, 'trials') and self.trials is not None:
             trials = self.trials

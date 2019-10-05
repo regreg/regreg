@@ -19,6 +19,8 @@ RegReg documentation
    download.rst
    algorithms
    license
+   docattribute.rst
+   api/index.rst
 
 .. only:: html
 

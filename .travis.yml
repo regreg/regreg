@@ -24,7 +24,7 @@ python:
     - 3.4
     - 3.5
     - 3.6
-
+    
 matrix:
   include:
     - python: 2.7
@@ -92,6 +92,16 @@ matrix:
       osx_image: xcode7.3
       language: generic
       env: TRAVIS_PYTHON_VERSION=3.5
+    - python: 2.7
+      env:
+        # Make sure mixins work if sklearn available
+        - INSTALL_TYPE=sdist
+        - DEPENDS="cython numpy scipy sklearn"
+    - python: 3.5
+      env:
+        # Make sure mixins work if sklearn available
+        - INSTALL_TYPE=sdist
+        - DEPENDS="cython numpy scipy sklearn"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
@@ -132,6 +142,7 @@ install:
         pip install -r requirements.txt
         python setup.py install
       fi
+
 script:
     - |
       echo "backend : agg" > matplotlibrc
@@ -140,8 +151,6 @@ script:
         sudo add-apt-repository -y ppa:marutter/rrutter
         sudo apt-get update
         sudo apt-get install -y r-base r-base-dev
-        # gglasso has been removed from CRAN archive 
-        # try a hard install from old version 
         sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix', 'SLOPE', 'gglasso'), repos='http://cloud.r-project.org');"
         pip install -r doc-requirements.txt
         cd doc
@@ -174,6 +183,7 @@ script:
         fi
         nosetests $DOCTEST_ARGS --verbose $COVER_ARGS regreg;
       fi
+
 after_success:
     - if [ "${COVERAGE}" == "1" ]; then coveralls; fi
     - git describe --tags --dirty --always 
