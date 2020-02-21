@@ -2,7 +2,7 @@ import numpy as np
 import regreg.api as rr
 import itertools
 from numpy import testing as npt
-from numpy.testing import decorators as dec
+from numpy.testing import dec
 
 from regreg.tests.decorators import set_seed_for_test
 
