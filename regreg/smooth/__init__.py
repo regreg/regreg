@@ -362,7 +362,7 @@ class sum(smooth_atom):
                 g += w * atom.smooth_objective(x, 'grad')
             elif mode == 'both':
                 fa, ga = atom.smooth_objective(x, 'both')
-                f += fa; g += ga
+                f += w * fa; g += w * ga
 
         if mode == 'func':
             return f
