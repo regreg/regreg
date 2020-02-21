@@ -54,7 +54,9 @@ class sparse_group_lasso(group_lasso, seminorm):
                               quadratic=quadratic,
                               initial=initial)
 
-         self.lasso_weights = lasso_weights
+         self.lasso_weights = np.asarray(lasso_weights)
+         if self.lasso_weights.shape == ():
+             self.lasso_weights = self.lasso_weights * np.ones(self.shape)
          self._weighted_l1norm = weighted_l1norm(lasso_weights, 
                                                  lagrange=lagrange,
                                                  bound=bound)
@@ -123,6 +125,36 @@ class sparse_group_lasso(group_lasso, seminorm):
                                bound=copy(self.bound),
                                lagrange=copy(self.lagrange),
                                offset=copy(self.offset))
+
+    def terms(self, arg):
+        """
+        Return the args that are summed
+        in computing the seminorm.
+
+        >>> import regreg.api as rr
+        >>> groups = [1,1,2,2,2]
+        >>> penalty = rr.group_lasso(groups, lagrange=1.)
+        >>> arg = [2,4,5,3,4]
+        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        [6.3245..., 12.2474...]
+        >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+        18.5720...
+        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        (6.3245..., 12.2474...)
+        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        18.5720...
+        
+        """
+        arg = np.asarray(arg)
+        norms = []
+        for g in np.unique(self.groups):
+            group = self.groups == g
+            arg_g = arg[group]
+            term = np.linalg.norm(arg_g) * self.weights[g]
+            term += np.fabs(arg_g).sum() * self.lasso_weights[group]
+            norms.append(term)
+        return np.array(norms)
+
     def __repr__(self):
         if self.lagrange is not None:
             if not self.quadratic.iszero:
@@ -225,7 +257,7 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          lagrange = seminorm.seminorm(self, x, 
                                       check_feasibility=check_feasibility, 
                                       lagrange=lagrange)
-         return _gauge_function_dual(self.base_conjugate, x) * lagrange
+         return gauge_function_dual(self.base_conjugate, x) * lagrange
 
      @doc_template_user
      def constraint(self, x, bound=None):
@@ -242,10 +274,65 @@ class sparse_group_lasso_dual(sparse_group_lasso):
           resid = self.base_conjugate.lagrange_prox(x, lagrange=bound)
           return x - resid
 
-def _gauge_function_dual(atom,
-                         point,
-                         tol=1.e-6,
-                         max_iter=50): 
+     def terms(self, arg):
+         """
+         Return the args that are summed
+         in computing the seminorm.
+         
+         >>> import regreg.api as rr
+         >>> groups = [1,1,2,2,2]
+         >>> penalty = rr.group_lasso(groups, lagrange=1.)
+         >>> arg = [2,4,5,3,4]
+         >>> penalty.terms(arg) # doctest: +ELLIPSIS
+         [6.3245..., 12.2474...]
+         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+         18.5720...
+         >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+         (6.3245..., 12.2474...)
+         >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+         18.5720...
+        
+         """
+         arg = np.asarray(arg)
+         norms = []
+         for g in np.unique(self.groups):
+             group = self.groups == g
+             arg_g = arg[group]
+             term = _gauge_function_dual_strong(arg_g,
+                                                self.lasso_weights[group],
+                                                self.weights[g])
+             norms.append(term)
+         return np.array(norms)
+
+def inside_set(atom, point):
+    """
+    Is the point in the dual ball?
+
+    If the atom is the primal (necessarily in lagrange form), we check
+    whether point is in the dual ball (i.e.
+    the one determining the norm.
+
+    If the atom is a dual (necessarily in bound form), we just check
+    if we project onto the same point.
+    """
+
+    if atom.__class__ == sparse_group_lasso:
+        proj_point = point - atom.lagrange_prox(point,
+                                                lipschitz=1,
+                                                lagrange=1)
+    elif atom.__class__ == sparse_group_lasso_dual:
+        proj_point = atom.bound_prox(point)
+    else:
+        raise ValueError('must be a sparse group lasso class')
+
+    if np.linalg.norm(proj_point - point) > max(np.linalg.norm(point), 1) * 1.e-7:
+        return False
+    return True
+
+def gauge_function_dual(atom,
+                        point,
+                        tol=1.e-6,
+                        max_iter=50): 
 
      """
      Work out dual norm of sparse group LASSO by binary search.
@@ -308,32 +395,105 @@ def _gauge_function_dual(atom,
              lower = mid
      return mid
 
-def inside_set(atom, point):
-    """
-    Is the point in the dual ball?
-
-    If the atom is the primal (necessarily in lagrange form), we check
-    whether point is in the dual ball (i.e.
-    the one determining the norm.
-
-    If the atom is a dual (necessarily in bound form), we just check
-    if we project onto the same point.
-    """
-
-    if atom.__class__ == sparse_group_lasso:
-        proj_point = point - atom.lagrange_prox(point,
-                                                lipschitz=1,
-                                                lagrange=1)
-    elif atom.__class__ == sparse_group_lasso_dual:
-        proj_point = atom.bound_prox(point)
-    else:
-        raise ValueError('must be a sparse group lasso class')
-
-    if np.linalg.norm(proj_point - point) > max(np.linalg.norm(point), 1) * 1.e-7:
-        return False
-    return True
+# bookkeeping for automatically computing conjugates
 
 conjugate_sparse_group_lasso_pairs = {}
 for n1, n2 in [(sparse_group_lasso, sparse_group_lasso_dual)]:
     conjugate_sparse_group_lasso_pairs[n1] = n2
     conjugate_sparse_group_lasso_pairs[n2] = n1
+
+# for terms of strong rules
+
+def _inside_set_strong(point, lasso_weights, group_weight):
+
+    soft_thresh = np.sign(point) * np.maximum(np.fabs(point) - lasso_weights, 0)
+    norm_soft = np.linalg.norm(soft_thresh)
+    if norm_soft > 0:
+        prox_point = (soft_thresh / norm_soft) * max(norm_soft - group_weight, 0)
+    else:
+        prox_point = 0
+    proj_point = point - prox_point
+
+    if np.linalg.norm(proj_point - point) > max(np.linalg.norm(point), 1) * 1.e-7:
+        return False
+    return True
+
+def _gauge_function_dual_strong(point,
+                                lasso_weights, 
+                                group_weight,
+                                tol=1.e-6,
+                                max_iter=50): 
+
+     """
+     Work out dual norm of sparse group LASSO by binary search.
+
+     NOTE: will have problems if the atom has infinite feature weights
+     """
+
+     point = np.asarray(point)
+
+     # find upper and lower bounds
+
+     lower, upper = 1., 1.
+     point_inside = _inside_set_strong(point,
+                                       lasso_weights,
+                                       group_weight)
+     
+     iter = 0
+     if point_inside:
+          # gauge is upper bounded by 1
+          # find a lower bound
+
+          while True:
+               lower = lower / 2
+               candidate = point / lower
+
+               if not _inside_set_strong(candidate,
+                                         lasso_weights,
+                                         group_weight):
+                    break
+               else:
+                    upper = lower
+
+               iter += 1
+               if iter == max_iter:
+                    return 0
+     else:
+          # gauge is lower bounded by 1
+          # find an upper bound
+
+          while True:
+               upper *= 2
+               candidate = point / upper
+
+               if _inside_set_strong(candidate,
+                                     lasso_weights,
+                                     group_weight):
+                    break
+               else:
+                    lower = upper
+
+               iter += 1
+               if iter == max_iter:
+                    return np.inf
+
+     # binary search
+
+     assert (not _inside_set_strong(point / lower,
+                                    lasso_weights,
+                                    group_weight))
+     assert _inside_set_strong(point / upper,
+                               lasso_weights,
+                               group_weight)
+
+     while (upper - lower) > tol * 0.5 * (upper + lower):
+         mid = 0.5 * (upper + lower)
+         candidate = point / mid
+         if _inside_set_strong(candidate,
+                               lasso_weights,
+                               group_weight):
+             upper = mid
+         else:
+             lower = mid
+     return mid
+

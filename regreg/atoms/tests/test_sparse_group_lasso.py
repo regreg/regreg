@@ -6,7 +6,7 @@ import regreg.api as rr
 from regreg.atoms.sparse_group_lasso import (sparse_group_lasso,
                                              sparse_group_lasso_dual,
                                              inside_set,
-                                             _gauge_function_dual)
+                                             gauge_function_dual)
 from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close
@@ -95,7 +95,7 @@ def test_inside_set():
     proxZ = pen.lagrange_prox(Z)
     assert inside_set(pen, Z - proxZ)  # its gauge norm is 0.4, larger than 1
 
-    assert np.fabs(_gauge_function_dual(pen, Z - proxZ) - 0.4) < 1.e-4
+    assert np.fabs(gauge_function_dual(pen, Z - proxZ) - 0.4) < 1.e-4
 
     pen2 = sparse_group_lasso([1,1,2,2,2], 
                              np.ones(5), 
@@ -107,7 +107,7 @@ def test_inside_set():
     Z = np.random.standard_normal(5) * 20
     proxZ = pen2.lagrange_prox(Z)
     print(Z, proxZ)
-    assert np.fabs(_gauge_function_dual(pen2, Z - proxZ) - 1.2) < 1.e-4
+    assert np.fabs(gauge_function_dual(pen2, Z - proxZ) - 1.2) < 1.e-4
     assert not inside_set(pen, Z - proxZ) # its gauge norm is 1.2, larger than 1
 
 class SlopeSolverFactory(SolverFactory):
