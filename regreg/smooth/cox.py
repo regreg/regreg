@@ -100,9 +100,9 @@ class cox_loglike(smooth_atom):
 
     # Begin loss API
 
-    def hessian(self, natural_param):
+    def eval_hessian(self, natural_param, left_vec, right_vec):
         """
-        Hessian of the loss.
+        Evaluate Hessian of the loss at a pair of vectors.
 
         Parameters
         ----------
@@ -110,14 +110,30 @@ class cox_loglike(smooth_atom):
         natural_param : ndarray
             Parameters where Hessian will be evaluated.
 
+        left_vec : ndarray
+            Vector on the left in Hessian evaluation.
+
+        right_vec : ndarray
+            Vector on the left in Hessian evaluation.
+
         Returns
         -------
 
-        hess : ndarray
-            A 1D-array representing the diagonal of the Hessian
-            evaluated at `natural_param`.
+        value : float
+            Hessian evaluated at this pair of left and right vectors
         """
-        raise NotImplementedError('cox hessian not worked out: not a diagonal matrix')
+
+        eta = natural_param # shorthand
+        U = left_vector     # shorthand
+        V = right_vector    # shorthand
+
+        eta = self.apply_offset(eta)
+
+        exp_w = np.exp(eta)
+        risk_dens = np.cumsum(exp_w[self._rev_ordering])[::-1][self._ranking_min]
+        risk_densU = np.cumsum((exp_w * U)[self._rev_ordering])[::-1][self._ranking_min]
+        risk_densV = np.cumsum((exp_w * V)[self._rev_ordering])[::-1][self._ranking_min]
+        risk_densUV = np.cumsum((exp_w * U * V)[self._rev_ordering])[::-1][self._ranking_min]
 
     def get_data(self):
         return self.event_times, self.censoring
