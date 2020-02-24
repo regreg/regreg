@@ -61,7 +61,12 @@ from .smooth.quadratic import (quadratic_loss,
                                signal_approximator,
                                squared_error)
 
-from .smooth.glm import glm, multinomial_loglike, logistic_loglike, poisson_loglike, gaussian_loglike, coxph
+from .smooth.glm import (glm, 
+                         multinomial_loglike, 
+                         logistic_loglike, 
+                         poisson_loglike, 
+                         gaussian_loglike, 
+                         cox_loglike)
 
 # Problem imports
 

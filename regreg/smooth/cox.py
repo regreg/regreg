@@ -2,6 +2,9 @@ import numpy as np
 from scipy.stats import rankdata
 
 from . import smooth_atom, affine_smooth
+from .cox_utils import (cox_objective,
+                        cox_gradient,
+                        cox_hessian)
 
 class cox_loglike(smooth_atom):
 
@@ -9,8 +12,7 @@ class cox_loglike(smooth_atom):
     A class for combining the logistic log-likelihood with a general seminorm
     """
 
-    objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
-    #TODO: Make init more standard, replace np.dot with shape friendly alternatives in case successes.shape is (n,1)
+    objective_template = r"""\ell^{\text{Cox}}\left(%(var)s\right)"""
 
     def __init__(self, 
                  shape, 
@@ -32,20 +34,24 @@ class cox_loglike(smooth_atom):
         self.data = (event_times, censoring)
 
         self._ordering = np.argsort(self.event_times)
-        self._rev_ordering = self._ordering[::-1]
-        self._ordered_times = self.event_times[self._ordering]
-        self._ordered_censoring = self.censoring[self._ordering]
-        self._ranking_max = rankdata(self._ordered_times, method='max') - 1
-        self._ranking_min = rankdata(self._ordered_times, method='min') - 1
+        self._rankmax = rankdata(self.event_times, method='max') - 1
+        self._rankmin = rankdata(self.event_times, method='min') - 1
 
         if case_weights is not None:
+            case_weights = np.asarray(case_weights).astype(np.float)
             if not np.all(case_weights >= 0):
                 raise ValueError('case_weights should be non-negative')
             self.case_weights = np.asarray(case_weights)
-            if self.case_weights.shape != self.successes.shape:
-                raise ValueError('case_weights should have same shape as successes')
         else:
-            self.case_weights = None
+            self.case_weights = np.ones(self.event_times.shape, np.float)
+
+        # buffers to store results used by C code
+        self._G = np.zeros(self.event_times.shape, np.float) # gradient 
+        self._exp_buffer = np.zeros(self.event_times.shape, np.float) # exp(eta)
+        self._exp_accum = np.zeros(self.event_times.shape, np.float) # accum of exp(eta)
+        self._expZ_accum = np.zeros(self.event_times.shape, np.float) # accum of Z*exp(eta)
+        self._outer_1st = np.zeros(self.event_times.shape, np.float) # for log(W)
+        self._outer_2nd = np.zeros(self.event_times.shape, np.float) # used in Hessian
 
     def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
         """
@@ -78,16 +84,32 @@ class cox_loglike(smooth_atom):
 
         eta = self.apply_offset(eta)
 
-        exp_w = np.exp(eta)
-        risk_dens = np.cumsum(exp_w[self._rev_ordering])[::-1][self._ranking_min]
-        
+        censoring = self.data[1]
+
         if mode in ['both', 'grad']:
-            grad_o = np.cumsum(self._ordered_censoring / risk_dens)[self._ranking_max]
-            G = np.zeros_like(grad_o)
-            G[self._ordering] = self._ordered_censoring - exp_w[self._ordering] * grad_o
+            G = cox_gradient(self._G,
+                             eta,
+                             self._exp_buffer,
+                             self._exp_accum,
+                             self._outer_1st,
+                             self.case_weights,
+                             censoring,
+                             self._ordering,
+                             self._rankmin,
+                             self._rankmax,
+                             eta.shape[0])
 
         if mode in ['both', 'func']:
-            F = np.sum(self._ordered_censoring * (eta[self._ordering] - np.log(risk_dens)))
+            F = cox_objective(eta,
+                              self._exp_buffer,
+                              self._exp_accum,
+                              self._outer_1st,
+                              self.case_weights,
+                              censoring,
+                              self._ordering,
+                              self._rankmin,
+                              self._rankmax,
+                              eta.shape[0])
 
         if mode == 'both':
             return self.scale(F), self.scale(G)
@@ -100,7 +122,7 @@ class cox_loglike(smooth_atom):
 
     # Begin loss API
 
-    def eval_hessian(self, natural_param, left_vec, right_vec):
+    def hessian_mult(self, natural_param, right_vector):
         """
         Evaluate Hessian of the loss at a pair of vectors.
 
@@ -124,16 +146,25 @@ class cox_loglike(smooth_atom):
         """
 
         eta = natural_param # shorthand
-        U = left_vector     # shorthand
-        V = right_vector    # shorthand
-
         eta = self.apply_offset(eta)
+        censoring = self.data[1]
 
-        exp_w = np.exp(eta)
-        risk_dens = np.cumsum(exp_w[self._rev_ordering])[::-1][self._ranking_min]
-        risk_densU = np.cumsum((exp_w * U)[self._rev_ordering])[::-1][self._ranking_min]
-        risk_densV = np.cumsum((exp_w * V)[self._rev_ordering])[::-1][self._ranking_min]
-        risk_densUV = np.cumsum((exp_w * U * V)[self._rev_ordering])[::-1][self._ranking_min]
+        H = np.zeros(eta.shape, np.float)
+
+        return cox_hessian(H,
+                           eta,
+                           right_vector,
+                           self._exp_buffer,
+                           self._exp_accum,
+                           self._expZ_accum,
+                           self._outer_1st,
+                           self._outer_2nd,
+                           self.case_weights,
+                           censoring,
+                           self._ordering,
+                           self._rankmin,
+                           self._rankmax,
+                           eta.shape[0])
 
     def get_data(self):
         return self.event_times, self.censoring
@@ -141,7 +172,7 @@ class cox_loglike(smooth_atom):
     def set_data(self, data):
         event_times, censoring = data
         self.event_times, self.censoring = (np.asarray(event_times),
-                                            np.asarray(censoring))
+                                            np.asarray(censoring).astype(np.int))
 
     data = property(get_data, set_data)
 
@@ -156,4 +187,8 @@ class cox_loglike(smooth_atom):
                            initial=copy(self.coefs),
                            case_weights=copy(self.case_weights))
 
-
+    def latexify(self, var=None, idx=''):
+        # a trick to get latex representation looking right
+        # coxph should be written similar to logistic
+        # composed with a linear transform (TODO)
+        return smooth_atom.latexify(self, var=var, idx=idx)

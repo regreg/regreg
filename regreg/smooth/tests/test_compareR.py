@@ -89,7 +89,7 @@ def test_coxph():
     X = np.asarray(rpy.r('X'))
     T = np.asarray(rpy.r('tim'))
     S = np.asarray(rpy.r('status'))
-    L = rr.coxph(X, T, S)
+    L = rr.glm.cox(X, T, S)
     soln = L.solve(min_its=200)
 
     np.testing.assert_allclose(C, soln, rtol=1.e-4, atol=1.e-4)
