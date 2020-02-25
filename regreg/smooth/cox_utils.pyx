@@ -97,6 +97,31 @@ def cox_objective(cnp.ndarray[DTYPE_float_t, ndim=1] linear_pred,
                   cnp.ndarray[DTYPE_int_t, ndim=1] rankmax,
                   long ncase):
 
+    # check shapes are correct
+
+    assert(linear_pred.shape[0] == exp_buffer.shape[0])
+    assert(linear_pred.shape[0] == exp_accum.shape[0])
+    assert(linear_pred.shape[0] == outer_1st_accum.shape[0])
+    assert(linear_pred.shape[0] == case_weight.shape[0])
+    assert(linear_pred.shape[0] == censoring.shape[0])
+    assert(linear_pred.shape[0] == ordering.shape[0])
+    assert(linear_pred.shape[0] == rankmin.shape[0])
+    assert(linear_pred.shape[0] == rankmax.shape[0])
+
+    # ensure arrays are contiguous
+    # may force a copy, but C code assumes contiguous
+    # could be remedied by a stride argument
+
+    linear_pred = np.ascontiguousarray(linear_pred)
+    exp_buffer = np.ascontiguousarray(exp_buffer)
+    exp_accum = np.ascontiguousarray(exp_accum)
+    outer_1st_accum = np.ascontiguousarray(outer_1st_accum)
+    case_weight = np.ascontiguousarray(case_weight)
+    censoring = np.ascontiguousarray(censoring)
+    ordering = np.ascontiguousarray(ordering)
+    rankmin = np.ascontiguousarray(rankmin)
+    rankmax = np.ascontiguousarray(rankmax)
+
     _update_cox_exp(<double *>linear_pred.data,
                     <double *>exp_buffer.data,
                     <double *>exp_accum.data,
@@ -139,6 +164,33 @@ def cox_gradient(cnp.ndarray[DTYPE_float_t, ndim=1] gradient,
     """
     Compute Cox partial likelihood gradient in place.
     """
+
+    # check shapes are correct
+
+    assert(gradient.shape[0] == linear_pred.shape[0])
+    assert(gradient.shape[0] == exp_buffer.shape[0])
+    assert(gradient.shape[0] == exp_accum.shape[0])
+    assert(gradient.shape[0] == outer_1st_accum.shape[0])
+    assert(gradient.shape[0] == case_weight.shape[0])
+    assert(gradient.shape[0] == censoring.shape[0])
+    assert(gradient.shape[0] == ordering.shape[0])
+    assert(gradient.shape[0] == rankmin.shape[0])
+    assert(gradient.shape[0] == rankmax.shape[0])
+
+    # ensure arrays are contiguous
+    # may force a copy, but C code assumes contiguous
+    # could be remedied by a stride argument
+
+    gradient = np.ascontiguousarray(gradient)
+    linear_pred = np.ascontiguousarray(linear_pred)
+    exp_buffer = np.ascontiguousarray(exp_buffer)
+    exp_accum = np.ascontiguousarray(exp_accum)
+    outer_1st_accum = np.ascontiguousarray(outer_1st_accum)
+    case_weight = np.ascontiguousarray(case_weight)
+    censoring = np.ascontiguousarray(censoring)
+    ordering = np.ascontiguousarray(ordering)
+    rankmin = np.ascontiguousarray(rankmin)
+    rankmax = np.ascontiguousarray(rankmax)
 
     # this computes e^{\eta} and stores cumsum at rankmin
 
@@ -189,6 +241,39 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
     """
     Compute Cox partial likelihood gradient in place.
     """
+
+    # ensure arrays are contiguous
+    # may force a copy, but C code assumes contiguous
+    # could be remedied by a stride argument
+
+    hessian = np.ascontiguousarray(hessian)
+    linear_pred = np.ascontiguousarray(linear_pred)
+    right_vector = np.ascontiguousarray(right_vector)
+    exp_buffer = np.ascontiguousarray(exp_buffer)
+    exp_accum = np.ascontiguousarray(exp_accum)
+    expZ_accum = np.ascontiguousarray(expZ_accum)
+    outer_1st_accum = np.ascontiguousarray(outer_1st_accum)
+    outer_2nd_accum = np.ascontiguousarray(outer_2nd_accum)
+    case_weight = np.ascontiguousarray(case_weight)
+    censoring = np.ascontiguousarray(censoring)
+    ordering = np.ascontiguousarray(ordering)
+    rankmin = np.ascontiguousarray(rankmin)
+    rankmax = np.ascontiguousarray(rankmax)
+
+    # check shapes are correct
+
+    assert(hessian.shape[0] == linear_pred.shape[0])
+    assert(hessian.shape[0] == right_vector.shape[0])
+    assert(hessian.shape[0] == exp_buffer.shape[0])
+    assert(hessian.shape[0] == exp_accum.shape[0])
+    assert(hessian.shape[0] == expZ_accum.shape[0])
+    assert(hessian.shape[0] == outer_1st_accum.shape[0])
+    assert(hessian.shape[0] == outer_2nd_accum.shape[0])
+    assert(hessian.shape[0] == case_weight.shape[0])
+    assert(hessian.shape[0] == censoring.shape[0])
+    assert(hessian.shape[0] == ordering.shape[0])
+    assert(hessian.shape[0] == rankmin.shape[0])
+    assert(hessian.shape[0] == rankmax.shape[0])
 
     # this computes e^{\eta} and stores cumsum at rankmin, stored in outer_accum_1st
 
