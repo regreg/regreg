@@ -55,9 +55,9 @@ class sparse_group_lasso(group_lasso, seminorm):
                               initial=initial)
 
          self.lasso_weights = np.asarray(lasso_weights)
-         if self.lasso_weights.shape == ():
+         if self.lasso_weights.shape != self.groups.shape:
              self.lasso_weights = self.lasso_weights * np.ones(self.shape)
-         self._weighted_l1norm = weighted_l1norm(lasso_weights, 
+         self._weighted_l1norm = weighted_l1norm(self.lasso_weights, 
                                                  lagrange=lagrange,
                                                  bound=bound)
          self._weighted_supnorm = self._weighted_l1norm.conjugate
@@ -404,12 +404,12 @@ for n1, n2 in [(sparse_group_lasso, sparse_group_lasso_dual)]:
 
 # for terms of strong rules
 
-def _inside_set_strong(point, lasso_weights, group_weight):
+def _inside_set_strong(point, bound, lasso_weights, group_weight):
 
-    soft_thresh = np.sign(point) * np.maximum(np.fabs(point) - lasso_weights, 0)
+    soft_thresh = np.sign(point) * np.maximum(np.fabs(point) - bound * lasso_weights, 0)
     norm_soft = np.linalg.norm(soft_thresh)
     if norm_soft > 0:
-        prox_point = (soft_thresh / norm_soft) * max(norm_soft - group_weight, 0)
+        prox_point = (soft_thresh / norm_soft) * max(norm_soft - bound * group_weight, 0)
     else:
         prox_point = 0
     proj_point = point - prox_point
@@ -436,6 +436,7 @@ def _gauge_function_dual_strong(point,
 
      lower, upper = 1., 1.
      point_inside = _inside_set_strong(point,
+                                       lower, 
                                        lasso_weights,
                                        group_weight)
      
@@ -446,9 +447,8 @@ def _gauge_function_dual_strong(point,
 
           while True:
                lower = lower / 2
-               candidate = point / lower
-
-               if not _inside_set_strong(candidate,
+               if not _inside_set_strong(point,
+                                         lower,
                                          lasso_weights,
                                          group_weight):
                     break
@@ -464,9 +464,8 @@ def _gauge_function_dual_strong(point,
 
           while True:
                upper *= 2
-               candidate = point / upper
-
-               if _inside_set_strong(candidate,
+               if _inside_set_strong(point,
+                                     upper, 
                                      lasso_weights,
                                      group_weight):
                     break
@@ -479,17 +478,19 @@ def _gauge_function_dual_strong(point,
 
      # binary search
 
-     assert (not _inside_set_strong(point / lower,
+     assert (not _inside_set_strong(point,
+                                    lower,
                                     lasso_weights,
                                     group_weight))
-     assert _inside_set_strong(point / upper,
+     assert _inside_set_strong(point,
+                               upper,
                                lasso_weights,
                                group_weight)
 
      while (upper - lower) > tol * 0.5 * (upper + lower):
          mid = 0.5 * (upper + lower)
-         candidate = point / mid
-         if _inside_set_strong(candidate,
+         if _inside_set_strong(point,
+                               mid,
                                lasso_weights,
                                group_weight):
              upper = mid

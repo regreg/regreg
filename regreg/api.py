@@ -30,14 +30,20 @@ from .atoms.svd_norms import (nuclear_norm, operator_norm,
 from .atoms.linear_constraints import (projection, projection_complement)
 from .atoms.mixed_lasso import mixed_lasso, mixed_lasso_dual
 
+# group LASSO and variants
+
 from .atoms.group_lasso import (group_lasso, group_lasso_dual, 
                                 group_lasso_epigraph, 
                                 group_lasso_epigraph_polar, 
                                 group_lasso_dual_epigraph,
                                 group_lasso_dual_epigraph_polar)
+
 from .atoms.sparse_group_lasso import (sparse_group_lasso, 
                                        sparse_group_lasso_dual,
                                        inside_set as inside_sparse_group_lasso_ball)
+
+from .atoms.sparse_group_block import (sparse_group_block,
+                                       sparse_group_block_dual)
 
 from .atoms.weighted_atoms import (l1norm as weighted_l1norm,
                                    supnorm as weighted_supnorm)
@@ -61,7 +67,12 @@ from .smooth.quadratic import (quadratic_loss,
                                signal_approximator,
                                squared_error)
 
-from .smooth.glm import glm, multinomial_loglike, logistic_loglike, poisson_loglike, gaussian_loglike, coxph
+from .smooth.glm import (glm, 
+                         multinomial_loglike, 
+                         logistic_loglike, 
+                         poisson_loglike, 
+                         gaussian_loglike, 
+                         cox_loglike)
 
 # Problem imports
 

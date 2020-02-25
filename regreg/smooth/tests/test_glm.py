@@ -3,7 +3,7 @@ from copy import copy
 import nose.tools as nt
 import numpy as np
 
-from regreg.smooth.glm import glm, coxph
+from regreg.smooth.glm import glm
 
 def test_logistic():
 
@@ -232,8 +232,9 @@ def test_coxph():
     T = np.random.standard_exponential(100)
     S = np.random.binomial(1, 0.5, size=(100,))
 
-    L = coxph(X, T, S)
+    L = glm.cox(X, T, S)
     L.smooth_objective(np.zeros(L.shape), 'both')
+    L.saturated_loss.hessian_mult(np.zeros(T.shape), np.ones(T.shape))
     L.hessian(np.zeros(L.shape))
 
     L.gradient(np.zeros(L.shape))
@@ -241,7 +242,7 @@ def test_coxph():
     L.objective(np.zeros(L.shape))
     L.latexify()
 
-    L.data = (X, T, S)
+    L.data = (X, (T, S))
     L.data
 
 
