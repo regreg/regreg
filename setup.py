@@ -50,6 +50,10 @@ for modulename, other_sources in (
     pyx_src = pjoin(*modulename.split('.')) + '.pyx'
     EXTS.append(Extension(modulename,[pyx_src] + other_sources))
 
+EXTS.append(Extension('regreg.smooth.cox_utils',
+                      ['regreg/smooth/cox_utils.pyx', 'regreg/smooth/cox_fns.c'],
+                      include_dirs=['regreg/smooth']))
+
 # Cython is a dependency for building extensions, iff we don't have stamped
 # up pyx and c files.
 build_ext, need_cython = cyproc_exts(EXTS,
