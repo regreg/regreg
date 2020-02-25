@@ -57,7 +57,7 @@ class sparse_group_lasso(group_lasso, seminorm):
          self.lasso_weights = np.asarray(lasso_weights)
          if self.lasso_weights.shape != self.groups.shape:
              self.lasso_weights = self.lasso_weights * np.ones(self.shape)
-         self._weighted_l1norm = weighted_l1norm(lasso_weights, 
+         self._weighted_l1norm = weighted_l1norm(self.lasso_weights, 
                                                  lagrange=lagrange,
                                                  bound=bound)
          self._weighted_supnorm = self._weighted_l1norm.conjugate
