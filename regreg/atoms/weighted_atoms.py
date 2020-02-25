@@ -214,7 +214,6 @@ class supnorm(seminorm):
         bound = seminorm.bound_prox(self, x, bound)
         return np.clip(x, -bound * self.invweights, bound * self.invweights)
 
-
 conjugate_weighted_pairs = {}
 for n1, n2 in [(l1norm,supnorm)]:
     conjugate_weighted_pairs[n1] = n2
