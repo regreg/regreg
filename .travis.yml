@@ -150,8 +150,8 @@ script:
         sudo apt-get install software-properties-common
         sudo add-apt-repository -y ppa:marutter/c2d4u
         sudo apt-get update
-        sudo apt-get install -y r-base r-base-dev glmnet
-        sudo Rscript -e "install.packages(c('lars', 'Matrix', 'SLOPE', 'gglasso'), repos='http://cloud.r-project.org');"
+        sudo apt-get install -y r-base r-base-dev 
+        sudo Rscript -e "install.packages(c('glmnet', 'lars', 'Matrix', 'SLOPE', 'gglasso'), repos='http://cloud.r-project.org');"
         pip install -r doc-requirements.txt
         cd doc
         # Build without the API documentation, for the doctests
