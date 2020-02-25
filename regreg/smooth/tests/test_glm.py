@@ -234,7 +234,7 @@ def test_coxph():
 
     L = glm.cox(X, T, S)
     L.smooth_objective(np.zeros(L.shape), 'both')
-    L.saturated_loss.hessian_mult(np.zeros(L.shape), np.ones(T.shape))
+    L.saturated_loss.hessian_mult(np.zeros(T.shape), np.ones(T.shape))
     L.hessian(np.zeros(L.shape))
 
     L.gradient(np.zeros(L.shape))
