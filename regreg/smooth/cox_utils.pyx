@@ -84,10 +84,10 @@ def cox_objective(cnp.ndarray[DTYPE_float_t, ndim=1] linear_pred,
                   cnp.ndarray[DTYPE_float_t, ndim=1] exp_accum,
                   cnp.ndarray[DTYPE_float_t, ndim=1] outer_1st_accum,
                   cnp.ndarray[DTYPE_float_t, ndim=1] case_weight,
-                  cnp.ndarray[DTYPE_int_t, ndim=1] censoring,
-                  cnp.ndarray[DTYPE_int_t, ndim=1] ordering,
-                  cnp.ndarray[DTYPE_int_t, ndim=1] rankmin,
-                  cnp.ndarray[DTYPE_int_t, ndim=1] rankmax,
+                  cnp.ndarray[DTYPE_intp_t, ndim=1] censoring,
+                  cnp.ndarray[DTYPE_intp_t, ndim=1] ordering,
+                  cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
+                  cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
                   long ncase):
 
     # check shapes are correct
@@ -149,10 +149,10 @@ def cox_gradient(cnp.ndarray[DTYPE_float_t, ndim=1] gradient,
                  cnp.ndarray[DTYPE_float_t, ndim=1] exp_accum,
                  cnp.ndarray[DTYPE_float_t, ndim=1] outer_1st_accum,
                  cnp.ndarray[DTYPE_float_t, ndim=1] case_weight,
-                 cnp.ndarray[DTYPE_int_t, ndim=1] censoring,
-                 cnp.ndarray[DTYPE_int_t, ndim=1] ordering,
-                 cnp.ndarray[DTYPE_int_t, ndim=1] rankmin,
-                 cnp.ndarray[DTYPE_int_t, ndim=1] rankmax,
+                 cnp.ndarray[DTYPE_intp_t, ndim=1] censoring,
+                 cnp.ndarray[DTYPE_intp_t, ndim=1] ordering,
+                 cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
+                 cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
                  long ncase):
     """
     Compute Cox partial likelihood gradient in place.
@@ -226,10 +226,10 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                 cnp.ndarray[DTYPE_float_t, ndim=1] outer_1st_accum,
                 cnp.ndarray[DTYPE_float_t, ndim=1] outer_2nd_accum,
                 cnp.ndarray[DTYPE_float_t, ndim=1] case_weight,
-                cnp.ndarray[DTYPE_int_t, ndim=1] censoring,
-                cnp.ndarray[DTYPE_int_t, ndim=1] ordering,
-                cnp.ndarray[DTYPE_int_t, ndim=1] rankmin,
-                cnp.ndarray[DTYPE_int_t, ndim=1] rankmax,
+                cnp.ndarray[DTYPE_intp_t, ndim=1] censoring,
+                cnp.ndarray[DTYPE_intp_t, ndim=1] ordering,
+                cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
+                cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
                 long ncase):
     """
     Compute Cox partial likelihood gradient in place.
