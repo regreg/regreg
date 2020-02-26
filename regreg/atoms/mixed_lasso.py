@@ -360,8 +360,17 @@ class mixed_lasso_dual(mixed_lasso):
         else:
             return eta - offset
 
-def strong_set(glasso, lagrange_cur, lagrange_new, grad,
+def strong_set(glasso, 
+               lagrange_cur, 
+               lagrange_new, 
+               grad,
                slope_estimate=1):
+
+    """
+    Guess at active variables at 
+    lagrange value lagrange_new based on gradient
+    at lagrange_cur.
+    """
 
     p = grad.shape[0]
     value = strong_set_mixed_lasso(grad, 
@@ -377,7 +386,16 @@ def strong_set(glasso, lagrange_cur, lagrange_new, grad,
     value = value.astype(np.bool)
     return value, selector(value, (p,))
 
-def check_KKT(glasso, grad, solution, lagrange, tol=1.e-2):
+def check_KKT(glasso, 
+              grad, 
+              solution, 
+              lagrange, 
+              tol=1.e-2):
+
+    """
+    Check whether (grad, solution) satisfy
+    KKT conditions at a given tolerance.
+    """
 
     failing = check_KKT_mixed_lasso(grad, 
                                     solution, 

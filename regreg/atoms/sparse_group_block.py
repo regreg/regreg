@@ -17,6 +17,7 @@ from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 from ..atoms import _work_out_conjugate
 from .block_norms import l1_l2
+from .sparse_group_lasso import _gauge_function_dual_strong, _inside_set_strong
 
 # for the docstring, we need l1norm
 l1norm = seminorms.l1norm
@@ -119,6 +120,29 @@ class sparse_group_block(l1_l2):
                                lagrange=copy(self.lagrange),
                                offset=copy(self.offset))
 
+    def terms(self, arg):
+        """
+        Return the args that are summed
+        in computing the seminorm.
+
+        >>> import regreg.api as rr
+        >>> groups = [1,1,2,2,2]
+        >>> penalty = rr.group_lasso(groups, lagrange=1.)
+        >>> arg = [2,4,5,3,4]
+        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        [6.3245..., 12.2474...]
+        >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+        18.5720...
+        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        (6.3245..., 12.2474...)
+        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        18.5720...
+        
+        """
+        terms = (np.fabs(arg).sum(1) * self.l1_weight + 
+                 np.sqrt((arg**2).sum(1)) * self.l1_weight)
+        return terms
+
 class sparse_group_block_dual(sparse_group_block):
 
     objective_template = r"""\|%(var)s\|_{w_1,w_2,\text{block}}"""
@@ -205,6 +229,27 @@ class sparse_group_block_dual(sparse_group_block):
         self._conjugate._conjugate = self
         return self._conjugate
     conjugate = property(get_conjugate)
+
+    def terms(self, arg):
+         """
+         Return the args that are maximized
+         in computing the seminorm.
+         
+         >>> import regreg.api as rr
+         >>> groups = [1,1,2,2,2]
+         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
+         >>> arg = [2,4,5,3,4]
+         >>> penalty.terms(arg) # doctest: +ELLIPSIS
+         [3.1622..., 4.0824...]
+         >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
+         (3.1622..., 4.0824...)
+         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+         4.0824...
+
+         """
+         return np.array([_gauge_function_dual_strong(arg[i],
+                                                      self.l1_weight,
+                                                      self.l2_weight)[0] for i in arg.shape[0]])
 
 # fast Lagrange prox
 
@@ -310,3 +355,73 @@ sparse_group_block_pairs = {}
 for n1, n2 in [(sparse_group_block, sparse_group_block_dual)]:
     sparse_group_block_pairs[n1] = n2
     sparse_group_block_pairs[n2] = n1
+
+# for paths
+
+def strong_set(l1_weight,
+               l2_weight,
+               lagrange_cur, 
+               lagrange_new, 
+               grad,
+               slope_estimate=1):
+
+    """
+    Guess at active groups at 
+    lagrange_new based on gradient
+    at lagrange_cur.
+    """
+
+    dual = sglasso.conjugate
+    thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
+    return np.nonzero(np.array([_inside_set_strong(grad[i],
+                                                   thresh,
+                                                   l1_weight,
+                                                   l2_weight) for i in grad.shape[0]]) == 0)
+
+def check_KKT(grad, 
+              solution, 
+              l1_weight,
+              l2_weight,
+              lagrange, 
+              tol=1.e-4):
+
+    """
+    Check whether (grad, solution) satisfy
+    KKT conditions at a given tolerance.
+
+    Assumes lagrange form of penalty.
+
+    """
+
+    failing = False
+    norm_soln = np.sqrt(np.sum(solution**2, 1))
+    active = norm_soln > tol * max(norm_soln.sum(0), 1)
+
+    for g in np.nonzero(active)[0]:
+        subgrad_g = -grad[group]
+        l1weight_g = sglasso.lasso_weights[group]
+        soln_g = solution[i]
+        val_g, l1subgrad_g, l2subgrad_g = _gauge_function_dual_strong(grad[g],
+                                                                      l1_weight,
+                                                                      l2_weight)
+        if val_g < lagrange * (1 - tol):
+            failing = True
+        nonz = soln_g != 0
+
+        # nonzero coordinates need the right sign and size
+        if (np.linalg.norm((l1subgrad_g - l1_weight * np.sign(soln_g) * lagrange)[nonz]) > 
+            tol * max(1, np.linalg.norm(soln_g))):
+            failing = True
+
+        # l2 subgrad should be parallel to soln_g
+        if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
+                          soln_g / np.linalg.norm(soln_g)) > tol:
+            failing = True
+
+    for g in np.nonzero(~active)[0]:
+        subgrad_g = -grad[g]
+        if _gauge_function_dual_strong(subgrad_g, 
+                                       l1_weight,
+                                       l2_weight) >= lagrange * (1 + tol):
+            failing = True
+    return failing

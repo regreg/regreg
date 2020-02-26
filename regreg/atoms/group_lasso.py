@@ -57,6 +57,7 @@ class group_lasso(seminorm):
         self.weights = copy(weights)
         self._group_array = np.zeros(shape, np.intp)
         self._group_dict = {}
+        self._group_inv_dict = {}
 
         sg = self._sorted_groupids = sorted(np.unique(self.groups))
         self._weight_array = np.ones(len(sg))
@@ -65,6 +66,7 @@ class group_lasso(seminorm):
             group = self.groups == g
             self._group_array[group] = i
             self._group_dict[g] = i
+            self._group_inv_dict[i] = g
             self._weight_array[i] = self.weights.get(g, np.sqrt(group.sum()))
             self.weights[g] = self._weight_array[i]
 
@@ -630,3 +632,57 @@ conjugate_cone_pairs[group_lasso_epigraph] = group_lasso_epigraph_polar
 conjugate_cone_pairs[group_lasso_epigraph_polar] = group_lasso_epigraph
 conjugate_cone_pairs[group_lasso_dual_epigraph_polar] = group_lasso_dual_epigraph
 conjugate_cone_pairs[group_lasso_dual_epigraph] = group_lasso_dual_epigraph_polar
+
+# for paths
+
+def strong_set(glasso, 
+               lagrange_cur, 
+               lagrange_new, 
+               grad,
+               slope_estimate=1):
+
+    """
+    Guess at active groups at 
+    lagrange_new based on gradient
+    at lagrange_cur.
+    """
+
+    dual = glasso.conjugate
+    terms = dual.terms(grad)
+    candidates = np.nonzero(terms >= ((slope_estimate + 1) * lagrange_new - 
+                                      slope_estimate * lagrange_cur))[0]
+    return [glasso._group_inv_dict[i] for i in candidates]
+
+def check_KKT(glasso, 
+              grad, 
+              solution, 
+              lagrange, 
+              tol=1.e-2):
+
+    """
+    Check whether (grad, solution) satisfy
+    KKT conditions at a given tolerance.
+
+    Assumes glasso is group_lasso in lagrange form
+    so that glasso.lagrange is not None
+    """
+
+    failing = False
+    norm_soln = np.linalg.norm(solutionn)
+    active = glasso.terms(solution) > tol * norm_soln
+    inactive_groups = np.nonzero(~active)[0]
+    active_groups = np.nozero(active)[0]
+    for g in active_groups:
+        group = glasso.groups == g
+        subgrad_g = -grad[group]
+        soln_g = solution[group]
+        if np.linalg.norm(subgrad_g) < glasso.lagrange * glasso._weight_array[g] * (1 - tol):
+            failing = True
+        if np.linalg.norm(subgrad_g / np.linalg.norm(subgrad_g) - soln_g / np.linalg.norm(soln_g)) > tol:
+            failing = True
+    for g in inactive_groups:
+        group = glasso.groups == g
+        subgrad_g = -grad[group]
+        if np.linalg.norm(subgrad_g) > glasso.lagrange * glasso._weight_array[g] * (1 + tol):
+            failing = True
+    return failing
