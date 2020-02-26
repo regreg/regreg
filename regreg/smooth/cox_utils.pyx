@@ -14,59 +14,59 @@ cdef extern from "cox_fns.h":
                          double *exp_ptr,         # stores exp(eta) 
                          double *exp_accum_ptr,   # inner accumulation vector 
                          double *case_weight_ptr, # case weights 
-                         long *censoring_ptr,     # censoring indicator 
-                         long *ordering_ptr,      # 0-based ordering of times 
-                         long *rankmin_ptr,       # 0-based ranking with min tie breaking 
-                         long ncase)              # how many subjects / times 
+                         size_t *censoring_ptr,     # censoring indicator 
+                         size_t *ordering_ptr,      # 0-based ordering of times 
+                         size_t *rankmin_ptr,       # 0-based ranking with min tie breaking 
+                         size_t ncase)              # how many subjects / times 
 
     void _update_cox_expZ(double *linear_pred_ptr,  # Linear term in objective 
                           double *right_vector_ptr, # Linear term in objective 
                           double *exp_ptr,          # stores exp(eta) 
                           double *expZ_accum_ptr,   # inner accumulation vector 
                           double *case_weight_ptr,  # case weights 
-                          long *censoring_ptr,      # censoring indicator 
-                          long *ordering_ptr,       # 0-based ordering of times 
-                          long *rankmin_ptr,        # 0-based ranking with min tie breaking 
-                          long ncase)               # how many subjects / times 
+                          size_t *censoring_ptr,      # censoring indicator 
+                          size_t *ordering_ptr,       # 0-based ordering of times 
+                          size_t *rankmin_ptr,        # 0-based ranking with min tie breaking 
+                          size_t ncase)               # how many subjects / times 
 
     void _update_outer_1st(double *linear_pred_ptr,     # Linear term in objective 
                            double *exp_accum_ptr,       # inner accumulation vector 
                            double *outer_accum_1st_ptr, # outer accumulation vector 
                            double *case_weight_ptr,     # case weights 
-                           long *censoring_ptr,         # censoring indicator 
-                           long *ordering_ptr,          # 0-based ordering of times 
-                           long *rankmin_ptr,           # 0-based ranking with min tie breaking 
-                           long ncase)                  # how many subjects / times 
+                           size_t *censoring_ptr,         # censoring indicator 
+                           size_t *ordering_ptr,          # 0-based ordering of times 
+                           size_t *rankmin_ptr,           # 0-based ranking with min tie breaking 
+                           size_t ncase)                  # how many subjects / times 
 
     void _update_outer_2nd(double *linear_pred_ptr,     # Linear term in objective 
                            double *exp_accum_ptr,       # inner accumulation vector  Ze^{\eta} 
                            double *expZ_accum_ptr,      # inner accumulation vector e^{\eta} 
                            double *outer_accum_2nd_ptr, # outer accumulation vector 
                            double *case_weight_ptr,     # case weights 
-                           long *censoring_ptr,         # censoring indicator 
-                           long *ordering_ptr,          # 0-based ordering of times 
-                           long *rankmin_ptr,           # 0-based ranking with min tie breaking 
-                           long ncase)                  # how many subjects / times 
+                           size_t *censoring_ptr,         # censoring indicator 
+                           size_t *ordering_ptr,          # 0-based ordering of times 
+                           size_t *rankmin_ptr,           # 0-based ranking with min tie breaking 
+                           size_t ncase)                  # how many subjects / times 
 
     double _cox_objective(double *linear_pred_ptr,     # Linear term in objective 
                           double *inner_accum_ptr,     # inner accumulation vector 
                           double *outer_accum_1st_ptr, # outer accumulation vector 
                           double *case_weight_ptr,     # case weights 
-                          long *censoring_ptr,         # censoring indicator 
-                          long *ordering_ptr,          # 0-based ordering of times 
-                          long *rankmin_ptr,           # 0-based ranking with min tie breaking 
-                          long *rankmax_ptr,           # 0-based ranking with max tie breaking 
-                          long ncase)                  # how many subjects / times 
+                          size_t *censoring_ptr,         # censoring indicator 
+                          size_t *ordering_ptr,          # 0-based ordering of times 
+                          size_t *rankmin_ptr,           # 0-based ranking with min tie breaking 
+                          size_t *rankmax_ptr,           # 0-based ranking with max tie breaking 
+                          size_t ncase)                  # how many subjects / times 
 
     void _cox_gradient(double *gradient_ptr,        # Where gradient is stored 
                        double *exp_ptr,             # stores exp(eta) 
                        double *outer_accum_1st_ptr, # outer accumulation vector 
                        double *case_weight_ptr,     # case weights 
-                       long *censoring_ptr,         # censoring indicator 
-                       long *ordering_ptr,          # 0-based ordering of times 
-                       long *rankmin_ptr,           # 0-based ranking with min tie breaking 
-                       long *rankmax_ptr,           # 0-based ranking with max tie breaking 
-                       long ncase)                  # how many subjects / times 
+                       size_t *censoring_ptr,         # censoring indicator 
+                       size_t *ordering_ptr,          # 0-based ordering of times 
+                       size_t *rankmin_ptr,           # 0-based ranking with min tie breaking 
+                       size_t *rankmax_ptr,           # 0-based ranking with max tie breaking 
+                       size_t ncase)                  # how many subjects / times 
 
     void _cox_hessian(double *hessian_ptr,          # Where hessian is stored 
                       double *exp_ptr,              # stores exp(eta) 
@@ -74,10 +74,10 @@ cdef extern from "cox_fns.h":
                       double *outer_accum_1st_ptr,  # outer accumulation vector used in outer prod "mean"
                       double *outer_accum_2nd_ptr,  # outer accumulation vector used in "2nd" moment
                       double *case_weight_ptr,      # case weights 
-                      long *censoring_ptr,          # censoring indicator 
-                      long *ordering_ptr,           # 0-based ordering of times 
-                      long *rankmax_ptr,            # 0-based ranking with max tie breaking 
-                      long ncase)                   # how many subjects / times 
+                      size_t *censoring_ptr,          # censoring indicator 
+                      size_t *ordering_ptr,           # 0-based ordering of times 
+                      size_t *rankmax_ptr,            # 0-based ranking with max tie breaking 
+                      size_t ncase)                   # how many subjects / times 
    
 def cox_objective(cnp.ndarray[DTYPE_float_t, ndim=1] linear_pred,
                   cnp.ndarray[DTYPE_float_t, ndim=1] exp_buffer,
@@ -88,7 +88,7 @@ def cox_objective(cnp.ndarray[DTYPE_float_t, ndim=1] linear_pred,
                   cnp.ndarray[DTYPE_intp_t, ndim=1] ordering,
                   cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
                   cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
-                  long ncase):
+                  size_t ncase):
 
     # check shapes are correct
 
@@ -119,28 +119,28 @@ def cox_objective(cnp.ndarray[DTYPE_float_t, ndim=1] linear_pred,
                     <double *>exp_buffer.data,
                     <double *>exp_accum.data,
                     <double *>case_weight.data,
-                    <long *>censoring.data,
-                    <long *>ordering.data,
-                    <long *>rankmin.data,
+                    <size_t *>censoring.data,
+                    <size_t *>ordering.data,
+                    <size_t *>rankmin.data,
                     ncase)
 
     _update_outer_1st(<double *>linear_pred.data,
                       <double *>exp_accum.data,
                       <double *>outer_1st_accum.data,
                       <double *>case_weight.data,
-                      <long *>censoring.data,
-                      <long *>ordering.data,
-                      <long *>rankmin.data,
+                      <size_t *>censoring.data,
+                      <size_t *>ordering.data,
+                      <size_t *>rankmin.data,
                       ncase)
 
     return _cox_objective(<double *>linear_pred.data,
                           <double *>exp_accum.data,
                           <double *>outer_1st_accum.data,
                           <double *>case_weight.data,
-                          <long *>censoring.data,
-                          <long *>ordering.data,
-                          <long *>rankmin.data,
-                          <long *>rankmax.data,
+                          <size_t *>censoring.data,
+                          <size_t *>ordering.data,
+                          <size_t *>rankmin.data,
+                          <size_t *>rankmax.data,
                           ncase)
 
 def cox_gradient(cnp.ndarray[DTYPE_float_t, ndim=1] gradient,
@@ -153,7 +153,7 @@ def cox_gradient(cnp.ndarray[DTYPE_float_t, ndim=1] gradient,
                  cnp.ndarray[DTYPE_intp_t, ndim=1] ordering,
                  cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
                  cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
-                 long ncase):
+                 size_t ncase):
     """
     Compute Cox partial likelihood gradient in place.
     """
@@ -191,28 +191,28 @@ def cox_gradient(cnp.ndarray[DTYPE_float_t, ndim=1] gradient,
                     <double *>exp_buffer.data,
                     <double *>exp_accum.data,
                     <double *>case_weight.data,
-                    <long *>censoring.data,
-                    <long *>ordering.data,
-                    <long *>rankmin.data,
+                    <size_t *>censoring.data,
+                    <size_t *>ordering.data,
+                    <size_t *>rankmin.data,
                     ncase)
 
     _update_outer_1st(<double *>linear_pred.data,
                       <double *>exp_accum.data,
                       <double *>outer_1st_accum.data,
                       <double *>case_weight.data,
-                      <long *>censoring.data,
-                      <long *>ordering.data,
-                      <long *>rankmin.data,
+                      <size_t *>censoring.data,
+                      <size_t *>ordering.data,
+                      <size_t *>rankmin.data,
                       ncase)
 
     _cox_gradient(<double *>gradient.data,
                   <double *>exp_buffer.data,
                   <double *>outer_1st_accum.data,
                   <double *>case_weight.data,
-                  <long *>censoring.data,
-                  <long *>ordering.data,
-                  <long *>rankmin.data,
-                  <long *>rankmax.data,
+                  <size_t *>censoring.data,
+                  <size_t *>ordering.data,
+                  <size_t *>rankmin.data,
+                  <size_t *>rankmax.data,
                   ncase)
     
     return gradient
@@ -230,7 +230,7 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                 cnp.ndarray[DTYPE_intp_t, ndim=1] ordering,
                 cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
                 cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
-                long ncase):
+                size_t ncase):
     """
     Compute Cox partial likelihood gradient in place.
     """
@@ -274,18 +274,18 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                     <double *>exp_buffer.data,
                     <double *>exp_accum.data,
                     <double *>case_weight.data,
-                    <long *>censoring.data,
-                    <long *>ordering.data,
-                    <long *>rankmin.data,
+                    <size_t *>censoring.data,
+                    <size_t *>ordering.data,
+                    <size_t *>rankmin.data,
                     ncase)
 
     _update_outer_1st(<double *>linear_pred.data,
                       <double *>exp_accum.data,
                       <double *>outer_1st_accum.data,
                       <double *>case_weight.data,
-                      <long *>censoring.data,
-                      <long *>ordering.data,
-                      <long *>rankmin.data,
+                      <size_t *>censoring.data,
+                      <size_t *>ordering.data,
+                      <size_t *>rankmin.data,
                       ncase)
 
     _update_cox_expZ(<double *>linear_pred.data,
@@ -293,9 +293,9 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                      <double *>exp_buffer.data,
                      <double *>expZ_accum.data,
                      <double *>case_weight.data,
-                     <long *>censoring.data,
-                     <long *>ordering.data,
-                     <long *>rankmin.data,
+                     <size_t *>censoring.data,
+                     <size_t *>ordering.data,
+                     <size_t *>rankmin.data,
                      ncase)
 
     _update_outer_2nd(<double *>linear_pred.data,
@@ -303,9 +303,9 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                       <double *>expZ_accum.data,
                       <double *>outer_2nd_accum.data,
                       <double *>case_weight.data,
-                      <long *>censoring.data,
-                      <long *>ordering.data,
-                      <long *>rankmin.data,
+                      <size_t *>censoring.data,
+                      <size_t *>ordering.data,
+                      <size_t *>rankmin.data,
                       ncase)
 
     _cox_hessian(<double *>hessian.data,
@@ -314,9 +314,9 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                  <double *>outer_1st_accum.data,
                  <double *>outer_2nd_accum.data,
                  <double *>case_weight.data,
-                 <long *>censoring.data,
-                 <long *>ordering.data,
-                 <long *>rankmax.data,
+                 <size_t *>censoring.data,
+                 <size_t *>ordering.data,
+                 <size_t *>rankmax.data,
                  ncase)
     
     return hessian
