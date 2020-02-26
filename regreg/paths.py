@@ -27,7 +27,10 @@ NONNEGATIVE = -4
 
 class lasso(object):
 
-    def __init__(self, loss_factory, X, penalty_structure=None, 
+    def __init__(self, 
+                 loss_factory, 
+                 X, 
+                 penalty_structure=None, 
                  group_weights={},
                  elastic_net=iq(0,0,0,0),
                  alpha=0., intercept=True,

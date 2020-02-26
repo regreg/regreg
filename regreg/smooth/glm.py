@@ -252,7 +252,8 @@ class glm(smooth_atom):
         idx_bool = np.zeros(n, np.bool)
         idx_bool[idx] = 1
 
-        if not hasattr(subsample_loss.saturated_loss, 'case_weights') or subsample_loss.saturated_loss.case_weights is None:
+        if (not hasattr(subsample_loss.saturated_loss, 'case_weights') or 
+            subsample_loss.saturated_loss.case_weights is None):
             subsample_loss.saturated_loss.case_weights = np.ones(n)
         subsample_loss.saturated_loss.case_weights *= idx_bool
 
@@ -261,7 +262,9 @@ class glm(smooth_atom):
         
     @classmethod
     def gaussian(klass,
-                 X, response,
+                 X, 
+                 response,
+                 case_weights=None,
                  coef=1., 
                  offset=None,
                  quadratic=None, 
@@ -275,8 +278,11 @@ class glm(smooth_atom):
         X : [ndarray, `regreg.affine.affine_transform`]
             Design matrix
 
-        Y : ndarray
+        response : ndarray
             Response vector.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -295,9 +301,12 @@ class glm(smooth_atom):
             General linear model loss.
 
         """
+
         loss = gaussian_loglike(response.shape,
                                 response,
-                                coef=coef)
+                                coef=coef,
+                                case_weights=case_weights)
+
         return klass(X, 
                      response, 
                      loss,
@@ -306,8 +315,11 @@ class glm(smooth_atom):
                      initial=initial)
 
     @classmethod
-    def logistic(klass, X, successes, 
+    def logistic(klass, 
+                 X, 
+                 successes, 
                  trials=None,
+                 case_weights=None,
                  coef=1., 
                  offset=None,
                  quadratic=None, 
@@ -327,6 +339,9 @@ class glm(smooth_atom):
         trials : ndarray (optional)
             Number of trials for each success. If `None`,
             defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -349,7 +364,9 @@ class glm(smooth_atom):
         loss = logistic_loglike(successes.shape,
                                 successes,
                                 coef=coef,
-                                trials=trials)
+                                trials=trials,
+                                case_weights=case_weights)
+
         return klass(X, 
                      (successes, loss.trials),
                      loss,
@@ -359,7 +376,9 @@ class glm(smooth_atom):
 
     @classmethod
     def poisson(klass,
-                X, counts,
+                X, 
+                counts,
+                case_weights=None,
                 coef=1., 
                 offset=None,
                 quadratic=None, 
@@ -375,6 +394,9 @@ class glm(smooth_atom):
 
         counts : ndarray
             Response vector. Should be non-negative integers.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -393,9 +415,12 @@ class glm(smooth_atom):
             General linear model loss.
 
         """
+
         loss = poisson_loglike(counts.shape,
-                                    counts,
-                                    coef=coef)
+                               counts,
+                               coef=coef,
+                               case_weights=case_weights)
+
         return klass(X, counts, loss,
                      offset=offset,
                      quadratic=quadratic,
@@ -406,6 +431,7 @@ class glm(smooth_atom):
               X, 
               response,
               smoothing_parameter,
+              case_weights=None,
               coef=1., 
               offset=None,
               quadratic=None, 
@@ -425,6 +451,9 @@ class glm(smooth_atom):
 
         smoothing_parameter : float
             Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -458,6 +487,7 @@ class glm(smooth_atom):
             X, 
             event_times,
             censoring,
+            case_weights=None,
             coef=1., 
             offset=None,
             quadratic=None, 
@@ -471,12 +501,15 @@ class glm(smooth_atom):
         X : [ndarray, `regreg.affine.affine_transform`]
             Design matrix
 
-        successes : ndarray
-            Responses (should be non-negative integers).
+        event_times : ndarray
+            Observed times for Cox proportional hazard model.
 
-        trials : ndarray (optional)
-            Number of trials for each success. If `None`,
-            defaults to `np.ones_like(successes)`.
+        censoring : ndarray 
+            Censoring indicator for Cox proportional hazard model
+            - 1 indicates observation is a failure, 0 a censored observation.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -499,6 +532,7 @@ class glm(smooth_atom):
         loss = cox_loglike(event_times.shape,
                            event_times,
                            censoring,
+                           case_weights=case_weights,
                            coef=coef)
 
         return klass(X, 
@@ -749,8 +783,9 @@ class logistic_loglike(smooth_atom):
                 f, g = -self.scale((np.dot(self.successes, x) - 
                                     np.sum(self.trials * log_exp_x))), - self.scale(self.successes - ratio)
             else:
-                f, g = -self.scale((np.dot(self.case_weights * self.successes, x) - 
-                                    np.sum(self.case_weights * self.trials * log_exp_x))), - self.scale(self.case_weights * (self.successes - ratio))
+                f, g = (-self.scale((np.dot(self.case_weights * self.successes, x) - 
+                                    np.sum(self.case_weights * self.trials * log_exp_x))), 
+                         - self.scale(self.case_weights * (self.successes - ratio)))
                 
             return f, g
         elif mode == 'grad':
@@ -774,7 +809,8 @@ class logistic_loglike(smooth_atom):
             if self.case_weights is None:
                 f, g = - self.scale(np.dot(self.successes, x) - np.sum(self.trials * log_exp_x)), None
             else:
-                f, g = - self.scale(np.dot(self.case_weights * self.successes, x) - np.sum(self.case_weights * self.trials * log_exp_x)), None
+                f, g = (- self.scale(np.dot(self.case_weights * self.successes, x) - 
+                                     np.sum(self.case_weights * self.trials * log_exp_x)), None)
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -913,8 +949,6 @@ class poisson_loglike(smooth_atom):
             if not np.all(case_weights >= 0):
                 raise ValueError('case_weights should be non-negative')
             self.case_weights = np.asarray(case_weights)
-            if self.case_weights.shape != self.successes.shape:
-                raise ValueError('case_weights should have same shape as successes')
         else:
             self.case_weights = None
 
