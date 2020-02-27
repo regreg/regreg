@@ -25,7 +25,7 @@ reserved = [UNPENALIZED, L1_PENALTY, POSITIVE_PART,
 try:
     from .mixed_lasso_cython import (mixed_lasso_lagrange_prox, 
                                      mixed_lasso_dual_bound_prox,
-                                     mixed_lasso_bound_prox, 
+                                     mixed_lasso_bound_prox,
                                      seminorm_mixed_lasso,
                                      seminorm_mixed_lasso_dual,
                                      strong_set_mixed_lasso,
@@ -57,7 +57,7 @@ class mixed_lasso(atom):
 
         self.weights = weights
         self.lagrange = lagrange
-        self.penalty_structure = penalty_structure
+        self.penalty_structure = np.asarray(penalty_structure)
         self._groups = -np.ones(self.shape, np.intp)
         groups = set(np.unique(self.penalty_structure)).difference(
             set(reserved))
@@ -72,6 +72,12 @@ class mixed_lasso(atom):
             g = self.penalty_structure == label
             self._groups[g] = idx
             self._weight_array[idx] = self.weights.get(label, np.sqrt(g.sum()))
+
+        # buffers for cython computations
+
+        self._norms_cython = np.zeros_like(self._weight_array)
+        self._factors_cython = np.zeros_like(self._weight_array)
+        self._projection_cython = np.zeros(self.shape)
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
@@ -91,18 +97,19 @@ class mixed_lasso(atom):
     
     def __repr__(self):
         if self.quadratic.iszero:
-            return "%s(%s, %r, weights=%r, offset=%s)" % \
+            return "%s(%r, %s, weights=%r, offset=%s)" % \
                 (self.__class__.__name__,
-                 self.lagrange,
                  self.penalty_structure,
+                 self.lagrange,
                  self.weights,
                  str(self.offset))
         else:
             return "%s(%s, %r, weights=%r, offset=%s, quadratic=%s)" % \
                 (self.__class__.__name__,
-                 self.lagrange,
                  self.penalty_structure,
+                 self.lagrange,
                  self.weights,
+                 str(self.offset),
                  str(self.quadratic))
 
     @property
@@ -156,6 +163,10 @@ class mixed_lasso(atom):
 
     def seminorm(self, x, check_feasibility=False):
         x_offset = self.apply_offset(x)
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+
         v = seminorm_mixed_lasso(x_offset,
                                  self._l1_penalty,
                                  self._unpenalized,
@@ -163,7 +174,9 @@ class mixed_lasso(atom):
                                  self._nonnegative,
                                  self._groups,
                                  self._weight_array,
+                                 self._norms_cython,
                                  np.int(check_feasibility))
+
         return v * self.lagrange
 
     def proximal(self, proxq, prox_control=None):
@@ -192,6 +205,12 @@ class mixed_lasso(atom):
 
         prox_arg = -totalq.linear_term / totalq.coef
 
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+        self._factors_cython[:] = 0
+        self._projection_cython[:] = 0
+
         eta = mixed_lasso_lagrange_prox(prox_arg, 
                                         self.lagrange, 
                                         totalq.coef, 
@@ -200,12 +219,15 @@ class mixed_lasso(atom):
                                         self._positive_part,
                                         self._nonnegative,
                                         self._groups,
-                                        self._weight_array)
+                                        self._weight_array,
+                                        self._norms_cython,
+                                        self._factors_cython,
+                                        self._projection_cython)
 
         if offset is None:
             return eta
         else:
-            return eta - offset
+            return eta + offset
 
 
 @objective_doc_templater()
@@ -222,7 +244,9 @@ class mixed_lasso_dual(mixed_lasso):
     """
     tol = 1.0e-05
 
-    def __init__(self, penalty_structure, bound, 
+    def __init__(self, 
+                 penalty_structure, 
+                 bound, 
                  weights={},
                  offset=None,
                  quadratic=None,
@@ -268,6 +292,7 @@ class mixed_lasso_dual(mixed_lasso):
                  self.bound, 
                  self.penalty_structure,
                  self.weights,
+                 str(self.offset),
                  str(self.quadratic))
 
     @property
@@ -308,18 +333,26 @@ class mixed_lasso_dual(mixed_lasso):
         x_offset = self.apply_offset(x)
         if check_feasibility:
             v = self.constraint(x_offset, self.bound)
+        else:
+            v = 0
         v += self.quadratic.objective(x, 'func')
         return v
 
     def seminorm(self, x, lagrange=1, check_feasibility=False):
         x_offset = self.apply_offset(x)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+
         v = seminorm_mixed_lasso_dual(x_offset, 
                                       self._l1_penalty,
                                       self._unpenalized,
                                       self._positive_part,
                                       self._nonnegative,
                                       self._groups,
-                                      self._weight_array)
+                                      self._weight_array,
+                                      self._norms_cython)
         return v 
 
     def proximal(self, proxq, prox_control=None):
@@ -347,18 +380,28 @@ class mixed_lasso_dual(mixed_lasso):
 
         prox_arg = -totalq.linear_term / totalq.coef
 
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+        self._factors_cython[:] = 0
+        self._projection_cython[:] = 0
+
         eta = mixed_lasso_dual_bound_prox(prox_arg, 
                                           self.bound, 
                                           self._l1_penalty,
                                           self._unpenalized,
                                           self._positive_part,
+                                          self._nonnegative,
                                           self._groups,
-                                          self._weight_array)
+                                          self._weight_array,
+                                          self._norms_cython,
+                                          self._factors_cython,
+                                          self._projection_cython)
 
         if offset is None:
             return eta
         else:
-            return eta - offset
+            return eta + offset
 
 def strong_set(glasso, 
                lagrange_cur, 
@@ -408,3 +451,10 @@ def check_KKT(glasso,
                                     glasso._weight_array,
                                     tol=tol)
     return failing > 0
+
+conjugate_mixed_lasso_pairs = {}
+for n1, n2 in [(mixed_lasso, mixed_lasso_dual)]:
+    conjugate_mixed_lasso_pairs[n1] = n2
+    conjugate_mixed_lasso_pairs[n2] = n1
+
+

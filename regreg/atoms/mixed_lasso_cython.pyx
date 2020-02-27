@@ -21,11 +21,12 @@ def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                               cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
                               cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
                               cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
-                              cnp.ndarray[DTYPE_float_t, ndim=1] weights):
+                              cnp.ndarray[DTYPE_float_t, ndim=1] weights,
+                              cnp.ndarray[DTYPE_float_t, ndim=1] norms,
+                              cnp.ndarray[DTYPE_float_t, ndim=1] factors,
+                              cnp.ndarray[DTYPE_float_t, ndim=1] projection
+                              ):
     
-    cdef cnp.ndarray norms = np.zeros_like(weights)
-    cdef cnp.ndarray factors = np.zeros_like(weights)
-    cdef cnp.ndarray projection = np.zeros_like(prox_center)
     cdef int i, j
     cdef int p = groups.shape[0]
     
@@ -60,11 +61,11 @@ def mixed_lasso_dual_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                                 cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part, 
                                 cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
                                 cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
-                                cnp.ndarray[DTYPE_float_t, ndim=1] weights):
+                                cnp.ndarray[DTYPE_float_t, ndim=1] weights,
+                                cnp.ndarray[DTYPE_float_t, ndim=1] norms,
+                                cnp.ndarray[DTYPE_float_t, ndim=1] factors,
+                                cnp.ndarray[DTYPE_float_t, ndim=1] projection):
     
-    cdef cnp.ndarray norms = np.zeros_like(weights)
-    cdef cnp.ndarray factors = np.zeros_like(weights)
-    cdef cnp.ndarray projection = np.zeros_like(prox_center)
     cdef int i, j
     cdef int p = groups.shape[0]
     
@@ -94,10 +95,10 @@ def seminorm_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                          cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
                          cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                          cnp.ndarray[DTYPE_float_t, ndim=1] weights,
+                         cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                          DTYPE_int_t check_feasibility,
 			 DTYPE_float_t nntol=1.e-5):
     
-    cdef cnp.ndarray norms = np.zeros_like(weights)
     cdef int i, j
     cdef DTYPE_float_t value
     cdef int p = groups.shape[0]
@@ -272,10 +273,10 @@ def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                               cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
                               cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                               cnp.ndarray[DTYPE_float_t, ndim=1] weights,
+                              cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                               DTYPE_float_t nntol=1.e-5,
                               DTYPE_int_t check_feasibility=0):
     
-    cdef cnp.ndarray norms = np.zeros_like(weights)
     cdef int i
     cdef DTYPE_float_t value
     cdef int p = groups.shape[0]
@@ -313,16 +314,16 @@ def mixed_lasso_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                            cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part,
                            cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative,
                            cnp.ndarray[DTYPE_intp_t, ndim=1] groups, 
-                           cnp.ndarray[DTYPE_float_t, ndim=1] weights):
+                           cnp.ndarray[DTYPE_float_t, ndim=1] weights,
+                           cnp.ndarray[DTYPE_float_t, ndim=1] norms,
+                           cnp.ndarray[DTYPE_float_t, ndim=1] factors,
+                           cnp.ndarray[DTYPE_float_t, ndim=1] projection):
 
     cdef int p = groups.shape[0]
     cdef int stop, i, j
     cdef float curV = 0.
     cdef double nextV, slope, intercept, curX, nextX
     
-    cdef cnp.ndarray norms = np.zeros_like(weights)
-    cdef cnp.ndarray factors = np.zeros_like(weights)
-    cdef cnp.ndarray projection = np.zeros_like(prox_center)
     cdef int q = norms.shape[0]
     
     for i in range(p):
@@ -371,7 +372,10 @@ def mixed_lasso_epigraph(cnp.ndarray[DTYPE_float_t, ndim=1] center,
                          cnp.ndarray[DTYPE_intp_t, ndim=1] positive_part,
                          cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative,
                          cnp.ndarray[DTYPE_intp_t, ndim=1] groups, 
-                         cnp.ndarray[DTYPE_float_t, ndim=1] weights):
+                         cnp.ndarray[DTYPE_float_t, ndim=1] weights,
+                         cnp.ndarray[DTYPE_float_t, ndim=1] norms,
+                         cnp.ndarray[DTYPE_float_t, ndim=1] factors,
+                         cnp.ndarray[DTYPE_float_t, ndim=1] projection):
 
     cdef cnp.ndarray[DTYPE_float_t, ndim=1] x = center[:-1]
     cdef DTYPE_float_t norm = center[-1]
@@ -381,9 +385,6 @@ def mixed_lasso_epigraph(cnp.ndarray[DTYPE_float_t, ndim=1] center,
     cdef float curV = 0.
     cdef double nextV, slope, intercept, curX, nextX
     
-    cdef cnp.ndarray norms = np.zeros_like(weights)
-    cdef cnp.ndarray factors = np.zeros_like(weights)
-    cdef cnp.ndarray projection = np.zeros_like(x)
     cdef int q = norms.shape[0]
     
     for i in range(p):
