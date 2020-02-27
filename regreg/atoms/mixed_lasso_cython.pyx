@@ -38,7 +38,10 @@ def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
     
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        factors[j] = min(1., implied_bound * weights[j] / norms[j])
+        if norms[j] > 0:
+            factors[j] = min(1., implied_bound * weights[j] / norms[j])
+        else:
+            factors[j] = 1.
     
     for i in range(p):
         if groups[i] >= 0:
@@ -75,7 +78,10 @@ def mixed_lasso_dual_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
     
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        factors[j] = min(1., bound * weights[j] / norms[j])
+        if norms[j] > 0:
+            factors[j] = min(1., bound * weights[j] / norms[j])
+        else:
+            factors[j] = 1.
     
     for i in range(p):
         if groups[i] >= 0:
@@ -297,7 +303,10 @@ def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x,
 
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        value = max(value, norms[j] / weights[j])
+        if weights[j] > 0:
+            value = max(value, norms[j] / weights[j])
+        else:
+            value = np.inf
 
     if check_feasibility:
         xnn = x[nonnegative]
@@ -351,7 +360,10 @@ def mixed_lasso_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                                                      fweights)
     if cut < np.inf:
         for j in range(weights.shape[0]):
-            factors[j] = min(1., cut * weights[j] / norms[j])
+            if norms[j] > 0:
+                factors[j] = min(1., cut * weights[j] / norms[j])
+            else:
+                factors[j] = 1.
 
         for i in range(p):
             if groups[i] >= 0:
@@ -415,7 +427,10 @@ def mixed_lasso_epigraph(cnp.ndarray[DTYPE_float_t, ndim=1] center,
     if cut < np.inf:
         if norm + cut >= 0:
             for j in range(weights.shape[0]):
-                factors[j] = min(1., cut * weights[j] / norms[j])
+                if norms[j] > 0:
+                    factors[j] = min(1., cut * weights[j] / norms[j])
+                else:
+                    factors[j] = 1.
 
             for i in range(p):
                 if groups[i] >= 0:

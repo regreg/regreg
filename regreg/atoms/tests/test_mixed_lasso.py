@@ -242,7 +242,7 @@ class MixedSolverFactory(SolverFactory):
                             ml.UNPENALIZED,
                             ml.POSITIVE_PART,
                             ml.POSITIVE_PART] + [0]*5 + [1]*5).astype(np.intp)]
-    weights = [{0:1.,1:1.},{0:1.e-10,1:1.}]
+    weights = [{0:1.,1:1.},{0:0.,1:1.}]
     lagrange = [1.1]
     FISTA_choices = [True]
     L_choices = [0.3]

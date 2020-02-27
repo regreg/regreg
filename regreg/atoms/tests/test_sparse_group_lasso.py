@@ -166,7 +166,7 @@ def test_proximal_maps():
         for solver in factory:
             for t in solver.all_tests():
                 yield t
-        factory = SlopeSolverFactory(klass, mode, use_sklearn=False)
+        factory = SparseGroupSolverFactory(klass, mode, use_sklearn=False)
         for solver in factory:
             for t in solver.all_tests():
                 yield t
