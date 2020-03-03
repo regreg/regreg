@@ -306,7 +306,8 @@ def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x,
         if weights[j] > 0:
             value = max(value, norms[j] / weights[j])
         else:
-            value = np.inf
+            if check_feasibility and norms[j] > nntol:
+                value = np.inf
 
     if check_feasibility:
         xnn = x[nonnegative]
