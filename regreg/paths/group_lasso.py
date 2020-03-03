@@ -16,10 +16,11 @@ from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.group_lasso import group_lasso
+from .lasso import lasso_path
 
-class group_lasso_path(object):
+class group_lasso_path(lasso_path):
 
-    BIG = 1e12
+    BIG = 1e12 # lagrange parameter for finding null solution
 
     def __init__(self, 
                  saturated_loss,
@@ -87,7 +88,7 @@ class group_lasso_path(object):
                                                                         0, 
                                                                         nstep))[::-1]
 
-    def main(self, inner_tol=1.e-5, verbose=False):
+    def main2(self, inner_tol=1.e-5, verbose=False):
 
         _lipschitz = power_L(self.X)
 
@@ -151,9 +152,7 @@ class group_lasso_path(object):
                                                   strong_vars)
                 strong_grad = (X_strong.T.dot(saturated_grad) +
                                strong_enet_grad)
-                strong_penalty = group_lasso(self.penalty.groups[strong_vars],
-                                             weights=self.penalty.weights,
-                                             lagrange=1)
+                strong_penalty = self.restricted_penalty(strong_vars)
                 strong_failing = self.check_KKT(strong_grad, 
                                                 strong_soln, 
                                                 self.alpha * lagrange_new, 
@@ -175,7 +174,7 @@ class group_lasso_path(object):
                                                  self.alpha * lagrange_new)
 
                     if not all_failing.sum():
-                        self.ever_active = self.updated_ever_active(self.penalty.terms(solution) != 0)
+                        self.ever_active = self.updated_ever_active(self.active_set(solution))
                         linear_predictor[:] = subproblem_linpred
                         break
                     else:
@@ -222,27 +221,6 @@ class group_lasso_path(object):
 
         return output
 
-    # methods potentially overwritten in subclasses for I/O considerations
-
-    def subsample_columns(self, 
-                          X, 
-                          columns):
-        """
-        Extract columns of X into ndarray or
-        regreg transform
-        """
-        return subsample_columns(X, 
-                                 columns)
-
-    def full_gradient(self, 
-                      saturated_loss, 
-                      linear_predictor):
-        """
-        Gradient of saturated loss composed with self.X
-        """
-        saturated_grad = saturated_loss.smooth_objective(linear_predictor, 'grad')
-        return self.X.T.dot(saturated_grad)
-
     # method potentially overwritten in subclasses for penalty considerations
 
     def get_lagrange_max(self,
@@ -274,7 +252,10 @@ class group_lasso_path(object):
                                    lagrange_cur,
                                    lagrange_new,
                                    grad_solution)
-        return np.array([self.penalty._sorted_groupids[i] for i in np.nonzero(_strong_bool)[0]]), _strong_bool
+        _strong = np.array([self.penalty._sorted_groupids[i] for i in np.nonzero(_strong_bool)[0]])
+        return (_strong,
+                _strong_bool,
+                np.nonzero(_candidate_bool(self.penalty.groups, _strong))[0])
                                              
     def solve_subproblem(self, candidate_groups, lagrange_new, **solve_args):
     
@@ -329,18 +310,6 @@ class group_lasso_path(object):
         _ever_active[index_obj] = True
         return list(self._sorted_groupids[_ever_active])
 
-    # Some common loss factories
-
-    @classmethod
-    def logistic(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        return cls(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
-
-    @classmethod
-    def gaussian(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        return cls(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
-
     @property
     def unpenalized(self):
         """
@@ -365,6 +334,14 @@ class group_lasso_path(object):
                 if unpen_group:
                     self._unpen_groups.append(g)
         return self._unpen_groups, self._unpen_group_idx
+
+    def active_set(self, solution):
+        return self.penalty.terms(solution) != 0
+
+    def restricted_penalty(self, subset):
+        return group_lasso(self.penalty.groups[subset],
+                           weights=self.penalty.weights,
+                           lagrange=1)
 
 # private functions
 
@@ -430,9 +407,11 @@ def _check_KKT(penalty,
     """
     dual = penalty.conjugate
     terms = dual.terms(solution)
-    INACTIVE = 2
+
     ACTIVE = 1
+    INACTIVE = 2
     UNPENALIZED = 3
+
     results = np.zeros(len(penalty._sorted_groupids), np.int)
     for i, g in enumerate(penalty._sorted_groupids):
         group = penalty.groups == g
