@@ -25,10 +25,8 @@ class lasso_path(object):
                  X, 
                  lasso_weights,
                  elastic_net_param=None,
-                 alpha=1.,  # elastic net mixing -- 1 is LASSO
-                 lagrange_proportion=0.05,
-                 nstep=100,
-                 elastic_net_penalized=None):
+                 alpha=1.  # elastic net mixing -- 1 is LASSO
+                 ):
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
@@ -38,7 +36,6 @@ class lasso_path(object):
         self.penalty = weighted_l1norm(lasso_weights, lagrange=1)
         self.shape = self.penalty.shape
         self.group_shape = self.penalty.shape # each feature is its own group
-        self.nstep = nstep
 
         # elastic net part
         if elastic_net_param is None:
@@ -74,18 +71,13 @@ class lasso_path(object):
                                                  self.linear_predictor) + self.enet_grad(self.solution, 
                                                                                          self._penalized_vars,
                                                                                          1))
-        self.lagrange_max = self.get_lagrange_max(self.grad_solution) # penalty specific
-        self.lagrange_sequence = self.lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
-                                                                        0, 
-                                                                        nstep))[::-1]
 
-    def main(self, inner_tol=1.e-5, verbose=False):
+    def main(self, lagrange_seq, inner_tol=1.e-5, verbose=False):
 
         _lipschitz = power_L(self.X)
 
         # take a guess at the inverse step size
         self.final_step = 1000. / _lipschitz 
-        lseq = self.lagrange_sequence # shorthand
 
         # gradient of restricted elastic net at lambda_max
 
@@ -101,7 +93,8 @@ class lasso_path(object):
         all_failing = np.zeros(self.group_shape, np.bool)
         subproblem_set = self.updated_ever_active([])
 
-        for lagrange_new, lagrange_cur in zip(lseq[1:], lseq[:-1]):
+        for lagrange_new, lagrange_cur in zip(lagrange_seq[1:], 
+                                              lagrange_seq[:-1]):
             tol = inner_tol
             num_tries = 0
             debug = False
@@ -197,8 +190,7 @@ class lasso_path(object):
             gc.collect()
 
             if verbose:
-                print(lagrange_cur / self.lagrange_max,
-                      lagrange_new,
+                print(lagrange_new,
                       (solution != 0).sum(),
                       1. - objective[-1] / objective[0],
                       list(self.lagrange_sequence).index(lagrange_new),
@@ -206,128 +198,7 @@ class lasso_path(object):
 
         objective = np.array(objective)
         output = {'devratio': 1 - objective / objective.max(),
-                  'lagrange': self.lagrange_sequence,
-                  'beta':np.array(solutions)}
-
-        return output
-
-    def main_old(self, inner_tol=1.e-5, verbose=False):
-
-        _lipschitz = power_L(self.X)
-
-        # take a guess at the inverse step size
-        self.final_step = 1000. / _lipschitz 
-        lseq = self.lagrange_sequence # shorthand
-
-        # gradient of restricted elastic net at lambda_max
-
-        solution = self.solution
-        grad_solution = self.grad_solution
-        linear_predictor = self.linear_predictor
-        ever_active = self.ever_active
-
-        obj_solution = self.saturated_loss.smooth_objective(self.linear_predictor, 'func')
-        solutions = []
-        objective = [obj_solution]
-
-        all_failing = np.zeros(grad_solution.shape, np.bool)
-        subproblem_set = self.ever_active
-
-        for lagrange_new, lagrange_cur in zip(lseq[1:], lseq[:-1]):
-            tol = inner_tol
-            num_tries = 0
-            debug = False
-            coef_stop = True
-
-            while True:
-                subproblem_set = subproblem_set + self.updated_ever_active(all_failing)
-
-                (self.final_step, 
-                 subproblem_grad, 
-                 subproblem_soln,
-                 subproblem_linpred,
-                 subproblem_vars) = self.solve_subproblem(np.nonzero(subproblem_set)[0],
-                                                          lagrange_new,
-                                                          tol=tol,
-                                                          start_step=self.final_step,
-                                                          debug=debug and verbose,
-                                                          coef_stop=coef_stop)
-
-                saturated_grad = self.saturated_loss.smooth_objective(subproblem_linpred, 'grad')
-                # as subproblem always contains ever active, 
-                # rest of solution should be 0
-                solution[subproblem_set] = subproblem_soln
-
-                # strong rules step
-
-                strong = self.strong_set(lagrange_cur * self.alpha, 
-                                         lagrange_new * self.alpha, 
-                                         grad_solution)
-                strong_enet_grad = self.enet_grad(solution,
-                                                  lagrange_new,
-                                                  subset=strong)
-                strong_soln = solution[strong]
-                X_strong = self.subsample_columns(self.X, np.nonzero(strong)[0])
-                strong_grad = (X_strong.T.dot(saturated_grad) +
-                               strong_enet_grad)
-                strong_failing = self.check_KKT(strong_grad, strong_soln, self.alpha * lagrange_new, subset=strong) 
-
-                if np.any(strong_failing):
-                    delta = np.zeros(self.shape, np.bool)
-                    delta[strong] = strong_failing
-                    all_failing += delta 
-                else:
-                    enet_grad = self.enet_grad(solution, 
-                                               lagrange_new)
-                    grad_solution[:] = (self.full_gradient(self.saturated_loss, 
-                                                           subproblem_linpred) + 
-                                        enet_grad)
-                    all_failing = self.check_KKT(grad_solution, solution, self.alpha * lagrange_new)
-
-                    if not all_failing.sum():
-                        self.ever_active[:] = self.updated_ever_active(solution != 0)
-                        linear_predictor[:] = subproblem_linpred
-                        break
-                    else:
-                        if verbose:
-                            print('failing:', np.nonzero(all_failing)[0])
-                num_tries += 1
-
-                tol /= 2.
-                if num_tries % 5 == 0:
-
-                    solution[subproblem_set] = subproblem_soln
-                    solution[~subproblem_set] = 0
-
-                    enet_grad = self.enet_grad(solution, 
-                                               lagrange_new)
-                    grad_solution[:] = (self.full_gradient(self.saturated_loss, 
-                                                           subproblem_linpred) + 
-                                        enet_grad)
-                    debug = True
-                    tol = inner_tol
-                    if num_tries >= 20:
-                        warn('convergence not achieved for lagrange=%0.4e' % lagrange_new)
-                        break
-
-                subproblem_set += all_failing
-
-            self.ever_active[:] = ever_active
-            solutions.append(solution.copy())
-            objective.append(self.saturated_loss.smooth_objective(self.linear_predictor, mode='func'))
-            gc.collect()
-
-            if verbose:
-                print(lagrange_cur / self.lagrange_max,
-                      lagrange_new,
-                      (solution != 0).sum(),
-                      1. - objective[-1] / objective[0],
-                      list(self.lagrange_sequence).index(lagrange_new),
-                      np.fabs(rescaled_solution).sum())
-
-        objective = np.array(objective)
-        output = {'devratio': 1 - objective / objective.max(),
-                  'lagrange': self.lagrange_sequence,
+                  'lagrange': lagrange_seq,
                   'beta':np.array(solutions)}
 
         return output
@@ -355,10 +226,16 @@ class lasso_path(object):
 
     # method potentially overwritten in subclasses for penalty considerations
 
-    def get_lagrange_max(self,
-                         grad_solution):
-        penalized = self.penalty.weights > 0
-        return np.fabs(grad_solution[penalized] / self.penalty.weights[penalized]).max()
+    def subsample(self,
+                  case_idx):
+        subsample_loss = self.saturated_loss.subsample(case_idx)
+        klass = self.__class__
+        return klass(subsample_loss,
+                     self.X,
+                     self.penalty.weights,
+                     elastic_net_param=self.elastic_net_param,
+                     alpha=self.alpha,
+                     lagrange_sequence=self.lagrange_sequence)
 
     def check_KKT(self,
                   grad_solution,
@@ -435,22 +312,6 @@ class lasso_path(object):
         G[penalized] *= lagrange_new
         return G
 
-#     def enet_grad(self,
-#                   solution,
-#                   penalized, # boolean
-#                   lagrange_new,
-#                   subset=None):
-
-#         weights = self.penalty.weights
-#         elastic_net_param = self.elastic_net_param
-#         if subset is not None:
-#             solution = solution[subset]
-#             weights = weights[subset]
-#             elastic_net_param = elastic_net_param[subset]
-#         G = (1 - self.alpha) * solution * elastic_net_param
-#         G[weights != 0] *= lagrange_new
-#         return G
-
     def updated_ever_active(self,
                             index_obj):
         if not hasattr(self, '_ever_active'):
@@ -458,11 +319,6 @@ class lasso_path(object):
         _ever_active = self._ever_active.copy()
         _ever_active[index_obj] = True
         return list(np.nonzero(_ever_active)[0])
-
-#     def updated_ever_active(self,
-#                             bool_info):
-#         bool_info.reshape(self.shape)
-#         return self.ever_active + bool_info
 
     # Some common loss factories
 
@@ -476,7 +332,22 @@ class lasso_path(object):
         Y = np.asarray(Y)
         return cls(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
 
+def default_lagrange_sequence(penalty,
+                              null_solution,
+                              lagrange_proportion=0.05,
+                              nstep=100):
+    dual = penalty.conjugate
+    lagrange_max = dual.seminorm(null_solution, lagrange=1)
+    return (lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
+                                              0, 
+                                              nstep)))[::-1]
 # private functions
+
+def _get_lagrange_max(penalty,
+                     grad_solution):
+    penalized = penalty.weights > 0
+    return np.fabs(grad_solution[penalized] / penalty.weights[penalized]).max()
+
 
 def _strong_set(lasso_weights,
                 lagrange_cur,

@@ -17,7 +17,7 @@ from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.sparse_group_lasso import (sparse_group_lasso,
                                         _gauge_function_dual_strong)
-from .group_lasso import group_lasso_path
+from .group_lasso import group_lasso_path, default_lagrange_sequence
 
 class sparse_group_lasso_path(group_lasso_path):
 
@@ -32,9 +32,7 @@ class sparse_group_lasso_path(group_lasso_path):
                  elastic_net_param=None,
                  alpha=1.,  # elastic net mixing -- 1 is LASSO
                  l1_weight=0.95, # mix between l1 and l2 penalty
-                 lagrange_proportion=0.05,
-                 nstep=100,
-                 elastic_net_penalized=None):
+                 ):
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
@@ -49,7 +47,6 @@ class sparse_group_lasso_path(group_lasso_path):
         self.penalty.lasso_weights *= l1_weight
         self.group_shape = (len(np.unique(self.penalty.groups)),)
         self.shape = self.penalty.shape
-        self.nstep = nstep
 
         # elastic net part
         if elastic_net_param is None:
@@ -90,11 +87,6 @@ class sparse_group_lasso_path(group_lasso_path):
                                                  self.linear_predictor) + self.enet_grad(self.solution, 
                                                                                          self._penalized_vars,
                                                                                          1))
-        self.lagrange_max = self.get_lagrange_max(self.grad_solution) # penalty specific
-        self.lagrange_sequence = self.lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
-                                                                        0, 
-                                                                        nstep))[::-1]
-
     # methods potentially overwritten in subclasses for I/O considerations
 
     def check_KKT(self,

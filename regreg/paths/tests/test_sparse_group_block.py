@@ -19,9 +19,11 @@ def test_path():
     sparse_group_block1 = sparse_group_block.sparse_group_block_path.gaussian(X, 
                                                                               Y, 
                                                                               1,
-                                                                              np.sqrt(q),
-                                                                              nstep=23)
-    sol1 = sparse_group_block1.main(inner_tol=1.e-5)
+                                                                              np.sqrt(q))
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                                     sparse_group_block1.grad_solution,
+                                                                     nstep=23) # initialized at "null" model
+    sol1 = sparse_group_block1.main(lagrange_sequence, inner_tol=1.e-12)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -45,9 +47,11 @@ def test_elastic_net(n=200, p=50):
                                                                               Y, 
                                                                               1,
                                                                               np.sqrt(2),
-                                                                              nstep=23,
                                                                               alpha=0.5,
                                                                               elastic_net_param=enet)
-    sol1 = sparse_group_block1.main(inner_tol=1.e-5)
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                                     sparse_group_block1.grad_solution,
+                                                                     nstep=23) # initialized at "null" model
+    sol1 = sparse_group_block1.main(lagrange_sequence, inner_tol=1.e-12)
     beta1 = sol1['beta']
 

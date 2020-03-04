@@ -16,7 +16,7 @@ from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.group_lasso import group_lasso
-from .lasso import lasso_path
+from .lasso import lasso_path, default_lagrange_sequence
 
 class group_lasso_path(lasso_path):
 
@@ -28,10 +28,8 @@ class group_lasso_path(lasso_path):
                  groups,
                  weights={},
                  elastic_net_param=None,
-                 alpha=1.,  # elastic net mixing -- 1 is LASSO
-                 lagrange_proportion=0.05,
-                 nstep=100,
-                 elastic_net_penalized=None):
+                 alpha=1.  # elastic net mixing -- 1 is LASSO
+                 ):
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
@@ -42,14 +40,11 @@ class group_lasso_path(lasso_path):
         self.penalty = group_lasso(groups, weights=weights, lagrange=1)
         self.group_shape = (len(np.unique(self.penalty.groups)),)
         self.shape = self.penalty.shape
-        self.nstep = nstep
 
         # elastic net part
         if elastic_net_param is None:
             elastic_net_param = np.ones(self.shape)
         self.elastic_net_param = elastic_net_param
-
-        # find lagrange_max
 
         unpenalized_groups, unpenalized_idx = self.unpenalized
         self.solution = np.zeros(self.penalty.shape)
@@ -80,17 +75,8 @@ class group_lasso_path(lasso_path):
                                                  self.linear_predictor) + self.enet_grad(self.solution, 
                                                                                          self._penalized_vars,
                                                                                          1))
-        self.lagrange_max = self.get_lagrange_max(self.grad_solution) # penalty specific
-        self.lagrange_sequence = self.lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
-                                                                        0, 
-                                                                        nstep))[::-1]
 
     # method potentially overwritten in subclasses for penalty considerations
-
-    def get_lagrange_max(self,
-                         grad_solution):
-        dual = self.penalty.conjugate
-        return dual.seminorm(grad_solution, lagrange=1)
 
     def check_KKT(self,
                   grad_solution,

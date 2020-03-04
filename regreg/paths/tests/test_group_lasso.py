@@ -20,16 +20,17 @@ def test_lasso_agreement(n=200,p=50):
     groups = np.arange(p)
     group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
                                                          Y, 
-                                                         groups,
-                                                         nstep=23)
-    sol1 = group_lasso1.main(inner_tol=1.e-12)
+                                                         groups)
+    lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
+                                                              group_lasso1.grad_solution,
+                                                              nstep=23) # initialized at "null" model
+    sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-12)
 
     weights = np.ones(p)
     lasso2 = lasso.lasso_path.gaussian(X, 
                                        Y, 
-                                       weights,
-                                       nstep=23)
-    sol2 = lasso2.main(inner_tol=1.e-12)
+                                       weights)
+    sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-12)
     beta1 = sol1['beta']
     beta2 = sol2['beta']
 
@@ -56,9 +57,11 @@ def test_path():
     np.random.shuffle(groups)
     group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
                                                          Y, 
-                                                         groups,
-                                                         nstep=23)
-    sol1 = group_lasso1.main(inner_tol=1.e-5)
+                                                         groups)
+    lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
+                                                              group_lasso1.grad_solution,
+                                                              nstep=23) # initialized at "null" model
+    sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-5)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -84,9 +87,11 @@ def test_unpenalized(n=200, p=50):
     group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
                                                          Y, 
                                                          groups,
-                                                         weights=weights,
-                                                         nstep=23)
-    sol1 = group_lasso1.main(inner_tol=1.e-5)
+                                                         weights=weights)
+    lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
+                                                              group_lasso1.grad_solution,
+                                                              nstep=23) # initialized at "null" model
+    sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-5)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -112,10 +117,12 @@ def test_elastic_net(n=200, p=50):
     group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
                                                          Y, 
                                                          groups,
-                                                         nstep=23,
                                                          alpha=0.5,
                                                          elastic_net_param=enet)
-    sol1 = group_lasso1.main(inner_tol=1.e-9)
+    lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
+                                                              group_lasso1.grad_solution,
+                                                              nstep=23) # initialized at "null" model
+    sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-5)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -145,9 +152,11 @@ def test_elastic_net_unpenalized(n=200, p=50):
                                                          Y, 
                                                          groups,
                                                          weights=weights,
-                                                         nstep=23,
                                                          alpha=0.5,
                                                          elastic_net_param=enet)
-    sol1 = group_lasso1.main(inner_tol=1.e-9)
+    lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
+                                                              group_lasso1.grad_solution,
+                                                              nstep=23) # initialized at "null" model
+    sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-5)
     beta1 = sol1['beta']
 
