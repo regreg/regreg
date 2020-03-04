@@ -89,9 +89,6 @@ from .problems.dual_problem import dual_problem
 
 from .identity_quadratic import identity_quadratic
 
-#from .paths import (lasso, nesta as nesta_path, UNPENALIZED, L1_PENALTY,
-#                    POSITIVE_PART, NONNEGATIVE)
-
 # sklearn mixin
 
 have_sklearn = True
