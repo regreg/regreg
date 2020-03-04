@@ -69,7 +69,6 @@ def test_gaussian():
         np.testing.assert_allclose(L_sub.gradient(beta),
                                    Lsub2.gradient(beta))
 
-
 @set_seed_for_test()
 def test_multinomial():
 
@@ -131,5 +130,68 @@ def test_multinomial():
 
         np.testing.assert_allclose(L_sub.gradient(beta),
                                    Lsub2.gradient(beta))
+
+@set_seed_for_test()
+def test_multinomial_baseline():
+
+    """
+    Test that multinomial regression with two categories is the same as logistic regression
+    """
+
+    n = 500
+    p = 10
+    J = 4
+
+
+    X = np.random.standard_normal(n*p).reshape((n,p))
+    counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
+    for case_weights in [np.ones(n), None]:
+
+        sat = mglm.multinomial_baseline_loglike((n, J-1), counts)
+        L = mglm.mglm(X, 
+                      sat,
+                      case_weights=case_weights)
+        L.smooth_objective(np.zeros(L.shape), 'both')
+        L_sub = L.subsample(np.arange(100))
+
+        np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
+                                   -X.T.dot(counts - counts.mean(1)[:,None])[:,:(J-1)])
+
+        Lcp = copy(L)
+
+        L.objective(np.zeros(L.shape))
+        L.latexify()
+
+        L.saturated_loss.data
+
+        L.data
+
+        # check that subsample is getting correct answer
+
+        Xsub = X[np.arange(100)]
+        counts_sub = counts[np.arange(100)]
+        loss_sub = mglm.multinomial_baseline_loglike((counts_sub.shape[0], J-1), counts_sub)
+
+        beta = np.ones(L.shape)
+        if case_weights is not None:
+            Lsub2 = mglm.mglm(Xsub, loss_sub, case_weights=case_weights[np.arange(100)])
+            Lsub3 = mglm.mglm(Xsub, loss_sub, case_weights=case_weights[np.arange(100)])
+        else:
+            Lsub2 = mglm.mglm(Xsub, loss_sub)
+            Lsub3 = mglm.mglm(Xsub, loss_sub)
+
+        Lsub3.coef *= 2.
+
+        f2, g2 = Lsub2.smooth_objective(beta, 'both')
+        f3, g3 = Lsub3.smooth_objective(beta, 'both')
+
+        np.testing.assert_allclose(f3, 2*f2)
+        np.testing.assert_allclose(g3, 2*g2)
+
+        beta = np.ones(L.shape)
+
+        np.testing.assert_allclose(L_sub.gradient(beta),
+                                   Lsub2.gradient(beta))
+
 
 
