@@ -7,12 +7,11 @@ from scipy import sparse
 from . import smooth_atom, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
-                      affine_transform)
+                      affine_transform,
+                      scaler)
 from ..identity_quadratic import identity_quadratic
 from ..atoms.seminorms import l1norm
 from .cox import cox_loglike
-
-
 
 class glm(smooth_atom):
 
@@ -34,7 +33,8 @@ class glm(smooth_atom):
                  loss, 
                  quadratic=None, 
                  initial=None,
-                 offset=None):
+                 offset=None,
+                 case_weights=None):
 
         """
 
@@ -58,11 +58,21 @@ class glm(smooth_atom):
         initial : ndarray
             An initial guess at the minimizer.
 
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
         """
 
         self.saturated_loss = loss
         self.data = X, Y
         self.affine_atom = affine_smooth(loss, X)
+        if case_weights is None:
+            case_weights = np.ones(X.shape[0])
+        self.case_weights = case_weights
         smooth_atom.__init__(self,
                              X.shape[1],
                              coef=1.,
@@ -70,7 +80,10 @@ class glm(smooth_atom):
                              quadratic=quadratic,
                              initial=initial)
 
-    def smooth_objective(self, beta, mode='func', check_feasibility=False):
+    def smooth_objective(self, 
+                         beta, 
+                         mode='func', 
+                         check_feasibility=False):
         """
 
         Parameters
@@ -95,12 +108,18 @@ class glm(smooth_atom):
         else returns both.
         """
         beta = self.apply_offset(beta)
-        value = self.affine_atom.smooth_objective(beta, mode=mode, check_feasibility=check_feasibility)
+        linear_pred = self.affine_atom.affine_transform.dot(beta)
+        value = self.saturated_loss.smooth_objective(linear_pred, 
+                                                     mode=mode, 
+                                                     check_feasibility=check_feasibility,
+                                                     case_weights=self.case_weights)
 
-        if mode in ['func', 'grad']:
+        if mode == 'func':
             return self.scale(value)
+        elif mode == 'grad':
+            return self.scale(self.affine_atom.affine_transform.adjoint_map(value))
         else:
-            return self.scale(value[0]), self.scale(value[1])
+            return self.scale(value[0]), self.scale(self.affine_atom.affine_transform.adjoint_map(value[1]))
 
     def get_data(self):
         return self._X, self.saturated_loss.data
@@ -203,9 +222,12 @@ class glm(smooth_atom):
                 raise ValueError('loss has no hessian or hessian_mult method')
             right_mult = np.zeros(X.shape)
             for j in range(X.shape[1]):
-                right_mult[:,j] = self.saturated_loss.hessian_mult(linpred, X[:,j])
+                right_mult[:,j] = self.saturated_loss.hessian_mult(linpred, 
+                                                                   X[:,j], 
+                                                                   case_weights=self.case_weights)
         else:
-            W = self.saturated_loss.hessian(linpred)
+            W = self.saturated_loss.hessian(linpred, 
+                                            case_weights=self.case_weights)
             right_mult = W[:,None] * X
         if not sparse.issparse(X): # assuming it is an ndarray
             return X.T.dot(right_mult)
@@ -223,7 +245,8 @@ class glm(smooth_atom):
                      copy(self.saturated_loss), 
                      quadratic=copy(self.quadratic),
                      initial=copy(self.coefs),
-                     offset=copy(self.offset))
+                     offset=copy(self.offset),
+                     case_weights=self.case_weights.copy())
 
     def subsample(self, idx):
         """
@@ -244,6 +267,7 @@ class glm(smooth_atom):
         subsample_loss : `glm`
             Loss after discarding all
             cases not in `idx.
+
         """
 
         subsample_loss = copy(self)
@@ -252,10 +276,7 @@ class glm(smooth_atom):
         idx_bool = np.zeros(n, np.bool)
         idx_bool[idx] = 1
 
-        if (not hasattr(subsample_loss.saturated_loss, 'case_weights') or 
-            subsample_loss.saturated_loss.case_weights is None):
-            subsample_loss.saturated_loss.case_weights = np.ones(n)
-        subsample_loss.saturated_loss.case_weights *= idx_bool
+        subsample_loss.case_weights *= idx_bool
 
         return subsample_loss
         
@@ -304,15 +325,15 @@ class glm(smooth_atom):
 
         loss = gaussian_loglike(response.shape,
                                 response,
-                                coef=coef,
-                                case_weights=case_weights)
+                                coef=coef)
 
         return klass(X, 
                      response, 
                      loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def logistic(klass, 
@@ -364,15 +385,15 @@ class glm(smooth_atom):
         loss = logistic_loglike(successes.shape,
                                 successes,
                                 coef=coef,
-                                trials=trials,
-                                case_weights=case_weights)
+                                trials=trials)
 
         return klass(X, 
                      (successes, loss.trials),
                      loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def poisson(klass,
@@ -418,13 +439,13 @@ class glm(smooth_atom):
 
         loss = poisson_loglike(counts.shape,
                                counts,
-                               coef=coef,
-                               case_weights=case_weights)
+                               coef=coef)
 
         return klass(X, counts, loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def huber(klass,
@@ -477,10 +498,14 @@ class glm(smooth_atom):
                           response,
                           smoothing_parameter,
                           coef=coef)
-        return klass(X, response, loss,
+
+        return klass(X, 
+                     response, 
+                     loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def cox(klass, 
@@ -532,7 +557,6 @@ class glm(smooth_atom):
         loss = cox_loglike(event_times.shape,
                            event_times,
                            censoring,
-                           case_weights=case_weights,
                            coef=coef)
 
         return klass(X, 
@@ -540,7 +564,8 @@ class glm(smooth_atom):
                      loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
 
 class gaussian_loglike(smooth_atom):
@@ -586,7 +611,11 @@ class gaussian_loglike(smooth_atom):
         else:
             self.case_weights = None
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -605,6 +634,9 @@ class gaussian_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -613,32 +645,30 @@ class gaussian_loglike(smooth_atom):
         else returns both.
         """
         
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         natural_param = self.apply_offset(natural_param)
         resid = natural_param - self.response 
-        if self.case_weights is None:
-            if mode == 'both':
-                f, g = self.scale(np.sum(resid**2)) / 2., self.scale(resid)
-                return f, g
-            elif mode == 'grad':
-                return self.scale(resid) 
-            elif mode == 'func':
-                return self.scale(np.sum(resid**2)) / 2.
-            else:
-                raise ValueError("mode incorrectly specified")
+
+        if mode == 'both':
+            f, g = self.scale(np.sum(cw*resid**2)) / 2., self.scale(cw*resid)
+            return f, g
+        elif mode == 'grad':
+            return self.scale(cw*resid) 
+        elif mode == 'func':
+            return self.scale(np.sum(cw*resid**2)) / 2.
         else:
-            if mode == 'both':
-                f, g = self.scale(np.sum(self.case_weights*resid**2)) / 2., self.scale(self.case_weights*resid)
-                return f, g
-            elif mode == 'grad':
-                return self.scale(self.case_weights*resid) 
-            elif mode == 'func':
-                return self.scale(np.sum(self.case_weights*resid**2)) / 2.
-            else:
-                raise ValueError("mode incorrectly specified")
+            raise ValueError("mode incorrectly specified")
             
     # Begin loss API
 
-    def hessian(self, natural_param):
+    def hessian(self, 
+                natural_param, 
+                case_weights=None):
         """
         Hessian of the loss.
 
@@ -654,11 +684,17 @@ class gaussian_loglike(smooth_atom):
         hess : ndarray
             A 1D-array representing the diagonal of the Hessian
             evaluated at `natural_param`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
         """
-        if self.case_weights is None:
-            return self.scale(np.ones_like(natural_param))
-        else:
-            return self.scale(self.case_weights)
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+        return self.scale(np.ones_like(natural_param) * cw)
 
     def get_data(self):
         return self.response
@@ -730,7 +766,11 @@ class logistic_loglike(smooth_atom):
         else:
             self.case_weights = None
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -749,6 +789,9 @@ class logistic_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -757,6 +800,12 @@ class logistic_loglike(smooth_atom):
         else returns both.
         """
         
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         x = natural_param # shorthand
 
         #Check for overflow in np.exp (can occur during initial backtracking steps)
@@ -779,14 +828,8 @@ class logistic_loglike(smooth_atom):
                 log_exp_x = np.log(1.+exp_x)
                 ratio *= exp_x/(1.+exp_x)
                 
-            if self.case_weights is None:
-                f, g = -self.scale((np.dot(self.successes, x) - 
-                                    np.sum(self.trials * log_exp_x))), - self.scale(self.successes - ratio)
-            else:
-                f, g = (-self.scale((np.dot(self.case_weights * self.successes, x) - 
-                                    np.sum(self.case_weights * self.trials * log_exp_x))), 
-                         - self.scale(self.case_weights * (self.successes - ratio)))
-                
+            f, g = -self.scale((np.dot(cw * self.successes, x) - 
+                                np.sum(cw * self.trials * log_exp_x))), - self.scale(cw * (self.successes - ratio))
             return f, g
         elif mode == 'grad':
             ratio = self.trials * 1.
@@ -794,10 +837,7 @@ class logistic_loglike(smooth_atom):
                 ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
             else:
                 ratio *= exp_x/(1.+exp_x)
-            if self.case_weights is None:
-                f, g = None, - self.scale(self.successes - ratio)
-            else:
-                f, g = None, - self.scale(self.case_weights * (self.successes - ratio))
+            f, g = None, - self.scale(cw * (self.successes - ratio))
             return g
 
         elif mode == 'func':
@@ -806,18 +846,15 @@ class logistic_loglike(smooth_atom):
                 log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
             else:
                 log_exp_x = np.log(1.+exp_x)
-            if self.case_weights is None:
-                f, g = - self.scale(np.dot(self.successes, x) - np.sum(self.trials * log_exp_x)), None
-            else:
-                f, g = (- self.scale(np.dot(self.case_weights * self.successes, x) - 
-                                     np.sum(self.case_weights * self.trials * log_exp_x)), None)
+            f, g = (- self.scale(np.dot(cw * self.successes, x) - 
+                                 np.sum(cw * self.trials * log_exp_x)), None)
             return f
         else:
             raise ValueError("mode incorrectly specified")
 
     # Begin loss API
 
-    def hessian(self, natural_param):
+    def hessian(self, natural_param, case_weights=None):
         """
         Hessian of the loss.
 
@@ -826,6 +863,9 @@ class logistic_loglike(smooth_atom):
 
         natural_param : ndarray
             Parameters where Hessian will be evaluated.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         Returns
         -------
@@ -837,6 +877,12 @@ class logistic_loglike(smooth_atom):
 
         x = natural_param # shorthand
 
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         if np.max(x) > 1e2:
             overflow = True
             not_overflow_ind = np.where(x <= 1e2)[0]
@@ -847,10 +893,7 @@ class logistic_loglike(smooth_atom):
             overflow = False
             exp_x = np.exp(x)
 
-        if self.case_weights is None:
-            return self.scale(exp_x / (1 + exp_x)**2 * self.trials)
-        else:
-            return self.scale(exp_x / (1 + exp_x)**2 * self.trials * self.case_weights)
+        return self.scale(exp_x / (1 + exp_x)**2 * self.trials * cw)
 
     def get_data(self):
         return self.successes
@@ -952,7 +995,11 @@ class poisson_loglike(smooth_atom):
         else:
             self.case_weights = None
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -971,6 +1018,9 @@ class poisson_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -979,35 +1029,32 @@ class poisson_loglike(smooth_atom):
         else returns both.
         """
 
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         x = natural_param # shorthand
 
         x = self.apply_offset(x)
         exp_x = np.exp(x)
         
         if mode == 'both':
-            if self.case_weights is None:
-                f, g = - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), - self.scale(self.counts - exp_x)
-            else:
-                f, g = - self.scale(-np.sum(self.case_weights * exp_x) + np.dot(self.case_weights * self.counts,x)), - self.scale(self.case_weights * (self.counts - exp_x))
+            f, g = - self.scale(-np.sum(cw * exp_x) + np.dot(cw * self.counts,x)), - self.scale(cw * (self.counts - exp_x))
             return f, g
         elif mode == 'grad':
-            if self.case_weights is None:
-                f, g = None, - self.scale(self.counts - exp_x)
-            else:
-                f, g = None, - self.scale(self.case_weights * (self.counts - exp_x))
+            f, g = None, - self.scale(cw * (self.counts - exp_x))
             return g
         elif mode == 'func':
-            if self.case_weights is None:
-                f, g =  - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), None
-            else:
-                f, g =  - self.scale(-np.sum(self.case_weights * exp_x) + np.dot(self.case_weights * self.counts,x)), None
+            f, g =  - self.scale(-np.sum(cw * exp_x) + np.dot(cw * self.counts,x)), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
 
     # Begin loss API
 
-    def hessian(self, natural_param):
+    def hessian(self, natural_param, case_weights=None):
         """
         Hessian of the loss.
 
@@ -1017,6 +1064,9 @@ class poisson_loglike(smooth_atom):
         natural_param : ndarray
             Parameters where Hessian will be evaluated.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -1025,10 +1075,14 @@ class poisson_loglike(smooth_atom):
             evaluated at `natural_param`.
         """
         x = natural_param # shorthand
-        if self.case_weights is None:
-            return self.scale(np.exp(x))
-        else:
-            return self.scale(self.case_weights * np.exp(x))
+
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
+        return self.scale(cw * np.exp(x))
             
     def get_data(self):
         return self.counts
@@ -1088,7 +1142,11 @@ class huber_loss(smooth_atom):
         if case_weights is not None:
             raise ValueError('case_weights not implemented for Huber')
 
-    def smooth_objective(self, param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -1107,6 +1165,9 @@ class huber_loss(smooth_atom):
             point is not feasible, i.e. when `param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -1119,12 +1180,25 @@ class huber_loss(smooth_atom):
 
         x = self.apply_offset(x)
         resid = x - self.response 
-        return self.smoothed_atom.smooth_objective(resid,
-                                                   mode=mode,
-                                                   check_feasibility=check_feasibility)
+
+        if case_weights is None:
+            return self.smoothed_atom.smooth_objective(resid,
+                                                       mode=mode,
+                                                       check_feasibility=check_feasibility)
+        else:
+            value = np.array([self.smoothed_atom.smooth_objective(r,
+                                                                  mode=mode,
+                                                                  check_feasibility=check_feasibility) for r in resid]).T
+            if mode == 'func':
+                return (value * case_weights).sum()
+            elif mode == 'grad':
+                return value * case_weights
+            else:
+                return (value[0] * case_weights).sum(), value[1] * case_weights
+
     # Begin loss API
 
-    def hessian(self, param):
+    def hessian(self, param, case_weights=None):
         """
         Hessian of the loss.
 
@@ -1133,6 +1207,9 @@ class huber_loss(smooth_atom):
 
         param : ndarray
             Parameters where Hessian will be evaluated.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         Returns
         -------
@@ -1164,85 +1241,6 @@ class huber_loss(smooth_atom):
                           initial=copy(self.coefs))
 
     # End loss API
-
-class multinomial_loglike(smooth_atom):
-
-    """
-    A class for baseline-category logistic regression for nominal responses (e.g. Agresti, pg 267)
-    """
-
-    objective_template = r"""\ell^{M}\left(%(var)s\right)"""
-
-    def __init__(self, 
-                 shape, 
-                 counts, 
-                 coef=1., 
-                 offset=None,
-                 initial=None,
-                 quadratic=None):
-
-        smooth_atom.__init__(self,
-                             shape,
-                             offset=offset,
-                             quadratic=quadratic,
-                             initial=initial,
-                             coef=coef)
-
-        if sparse.issparse(counts):
-            #Convert sparse success vector to an array
-            self.counts = counts.toarray()
-        else:
-            self.counts = counts
-
-        self.J = self.counts.shape[1]
-        #Select the counts for the first J-1 categories
-        self.firstcounts = self.counts[:,range(self.J-1)]
-
-        if not np.allclose(np.round(self.counts),self.counts):
-            raise ValueError("Counts vector is not integer valued")
-        if np.min(self.counts) < 0:
-            raise ValueError("Counts vector is not non-negative")
-
-        self.trials = np.sum(self.counts, axis=1)
-
-        if shape[1] != self.J - 1:
-            raise ValueError("Primal shape is incorrect - should only have coefficients for first J-1 categories")
-
-        saturated = self.counts / (1. * self.trials[:,np.newaxis])
-        loss_terms = np.log(saturated) * self.counts
-        loss_terms[np.isnan(loss_terms)] = 0
-        loss_constant = - coef * loss_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-loss_constant)
-        self.quadratic += devq
-
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
-        """
-        Evaluate a smooth function and/or its gradient
-
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
-        """
-        x = self.apply_offset(x)
-        exp_x = np.exp(x)
-
-        #TODO: Using transposes to scale the rows of a 2d array - should we use an affine_transform to do this?
-        #JT: should be able to do this with np.newaxis
-
-        if mode == 'both':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = - self.scale(np.sum(self.firstcounts * x) -  np.dot(self.trials, np.log(1. + np.sum(exp_x, axis=1)))), - self.scale(self.firstcounts - ratio) 
-            return f, g
-        elif mode == 'grad':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = None, - self.scale(self.firstcounts - ratio) 
-            return g
-        elif mode == 'func':
-            f, g = - self.scale(np.sum(self.firstcounts * x) -  np.dot(self.trials, np.log(1. + np.sum(exp_x, axis=1)))), None
-            return f
-        else:
-            raise ValueError("mode incorrectly specified")
 
 def logistic_loss(X, Y, trials=None, coef=1.):
     '''

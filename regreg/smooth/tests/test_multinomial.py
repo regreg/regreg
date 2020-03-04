@@ -17,7 +17,7 @@ def test_multinomial_vs_logistic():
     counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
 
     mult_x = rr.linear_transform(X, input_shape=(p,J-1))
-    loss = rr.multinomial_loglike.linear(mult_x, counts=counts)
+    loss = rr.multinomial_baseline_loglike.linear(mult_x, counts=counts)
     problem = rr.container(loss)
     solver = rr.FISTA(problem)
     solver.fit(debug=False, tol=1e-10)

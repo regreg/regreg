@@ -53,7 +53,11 @@ class cox_loglike(smooth_atom):
         self._outer_1st = np.zeros(self.event_times.shape, np.float) # for log(W)
         self._outer_2nd = np.zeros(self.event_times.shape, np.float) # used in Hessian
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -72,6 +76,9 @@ class cox_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -84,6 +91,12 @@ class cox_loglike(smooth_atom):
 
         eta = self.apply_offset(eta)
 
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         censoring = self.data[1]
 
         if mode in ['both', 'grad']:
@@ -92,7 +105,7 @@ class cox_loglike(smooth_atom):
                              self._exp_buffer,
                              self._exp_accum,
                              self._outer_1st,
-                             self.case_weights,
+                             cw,
                              censoring,
                              self._ordering,
                              self._rankmin,
@@ -104,7 +117,7 @@ class cox_loglike(smooth_atom):
                               self._exp_buffer,
                               self._exp_accum,
                               self._outer_1st,
-                              self.case_weights,
+                              cw,
                               censoring,
                               self._ordering,
                               self._rankmin,
@@ -122,7 +135,10 @@ class cox_loglike(smooth_atom):
 
     # Begin loss API
 
-    def hessian_mult(self, natural_param, right_vector):
+    def hessian_mult(self, 
+                     natural_param, 
+                     right_vector,
+                     case_weights=None):
         """
         Evaluate Hessian of the loss at a pair of vectors.
 
@@ -138,12 +154,21 @@ class cox_loglike(smooth_atom):
         right_vec : ndarray
             Vector on the left in Hessian evaluation.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
         value : float
             Hessian evaluated at this pair of left and right vectors
         """
+
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
 
         eta = natural_param # shorthand
         eta = self.apply_offset(eta)
@@ -159,7 +184,7 @@ class cox_loglike(smooth_atom):
                            self._expZ_accum,
                            self._outer_1st,
                            self._outer_2nd,
-                           self.case_weights,
+                           cw,
                            censoring,
                            self._ordering,
                            self._rankmin,
