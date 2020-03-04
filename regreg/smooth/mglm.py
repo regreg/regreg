@@ -701,7 +701,7 @@ class multinomial_loglike(smooth_atom):
         exp_x = np.exp(x)
 
         if case_weights is None:
-            cw = 1
+            cw = np.ones(x.shape[0])
         else:
             cw = case_weights
 
@@ -784,7 +784,11 @@ class multinomial_baseline_loglike(smooth_atom):
 
     data = property(get_data, set_data)
 
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         x, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
         Evaluate a smooth function and/or its gradient
 
@@ -796,7 +800,7 @@ class multinomial_baseline_loglike(smooth_atom):
         exp_x = np.exp(x)
 
         if case_weights is None:
-            cw = 1
+            cw = np.ones(x.shape[0])
         else:
             cw = case_weights
 
