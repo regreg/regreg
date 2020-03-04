@@ -47,7 +47,7 @@ class sparse_group_lasso_path(group_lasso_path):
         for g in self.penalty.weights.keys():
             self.penalty.set_weight(g, l2_weight * self.penalty.weights[g])
         self.penalty.lasso_weights *= l1_weight
-        self.group_shape = len(np.unique(self.penalty.groups))
+        self.group_shape = (len(np.unique(self.penalty.groups)),)
         self.shape = self.penalty.shape
         self.nstep = nstep
 
@@ -64,10 +64,7 @@ class sparse_group_lasso_path(group_lasso_path):
 
         self.ever_active_groups = self.updated_ever_active(unpenalized_idx)
 
-        self._unpenalized_vars = _candidate_bool(self.penalty.groups, 
-                                                 unpenalized_groups)
-        self._unpenalized_idx = unpenalized_idx
-        self._penalized_vars = np.ones(self.shape, np.bool)
+        self._penalized_vars = np.zeros(self.shape, np.bool)
         self._penalized_vars[self._unpenalized_vars] = 0
 
         if np.any(unpenalized_idx):
@@ -156,33 +153,6 @@ class sparse_group_lasso_path(group_lasso_path):
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
         return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_bool
-
-    @property
-    def unpenalized(self):
-        """
-        Unpenalized groups and variables.
-
-        Returns
-        -------
-
-        groups : sequence
-            Groups with weights equal to 0.
-
-        variables : ndarray
-            Boolean indicator that is True if no penalty on that variable.
-
-        """
-        if not hasattr(self, "_unpen_groups"):
-            self._unpen_groups = []
-            self._unpen_group_idx = np.zeros(self.group_shape, np.bool)
-            for i, g in enumerate(self.penalty._sorted_groupids):
-                unpen_l2 = self.penalty.weights[g] == 0
-                group = self.penalty.groups == g
-                unpen_l1 = self.penalty.lasso_weights[group].sum() == 0
-                self._unpen_group_idx[i] = unpen_l2 + unpen_l1
-                if unpen_l1 and unpen_l2:
-                    self._unpen_groups.append(g)
-        return self._unpen_groups, self._unpen_group_idx
 
     def restricted_penalty(self, subset):
         return sparse_group_lasso(self.penalty.groups[subset],

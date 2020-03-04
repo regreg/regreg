@@ -40,7 +40,7 @@ class group_lasso_path(lasso_path):
 
         self.alpha = alpha
         self.penalty = group_lasso(groups, weights=weights, lagrange=1)
-        self.group_shape = len(np.unique(self.penalty.groups))
+        self.group_shape = (len(np.unique(self.penalty.groups)),)
         self.shape = self.penalty.shape
         self.nstep = nstep
 
@@ -52,10 +52,7 @@ class group_lasso_path(lasso_path):
         # find lagrange_max
 
         unpenalized_groups, unpenalized_idx = self.unpenalized
-        print('unpen', unpenalized_groups)
         self.solution = np.zeros(self.penalty.shape)
-
-        self.ever_active_groups = self.updated_ever_active(unpenalized_idx)
 
         self._unpenalized_vars = _candidate_bool(self.penalty.groups, 
                                                  unpenalized_groups)
@@ -158,7 +155,6 @@ class group_lasso_path(lasso_path):
                   lagrange_new,
                   subset=None):
 
-        weights = self.penalty.weights
         elastic_net_param = self.elastic_net_param
         if subset is not None:
             solution = solution[subset]

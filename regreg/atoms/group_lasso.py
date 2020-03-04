@@ -182,7 +182,7 @@ class group_lasso(seminorm):
         """
         arg = np.asarray(arg)
         norms = []
-        for g in np.unique(self.groups):
+        for g in self._sorted_groupids:
             group = self.groups == g
             norms.append(np.linalg.norm(arg[group]) * self.weights[g])
         return norms
@@ -301,10 +301,14 @@ class group_lasso_dual(group_lasso):
 
     tol = 1.0e-05
 
-    def terms(self, arg):
+    def terms(self, arg, check_feasibility=True):
         """
         Return the args that are maximized
         in computing the seminorm.
+
+        If `check_feasibility` then return `np.inf`
+        for groups whose norms aren't 0 with a weight of 0.
+        Otherwise, return 0 for these entries
 
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
@@ -320,9 +324,16 @@ class group_lasso_dual(group_lasso):
         """
         arg = np.asarray(arg)
         norms = []
-        for g in np.unique(self.groups):
+        for g in self._sorted_groupids:
             group = self.groups == g
-            norms.append(np.linalg.norm(arg[group]) / self.weights[g])
+            w = self.weights[g]
+            if w > 0:
+                norms.append(np.linalg.norm(arg[group]) / w)
+            else:
+                if check_feasibility:
+                    norms.append(np.inf)  
+                else:
+                    norms.append(0)
         return norms
 
     @doc_template_user

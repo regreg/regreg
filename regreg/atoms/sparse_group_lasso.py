@@ -151,7 +151,7 @@ class sparse_group_lasso(group_lasso, seminorm):
             group = self.groups == g
             arg_g = arg[group]
             term = np.linalg.norm(arg_g) * self.weights[g]
-            term += np.fabs(arg_g).sum() * self.lasso_weights[group]
+            term += np.fabs(arg_g * self.lasso_weights[group]).sum()
             norms.append(term)
         return np.array(norms)
 
@@ -408,7 +408,7 @@ def _inside_set_strong(point, bound, lasso_weights, group_weight):
     # sign doesn't matter for testing inside the dual ball
     soft_thresh = np.maximum(np.fabs(point) - bound * lasso_weights, 0)
     norm_soft = np.linalg.norm(soft_thresh)
-    if norm_soft <= group_weight:
+    if norm_soft <= bound * group_weight:
         return True
     return False
 
@@ -451,7 +451,7 @@ def _gauge_function_dual_strong(point,
 
                iter += 1
                if iter == max_iter:
-                    return 0
+                    return 0, None, None
      else:
           # gauge is lower bounded by 1
           # find an upper bound
@@ -468,7 +468,7 @@ def _gauge_function_dual_strong(point,
 
                iter += 1
                if iter == max_iter:
-                    return np.inf
+                    return np.inf, None, None
 
      # binary search
 
@@ -491,76 +491,8 @@ def _gauge_function_dual_strong(point,
          else:
              lower = mid
 
-     soft_thresh = np.maximum(np.fabs(point) - lasso_weights, 0) * np.sign(point)
+     soft_thresh = np.maximum(np.fabs(point) - mid * lasso_weights, 0) * np.sign(point)
      l1_subgrad = point - soft_thresh # a point in the appropriate cube
-     l2_subgrad = soft_thresh / np.linalg.norm(soft_thresh) * group_weight
-     return mid, l1_subgrad * lasso_weights, l2_subgrad
+     l2_subgrad = soft_thresh / np.linalg.norm(soft_thresh) * group_weight * mid
+     return mid, l1_subgrad, l2_subgrad
 
-# for paths
-
-def strong_set(sglasso, 
-               lagrange_cur, 
-               lagrange_new, 
-               grad,
-               slope_estimate=1):
-
-    """
-    Guess at active groups at 
-    lagrange_new based on gradient
-    at lagrange_cur.
-    """
-
-    dual = sglasso.conjugate
-    terms = dual.terms(grad)
-    candidates = np.nonzero(terms >= ((slope_estimate + 1) * lagrange_new - 
-                                      slope_estimate * lagrange_cur))[0]
-    return np.array([glasso._group_inv_dict[i] for i in candidates])
-
-def check_KKT(sglasso, 
-              grad, 
-              solution, 
-              lagrange, 
-              tol=1.e-2):
-
-    """
-    Check whether (grad, solution) satisfy
-    KKT conditions at a given tolerance.
-
-    Assumes glasso is group_lasso in lagrange form
-    so that glasso.lagrange is not None
-    """
-
-    failing = False
-    norm_soln = np.linalg.norm(solution)
-    active = sglasso.terms(solution) > tol * norm_soln
-    inactive_groups = np.nonzero(~active)[0]
-    active_groups = np.nozero(active)[0]
-
-    for g in active_groups:
-        group = glasso.groups == g
-        subgrad_g = -grad[group]
-        l1weight_g = sglasso.lasso_weights[group]
-        soln_g = solution[group]
-        val_g, l1subgrad_g, l2subgrad_g = _gauge_function_dual_strong(subgrad_g, 
-                                                                      l1weight_g,
-                                                                      sglasso._weight_array[g]) 
-        if val_g < sglasso.lagrange * (1 - tol):
-            failing = True
-        nonz = soln_g != 0
-
-        # nonzero coordinates need the right sign and size
-        if (np.linalg.norm((l1subgrad_g - l1_weight_g * np.sign(soln_g) * sglasso.lagrange)[nonz]) > 
-            tol * max(1, np.linalg.norm(soln_g))):
-            failing = True
-
-        # l2 subgrad should be parallel to soln_g
-        if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
-                          soln_g / np.linalg.norm(soln_g)) > tol:
-            failing = True
-
-    for g in inactive_groups:
-        subgrad_g = -grad[g]
-        if _gauge_function_dual_strong(subgrad_g, sglasso.lasso_weights,
-                                       sglasso._weight_array[g]) >= sglasso.lagrange * (1 + tol):
-            failing = True
-    return failing

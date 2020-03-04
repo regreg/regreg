@@ -5,7 +5,7 @@ try:
 except ImportError:
     warnings.warn('cannot import some cholesky solvers from scipy')
 
-from ..affine import affine_transform, astransform, composition
+from ..affine import affine_transform, astransform, composition, scaler
 from ..smooth import smooth_atom
 from ..problems.composite import smooth_conjugate
 from ..atoms.cones import zero
@@ -67,8 +67,10 @@ class quadratic_loss(smooth_atom):
         self.Q = Q
         self.Qdiag = Qdiag
         if self.Q is not None:
-            self.Q_transform = affine_transform(Q, None, Qdiag)
-
+            if Qdiag:
+                self.Q_transform = scaler(Q)
+            else:
+                self.Q_transform = affine_transform(Q, None, False)
     @staticmethod
     def fromarray(Q, 
                   offset=None,
@@ -100,11 +102,11 @@ class quadratic_loss(smooth_atom):
                  initial=None):
         D = np.asarray(D)
         return quadratic_loss((D.shape[0],), 
-                         Q=D,
-                         Qdiag=True,
-                         offset=offset,
-                         quadratic=quadratic,
-                         initial=initial)
+                              Q=D,
+                              Qdiag=True,
+                              offset=offset,
+                              quadratic=quadratic,
+                              initial=initial)
 
 
     def __repr__(self):

@@ -322,6 +322,21 @@ class selector(linear_transform):
         self._output[self.index_obj] = self.affine_transform.adjoint_map(u)
         return self._output
 
+class scaler(linear_transform):
+
+    def __init__(self, scalings):
+        self.scalings = np.asarray(scalings)
+        self.input_shape = self.output_shape = self.scalings.shape
+
+    def linear_map(self, x):
+        return self.scalings * x
+
+    def affine_map(self, x):
+        return self.linear_map(x)
+
+    def adjoint_map(self, u):
+        return self.linear_map(u)
+
 class reshape(linear_transform):
 
     """
