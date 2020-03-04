@@ -64,6 +64,8 @@ class sparse_group_lasso_path(group_lasso_path):
 
         self.ever_active_groups = self.updated_ever_active(unpenalized_idx)
 
+        self._unpenalized_vars = _candidate_bool(self.penalty.groups, 
+                                                 unpenalized_groups)
         self._penalized_vars = np.zeros(self.shape, np.bool)
         self._penalized_vars[self._unpenalized_vars] = 0
 
@@ -116,7 +118,7 @@ class sparse_group_lasso_path(group_lasso_path):
                    grad_solution):
 
         _strong_bool = _strong_set(self.penalty,
-                                   self._unpenalized_idx,
+                                   self._unpen_group_idx,
                                    lagrange_cur,
                                    lagrange_new,
                                    grad_solution)
