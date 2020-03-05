@@ -434,7 +434,7 @@ probabilities are measured relative to a baseline category :math:`J`
 .. nbplot::
     :format: python
 
-    from regreg.smooth.glm import multinomial_loglike
+    from regreg.smooth.mglm import multinomial_baseline_loglike
 
 The only code needed to add multinomial regression to RegReg is a class
 with one method which computes the objective and its gradient.
@@ -461,7 +461,7 @@ linear\_transform object that multiplies by X,
     :format: python
 
     multX = rr.linear_transform(X, input_shape=(p,J-1))
-    loss = rr.multinomial_loglike.linear(multX, counts=Y)
+    loss = multinomial_baseline_loglike.linear(multX, counts=Y)
     loss.shape
 
 Next, we can solve the problem
@@ -481,7 +481,7 @@ model
     J = 2
     Y = np.random.randint(0,10,n*J).reshape((n,J))
     multX = rr.linear_transform(X, input_shape=(p,J-1))	
-    loss = rr.multinomial_loglike.linear(multX, counts=Y)
+    loss = multinomial_baseline_loglike.linear(multX, counts=Y)
     solver = rr.FISTA(loss)
     solver.fit(tol=1e-6)
     multinomial_coefs = solver.composite.coefs.flatten()
