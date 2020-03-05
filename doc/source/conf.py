@@ -214,15 +214,9 @@ latex_elements = {
 # [howto/manual]).
 
 latex_documents = [
-<<<<<<< HEAD
-  ('documentation', 'regreg.tex', 'RegReg Documentation',
-   r'B. Klingenberg & J. Taylor.', 'manual'),
-  ]
-=======
     ('documentation', 'regreg.tex', 'RegReg Documentation',
-     r'B. Klingenberg & J. Taylor', 'manual')
-    ]
->>>>>>> some fixes to docs
+     r'B. Klingenberg & J. Taylor.', 'manual'),
+]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
