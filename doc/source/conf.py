@@ -74,7 +74,6 @@ check_r_packages(R_PACKAGES)
 from matplotlib import rc
 rc('text', usetex=True)
 
-#extensions.append('matplotlib.sphinxext.only_directives')
 extensions.append('matplotlib.sphinxext.plot_directive')
 
 # Add any paths that contain templates here, relative to this directory.
@@ -215,9 +214,15 @@ latex_elements = {
 # [howto/manual]).
 
 latex_documents = [
+<<<<<<< HEAD
   ('documentation', 'regreg.tex', 'RegReg Documentation',
    r'B. Klingenberg & J. Taylor.', 'manual'),
   ]
+=======
+    ('documentation', 'regreg.tex', 'RegReg Documentation',
+     r'B. Klingenberg & J. Taylor', 'manual')
+    ]
+>>>>>>> some fixes to docs
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
