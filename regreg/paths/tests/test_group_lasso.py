@@ -64,7 +64,9 @@ def test_path_subsample(n=200,p=50):
     sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-10)
     beta1 = sol1['beta']
 
-    group_lasso2 = group_lasso.group_lasso_path.gaussian(X[cases], Y[cases], np.ones(X.shape[1]))
+    group_lasso2 = group_lasso.group_lasso_path.gaussian(X[cases],
+                                                         Y[cases],
+                                                         groups)
     sol2 = group_lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
