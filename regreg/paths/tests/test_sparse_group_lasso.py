@@ -52,9 +52,13 @@ def test_path_subsample(n=200,p=50):
     betaX[:3] = [3,4,5]
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
-    groups = np.arange(p)
+    groups = ['a', 'a', 'a', 'b', 'b']
+    for i in range(9):
+        groups.extend([str(i)]*5)
+
+    np.random.shuffle(groups)
     l1weights = np.ones(p)
-    weights = dict([(j,0) for j in np.arange(p)])
+    weights = {}
     sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
                                                                               Y, 
                                                                               groups,
@@ -78,7 +82,7 @@ def test_path_subsample(n=200,p=50):
     sol2 = sparse_group_lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
-    np.testing.assert_allclose(beta1, beta2, rtol=1.e-4)
+    np.testing.assert_allclose(beta1, beta2, rtol=1.e-3)
 
 @set_seed_for_test()
 def test_lasso_agreement2(n=200,p=50):

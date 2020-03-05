@@ -58,7 +58,7 @@ def test_path_subsample(n=200,p=50):
     sol2 = sparse_group_block2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
-    np.testing.assert_allclose(beta1, beta2, rtol=1.e-4)
+    np.testing.assert_allclose(beta1, beta2, rtol=1.e-3)
 
 @set_seed_for_test()
 def test_elastic_net(n=200, p=50):

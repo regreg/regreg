@@ -185,7 +185,7 @@ class group_lasso(seminorm):
         for g in self._sorted_groupids:
             group = self.groups == g
             norms.append(np.linalg.norm(arg[group]) * self.weights[g])
-        return norms
+        return np.array(norms)
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -334,7 +334,7 @@ class group_lasso_dual(group_lasso):
                     norms.append(np.inf)  
                 else:
                     norms.append(0)
-        return norms
+        return np.array(norms)
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):

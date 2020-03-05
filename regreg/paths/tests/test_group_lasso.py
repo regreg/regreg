@@ -49,7 +49,14 @@ def test_path_subsample(n=200,p=50):
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
     cases = range(n//2)
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    groups = ['a', 'a', 'a', 'b', 'b']
+    for i in range(9):
+        groups.extend([str(i)]*5)
+
+    np.random.shuffle(groups)
+    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
+                                                         Y, 
+                                                         groups)
     group_lasso1 = group_lasso1.subsample(cases)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
@@ -61,7 +68,7 @@ def test_path_subsample(n=200,p=50):
     sol2 = group_lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
-    np.testing.assert_allclose(beta1, beta2, rtol=1.e-4)
+    np.testing.assert_allclose(beta1, beta2, rtol=1.e-3)
 
 
 
