@@ -166,7 +166,11 @@ class group_lasso_path(lasso_path):
             self._ever_active = np.zeros(self.group_shape, np.bool)
             self._sorted_groupids = np.array(self.penalty._sorted_groupids)
         _ever_active = self._ever_active.copy()
-        _ever_active[index_obj] = True
+        try:
+            _ever_active[index_obj] = True
+        except IndexError:
+            print(_ever_active, index_obj, self._sorted_groupids)
+            raise IndexError
         return list(self._sorted_groupids[_ever_active])
 
     @property
