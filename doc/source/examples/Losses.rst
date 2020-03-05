@@ -63,7 +63,8 @@ The losses can very easily be combined with a penalty.
     Y = as.numeric(Y)
     G = glmnet(X, Y, intercept=FALSE, standardize=FALSE, family='binomial')
     print(coef(G, s=2 / nrow(X), x=X, y=Y, exact=TRUE))
-
+    '''
+    )
 
 Suppose we want to match ``glmnet`` exactly without having to specify
 ``intercept=FALSE`` and ``standardize=FALSE``. The ``normalize``
