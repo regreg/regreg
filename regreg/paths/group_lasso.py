@@ -80,6 +80,30 @@ class group_lasso_path(lasso_path):
 
     def subsample(self,
                   case_idx):
+        '''
+
+        Create a new path, by subsampling
+        cases of `self.saturated_loss`.
+
+        Case weights are computed
+        with `self.saturated_loss.subsample`.
+
+        Parameters
+        ----------
+
+        case_idx : index
+            An index-like object used 
+            to specify which cases to include
+            in the subsample.
+
+        Returns
+        -------
+
+        subsample_path : path object
+            A path object with a modified smooth part
+            reflecting the subsampling.
+
+        '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
                               self.X,
@@ -91,8 +115,37 @@ class group_lasso_path(lasso_path):
     def check_KKT(self,
                   grad_solution,
                   solution,
-                  lagrange_new,
+                  lagrange,
                   penalty=None):
+
+        '''
+
+        Check KKT conditions over
+        the groups in the path.
+        Returns boolean indicating
+        which groups are failing the KKT conditions
+        (these could be `active` groups or
+        `inactive` groups).
+
+        Parameters
+        ----------
+
+        grad_solution : ndarray
+             Candidate for gradient of smooth loss at 
+             Lagrange value `lagrange`.
+
+        solution : ndarray
+             Candidate for solution to problem 
+             Lagrange value `lagrange`.
+
+        lagrange : float
+             Lagrange value for penalty
+
+        penalty : object (optional)
+             A group LASSO penalty. If None, defaults
+             to `self.penalty`.
+
+        '''
 
         if penalty is None:
             penalty = self.penalty
@@ -100,7 +153,7 @@ class group_lasso_path(lasso_path):
         results = _check_KKT(penalty,
                              grad_solution, 
                              solution, 
-                             lagrange_new)
+                             lagrange)
         return results > 0
 
     def strong_set(self,
@@ -216,10 +269,16 @@ def _candidate_bool(groups, candidate_groups):
 def _strong_set(penalty,
                 lagrange_cur,
                 lagrange_new,
-                gradient):
+                gradient,
+                slope_estimate=1):
+    """
+    Return a Boolean indicator for each group
+    indicating whether in the strong set or not.
+    """
 
+    thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
     dual = penalty.conjugate
-    return np.asarray(dual.terms(gradient, check_feasibility=True)) > 2 * lagrange_new - lagrange_cur
+    return np.asarray(dual.terms(gradient, check_feasibility=True)) > thresh
 
 def _restricted_elastic_net(elastic_net_params, 
                             penalized,

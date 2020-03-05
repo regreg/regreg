@@ -1,6 +1,6 @@
-import numpy as np, regreg.api as rr, regreg.affine as ra
-import regreg.paths.sparse_group_block as sparse_group_block
+import numpy as np
 
+from .. import lasso, sparse_group_block
 from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
@@ -20,6 +20,31 @@ def test_path():
                                                                               Y, 
                                                                               1,
                                                                               np.sqrt(q))
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                                     sparse_group_block1.grad_solution,
+                                                                     nstep=23) # initialized at "null" model
+    sol1 = sparse_group_block1.main(lagrange_sequence, inner_tol=1.e-12)
+    beta1 = sol1['beta']
+
+@set_seed_for_test()
+def test_multinomial():
+    '''
+    run a basic path algorithm with multinomial loss
+
+    '''
+    n, p, q = 200, 50, 3
+    X = np.random.standard_normal((n,p))
+    betaX = np.zeros((p,q))
+    betaX[:3] = np.array([3,4,5]) / np.sqrt(n)
+    np.random.shuffle(betaX)
+    eta = np.dot(X, betaX)
+    prob = np.exp(eta) / (1 + np.exp(eta))
+    Y = np.random.binomial(1, prob) # not really "multinomial", but it will do for testing
+
+    sparse_group_block1 = sparse_group_block.sparse_group_block_path.multinomial(X, 
+                                                                                 Y, 
+                                                                                 1,
+                                                                                 np.sqrt(q))
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model

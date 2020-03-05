@@ -294,7 +294,7 @@ class stacked_loglike(smooth_atom):
                              coef=coef)
 
         assert(np.all([l.shape == losses[0].shape for l in losses]))
-        self.data = [l.data for l in losses]
+        self.data = np.hstack([l.data for l in losses])
 
         self._losses = losses
         self._gradient = np.zeros(self.shape)

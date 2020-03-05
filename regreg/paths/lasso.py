@@ -87,7 +87,7 @@ class lasso_path(object):
         ever_active = self.updated_ever_active([])
 
         obj_solution = self.saturated_loss.smooth_objective(self.linear_predictor, 'func')
-        solutions = []
+        solutions = [self.solution.T.copy()]
         objective = [obj_solution]
 
         all_failing = np.zeros(self.group_shape, np.bool)
@@ -185,7 +185,7 @@ class lasso_path(object):
 
                 subproblem_set = sorted(set(subproblem_set + self.updated_ever_active(all_failing)))
 
-            solutions.append(solution.copy())
+            solutions.append(solution.T.copy())
             objective.append(self.saturated_loss.smooth_objective(self.linear_predictor, mode='func'))
             gc.collect()
 
@@ -224,10 +224,76 @@ class lasso_path(object):
         saturated_grad = saturated_loss.smooth_objective(linear_predictor, 'grad')
         return self.X.T.dot(saturated_grad)
 
+    def linpred(self,
+                coef,
+                X,
+                test):
+        """
+        Form linear predictor for given set of coefficients.
+
+        Typical use case will have coef of shape `(l,p)` for
+        univariate response regressions and `(l,q,p)` for
+        multiple response regressions (e.g. multinomial with
+        `q` classes) where `l` is the number of Lagrange
+        parameters.
+
+        Parameters
+        ----------
+
+        coef : ndarray
+            A set of coefficients. 
+
+        X : object
+            Representation of design matrix, usually `self.X` -- subclasses
+            may not assume this is actually an array.
+
+        test : index
+            Indices of X.dot(coef.T) to return.
+
+        Returns
+        -------
+
+        linpred : Matrix of linear predictors.
+
+        """
+        coef = np.asarray(coef)
+        if coef.ndim > 1:
+            coefT = coef.T
+            old_shape = coefT.shape
+            coefT = coefT.reshape((coefT.shape[0], -1))
+            linpred = X.dot(coefT)[test]
+            linpred = linpred.reshape((linpred.shape[0],) + old_shape[1:])
+            return linpred
+        return X.dot(coef.T)[test]
+
     # method potentially overwritten in subclasses for penalty considerations
 
     def subsample(self,
                   case_idx):
+        '''
+
+        Create a new path, by subsampling
+        cases of `self.saturated_loss`.
+
+        Case weights are computed
+        with `self.saturated_loss.subsample`.
+
+        Parameters
+        ----------
+
+        case_idx : index
+            An index-like object used 
+            to specify which cases to include
+            in the subsample.
+
+        Returns
+        -------
+
+        subsample_path : path object
+            A path object with a modified smooth part
+            reflecting the subsampling.
+
+        '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
                               self.X,
@@ -238,8 +304,37 @@ class lasso_path(object):
     def check_KKT(self,
                   grad_solution,
                   solution,
-                  lagrange_new,
+                  lagrange,
                   penalty=None):
+
+        '''
+
+        Check KKT conditions over
+        the groups in the path.
+        Returns boolean indicating
+        which groups are failing the KKT conditions
+        (these could be `active` groups or
+        `inactive` groups).
+
+        Parameters
+        ----------
+
+        grad_solution : ndarray
+             Candidate for gradient of smooth loss at 
+             Lagrange value `lagrange`.
+
+        solution : ndarray
+             Candidate for solution to problem 
+             Lagrange value `lagrange`.
+
+        lagrange : float
+             Lagrange value for penalty
+
+        penalty : object (optional)
+             A weighted L1 penalty. If None, defaults
+             to `self.penalty`.
+
+        '''
 
         if penalty is None:
             penalty = self.penalty
@@ -247,7 +342,7 @@ class lasso_path(object):
         value = _check_KKT(penalty.weights, 
                            grad_solution, 
                            solution, 
-                           lagrange_new)
+                           lagrange)
         return value > 0
 
     def strong_set(self,
@@ -292,7 +387,9 @@ class lasso_path(object):
         sub_soln = sub_problem.solve(**solve_args)
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
-        return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_set
+        candidate_bool = np.zeros(self.group_shape, np.bool)
+        candidate_bool[candidate_set] = True
+        return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_bool
 
     def enet_grad(self,
                   solution,
@@ -350,12 +447,17 @@ def _get_lagrange_max(penalty,
 def _strong_set(lasso_weights,
                 lagrange_cur,
                 lagrange_new,
-                gradient):
-
+                gradient,
+                slope_estimate=1):
+    """
+    Return a Boolean indicator for each group
+    indicating whether in the strong set or not.
+    """
+    thresh = 2 * lagrange_new - lagrange_cur
     scaled_grad = np.fabs(gradient)
     scaled_grad[lasso_weights > 0] /= lasso_weights[lasso_weights > 0]
     scaled_grad[lasso_weights == 0] = np.inf
-    return scaled_grad > 2 * lagrange_new - lagrange_cur
+    return scaled_grad > thresh
 
 def _restricted_elastic_net(elastic_net_params, 
                             lasso_weights, 

@@ -90,6 +90,30 @@ class sparse_group_block_path(group_lasso_path):
 
     def subsample(self,
                   case_idx):
+        '''
+
+        Create a new path, by subsampling
+        cases of `self.saturated_loss`.
+
+        Case weights are computed
+        with `self.saturated_loss.subsample`.
+
+        Parameters
+        ----------
+
+        case_idx : index
+            An index-like object used 
+            to specify which cases to include
+            in the subsample.
+
+        Returns
+        -------
+
+        subsample_path : path object
+            A path object with a modified smooth part
+            reflecting the subsampling.
+
+        '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
                               self.X,
@@ -102,9 +126,37 @@ class sparse_group_block_path(group_lasso_path):
     def check_KKT(self,
                   grad_solution,
                   solution,
-                  lagrange_new,
+                  lagrange,
                   penalty=None):
 
+        '''
+
+        Check KKT conditions over
+        the groups in the path.
+        Returns boolean indicating
+        which groups are failing the KKT conditions
+        (these could be `active` groups or
+        `inactive` groups).
+
+        Parameters
+        ----------
+
+        grad_solution : ndarray
+             Candidate for gradient of smooth loss at 
+             Lagrange value `lagrange`.
+
+        solution : ndarray
+             Candidate for solution to problem 
+             Lagrange value `lagrange`.
+
+        lagrange : float
+             Lagrange value for penalty
+
+        penalty : object (optional)
+             A sparse group block penalty. If None, defaults
+             to `self.penalty`.
+
+        '''
         if penalty is None:
             penalty = self.penalty
 
@@ -112,7 +164,7 @@ class sparse_group_block_path(group_lasso_path):
                              solution, 
                              self.penalty.l1_weight,
                              self.penalty.l2_weight,
-                             lagrange_new)
+                             lagrange)
         return results > 0
 
     def strong_set(self,
@@ -260,13 +312,16 @@ def _strong_set(l1_weight,
     Guess at active groups at 
     lagrange_new based on gradient
     at lagrange_cur.
+
+    Return a boolean indicator array.
     """
 
     thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
-    return np.nonzero(np.array([_inside_set_strong(grad[i],
-                                                   thresh,
-                                                   l1_weight,
-                                                   l2_weight) for i in range(grad.shape[0])]) == 0)
+    test = np.array([_inside_set_strong(grad[i],
+                                        thresh,
+                                        l1_weight,
+                                        l2_weight) for i in range(grad.shape[0])]) == 0
+    return test
 
 def _check_KKT(grad, 
                solution, 

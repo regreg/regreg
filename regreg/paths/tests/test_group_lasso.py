@@ -1,8 +1,6 @@
-import numpy as np, regreg.api as rr, regreg.affine as ra
-import nose.tools as nt
-import regreg.paths.group_lasso as group_lasso
-import regreg.paths.lasso as lasso
+import numpy as np
 
+from .. import lasso, group_lasso
 from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()

@@ -1,7 +1,6 @@
-import numpy as np, regreg.api as rr, regreg.affine as ra
-import regreg.paths.sparse_group_lasso as sparse_group_lasso
-import regreg.paths.lasso as lasso
+import numpy as np
 
+from .. import lasso, sparse_group_lasso
 from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
