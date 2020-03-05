@@ -11,7 +11,7 @@ import scipy.sparse
 
 from . import subsample_columns
 from ..affine import power_L, normalize, astransform
-from ..smooth import glm, affine_smooth, sum as smooth_sum
+from ..smooth import mglm, affine_smooth, sum as smooth_sum
 from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
@@ -29,13 +29,16 @@ class sparse_group_block_path(group_lasso_path):
                  X, 
                  l1_penalty,
                  l2_penalty,
-                 weights={},
                  elastic_net_param=None,
                  alpha=1.,  # elastic net mixing -- 1 is LASSO
                  l1_weight=0.95):
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
+
+        self.l1_penalty = l1_penalty
+        self.l2_penalty = l2_penalty
+        self.l1_weight = l1_weight
 
         # the penalty parameters
 
@@ -84,6 +87,17 @@ class sparse_group_block_path(group_lasso_path):
                                                                                          1))
 
     # methods potentially overwritten in subclasses for I/O considerations
+
+    def subsample(self,
+                  case_idx):
+        subsample_loss = self.saturated_loss.subsample(case_idx)
+        return self.__class__(subsample_loss,
+                              self.X,
+                              self.l1_penalty,
+                              self.l2_penalty,
+                              elastic_net_param=self.elastic_net_param,
+                              alpha=self.alpha,
+                              l1_weight=self.l1_weight)
 
     def check_KKT(self,
                   grad_solution,
@@ -179,14 +193,14 @@ class sparse_group_block_path(group_lasso_path):
     # Some common loss factories
 
     @classmethod
-    def logistic(cls, X, Y, *args, **keyword_args):
+    def multinomial(cls, X, Y, *args, **keyword_args):
         Y = np.asarray(Y)
-        return cls(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
+        return cls(mglm.multinomial_loglike(Y.shape, Y), X, *args, **keyword_args)
 
     @classmethod
     def gaussian(cls, X, Y, *args, **keyword_args):
         Y = np.asarray(Y)
-        loss = quadratic_loss(Y.shape, offset=Y)
+        loss = mglm.stacked_loglike.gaussian(Y.T)
         return cls(loss, X, *args, **keyword_args)
 
 # private functions

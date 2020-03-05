@@ -282,7 +282,8 @@ class stacked_loglike(smooth_atom):
                  coef=1., 
                  offset=None,
                  quadratic=None,
-                 initial=None):
+                 initial=None,
+                 case_weights=None):
 
         shape = losses[0].shape + (len(losses),)
         smooth_atom.__init__(self,
@@ -297,6 +298,15 @@ class stacked_loglike(smooth_atom):
 
         self._losses = losses
         self._gradient = np.zeros(self.shape)
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.shape[:1]:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
     def smooth_objective(self, 
                          natural_param, 
@@ -329,6 +339,12 @@ class stacked_loglike(smooth_atom):
         else returns both.
         """
         
+        if case_weights is None:
+            case_weights = np.ones(natural_param.shape[:1])
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         x = natural_param # shorthand
 
         x = self.apply_offset(x)
@@ -336,21 +352,21 @@ class stacked_loglike(smooth_atom):
             for i in range(len(self._losses)):
                 self._gradient[:,i] = self._losses[i].smooth_objective(x[:,i], 
                                                                        'grad', 
-                                                                       case_weights=case_weights)
+                                                                       case_weights=cw) 
             return self.scale(self._gradient)
         elif mode == 'func':
             value = 0
             for i in range(len(self._losses)):
                 value += self._losses[i].smooth_objective(x[:,i], 
-                                                          'func',
-                                                          case_weights=case_weights)
+                                                          'func', 
+                                                          case_weights=cw)
             return self.scale(value)
         elif mode == 'both':
             value = 0
             for i in range(len(self._losses)):
                 f, g = self._losses[i].smooth_objective(x[:,i], 
-                                                        'both',
-                                                        case_weights=case_weights)
+                                                        'both', 
+                                                        case_weights=cw)
                 self._gradient[:,i] = g
                 value += f
             return self.scale(value), self.scale(self._gradient)
@@ -370,7 +386,41 @@ class stacked_loglike(smooth_atom):
                                coef=self.coef,
                                offset=copy(self.offset),
                                quadratic=copy(self.quadratic),
-                               initial=copy(self.coefs))
+                               initial=copy(self.coefs),
+                               case_weights=copy(self.case_weights))
+
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
 
     @classmethod
     def gaussian(klass,
@@ -418,7 +468,8 @@ class stacked_loglike(smooth_atom):
         return klass(losses,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def logistic(klass, 
@@ -471,7 +522,8 @@ class stacked_loglike(smooth_atom):
         return klass(losses,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def poisson(klass,
@@ -519,7 +571,8 @@ class stacked_loglike(smooth_atom):
         return klass(losses,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def huber(klass,
@@ -573,7 +626,8 @@ class stacked_loglike(smooth_atom):
         return klass(losses,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def cox(klass, 
@@ -583,7 +637,8 @@ class stacked_loglike(smooth_atom):
             coef=1., 
             offset=None,
             quadratic=None, 
-            initial=None):
+            initial=None,
+            case_weights=None):
         """
         Create a loss for a logistic regression model.
 
@@ -627,7 +682,8 @@ class stacked_loglike(smooth_atom):
         return klass(losses,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
 class multinomial_loglike(smooth_atom):
 
@@ -643,7 +699,8 @@ class multinomial_loglike(smooth_atom):
                  coef=1., 
                  offset=None,
                  initial=None,
-                 quadratic=None):
+                 quadratic=None,
+                 case_weights=None):
 
         smooth_atom.__init__(self,
                              shape,
@@ -676,6 +733,15 @@ class multinomial_loglike(smooth_atom):
         self.quadratic += devq
 
         self.data = self.counts, self.trials
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.shape[:1]:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
     def get_data(self):
         return self._data
@@ -723,6 +789,39 @@ class multinomial_loglike(smooth_atom):
         else:
             raise ValueError("mode incorrectly specified")
 
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
 class multinomial_baseline_loglike(smooth_atom):
 
     """
@@ -737,7 +836,8 @@ class multinomial_baseline_loglike(smooth_atom):
                  coef=1., 
                  offset=None,
                  initial=None,
-                 quadratic=None):
+                 quadratic=None,
+                 case_weights=None):
 
         smooth_atom.__init__(self,
                              shape,
@@ -775,6 +875,15 @@ class multinomial_baseline_loglike(smooth_atom):
         self.quadratic += devq
 
         self.data = self.counts, self.trials
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.shape[:1]:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
     def get_data(self):
         return self._data
@@ -821,4 +930,37 @@ class multinomial_baseline_loglike(smooth_atom):
             return f
         else:
             raise ValueError("mode incorrectly specified")
+
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
 

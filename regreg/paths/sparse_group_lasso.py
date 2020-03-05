@@ -89,6 +89,17 @@ class sparse_group_lasso_path(group_lasso_path):
                                                                                          1))
     # methods potentially overwritten in subclasses for I/O considerations
 
+    def subsample(self,
+                  case_idx):
+        subsample_loss = self.saturated_loss.subsample(case_idx)
+        return self.__class__(subsample_loss,
+                              self.X,
+                              self.penalty.groups,
+                              self.penalty.lasso_weights,
+                              weights=self.penalty.weights,
+                              elastic_net_param=self.elastic_net_param,
+                              alpha=self.alpha)
+
     def check_KKT(self,
                   grad_solution,
                   solution,

@@ -212,6 +212,39 @@ class cox_loglike(smooth_atom):
                            initial=copy(self.coefs),
                            case_weights=copy(self.case_weights))
 
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
     def latexify(self, var=None, idx=''):
         # a trick to get latex representation looking right
         # coxph should be written similar to logistic

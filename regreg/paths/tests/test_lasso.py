@@ -24,6 +24,33 @@ def test_path(n=200,p=50):
     beta1 = sol1['beta']
 
 @set_seed_for_test()
+def test_path_subsample(n=200,p=50):
+    '''
+    compare a subsample path to the full path on subsampled data
+
+    '''
+    X = np.random.standard_normal((n,p))
+    Y = np.random.standard_normal(n)
+    betaX = np.zeros(p)
+    betaX[:3] = [3,4,5]
+    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+
+    cases = range(n//2)
+    lasso1 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    lasso1 = lasso1.subsample(cases)
+    lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
+                                                        lasso1.grad_solution,
+                                                        nstep=23) # initialized at "null" model
+    sol1 = lasso1.main(lagrange_sequence, inner_tol=1.e-10)
+    beta1 = sol1['beta']
+
+    lasso2 = lasso.lasso_path.gaussian(X[cases], Y[cases], np.ones(X.shape[1]))
+    sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-10)
+    beta2 = sol2['beta']
+
+    np.testing.assert_allclose(beta1, beta2)
+
+@set_seed_for_test()
 def test_unpenalized(n=200, p=50):
     '''
     run a basic path algorithm with some unpenalized variables

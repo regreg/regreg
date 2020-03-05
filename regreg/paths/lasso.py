@@ -229,13 +229,11 @@ class lasso_path(object):
     def subsample(self,
                   case_idx):
         subsample_loss = self.saturated_loss.subsample(case_idx)
-        klass = self.__class__
-        return klass(subsample_loss,
-                     self.X,
-                     self.penalty.weights,
-                     elastic_net_param=self.elastic_net_param,
-                     alpha=self.alpha,
-                     lagrange_sequence=self.lagrange_sequence)
+        return self.__class__(subsample_loss,
+                              self.X,
+                              self.penalty.weights,
+                              elastic_net_param=self.elastic_net_param,
+                              alpha=self.alpha)
 
     def check_KKT(self,
                   grad_solution,

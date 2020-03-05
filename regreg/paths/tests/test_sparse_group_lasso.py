@@ -41,6 +41,46 @@ def test_lasso_agreement1(n=200,p=50):
     assert(np.linalg.norm(beta1 - beta2) / np.linalg.norm(beta1) < 1.e-5)
 
 @set_seed_for_test()
+def test_path_subsample(n=200,p=50):
+    '''
+    compare a subsample path to the full path on subsampled data
+
+    '''
+    X = np.random.standard_normal((n,p))
+    Y = np.random.standard_normal(n)
+    betaX = np.zeros(p)
+    betaX[:3] = [3,4,5]
+    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+
+    groups = np.arange(p)
+    l1weights = np.ones(p)
+    weights = dict([(j,0) for j in np.arange(p)])
+    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
+                                                                              Y, 
+                                                                              groups,
+                                                                              l1weights,
+                                                                              l1_weight=1,
+                                                                              weights=weights)
+    cases = range(100)
+    sparse_group_lasso1 = sparse_group_lasso1.subsample(cases)
+    lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
+                                                                     sparse_group_lasso1.grad_solution,
+                                                                     nstep=23) # initialized at "null" model
+    sol1 = sparse_group_lasso1.main(lagrange_sequence, inner_tol=1.e-10)
+    beta1 = sol1['beta']
+
+    sparse_group_lasso2 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X[cases], 
+                                                                              Y[cases], 
+                                                                              groups,
+                                                                              l1weights,
+                                                                              l1_weight=1,
+                                                                              weights=weights)
+    sol2 = sparse_group_lasso2.main(lagrange_sequence, inner_tol=1.e-10)
+    beta2 = sol2['beta']
+
+    np.testing.assert_allclose(beta1, beta2, rtol=1.e-4)
+
+@set_seed_for_test()
 def test_lasso_agreement2(n=200,p=50):
     '''
     check to see if it agrees with lasso path
