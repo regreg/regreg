@@ -37,18 +37,27 @@ def test_path_subsample(n=200,p=50):
 
     cases = range(n//2)
     lasso1 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
-    lasso1 = lasso1.subsample(cases)
-    lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
-                                                        lasso1.grad_solution,
+    lasso1_sub = lasso1.subsample(cases)
+    lagrange_sequence = lasso.default_lagrange_sequence(lasso1_sub.penalty,
+                                                        lasso1_sub.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = lasso1.main(lagrange_sequence, inner_tol=1.e-10)
+    sol1 = lasso1_sub.main(lagrange_sequence, inner_tol=1.e-10)
     beta1 = sol1['beta']
 
     lasso2 = lasso.lasso_path.gaussian(X[cases], Y[cases], np.ones(X.shape[1]))
     sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
-    np.testing.assert_allclose(beta1, beta2, rtol=1.e-3)
+    yield np.testing.assert_allclose, beta1, beta2, 1.e-3
+
+    # check that the subsample did not change the original
+    # path object
+
+    lasso3 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    beta3 = lasso1.main(lagrange_sequence, inner_tol=1.e-10)['beta']
+    beta4 = lasso3.main(lagrange_sequence, inner_tol=1.e-10)['beta']
+
+    yield np.testing.assert_allclose, beta3, beta4, 1.e-3
 
 @set_seed_for_test()
 def test_unpenalized(n=200, p=50):
