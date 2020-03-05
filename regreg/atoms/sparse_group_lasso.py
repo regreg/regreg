@@ -133,16 +133,17 @@ class sparse_group_lasso(group_lasso, seminorm):
 
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
-        >>> penalty = rr.group_lasso(groups, lagrange=1.)
+        >>> l1weights = [1,1,1,1,1]
+        >>> penalty = rr.sparse_group_lasso(groups, l1weights, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> penalty.terms(arg) # doctest: +ELLIPSIS
-        [6.3245..., 12.2474...]
+        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        [12.3245..., 24.2474...]
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
-        18.5720...
-        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-        (6.3245..., 12.2474...)
-        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-        18.5720...
+        36.5720...
+        >>> np.sqrt((2**2 + 4**2)*2) + 6, np.sqrt((5**2 + 3**2 + 4**2) * 3.) + 12 # doctest: +ELLIPSIS
+        (12.3245..., 24.2474...)
+        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) + np.sum(np.fabs(arg)) # doctest: +ELLIPSIS
+        36.5720...
         
         """
         arg = np.asarray(arg)
@@ -281,14 +282,11 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          
          >>> import regreg.api as rr
          >>> groups = [1,1,2,2,2]
-         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
+         >>> l1weights = [1,1,1,1,1]
+         >>> penalty = rr.sparse_group_lasso_dual(groups, l1weights, lagrange=1.)
          >>> arg = [2,4,5,3,4]
-         >>> penalty.terms(arg) # doctest: +ELLIPSIS
-         [3.1622..., 4.0824...]
-         >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
-         (3.1622..., 4.0824...)
-         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
-         4.0824...
+         >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+         [1.6666..., 2.08333...]
 
          """
          arg = np.asarray(arg)

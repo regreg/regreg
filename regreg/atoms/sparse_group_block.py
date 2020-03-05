@@ -129,7 +129,7 @@ class sparse_group_block(l1_l2):
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
         [6.3245..., 12.2474...]
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         18.5720...
@@ -239,7 +239,7 @@ class sparse_group_block_dual(sparse_group_block):
          >>> groups = [1,1,2,2,2]
          >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
          >>> arg = [2,4,5,3,4]
-         >>> penalty.terms(arg) # doctest: +ELLIPSIS
+         >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
          [3.1622..., 4.0824...]
          >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
          (3.1622..., 4.0824...)

@@ -152,6 +152,7 @@ class l1norm(seminorm):
             check_zero = ~finite * (x != 0)
             if check_zero.sum():
                 return np.inf
+        x = np.asarray(x)
         return lagrange * np.fabs(x[finite] * self.weights[finite]).sum()
 
     @doc_template_user
