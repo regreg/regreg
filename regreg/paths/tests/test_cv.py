@@ -25,10 +25,10 @@ def test_lasso(n=1000, p=100, nstep=20):
                                                         lasso1.grad_solution, # initialized at "null" model
                                                         nstep=nstep)
 
-    cross_validate.cross_validate(lasso1,
-                                  lagrange_sequence,
-                                  inner_tol=1.e-5,
-                                  cv=3)
+    print(cross_validate.cross_validate(lasso1,
+                                        lagrange_sequence,
+                                        inner_tol=1.e-5,
+                                        cv=3))
 
 @set_seed_for_test()
 def test_group_lasso(n=1000, p=100, nstep=20):

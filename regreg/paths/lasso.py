@@ -1,22 +1,20 @@
 from __future__ import print_function, division, absolute_import
 
 from warnings import warn
-import gc
-
 import numpy as np
 import numpy.linalg as npl
 
 import scipy.sparse
 
-from . import subsample_columns
-from ..affine import power_L, normalize, astransform
+from . import subsample_columns, grouped_path, default_lagrange_sequence
+from ..affine import astransform, power_L
 from ..smooth import glm, affine_smooth, sum as smooth_sum
 from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.weighted_atoms import l1norm as weighted_l1norm
 
-class lasso_path(object):
+class lasso_path(grouped_path):
 
     BIG = 1e12 # lagrange parameter for finding null solution
 
@@ -41,8 +39,6 @@ class lasso_path(object):
         if elastic_net_param is None:
             elastic_net_param = np.ones(self.shape)
         self.elastic_net_param = elastic_net_param
-
-        # find lagrange_max
 
         unpenalized = self.penalty.weights == 0
         penalized = self._penalized_vars = ~unpenalized
@@ -72,201 +68,7 @@ class lasso_path(object):
                                                                                          self._penalized_vars,
                                                                                          1))
 
-    def main(self, lagrange_seq, inner_tol=1.e-5, verbose=False):
-
-        _lipschitz = power_L(self.X)
-
-        # take a guess at the inverse step size
-        self.final_step = 1000. / _lipschitz 
-
-        # gradient of restricted elastic net at lambda_max
-
-        solution = self.solution
-        grad_solution = self.grad_solution
-        linear_predictor = self.linear_predictor
-        ever_active = self.updated_ever_active([])
-
-        obj_solution = self.saturated_loss.smooth_objective(self.linear_predictor, 'func')
-        solutions = [self.solution.T.copy()]
-        objective = [obj_solution]
-
-        all_failing = np.zeros(self.group_shape, np.bool)
-        subproblem_set = self.updated_ever_active([])
-
-        for lagrange_new, lagrange_cur in zip(lagrange_seq[1:], 
-                                              lagrange_seq[:-1]):
-            tol = inner_tol
-            num_tries = 0
-            debug = False
-            coef_stop = True
-
-            while True:
-
-                subproblem_set = sorted(set(subproblem_set + self.updated_ever_active(all_failing)))
-
-                (self.final_step, 
-                 subproblem_grad, 
-                 subproblem_soln,
-                 subproblem_linpred,
-                 subproblem_vars) = self.solve_subproblem(subproblem_set,
-                                                          lagrange_new,
-                                                          tol=tol,
-                                                          start_step=self.final_step,
-                                                          debug=debug and verbose,
-                                                          coef_stop=coef_stop)
-
-                saturated_grad = self.saturated_loss.smooth_objective(subproblem_linpred, 'grad')
-                # as subproblem always contains ever active, 
-                # rest of solution should be 0
-                solution[subproblem_vars] = subproblem_soln
-
-                # strong rules step
-                # a set of group ids
-
-                strong, strong_idx, strong_vars = self.strong_set(lagrange_cur * self.alpha, 
-                                                                  lagrange_new * self.alpha, 
-                                                                  grad_solution)
-                strong_enet_grad = self.enet_grad(solution,
-                                                  self._penalized_vars,
-                                                  lagrange_new,
-                                                  subset=strong_vars)
-                strong_soln = solution[strong_vars]
-                X_strong = self.subsample_columns(self.X, 
-                                                  strong_vars)
-                strong_grad = (X_strong.T.dot(saturated_grad) +
-                               strong_enet_grad)
-                strong_penalty = self.restricted_penalty(strong_vars)
-                strong_failing = self.check_KKT(strong_grad, 
-                                                strong_soln, 
-                                                self.alpha * lagrange_new, 
-                                                penalty=strong_penalty)
-
-                if np.any(strong_failing):
-                    delta = np.zeros(self.group_shape, np.bool)
-                    delta[strong_idx] = strong_failing
-                    all_failing += delta 
-                else:
-                    enet_grad = self.enet_grad(solution, 
-                                               self._penalized_vars,
-                                               lagrange_new)
-                    grad_solution[:] = (self.full_gradient(self.saturated_loss, 
-                                                           subproblem_linpred) + 
-                                        enet_grad)
-                    all_failing = self.check_KKT(grad_solution, 
-                                                 solution, 
-                                                 self.alpha * lagrange_new)
-
-                    if not all_failing.sum():
-                        self.ever_active = self.updated_ever_active(self.active_set(solution))
-                        linear_predictor[:] = subproblem_linpred
-                        break
-                    else:
-                        if verbose:
-                            print('failing:', np.nonzero(all_failing)[0])
-                num_tries += 1
-
-                tol /= 2.
-                if num_tries % 5 == 0:
-
-                    solution[subproblem_vars] = subproblem_soln
-                    solution[~subproblem_vars] = 0
-
-                    enet_grad = self.enet_grad(solution, 
-                                               self._penalized_vars,
-                                               lagrange_new)
-                    grad_solution[:] = (self.full_gradient(self.saturated_loss, 
-                                                           subproblem_linpred) + 
-                                        enet_grad)
-                    debug = True
-                    tol = inner_tol
-                    if num_tries >= 20:
-                        warn('convergence not achieved for lagrange=%0.4e' % lagrange_new)
-                        break
-
-                subproblem_set = sorted(set(subproblem_set + self.updated_ever_active(all_failing)))
-
-            solutions.append(solution.T.copy())
-            objective.append(self.saturated_loss.smooth_objective(self.linear_predictor, mode='func'))
-            gc.collect()
-
-            if verbose:
-                print(lagrange_new,
-                      (solution != 0).sum(),
-                      1. - objective[-1] / objective[0],
-                      list(self.lagrange_sequence).index(lagrange_new),
-                      np.fabs(rescaled_solution).sum())
-
-        objective = np.array(objective)
-        output = {'devratio': 1 - objective / objective.max(),
-                  'lagrange': lagrange_seq,
-                  'beta':np.array(solutions)}
-
-        return output
-
-    # methods potentially overwritten in subclasses for I/O considerations
-
-    def subsample_columns(self, 
-                          X, 
-                          columns):
-        """
-        Extract columns of X into ndarray or
-        regreg transform
-        """
-        return subsample_columns(X, 
-                                 columns)
-
-    def full_gradient(self, 
-                      saturated_loss, 
-                      linear_predictor):
-        """
-        Gradient of saturated loss composed with self.X
-        """
-        saturated_grad = saturated_loss.smooth_objective(linear_predictor, 'grad')
-        return self.X.T.dot(saturated_grad)
-
-    def linpred(self,
-                coef,
-                X,
-                test):
-        """
-        Form linear predictor for given set of coefficients.
-
-        Typical use case will have coef of shape `(l,p)` for
-        univariate response regressions and `(l,q,p)` for
-        multiple response regressions (e.g. multinomial with
-        `q` classes) where `l` is the number of Lagrange
-        parameters.
-
-        Parameters
-        ----------
-
-        coef : ndarray
-            A set of coefficients. 
-
-        X : object
-            Representation of design matrix, usually `self.X` -- subclasses
-            may not assume this is actually an array.
-
-        test : index
-            Indices of X.dot(coef.T) to return.
-
-        Returns
-        -------
-
-        linpred : Matrix of linear predictors.
-
-        """
-        coef = np.asarray(coef)
-        if coef.ndim > 1:
-            coefT = coef.T
-            old_shape = coefT.shape
-            coefT = coefT.reshape((coefT.shape[0], -1))
-            linpred = X.dot(coefT)[test]
-            linpred = linpred.reshape((linpred.shape[0],) + old_shape[1:])
-            return linpred
-        return X.dot(coef.T)[test]
-
-    # method potentially overwritten in subclasses for penalty considerations
+    # LASSO specific part
 
     def subsample(self,
                   case_idx):
@@ -427,15 +229,6 @@ class lasso_path(object):
         Y = np.asarray(Y)
         return cls(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
 
-def default_lagrange_sequence(penalty,
-                              null_solution,
-                              lagrange_proportion=0.05,
-                              nstep=100):
-    dual = penalty.conjugate
-    lagrange_max = dual.seminorm(null_solution, lagrange=1)
-    return (lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
-                                              0, 
-                                              nstep)))[::-1]
 # private functions
 
 def _get_lagrange_max(penalty,

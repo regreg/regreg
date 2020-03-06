@@ -9,7 +9,7 @@ import numpy.linalg as npl
 
 import scipy.sparse
 
-from . import subsample_columns
+from . import subsample_columns, grouped_path
 from ..affine import power_L, normalize, astransform
 from ..smooth import mglm, affine_smooth, sum as smooth_sum
 from ..smooth.quadratic import quadratic_loss

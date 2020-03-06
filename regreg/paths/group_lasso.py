@@ -16,9 +16,9 @@ from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.group_lasso import group_lasso
-from .lasso import lasso_path, default_lagrange_sequence
+from . import grouped_path, default_lagrange_sequence
 
-class group_lasso_path(lasso_path):
+class group_lasso_path(grouped_path):
 
     BIG = 1e12 # lagrange parameter for finding null solution
 
@@ -254,6 +254,18 @@ class group_lasso_path(lasso_path):
         return group_lasso(self.penalty.groups[subset],
                            weights=self.penalty.weights,
                            lagrange=1)
+
+    # Some common loss factories
+
+    @classmethod
+    def logistic(cls, X, Y, *args, **keyword_args):
+        Y = np.asarray(Y)
+        return cls(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+    @classmethod
+    def gaussian(cls, X, Y, *args, **keyword_args):
+        Y = np.asarray(Y)
+        return cls(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 # private functions
 
