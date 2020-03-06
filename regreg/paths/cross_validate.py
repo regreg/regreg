@@ -1,11 +1,10 @@
 import numpy as np
 
-from sklearn.model_selection import check_cv
 from joblib.parallel import Parallel, delayed
 
 have_sklearn = True
 try:
-    from sklearn.metrics import mean_squared_error
+    from sklearn.model_selection import check_cv
 except ImportError:
     have_sklearn = False
 
