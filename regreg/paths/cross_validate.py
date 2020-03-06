@@ -7,6 +7,7 @@ try:
     from sklearn.model_selection import check_cv
 except ImportError:
     have_sklearn = False
+    pass
 
 def cross_validate(path_fitter,
                    lagrange_seq,

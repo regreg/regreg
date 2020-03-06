@@ -13,7 +13,7 @@ cache:
 env:
     global:
         # Maximal dependencies
-        - DEPENDS="cython numpy scipy matplotlib sklearn joblib"
+        - DEPENDS="cython numpy scipy matplotlib joblib"
         - EXTRA_WHEELS="https://5cf40426d9f06eb7461d-6fe47d9331aba7cd62fc36c7196769e4.ssl.cf2.rackcdn.com"
         - PRE_WHEELS="https://7933911d6844c6c53a7d-47bd50c35cd79bd838daf386af554a83.ssl.cf2.rackcdn.com"
         - EXTRA_PIP_FLAGS="--find-links=$EXTRA_WHEELS"
@@ -34,11 +34,11 @@ matrix:
     # Check these dependencies against regreg/info.py and requirements.txt
     - python: 2.7
       env:
-        - DEPENDS="cython==0.18 numpy==1.7.1 scipy==0.16.0"
+        - DEPENDS="cython==0.18 numpy==1.7.1 scipy==0.16.0 joblib"
     # Testing without matplotlib
     - python: 2.7
       env:
-        - DEPENDS="cython numpy scipy"
+        - DEPENDS="cython numpy scipy joblib"
     # Documentation doctests
     - python: 2.7
       env:
@@ -51,12 +51,12 @@ matrix:
       env:
         # Sdist install should collect all dependencies
         - INSTALL_TYPE=sdist
-        - DEPENDS="cython numpy scipy"
+        - DEPENDS="cython numpy scipy joblib"
     - python: 2.7
       env:
         # Wheel install should collect all dependencies
         - INSTALL_TYPE=wheel
-        - DEPENDS="cython numpy scipy"
+        - DEPENDS="cython numpy scipy joblib"
     - python: 2.7
       env:
         # pip fails below if DEPENDS is empty so we put a depend on nose
@@ -96,12 +96,12 @@ matrix:
       env:
         # Make sure mixins work if sklearn available
         - INSTALL_TYPE=sdist
-        - DEPENDS="cython numpy scipy sklearn"
+        - DEPENDS="cython numpy scipy sklearn joblib"
     - python: 3.5
       env:
         # Make sure mixins work if sklearn available
         - INSTALL_TYPE=sdist
-        - DEPENDS="cython numpy scipy sklearn"
+        - DEPENDS="cython numpy scipy sklearn joblib"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
