@@ -55,8 +55,6 @@ class sparse_group_block_path(group_lasso_path):
             elastic_net_param = np.ones(self.shape)
         self.elastic_net_param = elastic_net_param
 
-        # find lagrange_max
-
         unpenalized_groups, unpenalized_idx = self.unpenalized # [], []
         self.solution = np.zeros(self.penalty.shape)
 

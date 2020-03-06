@@ -8,7 +8,7 @@ def cross_validate(path_fitter,
                    lagrange_seq,
                    cv=5,
                    n_jobs=-1,
-                   score=lambda x,y: np.linalg.norm(x-y)**2,
+                   score=lambda x,y: np.linalg.norm(x-y)**2 / y.shape[0],
                    verbose=True,
                    inner_tol=1.e-5):
 

@@ -16,7 +16,8 @@ from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.sparse_group_lasso import (sparse_group_lasso,
-                                        _gauge_function_dual_strong)
+                                        _gauge_function_dual_strong,
+                                        _inside_set_strong)
 from .group_lasso import group_lasso_path, default_lagrange_sequence
 
 class sparse_group_lasso_path(group_lasso_path):
@@ -240,12 +241,15 @@ def _strong_set(penalty,
     """
 
     thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
-    dual = penalty.conjugate
-    prox_grad = penalty.lagrange_prox(gradient, lagrange=thresh)
-    terms = penalty.terms(prox_grad)
-    value = np.asarray(terms) > 0
-    value[unpenalized_idx] = True
-    return value
+    thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
+    test = np.zeros(len(penalty._sorted_groupids), np.bool)
+    for i, g in enumerate(penalty._sorted_groupids):
+        group = penalty.groups == g
+        test[i] = _inside_set_strong(gradient[group],
+                                     thresh,
+                                     penalty.lasso_weights[group],
+                                     penalty.weights[g]) == False
+    return test
 
 def _restricted_elastic_net(elastic_net_params, 
                             penalized,
