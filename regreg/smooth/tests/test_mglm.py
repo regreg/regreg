@@ -3,17 +3,17 @@ from copy import copy
 import nose.tools as nt
 import numpy as np
 
-from regreg.smooth import mglm
+from regreg.smooth import mglm, glm
 from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
-def test_gaussian():
+def test_gaussian_common():
 
     X = np.random.standard_normal((10,5))
     Y = np.random.standard_normal((10,3))
 
     for case_weights in [np.ones(10), None]:
-        sat = mglm.stacked_loglike.gaussian(Y.T)
+        sat = mglm.stacked_common_loglike.gaussian(Y.T)
         L = mglm.mglm(X, sat, case_weights=case_weights)
         L.smooth_objective(np.zeros(L.shape), 'both')
         L_sub = L.subsample(np.arange(5))
@@ -46,7 +46,7 @@ def test_gaussian():
 
         Xsub = X[np.arange(5)]
         Ysub = Y[np.arange(5)]
-        loss_sub = mglm.stacked_loglike.gaussian(Ysub.T)
+        loss_sub = mglm.stacked_common_loglike.gaussian(Ysub.T)
 
         beta = np.ones(L.shape)
         if case_weights is not None:

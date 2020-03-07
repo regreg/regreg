@@ -3,7 +3,8 @@ from copy import copy
 import nose.tools as nt
 import numpy as np
 
-from regreg.smooth.glm import glm
+from .. import glm
+from ...affine.block_maps import block_columns
 
 def test_logistic():
 
@@ -16,7 +17,7 @@ def test_logistic():
         X = np.random.standard_normal((10,5))
 
         for case_weights in [None, np.ones(10)]:
-            L = glm.logistic(X, Y, trials=T, case_weights=case_weights)
+            L = glm.glm.logistic(X, Y, trials=T, case_weights=case_weights)
             L.smooth_objective(np.zeros(L.shape), 'both')
             L.hessian(np.zeros(L.shape))
 
@@ -37,14 +38,14 @@ def test_logistic():
             beta = np.ones(L.shape)
 
             if case_weights is not None:
-                Lsub2 = glm.logistic(Xsub, Ysub, trials=Tsub, case_weights=case_weights[np.arange(5)])
-                Lsub3 = glm.logistic(Xsub, Ysub, trials=Tsub, case_weights=case_weights[np.arange(5)])
+                Lsub2 = glm.glm.logistic(Xsub, Ysub, trials=Tsub, case_weights=case_weights[np.arange(5)])
+                Lsub3 = glm.glm.logistic(Xsub, Ysub, trials=Tsub, case_weights=case_weights[np.arange(5)])
                 case_cp = case_weights.copy() * 0
                 case_cp[np.arange(5)] = 1
-                Lsub4 = glm.logistic(X, Y, trials=T, case_weights=case_cp)
+                Lsub4 = glm.glm.logistic(X, Y, trials=T, case_weights=case_cp)
             else:
-                Lsub2 = glm.logistic(Xsub, Ysub, trials=Tsub)
-                Lsub3 = glm.logistic(Xsub, Ysub, trials=Tsub)
+                Lsub2 = glm.glm.logistic(Xsub, Ysub, trials=Tsub)
+                Lsub3 = glm.glm.logistic(Xsub, Ysub, trials=Tsub)
 
             Lsub3.coef *= 2.
 
@@ -96,7 +97,7 @@ def test_poisson():
     Y = np.random.poisson(10, size=(10,))
 
     for case_weights in [np.ones(10), None]:
-        L = glm.poisson(X, Y, case_weights=case_weights)
+        L = glm.glm.poisson(X, Y, case_weights=case_weights)
         L.smooth_objective(np.zeros(L.shape), 'both')
         L.hessian(np.zeros(L.shape))
 
@@ -124,11 +125,11 @@ def test_poisson():
 
         beta = np.ones(L.shape)
         if case_weights is not None:
-            Lsub2 = glm.poisson(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
-            Lsub3 = glm.poisson(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
+            Lsub2 = glm.glm.poisson(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
+            Lsub3 = glm.glm.poisson(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
         else:
-            Lsub2 = glm.poisson(Xsub, Ysub)
-            Lsub3 = glm.poisson(Xsub, Ysub)
+            Lsub2 = glm.glm.poisson(Xsub, Ysub)
+            Lsub3 = glm.glm.poisson(Xsub, Ysub)
 
         Lsub3.coef *= 2.
 
@@ -157,7 +158,7 @@ def test_gaussian():
     Y = np.random.standard_normal(10)
 
     for case_weights in [np.ones(10), None]:
-        L = glm.gaussian(X, Y, case_weights=case_weights)
+        L = glm.glm.gaussian(X, Y, case_weights=case_weights)
         L.hessian(np.zeros(L.shape))
         L.smooth_objective(np.zeros(L.shape), 'both')
         L_sub = L.subsample(np.arange(5))
@@ -197,11 +198,11 @@ def test_gaussian():
 
         beta = np.ones(L.shape)
         if case_weights is not None:
-            Lsub2 = glm.gaussian(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
-            Lsub3 = glm.gaussian(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
+            Lsub2 = glm.glm.gaussian(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
+            Lsub3 = glm.glm.gaussian(Xsub, Ysub, case_weights=case_weights[np.arange(5)])
         else:
-            Lsub2 = glm.gaussian(Xsub, Ysub)
-            Lsub3 = glm.gaussian(Xsub, Ysub)
+            Lsub2 = glm.glm.gaussian(Xsub, Ysub)
+            Lsub3 = glm.glm.gaussian(Xsub, Ysub)
 
         Lsub3.coef *= 2.
 
@@ -233,7 +234,7 @@ def test_huber():
     Y = np.random.standard_normal(10)
 
     for case_weights in [np.ones(10), None]:
-        L = glm.huber(X, Y, 0.1, case_weights=case_weights)
+        L = glm.glm.huber(X, Y, 0.1, case_weights=case_weights)
         L.smooth_objective(np.zeros(L.shape), 'both')
 
         Lcp = copy(L)
@@ -259,7 +260,7 @@ def test_coxph():
     S = np.random.binomial(1, 0.5, size=(100,))
 
     for case_weights in [np.ones(100), None]:
-        L = glm.cox(X, T, S, case_weights=case_weights)
+        L = glm.glm.cox(X, T, S, case_weights=case_weights)
         L.smooth_objective(np.zeros(L.shape), 'both')
         L.saturated_loss.hessian_mult(np.zeros(T.shape), np.ones(T.shape))
         L.hessian(np.zeros(L.shape))
@@ -270,6 +271,30 @@ def test_coxph():
         L.latexify()
 
         L.data = (X, (T, S))
+        L.data
+
+
+def test_stacked():
+
+    X = np.random.standard_normal((10,5))
+    Y = np.random.standard_normal((10,3))
+
+    Xstack = block_columns([X for _ in range(3)])
+    for case_weights in [np.ones(10), None]:
+        sat = glm.stacked_loglike.gaussian(Y.T)
+        L = glm.glm(Xstack, sat.data, sat, case_weights=case_weights)
+        L.smooth_objective(np.zeros(L.shape), 'both')
+
+        np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
+                                   -X.T.dot(Y))
+
+        Lcp = copy(L)
+
+        L.objective(np.zeros(L.shape))
+        L.latexify()
+
+        L.saturated_loss.data
+
         L.data
 
 

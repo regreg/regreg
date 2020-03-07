@@ -1373,6 +1373,427 @@ class huber_loss(smooth_atom):
 
     # End loss API
 
+class stacked_loglike(smooth_atom):
+
+    """
+    A class for stacking `K=len(losses)` saturated losses with common
+    shapes (roughly speaking) summed over losses.
+
+    Roughly speaking a model of `K` independent measurements per individual.
+    """
+
+    objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
+
+    def __init__(self, 
+                 losses,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None,
+                 initial=None,
+                 case_weights=None):
+
+        shape = (np.sum([l.shape[0] for l in losses]),)
+        smooth_atom.__init__(self,
+                             shape,
+                             offset=offset,
+                             quadratic=quadratic,
+                             initial=initial,
+                             coef=coef)
+
+        self.data = np.vstack([l.data for l in losses])
+
+        self._slices = []
+        idx = 0
+        for l in losses:
+            self._slices.append(slice(idx, idx + l.shape[0], 1))
+            idx += l.shape[0]
+
+        self._losses = losses
+        self._gradient = np.zeros(self.shape)
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.shape[:1]:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
+
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
+        """
+
+        Evaluate the smooth objective, computing its value, gradient or both.
+
+        Parameters
+        ----------
+
+        natural_param : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `natural_param` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `natural_param`, else if `mode` is 'grad' returns the gradient
+        else returns both.
+        """
+        
+        if case_weights is None:
+            case_weights = np.ones(natural_param.shape[:1])
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
+        linpred = natural_param # shorthand
+
+        linpred = self.apply_offset(linpred)
+        if mode == 'grad':
+            for d, slice in enumerate(self._slices):
+                self._gradient[slice] = self._losses[d].smooth_objective(linpred[slice], 'grad')
+            return self.scale(self._gradient)
+        elif mode == 'func':
+            value = 0
+            for d, slice in enumerate(self._slices):
+                value += self._losses[d].smooth_objective(linpred[slice], 'func')
+            return self.scale(value)
+        elif mode == 'both':
+            value = 0
+            for d, slice in enumerate(self._slices):
+                f, g = self._losses[d].smooth_objective(linpred[slice], 'both')
+                self._gradient[slice] = g
+                value += f
+            return self.scale(value), self.scale(self._gradient)
+        else:
+            raise ValueError("mode incorrectly specified")
+
+    def get_data(self):
+        return self._data
+
+    def set_data(self, data):
+        self._data = data
+
+    data = property(get_data, set_data)
+
+    def __copy__(self):
+        return stacked_loglike(copy(self._losses),
+                               coef=self.coef,
+                               offset=copy(self.offset),
+                               quadratic=copy(self.quadratic),
+                               initial=copy(self.coefs),
+                               case_weights=copy(self.case_weights))
+
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
+    @classmethod
+    def gaussian(klass,
+                 responses,
+                 case_weights=None,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None, 
+                 initial=None):
+        """
+        Create a loss for a Gaussian regression model.
+
+        Parameters
+        ----------
+
+        responses : ndarray
+            Response vectors.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [gaussian_loglike(response.shape,
+                                   response,
+                                   coef=coef)
+                  for response in responses]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def logistic(klass, 
+                 successes, 
+                 trials=None,
+                 case_weights=None,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None, 
+                 initial=None):
+        """
+        Create a loss for a logistic regression model.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [logistic_loglike(successes[i],
+                                   trials[i],
+                                   coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def poisson(klass,
+                counts,
+                case_weights=None,
+                coef=1., 
+                offset=None,
+                quadratic=None, 
+                initial=None):
+        """
+        Create a loss for a Poisson regression model.
+
+        Parameters
+        ----------
+
+        counts : ndarray
+            Response vector. Should be non-negative integers.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [logistic_loglike(successes[i],
+                                   trials[i],
+                                   coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def huber(klass,
+              X, 
+              response,
+              smoothing_parameter,
+              case_weights=None,
+              coef=1., 
+              offset=None,
+              quadratic=None, 
+              initial=None):
+        """
+        Create a loss for a regression model using
+        Huber loss.
+
+        Parameters
+        ----------
+
+        response : ndarray
+            Response vector. 
+
+        smoothing_parameter : float
+            Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [huber_loss(response.shape,
+                             response,
+                             smoothing_parameter) 
+                  for response in responses]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def cox(klass, 
+            X, 
+            event_times,
+            censoring,
+            coef=1., 
+            offset=None,
+            quadratic=None, 
+            initial=None,
+            case_weights=None):
+        """
+        Create a loss for a Cox regression model.
+
+        Parameters
+        ----------
+
+        X : [ndarray, `regreg.affine.affine_transform`]
+            Design matrix
+
+        event_times : ndarray
+            Observed times for Cox proportional hazard model.
+
+        censoring : ndarray 
+            Censoring indicator for Cox proportional hazard model
+            - 1 indicates observation is a failure, 0 a censored observation.
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [cox_loglike(event_times[i].shape,
+                              event_times[i],
+                              censoring[i],
+                              coef=coef)
+                  for i in range(len(event_times))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+
+# Deprecated
+
 def logistic_loss(X, Y, trials=None, coef=1.):
     '''
     Construct a logistic loss function for successes Y and

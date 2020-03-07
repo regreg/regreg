@@ -113,7 +113,7 @@ class mglm(glm):
 
         return subsample_loss
         
-       
+      
     def hessian(self, beta):
         """
 
@@ -269,10 +269,13 @@ class mglm(glm):
                      initial=initial,
                      case_weights=case_weights)
 
-class stacked_loglike(smooth_atom):
+class stacked_common_loglike(smooth_atom):
 
     """
-    A class for stacking several saturated losses
+    A class for stacking `K=len(losses)` saturated losses with common
+    shapes (roughly speaking) summed over losses.
+
+    Roughly speaking a model of `K` independent measurements per individual.
     """
 
     objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
@@ -382,12 +385,12 @@ class stacked_loglike(smooth_atom):
     data = property(get_data, set_data)
 
     def __copy__(self):
-        return stacked_loglike(copy(self._losses),
-                               coef=self.coef,
-                               offset=copy(self.offset),
-                               quadratic=copy(self.quadratic),
-                               initial=copy(self.coefs),
-                               case_weights=copy(self.case_weights))
+        return stacked_common_loglike(copy(self._losses),
+                                      coef=self.coef,
+                                      offset=copy(self.offset),
+                                      quadratic=copy(self.quadratic),
+                                      initial=copy(self.coefs),
+                                      case_weights=copy(self.case_weights))
 
     def subsample(self, case_idx):
         """
