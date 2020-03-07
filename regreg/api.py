@@ -106,12 +106,13 @@ from .smooth.glm import (glm,
                          logistic_loglike, 
                          poisson_loglike, 
                          gaussian_loglike, 
-                         cox_loglike)
+                         cox_loglike,
+                         stacked_loglike)
 
 from .smooth.mglm import (multinomial_baseline_loglike,
                           multinomial_loglike,
                           mglm,
-                          stacked_loglike)
+                          stacked_common_loglike)
 
 # Problem imports
 
