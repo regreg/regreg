@@ -154,10 +154,10 @@ def test_sparse_group_block(n=1000, p=100, q=3, nstep=20):
     np.random.shuffle(betaX)
     Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
 
-    sparse_group_block1 = sparse_group_block.sparse_group_block_path.multiresponse_gaussian(X, 
-                                                                                            Y, 
-                                                                                            1,
-                                                                                            np.sqrt(q))
+    sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
+                                                                    Y, 
+                                                                    1,
+                                                                    np.sqrt(q))
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=nstep) # initialized at "null" model
