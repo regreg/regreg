@@ -31,7 +31,7 @@ class cox_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        self.data = (event_times, censoring)
+        self.data = event_times, censoring
 
         self._ordering = np.argsort(self.event_times).astype(np.intp)
         self._rankmax = (rankdata(self.event_times, method='max') - 1).astype(np.intp)
@@ -97,7 +97,7 @@ class cox_loglike(smooth_atom):
         if self.case_weights is not None:
             cw *= self.case_weights
 
-        censoring = self.data[1]
+        censoring = self.censoring
 
         if mode in ['both', 'grad']:
             G = cox_gradient(self._G,
@@ -172,7 +172,7 @@ class cox_loglike(smooth_atom):
 
         eta = natural_param # shorthand
         eta = self.apply_offset(eta)
-        censoring = self.data[1]
+        censoring = self.censoring
 
         H = np.zeros(eta.shape, np.float)
 
@@ -192,7 +192,7 @@ class cox_loglike(smooth_atom):
                            eta.shape[0])
 
     def get_data(self):
-        return self.event_times, self.censoring
+        return np.array([self.event_times, self.censoring])
 
     def set_data(self, data):
         event_times, censoring = data
@@ -202,7 +202,7 @@ class cox_loglike(smooth_atom):
     data = property(get_data, set_data)
 
     def __copy__(self):
-        event_times, censoring = self.data
+        event_times, censoring = self.event_times, self.censoring
         return cox_loglike(self.shape,
                            copy(event_times),
                            copy(censoring),

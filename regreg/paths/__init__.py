@@ -30,7 +30,7 @@ class grouped_path(object):
 
     def main(self, lagrange_seq, inner_tol=1.e-5, verbose=False):
 
-        _lipschitz = power_L(self.X)
+        _lipschitz = power_L(self.X, max_its=50)
 
         # take a guess at the inverse step size
         self.final_step = 1000. / _lipschitz 

@@ -9,9 +9,13 @@ import numpy.linalg as npl
 
 import scipy.sparse
 
-from . import subsample_columns, grouped_path
-from ..affine import power_L, normalize, astransform
-from ..smooth import mglm, affine_smooth, sum as smooth_sum
+from . import (subsample_columns, 
+               grouped_path)
+from ..affine import astransform
+from ..smooth import (mglm, 
+                      affine_smooth, 
+                      glm,
+                      sum as smooth_sum)
 from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
@@ -189,6 +193,7 @@ class sparse_group_block_path(group_lasso_path):
                                                                            self.alpha * lagrange_new, 
                                                                            self.penalty.l1_weight,
                                                                            self.penalty.l2_weight,
+                                                                           self.l1_weight,
                                                                            candidate_groups,
                                                                            self.subsample_columns)
         if self.alpha < 1:
@@ -248,9 +253,15 @@ class sparse_group_block_path(group_lasso_path):
         return cls(mglm.multinomial_loglike(Y.shape, Y), X, *args, **keyword_args)
 
     @classmethod
+    def multiresponse_gaussian(cls, X, Y, *args, **keyword_args):
+        Y = np.asarray(Y)
+        loss = mglm.stacked_common_loglike.gaussian(Y.T)
+        return cls(loss, X, *args, **keyword_args)
+
+    @classmethod
     def gaussian(cls, X, Y, *args, **keyword_args):
         Y = np.asarray(Y)
-        loss = mglm.stacked_loglike.gaussian(Y.T)
+        loss = glm.stacked_loglike.gaussian(Y.T)
         return cls(loss, X, *args, **keyword_args)
 
 # private functions
@@ -282,6 +293,7 @@ def _restricted_problem(X,
                         alpha,
                         l1_weight,
                         l2_weight,
+                        l1_l2_alpha,
                         candidate_groups,
                         subsample_columns):
 
@@ -289,10 +301,10 @@ def _restricted_problem(X,
     candidate_bool = np.zeros(X.input_shape[0], np.bool)
     candidate_bool[candidate_groups] = True
     restricted_penalty = sparse_group_block((X_candidate.shape[1], saturated_loss.shape[1]),
-                                            l1_weight,
-                                            l2_weight,
+                                            l1_l2_alpha * l1_weight,
+                                            (1 - l1_l2_alpha) * l2_weight,
                                             lagrange=alpha)
-
+    stop
     restricted_loss = affine_smooth(saturated_loss, X_candidate)
     restricted_loss.shape = X_candidate.shape[1:] + saturated_loss.shape[1:]
     return restricted_loss, restricted_penalty, X_candidate, candidate_bool

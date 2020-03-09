@@ -16,10 +16,10 @@ def test_path():
     np.random.shuffle(betaX)
     Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
 
-    sparse_group_block1 = sparse_group_block.sparse_group_block_path.gaussian(X, 
-                                                                              Y, 
-                                                                              1,
-                                                                              np.sqrt(q))
+    sparse_group_block1 = sparse_group_block.sparse_group_block_path.multiresponse_gaussian(X, 
+                                                                                            Y, 
+                                                                                            1,
+                                                                                            np.sqrt(q))
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
@@ -64,10 +64,10 @@ def test_path_subsample(n=200,p=50):
     np.random.shuffle(betaX)
     Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
 
-    sparse_group_block1 = sparse_group_block.sparse_group_block_path.gaussian(X, 
-                                                                              Y, 
-                                                                              1,
-                                                                              np.sqrt(q))
+    sparse_group_block1 = sparse_group_block.sparse_group_block_path.multiresponse_gaussian(X, 
+                                                                                            Y, 
+                                                                                            1,
+                                                                                            np.sqrt(q))
     cases = range(100)
     sparse_group_block1 = sparse_group_block1.subsample(cases)
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
@@ -76,10 +76,10 @@ def test_path_subsample(n=200,p=50):
     sol1 = sparse_group_block1.main(lagrange_sequence, inner_tol=1.e-10)
     beta1 = sol1['beta']
 
-    sparse_group_block2 = sparse_group_block.sparse_group_block_path.gaussian(X[cases], 
-                                                                              Y[cases], 
-                                                                              1,
-                                                                              np.sqrt(q))
+    sparse_group_block2 = sparse_group_block.sparse_group_block_path.multiresponse_gaussian(X[cases], 
+                                                                                            Y[cases], 
+                                                                                            1,
+                                                                                            np.sqrt(q))
     sol2 = sparse_group_block2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
@@ -102,12 +102,12 @@ def test_elastic_net(n=200, p=50):
     enet = np.zeros((X.shape[1], Y.shape[1]))
     enet[4:7] = 0
 
-    sparse_group_block1 = sparse_group_block.sparse_group_block_path.gaussian(X, 
-                                                                              Y, 
-                                                                              1,
-                                                                              np.sqrt(2),
-                                                                              alpha=0.5,
-                                                                              elastic_net_param=enet)
+    sparse_group_block1 = sparse_group_block.sparse_group_block_path.multiresponse_gaussian(X, 
+                                                                                            Y, 
+                                                                                            1,
+                                                                                            np.sqrt(2),
+                                                                                            alpha=0.5,
+                                                                                            elastic_net_param=enet)
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model

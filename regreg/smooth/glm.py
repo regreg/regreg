@@ -560,7 +560,7 @@ class glm(smooth_atom):
                            coef=coef)
 
         return klass(X, 
-                     (event_times, censoring),
+                     np.array([event_times, censoring]).T,
                      loss,
                      offset=offset,
                      quadratic=quadratic,
@@ -1400,7 +1400,7 @@ class stacked_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        self.data = np.vstack([l.data for l in losses])
+        self.data = None
 
         self._slices = []
         idx = 0
