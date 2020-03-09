@@ -12,6 +12,7 @@ import scipy.sparse
 from . import (subsample_columns, 
                grouped_path)
 from ..affine import astransform
+from ..affine.block_maps import block_columns
 from ..smooth import (mglm, 
                       affine_smooth, 
                       glm,
@@ -24,9 +25,13 @@ from ..atoms.sparse_group_lasso import (_gauge_function_dual_strong,
                                         _inside_set_strong)
 from .group_lasso import group_lasso_path, default_lagrange_sequence
 
-class sparse_group_block_path(group_lasso_path):
+class sparse_group_common_path(group_lasso_path):
 
     BIG = 1e12 # lagrange parameter for finding null solution
+
+    """
+    Responses here share a common X, e.g. multinomial regression.
+    """
 
     def __init__(self, 
                  saturated_loss, # shape (n,q) -- multiresponse
@@ -35,7 +40,7 @@ class sparse_group_block_path(group_lasso_path):
                  l2_penalty,
                  elastic_net_param=None,
                  alpha=1.,  # elastic net mixing -- 1 is LASSO
-                 l1_weight=0.95):
+                 l1_weight=0.95): # this is \alpha of SGL paper
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
@@ -167,6 +172,9 @@ class sparse_group_block_path(group_lasso_path):
                              self.penalty.l1_weight,
                              self.penalty.l2_weight,
                              lagrange)
+        import sys; sys.stderr.write('results: ' + repr(results) + '\n')
+        sys.stderr.write('lagrange %f\n' % lagrange)
+        sys.stderr.write(repr(self.penalty.conjugate.terms(grad_solution)) + '\n')
         return results > 0
 
     def strong_set(self,
@@ -245,24 +253,65 @@ class sparse_group_block_path(group_lasso_path):
                                   self.penalty.l1_weight,
                                   self.penalty.l2_weight,
                                   lagrange=1)
-    # Some common loss factories
 
-    @classmethod
-    def multinomial(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        return cls(mglm.multinomial_loglike(Y.shape, Y), X, *args, **keyword_args)
+# Some loss factories with common X
 
-    @classmethod
-    def multiresponse_gaussian(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        loss = mglm.stacked_common_loglike.gaussian(Y.T)
-        return cls(loss, X, *args, **keyword_args)
+def multinomial(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return sparse_group_common_path(mglm.multinomial_loglike(Y.shape, Y), X, *args, **keyword_args)
 
-    @classmethod
-    def gaussian(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        loss = glm.stacked_loglike.gaussian(Y.T)
-        return cls(loss, X, *args, **keyword_args)
+def multiresponse_gaussian(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    loss = mglm.stacked_common_loglike.gaussian(Y.T)
+    return sparse_group_common_path(loss, X, *args, **keyword_args)
+
+class sparse_group_block_path(sparse_group_common_path):
+
+    BIG = 1e12 # lagrange parameter for finding null solution
+
+    """
+    Responses here have different Xs but common
+    set of columns. Design is transpose of "seemingly unrelated regressions".
+
+    """
+
+    def __init__(self, 
+                 saturated_loss, # shape (n,q) -- multiresponse
+                 Xs, 
+                 l1_penalty,
+                 l2_penalty,
+                 elastic_net_param=None,
+                 alpha=1.,  # elastic net mixing -- 1 is LASSO
+                 l1_weight=0.95): # this is \alpha of SGL paper
+
+        sparse_group_common_path.__init__(self,
+                                          saturated_loss,
+                                          block_columns(*Xs),
+                                          l1_penalty,
+                                          l2_penalty,
+                                          elastic_net_param=elastic_net_param,
+                                          alpha=alpha,
+                                          l1_weight=l1_weight)
+
+        self._Xs = Xs
+
+    # methods potentially overwritten in subclasses for I/O considerations
+
+    def subsample_columns(self, 
+                          X, 
+                          columns):
+        """
+        Extract columns of self.Xs into ndarray or
+        Argument `X` is ignored here.
+        """
+        return block_columns(*[subsample_columns(Xblock, 
+                                                 columns)
+                              for Xblock in self._Xs])
+    
+def stacked_gaussian(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    loss = glm.stacked_loglike.gaussian(Y.T)
+    return sparse_group_block_path(loss, X, *args, **keyword_args)
 
 # private functions
 
@@ -304,9 +353,14 @@ def _restricted_problem(X,
                                             l1_l2_alpha * l1_weight,
                                             (1 - l1_l2_alpha) * l2_weight,
                                             lagrange=alpha)
-    stop
     restricted_loss = affine_smooth(saturated_loss, X_candidate)
     restricted_loss.shape = X_candidate.shape[1:] + saturated_loss.shape[1:]
+
+    X_c = astransform(X_candidate)
+    import sys; sys.stderr.write('shapes: ' + repr((X_c.input_shape,
+                                                    X_c.output_shape,
+                                                    restricted_penalty.shape,
+                                                    restricted_loss.shape)) + '\n')
     return restricted_loss, restricted_penalty, X_candidate, candidate_bool
 
 # for paths
@@ -375,6 +429,8 @@ def _check_KKT(grad,
         # l2 subgrad should be parallel to soln_g
         if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
                           soln_g / np.linalg.norm(soln_g)) > tol:
+            import sys; sys.stderr.write('%f\n' % np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
+                          soln_g / np.linalg.norm(soln_g)))
             results[g] = ACTIVE_L2
 
     for g in np.nonzero(~active)[0]:
@@ -385,59 +441,3 @@ def _check_KKT(grad,
             results[g] = INACTIVE
     return results
 
-# # for paths
-
-# def _check_KKT(sglasso, 
-#                grad, 
-#                solution, 
-#                lagrange, 
-#                tol=1.e-2):
-
-#     """
-#     Check whether (grad, solution) satisfy
-#     KKT conditions at a given tolerance.
-
-#     Assumes glasso is group_lasso in lagrange form
-#     so that glasso.lagrange is not None
-#     """
-
-#     terms = sglasso.terms(solution)
-#     norm_soln = np.linalg.norm(solution)
-
-#     ACTIVE_L1 = 10
-#     ACTIVE_NORM = 11
-#     ACTIVE_L2 = 12
-#     INACTIVE = 2
-#     UNPENALIZED = 3
-
-#     results = np.zeros(len(sglasso._sorted_groupids), np.int)
-#     for i, g in enumerate(sglasso._sorted_groupids):
-#         group = sglasso.groups == g
-#         subgrad_g = -grad[group]
-#         l1weight_g = sglasso.lasso_weights[group]
-#         l2weight_g = sglasso.weights[g]
-#         soln_g = solution[group]
-
-#         if terms[i] > 1.e-6 * norm_soln: # active group
-#             val_g, l1subgrad_g, l2subgrad_g = _gauge_function_dual_strong(subgrad_g, 
-#                                                                           l1weight_g,
-#                                                                           l2weight_g)
-#             if val_g < lagrange * (1 - tol):
-#                 results[i] = ACTIVE_NORM
-#             nonz = soln_g != 0
-
-#             # nonzero coordinates need the right sign and size
-#             if (np.linalg.norm((l1subgrad_g - l1weight_g * np.sign(soln_g) * lagrange)[nonz]) > 
-#                 tol * max(1, np.linalg.norm(soln_g))):
-#                 results[i] = ACTIVE_L1
-
-#             # l2 subgrad should be parallel to soln_g
-#             if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
-#                               soln_g / np.linalg.norm(soln_g)) > tol:
-#                 results[i] = ACTIVE_L2
-#         elif l1weight_g.sum() + sglasso.weights[g] > 0: # inactive penalized
-#             results[i] = (_gauge_function_dual_strong(subgrad_g, l1weight_g,
-#                                                       l2weight_g)[0] >= lagrange * (1 + tol)) * INACTIVE
-#         else:   # unpenalized
-#             results[i] = (np.linalg.norm(subgrad_g) > tol * sqlasso.l1weight_g.mean()) * UNPENALIZED
-#     return results
