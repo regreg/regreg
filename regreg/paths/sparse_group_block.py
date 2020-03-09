@@ -99,6 +99,22 @@ class sparse_group_common_path(group_lasso_path):
 
     # methods potentially overwritten in subclasses for I/O considerations
 
+    def subsample_columns(self, 
+                          X, 
+                          columns):
+        """
+        Extract columns of self.Xs into ndarray or
+        Argument `X` is ignored here.
+        """
+        X = astransform(group_lasso_path.subsample_columns(self,
+                                                           X,
+                                                           columns))
+        mask = np.zeros(self.penalty.shape[0], np.bool)
+        mask[columns] = 1
+        X.input_shape = (mask.sum(),
+                         self.penalty.shape[1])
+        return X
+
     def subsample(self,
                   case_idx):
         '''
@@ -289,7 +305,7 @@ class sparse_group_block_path(sparse_group_common_path):
 
         sparse_group_common_path.__init__(self,
                                           saturated_loss,
-                                          block_columns(*Xs),
+                                          block_columns(Xs),
                                           l1_penalty,
                                           l2_penalty,
                                           elastic_net_param=elastic_net_param,
@@ -300,6 +316,42 @@ class sparse_group_block_path(sparse_group_common_path):
 
     # methods potentially overwritten in subclasses for I/O considerations
 
+    def linpred(self,
+                coef,
+                X,
+                test):
+        """
+        Form linear predictor for given set of coefficients.
+
+        Typical use case will have coef of shape `(l,p)` for
+        univariate response regressions and `(l,q,p)` for
+        multiple response regressions (e.g. multinomial with
+        `q` classes) where `l` is the number of Lagrange
+        parameters.
+
+        Parameters
+        ----------
+
+        coef : ndarray
+            A set of coefficients. 
+
+        X : object
+            Representation of design matrix, usually `self.X` -- subclasses
+            may not assume this is actually an array.
+
+        test : index
+            Indices of X.dot(coef.T) to return.
+
+        Returns
+        -------
+
+        linpred : Matrix of linear predictors.
+
+        """
+        coef = np.asarray(coef)
+        result = np.array([X.dot(c.T) for c in coef]).T[test]
+        return result
+
     def subsample_columns(self, 
                           X, 
                           columns):
@@ -307,14 +359,65 @@ class sparse_group_block_path(sparse_group_common_path):
         Extract columns of self.Xs into ndarray or
         Argument `X` is ignored here.
         """
-        return block_columns(*[subsample_columns(Xblock, 
-                                                 columns)
+        return block_columns([subsample_columns(Xblock, 
+                                                columns)
                               for Xblock in self._Xs])
     
-def stacked_gaussian(X, Y, *args, **keyword_args):
-    Y = np.asarray(Y)
-    loss = glm.stacked_loglike.gaussian(Y.T)
-    return sparse_group_block_path(loss, X, *args, **keyword_args)
+    def subsample(self,
+                  case_idx):
+        '''
+
+        Create a new path, by subsampling
+        cases of `self.saturated_loss`.
+
+        Case weights are computed
+        with `self.saturated_loss.subsample`.
+
+        Parameters
+        ----------
+
+        case_idx : index
+            An index-like object used 
+            to specify which cases to include
+            in the subsample.
+
+        Returns
+        -------
+
+        subsample_path : path object
+            A path object with a modified smooth part
+            reflecting the subsampling.
+
+        '''
+        subsample_loss = self.saturated_loss.subsample(case_idx)
+        return self.__class__(subsample_loss,
+                              self._Xs,
+                              self.l1_penalty,
+                              self.l2_penalty,
+                              elastic_net_param=self.elastic_net_param,
+                              alpha=self.alpha,
+                              l1_alpha=None)
+
+def stacked_gaussian(Xs, Ys, *args, **keyword_args):
+    loss = glm.stacked_loglike.gaussian(Ys) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
+def stacked_cox(Xs, Ts, Cs, *args, **keyword_args):
+    loss = glm.stacked_loglike.cox(Ts, Cs) # Ts a sequence of event times,
+                                           # Cs a sequence of censor indicators
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
+def stacked_logistic(Xs, Ys, *args, **keyword_args):
+    loss = glm.stacked_loglike.logistic(Ys) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
+def stacked_poisson(Xs, Ys, *args, **keyword_args):
+    loss = glm.stacked_loglike.poisson(Ys) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
+def stacked_huber(Xs, Ys, *args, **keyword_args):
+    loss = glm.stacked_loglike.huber(Ys) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 # private functions
 
@@ -351,12 +454,12 @@ def _restricted_problem(X,
     X_candidate = subsample_columns(X, candidate_groups)
     candidate_bool = np.zeros(X.input_shape[0], np.bool)
     candidate_bool[candidate_groups] = True
-    restricted_penalty = sparse_group_block((X_candidate.shape[1], saturated_loss.shape[1]),
+    restricted_penalty = sparse_group_block(X_candidate.input_shape,
                                             l1_weight,
                                             l2_weight,
                                             lagrange=alpha)
     restricted_loss = affine_smooth(saturated_loss, X_candidate)
-    restricted_loss.shape = X_candidate.shape[1:] + saturated_loss.shape[1:]
+    restricted_loss.shape = restricted_penalty.shape
 
     X_c = astransform(X_candidate)
 #    import sys; sys.stderr.write('shapes: ' + repr((X_c.input_shape,

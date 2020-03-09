@@ -143,7 +143,7 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
                                   cv=3)
 
 @set_seed_for_test()
-def test_sparse_group_block(n=1000, p=100, q=3, nstep=20):
+def test_sparse_group_multiresponse(n=1000, p=100, q=3, nstep=20):
     '''
     CV for a LASSO path
 
@@ -158,6 +158,39 @@ def test_sparse_group_block(n=1000, p=100, q=3, nstep=20):
                                                                     Y, 
                                                                     1,
                                                                     np.sqrt(q))
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                                     sparse_group_block1.grad_solution,
+                                                                     nstep=nstep) # initialized at "null" model
+
+    cross_validate.cross_validate(sparse_group_block1,
+                                  lagrange_sequence,
+                                  inner_tol=1.e-10,
+                                  cv=3)
+
+@set_seed_for_test()
+def test_sparse_group_block(n=1000, p=100, q=3, nstep=20):
+    '''
+    CV for a LASSO path
+
+    '''
+    n1, n2, n3, p, q = 1190, 1200, 1210, 100, 3
+    X1 = np.random.standard_normal((n1,p))
+    X2 = np.random.standard_normal((n2,p))
+    X3 = np.random.standard_normal((n3,p))
+    betaX = np.zeros((p,q))
+    betaX[:3] = [3,4,5]
+    betaX *= 0.2
+    np.random.shuffle(betaX)
+    Y = [np.dot(X, beta) + np.random.standard_normal(n) for
+         X, beta, n in zip([X1, X2, X3],
+                           betaX.T,
+                           [n1, n2, n3])]
+                                     
+
+    sparse_group_block1 = sparse_group_block.stacked_gaussian([X1, X2, X3], 
+                                                              Y, 
+                                                              1,
+                                                              np.sqrt(q))
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=nstep) # initialized at "null" model

@@ -1382,7 +1382,7 @@ class stacked_loglike(smooth_atom):
     Roughly speaking a model of `K` independent measurements per individual.
     """
 
-    objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
+    objective_template = r"""\ell^{\text{stack}}\left(%(var)s\right)"""
 
     def __init__(self, 
                  losses,
@@ -1400,7 +1400,15 @@ class stacked_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        self.data = None
+        responses = [l.data for l in losses]
+        shapes = [r.shape for r in responses]
+        dims = np.array([len(s) for s in shapes])
+        if np.all(dims == 1):
+            self.data = np.hstack(responses)
+        elif np.all(dims == 2):
+            self.data = np.vstack(responses)
+        else:
+            raise ValueError('expecting either 1 or dimensional data for saturated losses')
 
         self._slices = []
         idx = 0
@@ -1683,7 +1691,7 @@ class stacked_loglike(smooth_atom):
     @classmethod
     def huber(klass,
               X, 
-              response,
+              responses,
               smoothing_parameter,
               case_weights=None,
               coef=1., 

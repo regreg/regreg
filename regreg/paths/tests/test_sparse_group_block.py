@@ -4,7 +4,7 @@ from .. import lasso, sparse_group_block
 from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
-def test_path():
+def test_gaussian_multiresponse():
     '''
     run a basic path algorithm
 
@@ -26,6 +26,38 @@ def test_path():
     sol1 = sparse_group_block1.main(lagrange_sequence, inner_tol=1.e-12)
     beta1 = sol1['beta']
 
+@set_seed_for_test()
+def test_gaussian_blocks():
+    '''
+    run a basic path algorithm
+
+    '''
+    n1, n2, n3, p, q = 190, 200, 210, 50, 3
+    X1 = np.random.standard_normal((n1,p))
+    X2 = np.random.standard_normal((n2,p))
+    X3 = np.random.standard_normal((n3,p))
+    betaX = np.zeros((p,q))
+    betaX[:3] = [3,4,5]
+    np.random.shuffle(betaX)
+    Y = [np.dot(X, beta) + np.random.standard_normal(n) for
+         X, beta, n in zip([X1, X2, X3],
+                           betaX.T,
+                           [n1, n2, n3])]
+                                     
+
+    sparse_group_block1 = sparse_group_block.stacked_gaussian([X1, X2, X3], 
+                                                              Y, 
+                                                              1,
+                                                              np.sqrt(q))
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                                     sparse_group_block1.grad_solution,
+                                                                     nstep=23) # initialized at "null" model
+    sol1 = sparse_group_block1.main(lagrange_sequence, inner_tol=1.e-12)
+    beta1 = sol1['beta']
+    print(beta1.shape)
+    print(np.sqrt((beta1**2).sum(2).sum(1)))
+    
+@set_seed_for_test()
 @set_seed_for_test()
 def test_multinomial():
     '''
