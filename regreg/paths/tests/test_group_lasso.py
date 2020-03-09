@@ -16,18 +16,18 @@ def test_lasso_agreement(n=200,p=50):
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
     groups = np.arange(p)
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
                                                               nstep=23) # initialized at "null" model
     sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-12)
 
     weights = np.ones(p)
-    lasso2 = lasso.lasso_path.gaussian(X, 
-                                       Y, 
-                                       weights)
+    lasso2 = lasso.gaussian(X, 
+                            Y, 
+                            weights)
     sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-12)
     beta1 = sol1['beta']
     beta2 = sol2['beta']
@@ -52,9 +52,9 @@ def test_path_subsample(n=200,p=50):
         groups.extend([str(i)]*5)
 
     np.random.shuffle(groups)
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups)
     group_lasso1 = group_lasso1.subsample(cases)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
@@ -62,9 +62,9 @@ def test_path_subsample(n=200,p=50):
     sol1 = group_lasso1.main(lagrange_sequence, inner_tol=1.e-10)
     beta1 = sol1['beta']
 
-    group_lasso2 = group_lasso.group_lasso_path.gaussian(X[cases],
-                                                         Y[cases],
-                                                         groups)
+    group_lasso2 = group_lasso.gaussian(X[cases],
+                                        Y[cases],
+                                        groups)
     sol2 = group_lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
@@ -91,9 +91,9 @@ def test_path():
         groups.extend([str(i)]*5)
 
     np.random.shuffle(groups)
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
                                                               nstep=23) # initialized at "null" model
@@ -120,10 +120,10 @@ def test_unpenalized(n=200, p=50):
     weights['2'] = weights['3'] = 0
     weights['a'] = weights['b'] = 2
 
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups,
-                                                         weights=weights)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups,
+                                        weights=weights)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
                                                               nstep=23) # initialized at "null" model
@@ -150,11 +150,11 @@ def test_elastic_net(n=200, p=50):
     for i in range(9):
         groups.extend([str(i)]*5)
 
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups,
-                                                         alpha=0.5,
-                                                         elastic_net_param=enet)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups,
+                                        alpha=0.5,
+                                        elastic_net_param=enet)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
                                                               nstep=23) # initialized at "null" model
@@ -184,12 +184,12 @@ def test_elastic_net_unpenalized(n=200, p=50):
     weights['2'] = weights['3'] = 0
     weights['a'] = weights['b'] = 2
 
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups,
-                                                         weights=weights,
-                                                         alpha=0.5,
-                                                         elastic_net_param=enet)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups,
+                                        weights=weights,
+                                        alpha=0.5,
+                                        elastic_net_param=enet)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
                                                               nstep=23) # initialized at "null" model

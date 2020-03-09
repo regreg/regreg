@@ -20,7 +20,7 @@ def test_lasso(n=1000, p=100, nstep=20):
     betaX[:3] = [3,4,5]
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
-    lasso1 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    lasso1 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution, # initialized at "null" model
                                                         nstep=nstep)
@@ -53,9 +53,9 @@ def test_group_lasso(n=1000, p=100, nstep=20):
             break
         i += 1
     np.random.shuffle(groups)
-    group_lasso1 = group_lasso.group_lasso_path.gaussian(X, 
-                                                         Y, 
-                                                         groups)
+    group_lasso1 = group_lasso.gaussian(X, 
+                                        Y, 
+                                        groups)
     lagrange_sequence = group_lasso.default_lagrange_sequence(group_lasso1.penalty,
                                                               group_lasso1.grad_solution,
                                                               nstep=nstep) # initialized at "null" model
@@ -90,10 +90,10 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
         i += 1
     np.random.shuffle(groups)
     l1weights = np.ones(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution, # initialized at "null" model
                                                                      nstep=nstep) 
@@ -129,10 +129,10 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
         i += 1
     np.random.shuffle(groups)
     l1weights = np.ones(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution, # initialized at "null" model
                                                                      nstep=nstep) 

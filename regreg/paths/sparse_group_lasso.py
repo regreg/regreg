@@ -216,7 +216,29 @@ class sparse_group_lasso_path(group_lasso_path):
         return sparse_group_lasso(self.penalty.groups[subset],
                                   self.penalty.lasso_weights[subset],
                                   weights=self.penalty.weights,
-                                  lagrange=1)
+                                  lagrange=1)#
+# Some common loss factories
+
+def logistic(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return sparse_group_lasso_path(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+def gaussian(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return sparse_group_lasso_path(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+def cox(X, T, S, *args, **keyword_args):
+    T, S = np.asarray(T), np.asarray(S)
+    return sparse_group_lasso_path(glm.cox_loglike(T.shape, T, S), X, *args, **keyword_args)
+
+def poisson(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return sparse_group_lasso_path(glm.poisson_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+def huber(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return sparse_group_lasso_path(glm.huber_loss(Y.shape, Y), X, *args, **keyword_args)
+
 # private functions
 
 def _candidate_bool(groups, candidate_groups):

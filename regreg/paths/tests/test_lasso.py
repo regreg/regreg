@@ -15,7 +15,7 @@ def test_path(n=200,p=50):
     betaX[:3] = [3,4,5]
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
-    lasso1 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    lasso1 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
@@ -35,7 +35,7 @@ def test_path_subsample(n=200,p=50):
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
     cases = range(n//2)
-    lasso1 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    lasso1 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
     lasso1_sub = lasso1.subsample(cases)
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1_sub.penalty,
                                                         lasso1_sub.grad_solution,
@@ -43,7 +43,7 @@ def test_path_subsample(n=200,p=50):
     sol1 = lasso1_sub.main(lagrange_sequence, inner_tol=1.e-10)
     beta1 = sol1['beta']
 
-    lasso2 = lasso.lasso_path.gaussian(X[cases], Y[cases], np.ones(X.shape[1]))
+    lasso2 = lasso.gaussian(X[cases], Y[cases], np.ones(X.shape[1]))
     sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
@@ -52,7 +52,7 @@ def test_path_subsample(n=200,p=50):
     # check that the subsample did not change the original
     # path object
 
-    lasso3 = lasso.lasso_path.gaussian(X, Y, np.ones(X.shape[1]))
+    lasso3 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
     beta3 = lasso1.main(lagrange_sequence, inner_tol=1.e-10)['beta']
     beta4 = lasso3.main(lagrange_sequence, inner_tol=1.e-10)['beta']
 
@@ -72,9 +72,9 @@ def test_unpenalized(n=200, p=50):
 
     weights = np.ones(X.shape[1])
     weights[0:2] = 0
-    lasso1 = lasso.lasso_path.gaussian(X, 
-                                       Y, 
-                                       weights)
+    lasso1 = lasso.gaussian(X, 
+                            Y, 
+                            weights)
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
@@ -94,11 +94,11 @@ def test_elastic_net(n=200, p=50):
     Y += np.dot(X, betaX) + np.random.standard_normal(n)
 
     weights = np.ones(X.shape[1])
-    lasso1 = lasso.lasso_path.gaussian(X, 
-                                       Y, 
-                                       weights,
-                                       alpha=0.5,
-                                       elastic_net_param=np.ones(X.shape[1]))
+    lasso1 = lasso.gaussian(X, 
+                            Y, 
+                            weights,
+                            alpha=0.5,
+                            elastic_net_param=np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
@@ -123,11 +123,11 @@ def test_elastic_net_unpenalized(n=200, p=50):
     weights = np.ones(X.shape[1])
     weights[0] = 0
 
-    lasso1 = lasso.lasso_path.gaussian(X, 
-                                       Y, 
-                                       weights,
-                                       alpha=0.5,
-                                       elastic_net_param=enet)
+    lasso1 = lasso.gaussian(X, 
+                            Y, 
+                            weights,
+                            alpha=0.5,
+                            elastic_net_param=enet)
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model

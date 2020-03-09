@@ -255,17 +255,27 @@ class group_lasso_path(grouped_path):
                            weights=self.penalty.weights,
                            lagrange=1)
 
-    # Some common loss factories
+# Some common loss factories
 
-    @classmethod
-    def logistic(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        return cls(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
+def logistic(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return group_lasso_path(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
 
-    @classmethod
-    def gaussian(cls, X, Y, *args, **keyword_args):
-        Y = np.asarray(Y)
-        return cls(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
+def gaussian(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return group_lasso_path(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+def cox(X, T, S, *args, **keyword_args):
+    T, S = np.asarray(T), np.asarray(S)
+    return group_lasso_path(glm.cox_loglike(T.shape, T, S), X, *args, **keyword_args)
+
+def poisson(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return group_lasso_path(glm.poisson_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+def huber(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return group_lasso_path(glm.huber_loss(Y.shape, Y), X, *args, **keyword_args)
 
 # private functions
 

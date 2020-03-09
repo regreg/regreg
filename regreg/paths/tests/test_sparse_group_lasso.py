@@ -18,21 +18,21 @@ def test_lasso_agreement1(n=200,p=50):
     groups = np.arange(p)
     l1weights = np.ones(p)
     weights = dict([(j,0) for j in np.arange(p)])
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              l1_weight=1,
-                                                                              weights=weights)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights,
+                                                      l1_weight=1,
+                                                      weights=weights)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
     sol1 = sparse_group_lasso1.main(lagrange_sequence, inner_tol=1.e-12)
 
     weights = np.ones(p)
-    lasso2 = lasso.lasso_path.gaussian(X, 
-                                       Y, 
-                                       weights)
+    lasso2 = lasso.gaussian(X, 
+                            Y, 
+                            weights)
     sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-15)
     beta1 = sol1['beta']
     beta2 = sol2['beta']
@@ -58,12 +58,12 @@ def test_path_subsample(n=200,p=50):
     np.random.shuffle(groups)
     l1weights = np.ones(p)
     weights = {}
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              l1_weight=1,
-                                                                              weights=weights)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights,
+                                                      l1_weight=1,
+                                                      weights=weights)
     cases = range(100)
     sparse_group_lasso1 = sparse_group_lasso1.subsample(cases)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
@@ -72,12 +72,12 @@ def test_path_subsample(n=200,p=50):
     sol1 = sparse_group_lasso1.main(lagrange_sequence, inner_tol=1.e-10)
     beta1 = sol1['beta']
 
-    sparse_group_lasso2 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X[cases], 
-                                                                              Y[cases], 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              l1_weight=1,
-                                                                              weights=weights)
+    sparse_group_lasso2 = sparse_group_lasso.gaussian(X[cases], 
+                                                      Y[cases], 
+                                                      groups,
+                                                      l1weights,
+                                                      l1_weight=1,
+                                                      weights=weights)
     sol2 = sparse_group_lasso2.main(lagrange_sequence, inner_tol=1.e-10)
     beta2 = sol2['beta']
 
@@ -97,20 +97,20 @@ def test_lasso_agreement2(n=200,p=50):
 
     groups = np.arange(p)
     l1weights = np.zeros(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              l1_weight=0)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights,
+                                                      l1_weight=0)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
     sol1 = sparse_group_lasso1.main(lagrange_sequence, inner_tol=1.e-12)
 
     weights = np.ones(p)
-    lasso2 = lasso.lasso_path.gaussian(X, 
-                                       Y, 
-                                       weights)
+    lasso2 = lasso.gaussian(X, 
+                            Y, 
+                            weights)
     sol2 = lasso2.main(lagrange_sequence, inner_tol=1.e-15)
     beta1 = sol1['beta']
     beta2 = sol2['beta']
@@ -137,10 +137,10 @@ def test_path():
 
     np.random.shuffle(groups)
     l1weights = np.ones(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
@@ -167,11 +167,11 @@ def test_unpenalized(n=200, p=50):
     weights['2'] = weights['3'] = 0
     weights['a'] = weights['b'] = 2
     l1weights = np.ones(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              weights=weights)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights,
+                                                      weights=weights)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
@@ -199,12 +199,12 @@ def test_elastic_net(n=200, p=50):
         groups.extend([str(i)]*5)
 
     l1weights = np.ones(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              alpha=0.5,
-                                                                              elastic_net_param=enet)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights,
+                                                      alpha=0.5,
+                                                      elastic_net_param=enet)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
@@ -235,13 +235,13 @@ def test_elastic_net_unpenalized(n=200, p=50):
     weights['a'] = weights['b'] = 2
 
     l1weights = np.ones(p)
-    sparse_group_lasso1 = sparse_group_lasso.sparse_group_lasso_path.gaussian(X, 
-                                                                              Y, 
-                                                                              groups,
-                                                                              l1weights,
-                                                                              weights=weights,
-                                                                              alpha=0.5,
-                                                                              elastic_net_param=enet)
+    sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
+                                                      Y, 
+                                                      groups,
+                                                      l1weights,
+                                                      weights=weights,
+                                                      alpha=0.5,
+                                                      elastic_net_param=enet)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
