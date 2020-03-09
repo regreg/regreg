@@ -40,21 +40,25 @@ class sparse_group_common_path(group_lasso_path):
                  l2_penalty,
                  elastic_net_param=None,
                  alpha=1.,  # elastic net mixing -- 1 is LASSO
-                 l1_weight=0.95): # this is \alpha of SGL paper
+                 l1_alpha=None): # this is \alpha of SGL paper,
+                                 # if not None use convex comb of
+                                 # implied l1,l2 penalties
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
 
         self.l1_penalty = l1_penalty
         self.l2_penalty = l2_penalty
-        self.l1_weight = l1_weight
+        if l1_alpha is not None:
+            self.l1_penalty *= l1_alpha
+            self.l2_penalty *= (1 - l1_alpha)
 
         # the penalty parameters
 
         self.alpha = alpha
         self.penalty = sparse_group_block(self.X.input_shape + saturated_loss.shape[1:],
-                                          l1_weight * l1_penalty, 
-                                          (1 - l1_weight) * l2_penalty, 
+                                          l1_penalty, 
+                                          l2_penalty, 
                                           lagrange=1)
         self.group_shape = (self.penalty.shape[0],)
         self.shape = self.penalty.shape
@@ -128,7 +132,7 @@ class sparse_group_common_path(group_lasso_path):
                               self.l2_penalty,
                               elastic_net_param=self.elastic_net_param,
                               alpha=self.alpha,
-                              l1_weight=self.l1_weight)
+                              l1_alpha=None)
 
     def check_KKT(self,
                   grad_solution,
@@ -172,9 +176,9 @@ class sparse_group_common_path(group_lasso_path):
                              self.penalty.l1_weight,
                              self.penalty.l2_weight,
                              lagrange)
-        import sys; sys.stderr.write('results: ' + repr(results) + '\n')
-        sys.stderr.write('lagrange %f\n' % lagrange)
-        sys.stderr.write(repr(self.penalty.conjugate.terms(grad_solution)) + '\n')
+        #import sys; sys.stderr.write('results: ' + repr(results) + '\n')
+        #sys.stderr.write('lagrange %f\n' % lagrange)
+        #sys.stderr.write(repr(self.penalty.conjugate.terms(grad_solution)) + '\n')
         return results > 0
 
     def strong_set(self,
@@ -201,7 +205,6 @@ class sparse_group_common_path(group_lasso_path):
                                                                            self.alpha * lagrange_new, 
                                                                            self.penalty.l1_weight,
                                                                            self.penalty.l2_weight,
-                                                                           self.l1_weight,
                                                                            candidate_groups,
                                                                            self.subsample_columns)
         if self.alpha < 1:
@@ -282,7 +285,7 @@ class sparse_group_block_path(sparse_group_common_path):
                  l2_penalty,
                  elastic_net_param=None,
                  alpha=1.,  # elastic net mixing -- 1 is LASSO
-                 l1_weight=0.95): # this is \alpha of SGL paper
+                 l1_alpha=None): # this is \alpha of SGL paper
 
         sparse_group_common_path.__init__(self,
                                           saturated_loss,
@@ -291,7 +294,7 @@ class sparse_group_block_path(sparse_group_common_path):
                                           l2_penalty,
                                           elastic_net_param=elastic_net_param,
                                           alpha=alpha,
-                                          l1_weight=l1_weight)
+                                          l1_alpha=l1_alpha)
 
         self._Xs = Xs
 
@@ -342,7 +345,6 @@ def _restricted_problem(X,
                         alpha,
                         l1_weight,
                         l2_weight,
-                        l1_l2_alpha,
                         candidate_groups,
                         subsample_columns):
 
@@ -350,17 +352,17 @@ def _restricted_problem(X,
     candidate_bool = np.zeros(X.input_shape[0], np.bool)
     candidate_bool[candidate_groups] = True
     restricted_penalty = sparse_group_block((X_candidate.shape[1], saturated_loss.shape[1]),
-                                            l1_l2_alpha * l1_weight,
-                                            (1 - l1_l2_alpha) * l2_weight,
+                                            l1_weight,
+                                            l2_weight,
                                             lagrange=alpha)
     restricted_loss = affine_smooth(saturated_loss, X_candidate)
     restricted_loss.shape = X_candidate.shape[1:] + saturated_loss.shape[1:]
 
     X_c = astransform(X_candidate)
-    import sys; sys.stderr.write('shapes: ' + repr((X_c.input_shape,
-                                                    X_c.output_shape,
-                                                    restricted_penalty.shape,
-                                                    restricted_loss.shape)) + '\n')
+#    import sys; sys.stderr.write('shapes: ' + repr((X_c.input_shape,
+#                                                    X_c.output_shape,
+#                                                    restricted_penalty.shape,
+#                                                    restricted_loss.shape)) + '\n')
     return restricted_loss, restricted_penalty, X_candidate, candidate_bool
 
 # for paths
@@ -429,8 +431,8 @@ def _check_KKT(grad,
         # l2 subgrad should be parallel to soln_g
         if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
                           soln_g / np.linalg.norm(soln_g)) > tol:
-            import sys; sys.stderr.write('%f\n' % np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
-                          soln_g / np.linalg.norm(soln_g)))
+#            import sys; sys.stderr.write('%f\n' % np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
+#                          soln_g / np.linalg.norm(soln_g)))
             results[g] = ACTIVE_L2
 
     for g in np.nonzero(~active)[0]:
