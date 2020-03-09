@@ -270,7 +270,7 @@ def test_coxph():
         L.objective(np.zeros(L.shape))
         L.latexify()
 
-        L.data = (X, (T, S))
+        L.data = (X, np.array([T, S]).T)
         L.data
 
 

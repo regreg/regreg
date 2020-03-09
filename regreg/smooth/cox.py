@@ -31,7 +31,7 @@ class cox_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        self.data = event_times, censoring
+        self.data = np.asarray([event_times, censoring]).T
 
         self._ordering = np.argsort(self.event_times).astype(np.intp)
         self._rankmax = (rankdata(self.event_times, method='max') - 1).astype(np.intp)
@@ -192,10 +192,10 @@ class cox_loglike(smooth_atom):
                            eta.shape[0])
 
     def get_data(self):
-        return np.array([self.event_times, self.censoring])
+        return np.array([self.event_times, self.censoring]).T
 
     def set_data(self, data):
-        event_times, censoring = data
+        event_times, censoring = np.asarray(data).T
         self.event_times, self.censoring = (np.asarray(event_times),
                                             np.asarray(censoring).astype(np.intp))
 
