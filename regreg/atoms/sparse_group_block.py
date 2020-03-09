@@ -249,7 +249,7 @@ class sparse_group_block_dual(sparse_group_block):
          """
          return np.array([_gauge_function_dual_strong(arg[i],
                                                       self.l1_weight,
-                                                      self.l2_weight)[0] for i in arg.shape[0]])
+                                                      self.l2_weight)[0] for i in range(arg.shape[0])])
 
 # fast Lagrange prox
 
