@@ -3,6 +3,8 @@ from warnings import warn
 import numpy as np
 
 from ..affine import astransform, power_L
+from ..smooth import affine_smooth
+from ..problems.simple import simple_problem
 
 def subsample_columns(X, columns):
 
@@ -29,6 +31,10 @@ class grouped_path(object):
         raise NotImplementedError
 
     # methods potentially overwritten in subclasses for I/O considerations
+
+    def full_loss(self):
+        return affine_smooth(self.saturated_loss,
+                             self.X)
 
     def subsample_columns(self, 
                           X, 
@@ -323,11 +329,58 @@ def strong_rules(path_obj,
         gc.collect()
 
         if verbose:
-            print(lagrange_new,
-                  (solution != 0).sum(),
-                  1. - objective[-1] / objective[0],
-                  list(lagrange_seq).index(lagrange_new),
-                  path_obj.penalty.seminorm(solution, lagrange=1))
+            print({'lagrange':lagrange_new,
+                   'sparsity':(solution != 0).sum(),
+                   'dev explained':1. - objective[-1] / objective[0],
+                   'point on path':list(lagrange_seq).index(lagrange_new),
+                   'penalty':path_obj.penalty.seminorm(solution, lagrange=1),
+                   'dual penalty':path_obj.penalty.conjugate.seminorm(grad_solution, lagrange=1)})
+
+    objective = np.array(objective)
+    output = {'devratio': 1 - objective / objective.max(),
+              'lagrange': lagrange_seq,
+              'beta':np.array(solutions)}
+
+    return output
+
+def warm_start(path_obj,
+               lagrange_seq,
+               inner_tol=1.e-5,
+               verbose=False,
+               initial_step=None):
+
+    # basic setup
+
+    loss = path_obj.full_loss()
+    all_groups = np.ones(path_obj.group_shape, np.bool)
+    penalty = path_obj.restricted_penalty(all_groups)
+    problem = simple_problem(loss, penalty)
+
+    # take a guess at the inverse step size
+    if initial_step is None:
+        _lipschitz = power_L(path_obj.X, max_its=50)
+        path_obj.final_step = 1000. / _lipschitz 
+    else:
+        path_obj.final_step = initial_step
+
+    objective = []
+    solutions = []
+    
+    for lagrange in lagrange_seq:
+        penalty.lagrange = lagrange
+        solution = problem.solve(tol=inner_tol)
+
+        objective.append(loss.smooth_objective(solution, mode='func'))
+        solutions.append(solution.T.copy())
+        grad_solution = loss.smooth_objective(solution, 'grad')
+        
+        if verbose:
+            print({'lagrange':lagrange,
+                   'sparsity':(solution != 0).sum(),
+                   'dev explained':1. - objective[-1] / objective[0],
+                   'point on path':list(lagrange_seq).index(lagrange),
+                   'penalty':path_obj.penalty.seminorm(solution, lagrange=1),
+                   'dual penalty':path_obj.penalty.conjugate.seminorm(grad_solution, lagrange=1)})
 
     objective = np.array(objective)
     output = {'devratio': 1 - objective / objective.max(),
