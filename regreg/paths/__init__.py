@@ -311,15 +311,15 @@ def strong_rules(path_obj,
                 solution[~subproblem_vars] = 0
 
                 enet_grad = path_obj.enet_grad(solution, 
-                                           path_obj._penalized_vars,
-                                           lagrange_new)
+                                               path_obj._penalized_vars,
+                                               lagrange_new)
                 grad_solution[:] = (path_obj.full_gradient(path_obj.saturated_loss, 
-                                                       subproblem_linpred) + 
+                                                           subproblem_linpred) + 
                                     enet_grad)
                 debug = True
                 tol = inner_tol
                 if num_tries >= max_tries:
-                    warn('convergence not achieved for lagrange=%0.4e' % lagrange_new)
+                    warn('convergence of active set not achieved for lagrange=%0.4e, moving on' % lagrange_new)
                     break
 
             subproblem_set = sorted(set(subproblem_set + path_obj.updated_ever_active(all_failing)))
