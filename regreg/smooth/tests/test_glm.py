@@ -21,10 +21,6 @@ def test_logistic():
             L.smooth_objective(np.zeros(L.shape), 'both')
             L.hessian(np.zeros(L.shape))
 
-            Lcp = copy(L)
-            L_sub = L.subsample(np.arange(5))
-            L_sub.coef *= 45
-            
             # check that subsample is getting correct answer
 
             Xsub = X[np.arange(5)]
@@ -59,6 +55,14 @@ def test_logistic():
 
             np.testing.assert_allclose(f2, f4)
             np.testing.assert_allclose(g2, g4)
+
+            Lcp = copy(L)
+            prev_value = L.smooth_objective(np.zeros(L.shape), 'func')
+            L_sub = L.subsample(np.arange(5))
+            L_sub.coef *= 45
+            new_value = L.smooth_objective(np.zeros(L.shape), 'func')            
+            assert(prev_value == new_value)
+            
 
             np.testing.assert_allclose(L_sub.gradient(beta),
                                        45 * Lsub2.gradient(beta))
