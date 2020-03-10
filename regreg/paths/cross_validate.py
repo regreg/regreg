@@ -9,8 +9,11 @@ except ImportError:
     have_sklearn = False
     pass
 
-def cross_validate(path_fitter,
+from . import strong_rules
+
+def cross_validate(path_obj,
                    lagrange_seq,
+                   path_fitter=strong_rules,
                    cv=5,
                    group_labels=None,
                    n_jobs=-1,
@@ -27,15 +30,15 @@ def cross_validate(path_fitter,
     Parameters
     ----------
 
-    path_fitter : group_path
+    path_obj : group_path
     '''
 
-    # assumes that full data of path_fitter.saturated_loss
+    # assumes that full data of path_obj.saturated_loss
     # is the same as
 
     # Compute paths for all folds 
 
-    response = path_fitter.saturated_loss.data
+    response = path_obj.saturated_loss.data
     nsample = response.shape[0]
     have_sklearn = False
     if have_sklearn:
@@ -52,16 +55,16 @@ def cross_validate(path_fitter,
     # Loop over folds, computing path
     # for each (train, test)
 
-    def fit_fold(path_fitter,
+    def fit_fold(path_obj,
                  lagrange_seq,
                  test,
                  train,
                  inner_tol):
-        train_path = path_fitter.subsample(train)
-        train_results = train_path.main(lagrange_seq, inner_tol=inner_tol)
+        train_path = path_obj.subsample(train)
+        train_results = path_fitter(train_path, lagrange_seq, inner_tol=inner_tol)
         return train_results
 
-    jobs = (delayed(fit_fold)(path_fitter,
+    jobs = (delayed(fit_fold)(path_obj,
                               lagrange_seq,
                               test,
                               train,
@@ -74,8 +77,8 @@ def cross_validate(path_fitter,
 
     # Form the linear predictors and responses
 
-    linpred_responses = [(path_fitter.linpred(result['beta'], 
-                                              path_fitter.X,
+    linpred_responses = [(path_obj.linpred(result['beta'], 
+                                              path_obj.X,
                                               train_test[1]),
                           response[train_test[1]])
                          for train_test, result in zip(folds, results)]

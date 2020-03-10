@@ -28,137 +28,6 @@ class grouped_path(object):
                  ):
         raise NotImplementedError
 
-    def main(self, lagrange_seq, inner_tol=1.e-5, verbose=False):
-
-        _lipschitz = power_L(self.X, max_its=50)
-
-        # take a guess at the inverse step size
-        self.final_step = 1000. / _lipschitz 
-
-        # gradient of restricted elastic net at lambda_max
-
-        solution = self.solution
-        grad_solution = self.grad_solution
-        linear_predictor = self.linear_predictor
-        ever_active = self.updated_ever_active([])
-
-        obj_solution = self.saturated_loss.smooth_objective(self.linear_predictor, 'func')
-        solutions = [self.solution.T.copy()]
-        objective = [obj_solution]
-
-        all_failing = np.zeros(self.group_shape, np.bool)
-        subproblem_set = self.updated_ever_active([])
-
-        for lagrange_new, lagrange_cur in zip(lagrange_seq[1:], 
-                                              lagrange_seq[:-1]):
-            tol = inner_tol
-            num_tries = 0
-            debug = False
-            coef_stop = True
-
-            while True:
-
-                subproblem_set = sorted(set(subproblem_set + self.updated_ever_active(all_failing)))
-
-                (self.final_step, 
-                 subproblem_grad, 
-                 subproblem_soln,
-                 subproblem_linpred,
-                 subproblem_vars) = self.solve_subproblem(subproblem_set,
-                                                          lagrange_new,
-                                                          tol=tol,
-                                                          start_step=self.final_step,
-                                                          debug=debug and verbose,
-                                                          coef_stop=coef_stop)
-
-                saturated_grad = self.saturated_loss.smooth_objective(subproblem_linpred, 'grad')
-                # as subproblem always contains ever active, 
-                # rest of solution should be 0
-                solution[subproblem_vars] = subproblem_soln
-
-                # strong rules step
-                # a set of group ids
-
-                strong, strong_idx, strong_vars = self.strong_set(lagrange_cur * self.alpha, 
-                                                                  lagrange_new * self.alpha, 
-                                                                  grad_solution)
-                strong_enet_grad = self.enet_grad(solution,
-                                                  self._penalized_vars,
-                                                  lagrange_new,
-                                                  subset=strong_vars)
-                strong_soln = solution[strong_vars]
-                X_strong = self.subsample_columns(self.X, 
-                                                  strong_vars)
-                strong_grad = (X_strong.T.dot(saturated_grad) +
-                               strong_enet_grad)
-                strong_penalty = self.restricted_penalty(strong_vars)
-                strong_failing = self.check_KKT(strong_grad, 
-                                                strong_soln, 
-                                                self.alpha * lagrange_new, 
-                                                penalty=strong_penalty)
-
-                if np.any(strong_failing):
-                    delta = np.zeros(self.group_shape, np.bool)
-                    delta[strong_idx] = strong_failing
-                    all_failing += delta 
-                else:
-                    enet_grad = self.enet_grad(solution, 
-                                               self._penalized_vars,
-                                               lagrange_new)
-                    grad_solution[:] = (self.full_gradient(self.saturated_loss, 
-                                                           subproblem_linpred) + 
-                                        enet_grad)
-                    all_failing = self.check_KKT(grad_solution, 
-                                                 solution, 
-                                                 self.alpha * lagrange_new)
-
-                    if not all_failing.sum():
-                        self.ever_active = self.updated_ever_active(self.active_set(solution))
-                        linear_predictor[:] = subproblem_linpred
-                        break
-                    else:
-                        if verbose:
-                            print('failing:', np.nonzero(all_failing)[0])
-                num_tries += 1
-
-                tol /= 2.
-                if num_tries % 5 == 0:
-
-                    solution[subproblem_vars] = subproblem_soln
-                    solution[~subproblem_vars] = 0
-
-                    enet_grad = self.enet_grad(solution, 
-                                               self._penalized_vars,
-                                               lagrange_new)
-                    grad_solution[:] = (self.full_gradient(self.saturated_loss, 
-                                                           subproblem_linpred) + 
-                                        enet_grad)
-                    debug = True
-                    tol = inner_tol
-                    if num_tries >= 20:
-                        warn('convergence not achieved for lagrange=%0.4e' % lagrange_new)
-                        break
-
-                subproblem_set = sorted(set(subproblem_set + self.updated_ever_active(all_failing)))
-
-            solutions.append(solution.T.copy())
-            objective.append(self.saturated_loss.smooth_objective(self.linear_predictor, mode='func'))
-            gc.collect()
-
-            if verbose:
-                print(lagrange_new,
-                      (solution != 0).sum(),
-                      1. - objective[-1] / objective[0],
-                      list(self.lagrange_sequence).index(lagrange_new),
-                      np.fabs(rescaled_solution).sum())
-
-        objective = np.array(objective)
-        output = {'devratio': 1 - objective / objective.max(),
-                  'lagrange': lagrange_seq,
-                  'beta':np.array(solutions)}
-
-        return output
-
     # methods potentially overwritten in subclasses for I/O considerations
 
     def subsample_columns(self, 
@@ -329,4 +198,142 @@ def default_lagrange_sequence(penalty,
                                               0, 
                                               nstep)))[::-1]
    
+def strong_rules(path_obj,
+                 lagrange_seq,
+                 inner_tol=1.e-5,
+                 verbose=False,
+                 initial_step=None,
+                 max_tries=20):
+
+    # take a guess at the inverse step size
+    if initial_step is None:
+        _lipschitz = power_L(path_obj.X, max_its=50)
+        path_obj.final_step = 1000. / _lipschitz 
+    else:
+        path_obj.final_step = initial_step
+
+    # gradient of restricted elastic net at lambda_max
+
+    solution = path_obj.solution
+    grad_solution = path_obj.grad_solution
+    linear_predictor = path_obj.linear_predictor
+    ever_active = path_obj.updated_ever_active([])
+
+    obj_solution = path_obj.saturated_loss.smooth_objective(path_obj.linear_predictor, 'func')
+    solutions = [path_obj.solution.T.copy()]
+    objective = [obj_solution]
+
+    all_failing = np.zeros(path_obj.group_shape, np.bool)
+    subproblem_set = path_obj.updated_ever_active([])
+
+    for lagrange_new, lagrange_cur in zip(lagrange_seq[1:], 
+                                          lagrange_seq[:-1]):
+        tol = inner_tol
+        num_tries = 0
+        debug = False
+        coef_stop = True
+
+        while True:
+
+            subproblem_set = sorted(set(subproblem_set + path_obj.updated_ever_active(all_failing)))
+
+            (path_obj.final_step, 
+             subproblem_grad, 
+             subproblem_soln,
+             subproblem_linpred,
+             subproblem_vars) = path_obj.solve_subproblem(subproblem_set,
+                                                      lagrange_new,
+                                                      tol=tol,
+                                                      start_step=path_obj.final_step,
+                                                      debug=debug and verbose,
+                                                      coef_stop=coef_stop)
+
+            saturated_grad = path_obj.saturated_loss.smooth_objective(subproblem_linpred, 'grad')
+            # as subproblem always contains ever active, 
+            # rest of solution should be 0
+            solution[subproblem_vars] = subproblem_soln
+
+            # strong rules step
+            # a set of group ids
+
+            strong, strong_idx, strong_vars = path_obj.strong_set(lagrange_cur * path_obj.alpha, 
+                                                              lagrange_new * path_obj.alpha, 
+                                                              grad_solution)
+            strong_enet_grad = path_obj.enet_grad(solution,
+                                              path_obj._penalized_vars,
+                                              lagrange_new,
+                                              subset=strong_vars)
+            strong_soln = solution[strong_vars]
+            X_strong = path_obj.subsample_columns(path_obj.X, 
+                                              strong_vars)
+            strong_grad = (X_strong.T.dot(saturated_grad) +
+                           strong_enet_grad)
+            strong_penalty = path_obj.restricted_penalty(strong_vars)
+            strong_failing = path_obj.check_KKT(strong_grad, 
+                                            strong_soln, 
+                                            path_obj.alpha * lagrange_new, 
+                                            penalty=strong_penalty)
+
+            if np.any(strong_failing):
+                delta = np.zeros(path_obj.group_shape, np.bool)
+                delta[strong_idx] = strong_failing
+                all_failing += delta 
+            else:
+                enet_grad = path_obj.enet_grad(solution, 
+                                           path_obj._penalized_vars,
+                                           lagrange_new)
+                grad_solution[:] = (path_obj.full_gradient(path_obj.saturated_loss, 
+                                                       subproblem_linpred) + 
+                                    enet_grad)
+                all_failing = path_obj.check_KKT(grad_solution, 
+                                             solution, 
+                                             path_obj.alpha * lagrange_new)
+
+                if not all_failing.sum():
+                    path_obj.ever_active = path_obj.updated_ever_active(path_obj.active_set(solution))
+                    linear_predictor[:] = subproblem_linpred
+                    break
+                else:
+                    if verbose:
+                        print('failing:', np.nonzero(all_failing)[0])
+            num_tries += 1
+
+            tol /= 2.
+            if num_tries % 5 == 0:
+
+                solution[subproblem_vars] = subproblem_soln
+                solution[~subproblem_vars] = 0
+
+                enet_grad = path_obj.enet_grad(solution, 
+                                           path_obj._penalized_vars,
+                                           lagrange_new)
+                grad_solution[:] = (path_obj.full_gradient(path_obj.saturated_loss, 
+                                                       subproblem_linpred) + 
+                                    enet_grad)
+                debug = True
+                tol = inner_tol
+                if num_tries >= max_tries:
+                    warn('convergence not achieved for lagrange=%0.4e' % lagrange_new)
+                    break
+
+            subproblem_set = sorted(set(subproblem_set + path_obj.updated_ever_active(all_failing)))
+
+        solutions.append(solution.T.copy())
+        objective.append(path_obj.saturated_loss.smooth_objective(path_obj.linear_predictor, mode='func'))
+        gc.collect()
+
+        if verbose:
+            print(lagrange_new,
+                  (solution != 0).sum(),
+                  1. - objective[-1] / objective[0],
+                  list(lagrange_seq).index(lagrange_new),
+                  path_obj.penalty.seminorm(solution, lagrange=1))
+
+    objective = np.array(objective)
+    output = {'devratio': 1 - objective / objective.max(),
+              'lagrange': lagrange_seq,
+              'beta':np.array(solutions)}
+
+    return output
+
 
