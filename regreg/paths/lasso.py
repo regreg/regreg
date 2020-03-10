@@ -55,18 +55,19 @@ class lasso_path(grouped_path):
              null_grad, 
              null_soln,
              null_linpred,
-             _ ) = self.solve_subproblem(np.nonzero(unpenalized)[0],
+             _ ) = self.solve_subproblem(self.solution,
+                                         np.nonzero(unpenalized)[0],
                                          self.BIG,
                                          tol=1.e-8)
-            self.linear_predictor = null_linpred
+            linear_predictor = null_linpred
             self.solution[unpenalized] = null_soln
         else:
-            self.linear_predictor = np.zeros(self.saturated_loss.shape)
+            linear_predictor = np.zeros(self.saturated_loss.shape)
 
         self.grad_solution = (self.full_gradient(self.saturated_loss, 
-                                                 self.linear_predictor) + self.enet_grad(self.solution, 
-                                                                                         self._penalized_vars,
-                                                                                         1))
+                                                 linear_predictor) + self.enet_grad(self.solution, 
+                                                                                    self._penalized_vars,
+                                                                                    1))
 
     # LASSO specific part
 
@@ -145,7 +146,7 @@ class lasso_path(grouped_path):
                            grad_solution, 
                            solution, 
                            lagrange)
-        return value > 0
+        return value[0] > 0, value[1] >= 0
 
     def strong_set(self,
                    lagrange_cur,
@@ -166,7 +167,11 @@ class lasso_path(grouped_path):
         return weighted_l1norm(self.penalty.weights[subset],
                                lagrange=1)
 
-    def solve_subproblem(self, candidate_set, lagrange_new, **solve_args):
+    def solve_subproblem(self, 
+                         solution, 
+                         candidate_set, 
+                         lagrange_new, 
+                         **solve_args):
     
         # solve a problem with a candidate set
 
@@ -185,7 +190,7 @@ class lasso_path(grouped_path):
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
         sub_problem = simple_problem(sub_loss, sub_penalty)
-        sub_problem.coefs[:] = self.solution[candidate_set] # warm start
+        sub_problem.coefs[:] = solution[candidate_set] # warm start
         sub_soln = sub_problem.solve(**solve_args)
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
@@ -304,11 +309,22 @@ def _check_KKT(lasso_weights,
     UNPENALIZED = 3
 
     active = (solution != 0) * lasso_weights > 0
-    failing = np.zeros(solution.shape)
-    failing[active] = (np.fabs(grad[active] / (lagrange * lasso_weights[active]) + np.sign(solution[active])) > tol) * ACTIVE
-    inactive = (solution == 0) * lasso_weights > 0
-    failing[inactive] = (np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive])) > 1 + tol) * INACTIVE
-    unpenalized = lasso_weights == 0
-    failing[unpenalized] = (np.fabs(grad[unpenalized] / np.mean(lasso_weights[lasso_weights>0])) > tol) * UNPENALIZED
+    active_failing = np.zeros(solution.shape, np.int)
+    active_failing[active] = (np.fabs(grad[active] / (lagrange * lasso_weights[active]) + np.sign(solution[active])) > tol) * ACTIVE
 
-    return failing 
+    inactive_failing = np.zeros(solution.shape, np.int) - 1
+    inactive = (solution == 0) * lasso_weights > 0
+    inactive_failing[inactive] = (np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive])) > 1 + tol) * INACTIVE
+
+    inactive_failing2 = np.zeros(solution.shape, np.int) - 1
+    inactive = (solution == 0) * lasso_weights > 0
+
+    inactive_terms = np.zeros(solution.shape)
+    inactive_terms[inactive] = np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive]))
+    inactive_ranks = solution.shape[0] - 1 - np.argsort(inactive_terms)
+    inactive_ranks[inactive_terms <= 1+tol] = -1
+
+    unpenalized = lasso_weights == 0
+    active_failing[unpenalized] = (np.fabs(grad[unpenalized] / np.mean(lasso_weights[lasso_weights>0])) > tol) * UNPENALIZED
+
+    return active_failing, inactive_ranks

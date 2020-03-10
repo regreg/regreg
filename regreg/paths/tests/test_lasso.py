@@ -19,7 +19,10 @@ def test_path(n=200,p=50):
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = strong_rules(lasso1, lagrange_sequence, inner_tol=1.e-5)
+    sol1 = strong_rules(lasso1, 
+                        lagrange_sequence, 
+                        (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                        inner_tol=1.e-5)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -38,10 +41,16 @@ def test_warm_start(n=200,p=50):
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = strong_rules(lasso1, lagrange_sequence, inner_tol=1.e-14)
+    sol1 = strong_rules(lasso1, 
+                        lagrange_sequence, 
+                        (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                        inner_tol=1.e-14)
     beta1 = sol1['beta']
 
-    sol2 = warm_start(lasso1, lagrange_sequence, inner_tol=1.e-14)
+    sol2 = warm_start(lasso1, 
+                      lagrange_sequence, 
+                      (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                      inner_tol=1.e-14)
     beta2 = sol2['beta']
 
     np.testing.assert_allclose(beta1, beta2, rtol=1.e-4)
@@ -64,11 +73,17 @@ def test_path_subsample(n=200,p=50):
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1_sub.penalty,
                                                         lasso1_sub.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = strong_rules(lasso1_sub, lagrange_sequence, inner_tol=1.e-10)
+    sol1 = strong_rules(lasso1_sub, 
+                        lagrange_sequence, 
+                        (lasso1_sub.solution.copy(), lasso1_sub.grad_solution.copy()),
+                        inner_tol=1.e-10)
     beta1 = sol1['beta']
 
     lasso2 = lasso.gaussian(X[cases], Y[cases], np.ones(X.shape[1]))
-    sol2 = strong_rules(lasso2, lagrange_sequence, inner_tol=1.e-10)
+    sol2 = strong_rules(lasso2, 
+                        lagrange_sequence, 
+                        (lasso2.solution.copy(), lasso2.grad_solution.copy()),
+                        inner_tol=1.e-10)
     beta2 = sol2['beta']
 
     yield np.testing.assert_allclose, beta1, beta2, 1.e-3
@@ -77,8 +92,14 @@ def test_path_subsample(n=200,p=50):
     # path object
 
     lasso3 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
-    beta3 = strong_rules(lasso1, lagrange_sequence, inner_tol=1.e-10)['beta']
-    beta4 = strong_rules(lasso3, lagrange_sequence, inner_tol=1.e-10)['beta']
+    beta3 = strong_rules(lasso1, 
+                         lagrange_sequence, 
+                         (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                         inner_tol=1.e-10)['beta']
+    beta4 = strong_rules(lasso3, 
+                         lagrange_sequence, 
+                         (lasso3.solution.copy(), lasso3.grad_solution.copy()),
+                         inner_tol=1.e-10)['beta']
 
     yield np.testing.assert_allclose, beta3, beta4, 1.e-3
 
@@ -102,7 +123,10 @@ def test_unpenalized(n=200, p=50):
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = strong_rules(lasso1, lagrange_sequence, inner_tol=1.e-5)
+    sol1 = strong_rules(lasso1, 
+                        lagrange_sequence, 
+                        (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                        inner_tol=1.e-5)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -126,7 +150,10 @@ def test_elastic_net(n=200, p=50):
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = strong_rules(lasso1, lagrange_sequence, inner_tol=1.e-5)
+    sol1 = strong_rules(lasso1,
+                        lagrange_sequence, 
+                        (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                        inner_tol=1.e-5)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -155,6 +182,9 @@ def test_elastic_net_unpenalized(n=200, p=50):
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
                                                         nstep=23) # initialized at "null" model
-    sol1 = strong_rules(lasso1, lagrange_sequence, inner_tol=1.e-5)
+    sol1 = strong_rules(lasso1, 
+                        lagrange_sequence, 
+                        (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                        inner_tol=1.e-5)
     beta1 = sol1['beta']
 

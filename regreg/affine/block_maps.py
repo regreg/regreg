@@ -47,47 +47,48 @@ class block_columns(affine_transform):
         try:
             ndim = [o.ndim for o in self._offsets]
             if ndim[0] == 1:
-                self._buffer = np.hstack(self._offsets)
+                _buffer = np.hstack(self._offsets)
             elif ndim[0] == 2:
-                self._buffer = np.vstack(self._offsets)
+                _buffer = np.vstack(self._offsets)
         except ValueError:
             raise ValueError('output of transforms should be stackable')
 
-        self.output_shape = self._buffer.shape
+        self.output_shape = _buffer.shape
         self._slices = []
         idx = 0
         for offset in self._offsets:
             self._slices.append(slice(idx, idx+offset.shape[0], 1))
             idx += offset.shape[0]
 
-        self._adj_buffer = np.zeros(self.input_shape)
-
     def affine_map(self, arg):
         
+        _buffer = np.empty(self.output_shape, np.float)
         for i, info in enumerate(zip(self._slices, 
                                      self._transforms)):
             slice, trans = info
-            self._buffer[slice] = trans.affine_map(arg[:,i])
+            _buffer[slice] = trans.affine_map(arg[:,i])
 
-        return self._buffer.copy()
+        return _buffer
 
     def linear_map(self, arg):
         
+        _buffer = np.empty(self.output_shape, np.float)
         for i, info in enumerate(zip(self._slices, 
                                      self._transforms)):
             slice, trans = info
-            self._buffer[slice] = trans.linear_map(arg[:,i])
+            _buffer[slice] = trans.linear_map(arg[:,i])
 
-        return self._buffer.copy()
+        return _buffer
 
     def adjoint_map(self, arg):
         
+        _adj_buffer = np.empty(self.input_shape, np.float)
         for i, info in enumerate(zip(self._slices, 
                                      self._transforms)):
             slice, trans = info
-            self._adj_buffer[:,i] = trans.adjoint_map(arg[slice])
+            _adj_buffer[:,i] = trans.adjoint_map(arg[slice])
 
-        return self._adj_buffer.copy()
+        return _adj_buffer
 
 class block_rows(affine_transform):
 

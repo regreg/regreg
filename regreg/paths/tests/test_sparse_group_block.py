@@ -23,7 +23,10 @@ def test_gaussian_multiresponse():
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
-    sol1 = strong_rules(sparse_group_block1, lagrange_sequence, inner_tol=1.e-12)
+    sol1 = strong_rules(sparse_group_block1, 
+                        lagrange_sequence, 
+                        (sparse_group_block1.solution, sparse_group_block1.grad_solution),
+                        inner_tol=1.e-12)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -52,7 +55,10 @@ def test_gaussian_blocks():
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
-    sol1 = strong_rules(sparse_group_block1, lagrange_sequence, inner_tol=1.e-12)
+    sol1 = strong_rules(sparse_group_block1, 
+                        lagrange_sequence, 
+                        (sparse_group_block1.solution, sparse_group_block1.grad_solution),
+                        inner_tol=1.e-12)
     beta1 = sol1['beta']
     print(beta1.shape)
     print(np.sqrt((beta1**2).sum(2).sum(1)))
@@ -80,7 +86,10 @@ def test_multinomial():
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
-    sol1 = strong_rules(sparse_group_block1, lagrange_sequence, inner_tol=1.e-12)
+    sol1 = strong_rules(sparse_group_block1, 
+                        lagrange_sequence, 
+                        (sparse_group_block1.solution, sparse_group_block1.grad_solution),
+                        inner_tol=1.e-12)
     beta1 = sol1['beta']
 
 @set_seed_for_test()
@@ -105,14 +114,20 @@ def test_path_subsample(n=200,p=50):
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
-    sol1 = strong_rules(sparse_group_block1, lagrange_sequence, inner_tol=1.e-10)
+    sol1 = strong_rules(sparse_group_block1, 
+                        lagrange_sequence, 
+                        (sparse_group_block1.solution, sparse_group_block1.grad_solution),
+                        inner_tol=1.e-10)
     beta1 = sol1['beta']
 
     sparse_group_block2 = sparse_group_block.multiresponse_gaussian(X[cases], 
                                                                     Y[cases], 
                                                                     1,
                                                                     np.sqrt(q))
-    sol2 = strong_rules(sparse_group_block2, lagrange_sequence, inner_tol=1.e-10)
+    sol2 = strong_rules(sparse_group_block2, 
+                        lagrange_sequence, 
+                        (sparse_group_block2.solution, sparse_group_block2.grad_solution),
+                        inner_tol=1.e-10)
     beta2 = sol2['beta']
 
     np.testing.assert_allclose(beta1, beta2, rtol=1.e-3)
@@ -143,6 +158,9 @@ def test_elastic_net(n=200, p=50):
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
-    sol1 = strong_rules(sparse_group_block1, lagrange_sequence, inner_tol=1.e-12)
+    sol1 = strong_rules(sparse_group_block1, 
+                        lagrange_sequence, 
+                        (sparse_group_block1.solution, sparse_group_block1.grad_solution),
+                        inner_tol=1.e-12)
     beta1 = sol1['beta']
 

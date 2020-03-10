@@ -59,7 +59,8 @@ class group_lasso_path(grouped_path):
              null_grad, 
              null_soln,
              null_linpred,
-             _) = self.solve_subproblem(unpenalized_groups,
+             _) = self.solve_subproblem(self.solution,
+                                        unpenalized_groups,
                                         self.BIG,
                                         tol=1.e-8)
             self.linear_predictor = null_linpred
@@ -154,7 +155,7 @@ class group_lasso_path(grouped_path):
                              grad_solution, 
                              solution, 
                              lagrange)
-        return results > 0
+        return results[0] > 0, results[1] >= 0
 
     def strong_set(self,
                    lagrange_cur,
@@ -170,7 +171,11 @@ class group_lasso_path(grouped_path):
                 _strong_bool,
                 np.nonzero(_candidate_bool(self.penalty.groups, _strong))[0])
                                              
-    def solve_subproblem(self, candidate_groups, lagrange_new, **solve_args):
+    def solve_subproblem(self, 
+                         solution,
+                         candidate_groups, 
+                         lagrange_new, 
+                         **solve_args):
     
         # solve a problem with a candidate set
 
@@ -192,7 +197,7 @@ class group_lasso_path(grouped_path):
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
         sub_problem = simple_problem(sub_loss, sub_penalty)
-        sub_problem.coefs[:] = self.solution[candidate_bool] # warm start
+        sub_problem.coefs[:] = solution[candidate_bool] # warm start
         sub_soln = sub_problem.solve(**solve_args)
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
@@ -352,16 +357,22 @@ def _check_KKT(penalty,
     INACTIVE = 2
     UNPENALIZED = 3
 
-    results = np.zeros(len(penalty._sorted_groupids), np.int)
+    active_results = np.zeros(len(penalty._sorted_groupids), np.int)
+    inactive_results = np.zeros(len(penalty._sorted_groupids), np.float)
     for i, g in enumerate(penalty._sorted_groupids):
         group = penalty.groups == g
         w = penalty.weights[g]
         active = (terms[i] != 0) * (w > 0)
         unpenalized = w == 0
         if active:
-            results[i] = (np.linalg.norm(solution[group] * lagrange * w / np.linalg.norm(solution[group]) + grad[group]) > tol) * ACTIVE
+            active_results[i] = (np.linalg.norm(solution[group] * lagrange * w / np.linalg.norm(solution[group]) + grad[group]) > tol) * ACTIVE
         elif unpenalized:
-            results[i] = (np.linalg.norm(grad[group]) > tol * np.mean(penalty._weight_array)) * UNPENALIZED
+            active_results[i] = (np.linalg.norm(grad[group]) > tol * np.mean(penalty._weight_array)) * UNPENALIZED
         else:
-            results[i] = (np.linalg.norm(grad[group]) / (lagrange * w) > 1 + tol) * INACTIVE
-    return results
+            inactive_results[i] = np.linalg.norm(grad[group]) / (lagrange * w) 
+    # rank inactive groups
+
+    inactive_ranks = inactive_results.shape[0] - 1 - np.argsort(inactive_results)
+    inactive_ranks[inactive_results <= 1 + tol] = -1
+
+    return active_results, inactive_ranks

@@ -14,6 +14,7 @@ from . import strong_rules
 def cross_validate(path_obj,
                    lagrange_seq,
                    path_fitter=strong_rules,
+                   initial_data=None,
                    cv=5,
                    group_labels=None,
                    n_jobs=-1,
@@ -55,18 +56,27 @@ def cross_validate(path_obj,
     # Loop over folds, computing path
     # for each (train, test)
 
+    if initial_data is None:
+        initial_data = (path_obj.solution,
+                        path_obj.grad_solution)
+
     def fit_fold(path_obj,
                  lagrange_seq,
+                 initial_data,
                  test,
                  train,
                  inner_tol):
         train_path = path_obj.subsample(train)
         train_path.saturated_loss.coef *= train.shape[0] / train.sum()
-        train_results = path_fitter(train_path, lagrange_seq, inner_tol=inner_tol)
+        train_results = path_fitter(train_path, 
+                                    lagrange_seq, 
+                                    initial_data,
+                                    inner_tol=inner_tol)
         return train_results
 
     jobs = (delayed(fit_fold)(path_obj,
                               lagrange_seq,
+                              initial_data,
                               test,
                               train,
                               inner_tol)
@@ -131,6 +141,10 @@ def cross_validate_alt(path_obj,
         np.random.shuffle(groups)
         folds = [(groups != g, groups == g)
                  for g in np.unique(groups)]
+
+    if initial_data is None:
+        initial_data = (path_obj.solution,
+                        path_obj.grad_solution)
 
     # Loop over folds, computing path
     # for each (train, test)

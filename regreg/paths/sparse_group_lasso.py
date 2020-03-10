@@ -72,7 +72,8 @@ class sparse_group_lasso_path(group_lasso_path):
              null_grad, 
              null_soln,
              null_linpred,
-             _) = self.solve_subproblem(unpenalized_groups,
+             _) = self.solve_subproblem(self.solution,
+                                        unpenalized_groups,
                                         self.BIG,
                                         tol=1.e-8)
             self.linear_predictor = null_linpred
@@ -166,7 +167,7 @@ class sparse_group_lasso_path(group_lasso_path):
                              grad_solution, 
                              solution, 
                              lagrange)
-        return results > 0
+        return results[0] > 0, results[1] >= 0
 
     def strong_set(self,
                    lagrange_cur,
@@ -183,7 +184,11 @@ class sparse_group_lasso_path(group_lasso_path):
                 _strong_bool,
                 np.nonzero(_candidate_bool(self.penalty.groups, _strong))[0])
                                              
-    def solve_subproblem(self, candidate_groups, lagrange_new, **solve_args):
+    def solve_subproblem(self, 
+                         solution,
+                         candidate_groups, 
+                         lagrange_new, 
+                         **solve_args):
     
         # solve a problem with a candidate set
 
@@ -206,7 +211,7 @@ class sparse_group_lasso_path(group_lasso_path):
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
         sub_problem = simple_problem(sub_loss, sub_penalty)
-        sub_problem.coefs[:] = self.solution[candidate_bool] # warm start
+        sub_problem.coefs[:] = solution[candidate_bool] # warm start
         sub_soln = sub_problem.solve(**solve_args)
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
@@ -333,7 +338,9 @@ def _check_KKT(sglasso,
     INACTIVE = 2
     UNPENALIZED = 3
 
-    results = np.zeros(len(sglasso._sorted_groupids), np.int)
+    active_results = np.zeros(len(sglasso._sorted_groupids), np.int)
+    inactive_results = np.zeros(len(sglasso._sorted_groupids), np.float)
+
     for i, g in enumerate(sglasso._sorted_groupids):
         group = sglasso.groups == g
         subgrad_g = -grad[group]
@@ -346,21 +353,26 @@ def _check_KKT(sglasso,
                                                                           l1weight_g,
                                                                           l2weight_g)
             if val_g < lagrange * (1 - tol):
-                results[i] = ACTIVE_NORM
+                active_results[i] = ACTIVE_NORM
             nonz = soln_g != 0
 
             # nonzero coordinates need the right sign and size
             if (np.linalg.norm((l1subgrad_g - l1weight_g * np.sign(soln_g) * lagrange)[nonz]) > 
                 tol * max(1, np.linalg.norm(soln_g))):
-                results[i] = ACTIVE_L1
+                active_results[i] = ACTIVE_L1
 
             # l2 subgrad should be parallel to soln_g
             if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
                               soln_g / np.linalg.norm(soln_g)) > tol:
-                results[i] = ACTIVE_L2
+                active_results[i] = ACTIVE_L2
         elif l1weight_g.sum() + sglasso.weights[g] > 0: # inactive penalized
-            results[i] = (_gauge_function_dual_strong(subgrad_g, l1weight_g,
-                                                      l2weight_g)[0] >= lagrange * (1 + tol)) * INACTIVE
+            inactive_results[i] = _gauge_function_dual_strong(subgrad_g, l1weight_g,
+                                                              l2weight_g)[0] / lagrange
         else:   # unpenalized
-            results[i] = (np.linalg.norm(subgrad_g) > tol * sqlasso.l1weight_g.mean()) * UNPENALIZED
-    return results
+            active_results[i] = (np.linalg.norm(subgrad_g) > tol * sqlasso.l1weight_g.mean()) * UNPENALIZED
+
+    inactive_ranks = inactive_results.shape[0] - 1 - np.argsort(inactive_results)
+    inactive_ranks[inactive_results <= 1 + tol] = -1
+
+    return active_results, inactive_ranks
+

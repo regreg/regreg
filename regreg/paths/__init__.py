@@ -206,28 +206,33 @@ def default_lagrange_sequence(penalty,
    
 def strong_rules(path_obj,
                  lagrange_seq,
+                 initial_data, # (solution, grad) pair
                  inner_tol=1.e-5,
                  verbose=False,
                  initial_step=None,
+                 check_active=False,
                  max_tries=20):
 
     # take a guess at the inverse step size
     if initial_step is None:
         _lipschitz = power_L(path_obj.X, max_its=50)
-        path_obj.final_step = 1000. / _lipschitz 
+        final_step = 1000. / _lipschitz 
     else:
-        path_obj.final_step = initial_step
+        final_step = initial_step
 
     # gradient of restricted elastic net at lambda_max
 
-    solution = path_obj.solution
-    grad_solution = path_obj.grad_solution
-    linear_predictor = path_obj.linear_predictor
+    solution, grad_solution = initial_data
+
+    solution = solution.copy()
+    grad_solution = grad_solution.copy()
+
+    linear_predictor = path_obj.X.dot(solution)
     ever_active = path_obj.updated_ever_active([])
 
-    obj_solution = path_obj.saturated_loss.smooth_objective(path_obj.linear_predictor, 'func')
-    solutions = [path_obj.solution.T.copy()]
-    objective = [obj_solution]
+    dev_solution = path_obj.saturated_loss.smooth_objective(linear_predictor, 'func')
+    solutions = [solution.T.copy()]
+    dev_explained = [dev_solution]
 
     all_failing = np.zeros(path_obj.group_shape, np.bool)
     subproblem_set = path_obj.updated_ever_active([])
@@ -243,16 +248,17 @@ def strong_rules(path_obj,
 
             subproblem_set = sorted(set(subproblem_set + path_obj.updated_ever_active(all_failing)))
 
-            (path_obj.final_step, 
+            (final_step, 
              subproblem_grad, 
              subproblem_soln,
              subproblem_linpred,
-             subproblem_vars) = path_obj.solve_subproblem(subproblem_set,
-                                                      lagrange_new,
-                                                      tol=tol,
-                                                      start_step=path_obj.final_step,
-                                                      debug=debug and verbose,
-                                                      coef_stop=coef_stop)
+             subproblem_vars) = path_obj.solve_subproblem(solution, # for warm start
+                                                          subproblem_set,
+                                                          lagrange_new,
+                                                          tol=tol,
+                                                          start_step=final_step,
+                                                          debug=debug and verbose,
+                                                          coef_stop=coef_stop)
 
             saturated_grad = path_obj.saturated_loss.smooth_objective(subproblem_linpred, 'grad')
             # as subproblem always contains ever active, 
@@ -263,22 +269,27 @@ def strong_rules(path_obj,
             # a set of group ids
 
             strong, strong_idx, strong_vars = path_obj.strong_set(lagrange_cur * path_obj.alpha, 
-                                                              lagrange_new * path_obj.alpha, 
-                                                              grad_solution)
+                                                                  lagrange_new * path_obj.alpha, 
+                                                                  grad_solution)
             strong_enet_grad = path_obj.enet_grad(solution,
-                                              path_obj._penalized_vars,
-                                              lagrange_new,
-                                              subset=strong_vars)
+                                                  path_obj._penalized_vars,
+                                                  lagrange_new,
+                                                  subset=strong_vars)
             strong_soln = solution[strong_vars]
             X_strong = path_obj.subsample_columns(path_obj.X, 
-                                              strong_vars)
+                                                  strong_vars)
             strong_grad = (X_strong.T.dot(saturated_grad) +
                            strong_enet_grad)
             strong_penalty = path_obj.restricted_penalty(strong_vars)
             strong_failing = path_obj.check_KKT(strong_grad, 
-                                            strong_soln, 
-                                            path_obj.alpha * lagrange_new, 
-                                            penalty=strong_penalty)
+                                                strong_soln, 
+                                                path_obj.alpha * lagrange_new, 
+                                                penalty=strong_penalty)
+
+            if check_active:
+                strong_failing = strong_failing[0] + strong_failing[1]
+            else:
+                strong_failing = strong_failing[1]
 
             if np.any(strong_failing):
                 delta = np.zeros(path_obj.group_shape, np.bool)
@@ -286,14 +297,19 @@ def strong_rules(path_obj,
                 all_failing += delta 
             else:
                 enet_grad = path_obj.enet_grad(solution, 
-                                           path_obj._penalized_vars,
-                                           lagrange_new)
+                                               path_obj._penalized_vars,
+                                               lagrange_new)
                 grad_solution[:] = (path_obj.full_gradient(path_obj.saturated_loss, 
-                                                       subproblem_linpred) + 
+                                                           subproblem_linpred) + 
                                     enet_grad)
                 all_failing = path_obj.check_KKT(grad_solution, 
-                                             solution, 
-                                             path_obj.alpha * lagrange_new)
+                                                 solution, 
+                                                 path_obj.alpha * lagrange_new)
+
+                if check_active:
+                    all_failing = all_failing[0] + all_failing[1]
+                else:
+                    all_failing = all_failing[1]
 
                 if not all_failing.sum():
                     path_obj.ever_active = path_obj.updated_ever_active(path_obj.active_set(solution))
@@ -302,6 +318,7 @@ def strong_rules(path_obj,
                 else:
                     if verbose:
                         print('failing:', np.nonzero(all_failing)[0])
+
             num_tries += 1
 
             tol /= 2.
@@ -325,19 +342,19 @@ def strong_rules(path_obj,
             subproblem_set = sorted(set(subproblem_set + path_obj.updated_ever_active(all_failing)))
 
         solutions.append(solution.T.copy())
-        objective.append(path_obj.saturated_loss.smooth_objective(path_obj.linear_predictor, mode='func'))
+        dev_explained.append(path_obj.saturated_loss.smooth_objective(linear_predictor, mode='func'))
         gc.collect()
 
         if verbose:
             print({'lagrange':lagrange_new,
                    'sparsity':(solution != 0).sum(),
-                   'dev explained':1. - objective[-1] / objective[0],
+                   'dev explained':1. - dev_explained[-1] / dev_explained[0],
                    'point on path':list(lagrange_seq).index(lagrange_new),
                    'penalty':path_obj.penalty.seminorm(solution, lagrange=1),
                    'dual penalty':path_obj.penalty.conjugate.seminorm(grad_solution, lagrange=1)})
 
-    objective = np.array(objective)
-    output = {'devratio': 1 - objective / objective.max(),
+    dev_explained = np.array(dev_explained)
+    output = {'dev explained': 1 - dev_explained[-1] / dev_explained[0],
               'lagrange': lagrange_seq,
               'beta':np.array(solutions)}
 
@@ -345,9 +362,12 @@ def strong_rules(path_obj,
 
 def warm_start(path_obj,
                lagrange_seq,
+               initial_data,
                inner_tol=1.e-5,
                verbose=False,
                initial_step=None):
+
+    solution, _ = initial_data
 
     # basic setup
 
@@ -367,6 +387,7 @@ def warm_start(path_obj,
     solutions = []
     
     for lagrange in lagrange_seq:
+        problem.coefs[:] = solution
         penalty.lagrange = lagrange
         solution = problem.solve(tol=inner_tol)
 

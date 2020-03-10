@@ -192,10 +192,7 @@ class sparse_group_common_path(group_lasso_path):
                              self.penalty.l1_weight,
                              self.penalty.l2_weight,
                              lagrange)
-        #import sys; sys.stderr.write('results: ' + repr(results) + '\n')
-        #sys.stderr.write('lagrange %f\n' % lagrange)
-        #sys.stderr.write(repr(self.penalty.conjugate.terms(grad_solution)) + '\n')
-        return results > 0
+        return results[0] > 0, results[1] >= 0
 
     def strong_set(self,
                    lagrange_cur,
@@ -212,7 +209,11 @@ class sparse_group_common_path(group_lasso_path):
                 _strong_bool,
                 _strong)
                                              
-    def solve_subproblem(self, candidate_groups, lagrange_new, **solve_args):
+    def solve_subproblem(self, 
+                         solution,
+                         candidate_groups, 
+                         lagrange_new, 
+                         **solve_args):
     
         # solve a problem with a candidate set
 
@@ -234,7 +235,7 @@ class sparse_group_common_path(group_lasso_path):
             sub_loss.shape = sub_elastic_net.shape
 
         sub_problem = simple_problem(sub_loss, sub_penalty)
-        sub_problem.coefs[:] = self.solution[candidate_bool] # warm start
+        sub_problem.coefs[:] = solution[candidate_bool] # warm start
         sub_soln = sub_problem.solve(**solve_args)
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
@@ -514,7 +515,8 @@ def _check_KKT(grad,
 
     norm_soln = np.sqrt(np.sum(solution**2, 1))
     active = norm_soln > tol * max(norm_soln.sum(0), 1)
-    results = np.zeros(grad.shape[0])
+    active_results = np.zeros(grad.shape[0])
+    inactive_results = np.zeros(grad.shape[0])
 
     for g in np.nonzero(active)[0]:
         subgrad_g = -grad[g]
@@ -523,26 +525,27 @@ def _check_KKT(grad,
                                                                       l1_weight,
                                                                       l2_weight)
         if val_g < lagrange * (1 - tol):
-            results[g] = ACTIVE_NORM
+            active_results[g] = ACTIVE_NORM
         nonz = soln_g != 0
 
         # nonzero coordinates need the right sign and size
         if (np.linalg.norm((l1subgrad_g - l1_weight * np.sign(soln_g) * lagrange)[nonz]) > 
             tol * max(1, np.linalg.norm(soln_g))):
-            results[g] = ACTIVE_L1
+            active_results[g] = ACTIVE_L1
 
         # l2 subgrad should be parallel to soln_g
         if np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
                           soln_g / np.linalg.norm(soln_g)) > tol:
-#            import sys; sys.stderr.write('%f\n' % np.linalg.norm(l2subgrad_g / np.linalg.norm(l2subgrad_g) - 
-#                          soln_g / np.linalg.norm(soln_g)))
-            results[g] = ACTIVE_L2
+            active_results[g] = ACTIVE_L2
 
     for g in np.nonzero(~active)[0]:
         subgrad_g = -grad[g]
-        if _gauge_function_dual_strong(subgrad_g, 
-                                       l1_weight,
-                                       l2_weight)[0] >= lagrange * (1 + tol):
-            results[g] = INACTIVE
-    return results
+        inactive_results[g] = _gauge_function_dual_strong(subgrad_g, 
+                                                          l1_weight,
+                                                          l2_weight)[0] / lagrange
+
+    inactive_ranks = inactive_results.shape[0] - 1 - np.argsort(inactive_results)
+    inactive_ranks[inactive_results <= 1 + tol] = -1
+
+    return active_results, inactive_ranks
 
