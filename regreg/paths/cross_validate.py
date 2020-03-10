@@ -61,6 +61,7 @@ def cross_validate(path_obj,
                  train,
                  inner_tol):
         train_path = path_obj.subsample(train)
+        train_path.saturated_loss.coef *= train.sum() / train.shape[0]
         train_results = path_fitter(train_path, lagrange_seq, inner_tol=inner_tol)
         return train_results
 
