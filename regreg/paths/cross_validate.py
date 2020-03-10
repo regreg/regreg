@@ -73,8 +73,9 @@ def cross_validate(path_obj,
             for train, test in folds)
 
     # Execute the jobs in parallel using joblib
-    results = Parallel(n_jobs=n_jobs, verbose=verbose,
-                        backend="threading")(jobs)
+    results = Parallel(n_jobs=n_jobs,
+                       verbose=verbose,
+                       prefer="threading")(jobs)
 
     # Form the linear predictors and responses
 
