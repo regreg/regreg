@@ -23,7 +23,8 @@ def test_logistic():
 
             Lcp = copy(L)
             L_sub = L.subsample(np.arange(5))
-
+            L_sub.coef *= 45
+            
             # check that subsample is getting correct answer
 
             Xsub = X[np.arange(5)]
@@ -60,16 +61,16 @@ def test_logistic():
             np.testing.assert_allclose(g2, g4)
 
             np.testing.assert_allclose(L_sub.gradient(beta),
-                                       Lsub2.gradient(beta))
+                                       45 * Lsub2.gradient(beta))
 
             np.testing.assert_allclose(L.gradient(beta),
                                        X.T.dot(L.saturated_loss.mean_function(X.dot(beta)) * T_num - Y))
 
             np.testing.assert_allclose(L_sub.gradient(beta),
-                                       Xsub.T.dot(L_sub.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
+                                       45 * Xsub.T.dot(L_sub.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
 
             np.testing.assert_allclose(L_sub.gradient(beta),
-                                       Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
+                                       45 * Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
 
             # other checks on gradient
 
