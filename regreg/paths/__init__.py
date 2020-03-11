@@ -33,8 +33,10 @@ class grouped_path(object):
     # methods potentially overwritten in subclasses for I/O considerations
 
     def full_loss(self):
-        return affine_smooth(self.saturated_loss,
+        loss = affine_smooth(self.saturated_loss,
                              self.X)
+        loss.shape = self.X.input_shape
+        return loss
 
     def subsample_columns(self, 
                           X, 
@@ -366,15 +368,16 @@ def warm_start(path_obj,
                initial_data,
                inner_tol=1.e-5,
                verbose=False,
-               initial_step=None):
-
+               initial_step=None,
+               solve_args={}):
+    
     solution, _ = initial_data
 
     # basic setup
 
     loss = path_obj.full_loss()
     all_vars = np.ones(path_obj.penalty.shape, np.bool)
-    penalty = path_obj.restricted_penalty(all_vars)
+    penalty = path_obj.restricted_penalty(None)
     problem = simple_problem(loss, penalty)
 
     # take a guess at the inverse step size
@@ -390,7 +393,8 @@ def warm_start(path_obj,
     for lagrange in lagrange_seq:
         problem.coefs[:] = solution
         penalty.lagrange = lagrange
-        solution = problem.solve(tol=inner_tol)
+        solve_args['tol'] = inner_tol
+        solution = problem.solve(**solve_args)
 
         objective.append(loss.smooth_objective(solution, mode='func'))
         solutions.append(solution.T.copy())

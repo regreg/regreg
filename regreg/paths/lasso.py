@@ -165,7 +165,11 @@ class lasso_path(grouped_path):
         return solution != 0
 
     def restricted_penalty(self, subset):
-        return weighted_l1norm(self.penalty.weights[subset],
+        if subset is not None:
+            weights = self.penalty.weights[subset]
+        else:
+            weights = self.penalty.weights
+        return weighted_l1norm(weights,
                                lagrange=1)
 
     def solve_subproblem(self, 
@@ -223,6 +227,24 @@ class lasso_path(grouped_path):
         _ever_active = self._ever_active.copy()
         _ever_active[index_obj] = True
         return list(np.nonzero(_ever_active)[0])
+
+    @property
+    def unpenalized(self):
+        """
+        Unpenalized groups and variables.
+
+        Returns
+        -------
+
+        groups : sequence
+            Groups with weights equal to 0.
+
+        variables : ndarray
+            Boolean indicator that is True if no penalty on that variable.
+
+        """
+        unpen = self.penalty.weights == 0
+        return np.nonzero(unpen)[0], unpen
 
 # Some common loss factories
 

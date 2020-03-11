@@ -1,6 +1,6 @@
 import numpy as np
 
-from .. import lasso, sparse_group_block, strong_rules
+from .. import lasso, sparse_group_block, strong_rules, warm_start
 from ..basil import basil_inner_loop, basil
 from ...tests.decorators import set_seed_for_test
 
@@ -61,7 +61,7 @@ def test_gaussian_blocks():
                         (sparse_group_block1.solution, sparse_group_block1.grad_solution),
                         inner_tol=1.e-12)
     beta1 = sol1['beta']
-    print(beta1.shape)
+
     print(np.sqrt((beta1**2).sum(2).sum(1)))
     
 @set_seed_for_test()
@@ -179,7 +179,6 @@ def test_basil_inner_loop(n=200,p=50):
     np.random.shuffle(betaX)
     Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
 
-
     enet = np.zeros((X.shape[1], Y.shape[1]))
     enet[4:7] = 0
 
@@ -215,19 +214,14 @@ def test_basil(n=300,p=100):
     np.random.shuffle(betaX)
     Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
 
-
-    enet = np.zeros((X.shape[1], Y.shape[1]))
-    enet[4:7] = 0
-
     sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
                                                                     Y, 
                                                                     1,
-                                                                    np.sqrt(2),
-                                                                    alpha=0.5,
-                                                                    elastic_net_param=enet)
+                                                                    np.sqrt(2))
     lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
                                                                      sparse_group_block1.grad_solution,
-                                                                     nstep=100) # initialized at "null" model
+                                                                     lagrange_proportion=0.4,
+                                                                     nstep=50) # initialized at "null" model
     sol1 = basil(sparse_group_block1, 
                  lagrange_sequence, 
                  (sparse_group_block1.solution.copy(), sparse_group_block1.grad_solution.copy()),
@@ -238,12 +232,11 @@ def test_basil(n=300,p=100):
     sparse_group_block2 = sparse_group_block.multiresponse_gaussian(X, 
                                                                     Y, 
                                                                     1,
-                                                                    np.sqrt(2),
-                                                                    alpha=0.5,
-                                                                    elastic_net_param=enet)
+                                                                    np.sqrt(2))
     sol2 = warm_start(sparse_group_block2, 
                       lagrange_sequence, 
                       (sparse_group_block2.solution.copy(), sparse_group_block2.grad_solution.copy()),
                       inner_tol=1.e-14)['beta']
 
-    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
+    assert(np.sum(np.array([np.linalg.norm(sol1[i] - sol2[i]) / max(np.linalg.norm(sol2[i]), 1) 
+                            for i in range(sol1.shape[0])]) >= 1.e-4) <= 2)

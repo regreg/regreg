@@ -62,6 +62,7 @@ class sparse_group_common_path(group_lasso_path):
                                           l2_penalty, 
                                           lagrange=1)
         self.group_shape = (self.penalty.shape[0],)
+        self.X.input_shape = self.penalty.shape
         self.shape = self.penalty.shape
 
         # elastic net part
@@ -270,7 +271,10 @@ class sparse_group_common_path(group_lasso_path):
 
     def restricted_penalty(self, subset):
         vars = np.zeros(self.penalty.shape[0], np.bool)
-        vars[subset] = True
+        if subset is not None:
+            vars[subset] = True
+        else:
+            vars[:] = True
         return sparse_group_block((vars.sum(), self.shape[1]),
                                   self.penalty.l1_weight,
                                   self.penalty.l2_weight,

@@ -251,7 +251,45 @@ def test_basil(n=1000,p=600):
     assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
 
 @set_seed_for_test()
-def test_basil_enet(n=1000,p=600):
+def test_basil_unpenalized(n=500,p=200):
+    '''
+    test BASIL
+
+    '''
+    X = np.random.standard_normal((n,p))
+    Y = np.random.standard_normal(n)
+    betaX = np.zeros(p)
+    betaX[:3] = [3,4,5] / np.sqrt(n)
+    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+
+    W = np.ones(X.shape[1])
+    W[2:4] = 0
+    lasso1 = lasso.gaussian(X, 
+                            Y, 
+                            W)
+    lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
+                                                        lasso1.grad_solution,
+                                                        lagrange_proportion=0.4,
+                                                        nstep=20) # initialized at "null" model
+    sol1 = basil(lasso1, 
+                 lagrange_sequence, 
+                 (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                 inner_tol=1.e-14,
+                 step_nvar=10,
+                 step_lagrange=20)
+
+    lasso2 = lasso.gaussian(X, 
+                            Y, 
+                            W)
+    sol2 = warm_start(lasso2, 
+                      lagrange_sequence, 
+                      (lasso2.solution.copy(), lasso2.grad_solution.copy()),
+                      inner_tol=1.e-14)['beta']
+
+    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
+
+@set_seed_for_test()
+def test_basil_enet(n=500,p=200):
     '''
     test BASIL w/enet
 

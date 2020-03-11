@@ -9,7 +9,8 @@ def basil_inner_loop(path_obj,
                      initial_step=None,
                      check_active=False,
                      step_nvar=50,
-                     candidate_set=None):
+                     candidate_set=None,
+                     solve_args={}):
 
     debug = True
     coef_stop = False
@@ -32,7 +33,9 @@ def basil_inner_loop(path_obj,
                                         path_obj.alpha * np.min(lagrange_subseq))[1]
 
     linear_predictor = path_obj.X.dot(solution)
-    ever_active = list(path_obj.updated_ever_active([]))
+    unpen = np.zeros(path_obj.group_shape, np.bool)
+    unpen[path_obj.unpenalized[1]] = True
+    ever_active = list(path_obj.updated_ever_active(unpen)) # unpenalized groups
 
     solutions = []
     lagrange_solved = []
@@ -42,10 +45,12 @@ def basil_inner_loop(path_obj,
     M = min(step_nvar, (inactive_ranks >= 0).sum())
 
     candidate_bool = np.zeros(path_obj.group_shape, np.bool)
-    subproblem_set = path_obj.updated_ever_active((inactive_ranks < M) * (inactive_ranks >= 0))
+    subproblem_set = path_obj.updated_ever_active((inactive_ranks < M) * (inactive_ranks >= 0) +
+                                                  unpen)
     if candidate_set is not None:
         subproblem_set = sorted(set(subproblem_set + candidate_set))
 
+    subproblem_set
     for lagrange in lagrange_subseq:
 
         (final_step, 
@@ -58,7 +63,8 @@ def basil_inner_loop(path_obj,
                                                       tol=inner_tol,
                                                       start_step=final_step,
                                                       debug=debug and verbose,
-                                                      coef_stop=coef_stop)
+                                                      coef_stop=coef_stop,
+                                                      **solve_args)
 
         saturated_grad = path_obj.saturated_loss.smooth_objective(subproblem_linpred, 'grad')
         # as subproblem always contains ever active, 
@@ -106,7 +112,8 @@ def basil(path_obj,
           initial_step=None,
           check_active=False,
           step_nvar=50,
-          step_lagrange=5):
+          step_lagrange=5,
+          solve_args={}):
 
     lagrange_solved, solutions, candidate_set = [np.inf], [], []
 
@@ -126,7 +133,8 @@ def basil(path_obj,
                                                cur_data,
                                                inner_tol=inner_tol,
                                                step_nvar=step_nvar,
-                                               candidate_set=candidate_set)
+                                               candidate_set=candidate_set,
+                                               solve_args=solve_args)
             if len(solution_incr) > 0:
                 cur_soln = (solution_incr[-1], last_grad)
 

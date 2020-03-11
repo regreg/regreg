@@ -262,7 +262,11 @@ class group_lasso_path(grouped_path):
         return self.penalty.terms(solution) != 0
 
     def restricted_penalty(self, var_subset):
-        return group_lasso(self.penalty.groups[var_subset],
+        if var_subset is not None:
+            groups = self.penalty.groups[var_subset]
+        else:
+            groups = self.penalty.groups
+        return group_lasso(groups,
                            weights=self.penalty.weights,
                            lagrange=1)
 

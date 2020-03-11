@@ -220,8 +220,14 @@ class sparse_group_lasso_path(group_lasso_path):
         return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_bool
 
     def restricted_penalty(self, subset):
-        return sparse_group_lasso(self.penalty.groups[subset],
-                                  self.penalty.lasso_weights[subset],
+        if subset is not None:
+            groups = self.penalty.groups[subset]
+            lasso_weights = self.penalty.lasso_weights[subset]
+        else:
+            groups = self.penalty.groups
+            lasso_weights = self.penalty.lasso_weights
+        return sparse_group_lasso(groups,
+                                  lasso_weights,
                                   weights=self.penalty.weights,
                                   lagrange=1)#
 # Some common loss factories
