@@ -7,6 +7,7 @@ import gc
 import numpy as np
 import numpy.linalg as npl
 
+from scipy.stats import rankdata
 import scipy.sparse
 
 from . import (subsample_columns, 
@@ -187,12 +188,12 @@ class sparse_group_common_path(group_lasso_path):
         if penalty is None:
             penalty = self.penalty
 
-        results = _check_KKT(grad_solution, 
-                             solution, 
-                             self.penalty.l1_weight,
-                             self.penalty.l2_weight,
-                             lagrange)
-        return results[0] > 0, results[1] >= 0
+        active, inactive_ranks = _check_KKT(grad_solution, 
+                                            solution, 
+                                            self.penalty.l1_weight,
+                                            self.penalty.l2_weight,
+                                            lagrange)
+        return active > 0, inactive_ranks
 
     def strong_set(self,
                    lagrange_cur,
@@ -242,7 +243,8 @@ class sparse_group_common_path(group_lasso_path):
         return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_bool
 
     def updated_ever_active(self,
-                            index_obj):
+                            index_obj,
+                            group_ids=False): # ignored as result is the same):
         if not hasattr(self, '_ever_active'):
             self._ever_active = np.zeros(self.group_shape, np.bool)
         _ever_active = self._ever_active.copy()
@@ -544,7 +546,7 @@ def _check_KKT(grad,
                                                           l1_weight,
                                                           l2_weight)[0] / lagrange
 
-    inactive_ranks = inactive_results.shape[0] - 1 - np.argsort(inactive_results)
+    inactive_ranks = inactive_results.shape[0] - np.argsort(inactive_results)
     inactive_ranks[inactive_results <= 1 + tol] = -1
 
     return active_results, inactive_ranks

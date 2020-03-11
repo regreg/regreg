@@ -7,6 +7,7 @@ import gc
 import numpy as np
 import numpy.linalg as npl
 
+from scipy.stats import rankdata
 import scipy.sparse
 
 from . import subsample_columns
@@ -163,11 +164,12 @@ class sparse_group_lasso_path(group_lasso_path):
         if penalty is None:
             penalty = self.penalty
 
-        results = _check_KKT(penalty,
-                             grad_solution, 
-                             solution, 
-                             lagrange)
-        return results[0] > 0, results[1] >= 0
+        active, inactive_ranks = _check_KKT(penalty,
+                                            grad_solution, 
+                                            solution, 
+                                            lagrange)
+        return active > 0, inactive_ranks
+
 
     def strong_set(self,
                    lagrange_cur,
@@ -371,7 +373,7 @@ def _check_KKT(sglasso,
         else:   # unpenalized
             active_results[i] = (np.linalg.norm(subgrad_g) > tol * sqlasso.l1weight_g.mean()) * UNPENALIZED
 
-    inactive_ranks = inactive_results.shape[0] - 1 - np.argsort(inactive_results)
+    inactive_ranks = inactive_results.shape[0] - rankdata(inactive_results)
     inactive_ranks[inactive_results <= 1 + tol] = -1
 
     return active_results, inactive_ranks

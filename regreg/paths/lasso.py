@@ -4,6 +4,7 @@ from warnings import warn
 import numpy as np
 import numpy.linalg as npl
 
+from scipy.stats import rankdata
 import scipy.sparse
 
 from . import subsample_columns, grouped_path, default_lagrange_sequence
@@ -146,7 +147,7 @@ class lasso_path(grouped_path):
                            grad_solution, 
                            solution, 
                            lagrange)
-        return value[0] > 0, value[1] >= 0
+        return value[0] > 0, value[1]
 
     def strong_set(self,
                    lagrange_cur,
@@ -215,7 +216,8 @@ class lasso_path(grouped_path):
         return G
 
     def updated_ever_active(self,
-                            index_obj):
+                            index_obj,
+                            group_ids=False): # ignored as result is the same
         if not hasattr(self, '_ever_active'):
             self._ever_active = np.zeros(self.group_shape, np.bool)
         _ever_active = self._ever_active.copy()
@@ -312,19 +314,19 @@ def _check_KKT(lasso_weights,
     active_failing = np.zeros(solution.shape, np.int)
     active_failing[active] = (np.fabs(grad[active] / (lagrange * lasso_weights[active]) + np.sign(solution[active])) > tol) * ACTIVE
 
-    inactive_failing = np.zeros(solution.shape, np.int) - 1
-    inactive = (solution == 0) * lasso_weights > 0
-    inactive_failing[inactive] = (np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive])) > 1 + tol) * INACTIVE
+    # inactive_failing = np.zeros(solution.shape, np.int) - 1
+    # 
+    # inactive_failing[inactive] = (np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive])) > 1 + tol) * INACTIVE
 
-    inactive_failing2 = np.zeros(solution.shape, np.int) - 1
     inactive = (solution == 0) * lasso_weights > 0
-
     inactive_terms = np.zeros(solution.shape)
     inactive_terms[inactive] = np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive]))
-    inactive_ranks = solution.shape[0] - 1 - np.argsort(inactive_terms)
+    inactive_ranks = solution.shape[0] - rankdata(inactive_terms)
     inactive_ranks[inactive_terms <= 1+tol] = -1
 
     unpenalized = lasso_weights == 0
     active_failing[unpenalized] = (np.fabs(grad[unpenalized] / np.mean(lasso_weights[lasso_weights>0])) > tol) * UNPENALIZED
+
+    np.testing.assert_allclose(inactive_ranks >= 0, inactive_terms > 1 + tol)
 
     return active_failing, inactive_ranks

@@ -1,6 +1,7 @@
 import numpy as np
 
 from .. import lasso, sparse_group_block, strong_rules
+from ..basil import basil_inner_loop, basil
 from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
@@ -164,3 +165,85 @@ def test_elastic_net(n=200, p=50):
                         inner_tol=1.e-12)
     beta1 = sol1['beta']
 
+
+@set_seed_for_test()
+def test_basil_inner_loop(n=200,p=50):
+    '''
+    test one run of the BASIL inner loop
+
+    '''
+    n, p, q = 200, 50, 3
+    X = np.random.standard_normal((n,p))
+    betaX = np.zeros((p,q))
+    betaX[:3] = [3,4,5]
+    np.random.shuffle(betaX)
+    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+
+
+    enet = np.zeros((X.shape[1], Y.shape[1]))
+    enet[4:7] = 0
+
+    sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
+                                                                    Y, 
+                                                                    1,
+                                                                    np.sqrt(2),
+                                                                    alpha=0.5,
+                                                                    elastic_net_param=enet)
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                              sparse_group_block1.grad_solution,
+                                                              nstep=100) # initialized at "null" model
+    sol1 = basil_inner_loop(sparse_group_block1, 
+                            lagrange_sequence[:50], 
+                            (sparse_group_block1.solution.copy(), sparse_group_block1.grad_solution.copy()),
+                            inner_tol=1.e-14,
+                            step_nvar=10)
+    lagrange1, beta1, grad1, active1 = sol1
+    print(np.array(beta1).shape, 'chunk of path')
+
+    print(active1, 'active')
+
+@set_seed_for_test()
+def test_basil(n=300,p=100):
+    '''
+    run BASIL
+
+    '''
+    n, p, q = 200, 50, 3
+    X = np.random.standard_normal((n,p))
+    betaX = np.zeros((p,q))
+    betaX[:3] = [3,4,5]
+    np.random.shuffle(betaX)
+    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+
+
+    enet = np.zeros((X.shape[1], Y.shape[1]))
+    enet[4:7] = 0
+
+    sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
+                                                                    Y, 
+                                                                    1,
+                                                                    np.sqrt(2),
+                                                                    alpha=0.5,
+                                                                    elastic_net_param=enet)
+    lagrange_sequence = sparse_group_block.default_lagrange_sequence(sparse_group_block1.penalty,
+                                                                     sparse_group_block1.grad_solution,
+                                                                     nstep=100) # initialized at "null" model
+    sol1 = basil(sparse_group_block1, 
+                 lagrange_sequence, 
+                 (sparse_group_block1.solution.copy(), sparse_group_block1.grad_solution.copy()),
+                 inner_tol=1.e-14,
+                 step_nvar=10,
+                 step_lagrange=20)
+    
+    sparse_group_block2 = sparse_group_block.multiresponse_gaussian(X, 
+                                                                    Y, 
+                                                                    1,
+                                                                    np.sqrt(2),
+                                                                    alpha=0.5,
+                                                                    elastic_net_param=enet)
+    sol2 = warm_start(sparse_group_block2, 
+                      lagrange_sequence, 
+                      (sparse_group_block2.solution.copy(), sparse_group_block2.grad_solution.copy()),
+                      inner_tol=1.e-14)['beta']
+
+    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)

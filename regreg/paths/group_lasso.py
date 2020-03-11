@@ -7,6 +7,7 @@ import gc
 import numpy as np
 import numpy.linalg as npl
 
+from scipy.stats import rankdata
 import scipy.sparse
 
 from . import subsample_columns
@@ -151,11 +152,11 @@ class group_lasso_path(grouped_path):
         if penalty is None:
             penalty = self.penalty
 
-        results = _check_KKT(penalty,
-                             grad_solution, 
-                             solution, 
-                             lagrange)
-        return results[0] > 0, results[1] >= 0
+        active, inactive_ranks = _check_KKT(penalty,
+                                            grad_solution, 
+                                            solution, 
+                                            lagrange)
+        return active > 0, inactive_ranks
 
     def strong_set(self,
                    lagrange_cur,
@@ -180,12 +181,12 @@ class group_lasso_path(grouped_path):
         # solve a problem with a candidate set
 
         sub_loss, sub_penalty, sub_X, candidate_bool = _restricted_problem(self.X, 
-                                                                          self.saturated_loss, 
-                                                                          self.alpha * lagrange_new, 
-                                                                          self.penalty.groups,
-                                                                          self.penalty.weights,
-                                                                          candidate_groups,
-                                                                          self.subsample_columns)
+                                                                           self.saturated_loss, 
+                                                                           self.alpha * lagrange_new, 
+                                                                           self.penalty.groups,
+                                                                           self.penalty.weights,
+                                                                           candidate_groups,
+                                                                           self.subsample_columns)
         if self.alpha < 1:
             sub_elastic_net = _restricted_elastic_net(self.elastic_net_param, 
                                                       self._penalized_vars,
@@ -196,6 +197,7 @@ class group_lasso_path(grouped_path):
 
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
+        print('penalty', sub_penalty.lagrange)
         sub_problem = simple_problem(sub_loss, sub_penalty)
         sub_problem.coefs[:] = solution[candidate_bool] # warm start
         sub_soln = sub_problem.solve(**solve_args)
@@ -219,13 +221,17 @@ class group_lasso_path(grouped_path):
         return G
 
     def updated_ever_active(self,
-                            index_obj):
+                            index_obj,
+                            group_ids=True):
         if not hasattr(self, '_ever_active'):
             self._ever_active = np.zeros(self.group_shape, np.bool)
             self._sorted_groupids = np.array(self.penalty._sorted_groupids)
         _ever_active = self._ever_active.copy()
         _ever_active[index_obj] = True
-        return list(self._sorted_groupids[_ever_active])
+        if group_ids:
+            return list(self._sorted_groupids[_ever_active])
+        else:
+            return list(np.nonzero(_ever_active)[0])
 
     @property
     def unpenalized(self):
@@ -255,8 +261,8 @@ class group_lasso_path(grouped_path):
     def active_set(self, solution):
         return self.penalty.terms(solution) != 0
 
-    def restricted_penalty(self, subset):
-        return group_lasso(self.penalty.groups[subset],
+    def restricted_penalty(self, var_subset):
+        return group_lasso(self.penalty.groups[var_subset],
                            weights=self.penalty.weights,
                            lagrange=1)
 
@@ -372,7 +378,7 @@ def _check_KKT(penalty,
             inactive_results[i] = np.linalg.norm(grad[group]) / (lagrange * w) 
     # rank inactive groups
 
-    inactive_ranks = inactive_results.shape[0] - 1 - np.argsort(inactive_results)
+    inactive_ranks = inactive_results.shape[0]  - rankdata(inactive_results)
     inactive_ranks[inactive_results <= 1 + tol] = -1
 
     return active_results, inactive_ranks

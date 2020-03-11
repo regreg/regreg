@@ -281,15 +281,16 @@ def strong_rules(path_obj,
             strong_grad = (X_strong.T.dot(saturated_grad) +
                            strong_enet_grad)
             strong_penalty = path_obj.restricted_penalty(strong_vars)
-            strong_failing = path_obj.check_KKT(strong_grad, 
-                                                strong_soln, 
-                                                path_obj.alpha * lagrange_new, 
-                                                penalty=strong_penalty)
+            (strong_A,
+             strong_I_ranks) = path_obj.check_KKT(strong_grad, 
+                                                  strong_soln, 
+                                                  path_obj.alpha * lagrange_new, 
+                                                  penalty=strong_penalty)
 
             if check_active:
-                strong_failing = strong_failing[0] + strong_failing[1]
+                strong_failing = strong_A + (strong_I_ranks >= 0)
             else:
-                strong_failing = strong_failing[1]
+                strong_failing = strong_I_ranks >= 0
 
             if np.any(strong_failing):
                 delta = np.zeros(path_obj.group_shape, np.bool)
@@ -302,14 +303,14 @@ def strong_rules(path_obj,
                 grad_solution[:] = (path_obj.full_gradient(path_obj.saturated_loss, 
                                                            subproblem_linpred) + 
                                     enet_grad)
-                all_failing = path_obj.check_KKT(grad_solution, 
-                                                 solution, 
-                                                 path_obj.alpha * lagrange_new)
+                failing_A, failing_I_ranks = path_obj.check_KKT(grad_solution, 
+                                                                solution, 
+                                                                path_obj.alpha * lagrange_new)
 
                 if check_active:
-                    all_failing = all_failing[0] + all_failing[1]
+                    all_failing = failing_A + (failing_I_ranks >= 0)
                 else:
-                    all_failing = all_failing[1]
+                    all_failing = failing_I_ranks >= 0
 
                 if not all_failing.sum():
                     path_obj.ever_active = path_obj.updated_ever_active(path_obj.active_set(solution))
@@ -372,8 +373,8 @@ def warm_start(path_obj,
     # basic setup
 
     loss = path_obj.full_loss()
-    all_groups = np.ones(path_obj.group_shape, np.bool)
-    penalty = path_obj.restricted_penalty(all_groups)
+    all_vars = np.ones(path_obj.penalty.shape, np.bool)
+    penalty = path_obj.restricted_penalty(all_vars)
     problem = simple_problem(loss, penalty)
 
     # take a guess at the inverse step size
