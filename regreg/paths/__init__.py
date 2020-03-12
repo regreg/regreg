@@ -3,7 +3,7 @@ from warnings import warn
 import numpy as np
 
 from ..affine import astransform, power_L
-from ..smooth import affine_smooth
+from ..smooth import affine_smooth, sum as smooth_sum
 from ..problems.simple import simple_problem
 
 def subsample_columns(X, columns):
@@ -30,13 +30,18 @@ class grouped_path(object):
                  ):
         raise NotImplementedError
 
-    # methods potentially overwritten in subclasses for I/O considerations
+    # used for warm start path
 
     def full_loss(self):
         loss = affine_smooth(self.saturated_loss,
                              self.X)
         loss.shape = self.X.input_shape
         return loss
+
+    def full_elastic_net(self, lagrange):
+        raise NotImplementedError
+
+    # methods potentially overwritten in subclasses for I/O considerations
 
     def subsample_columns(self, 
                           X, 
@@ -199,12 +204,13 @@ class grouped_path(object):
 def default_lagrange_sequence(penalty,
                               null_solution,
                               lagrange_proportion=0.05,
-                              nstep=100):
+                              nstep=100,
+                              alpha=1):
     dual = penalty.conjugate
     lagrange_max = dual.seminorm(null_solution, lagrange=1)
     return (lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
                                               0, 
-                                              nstep)))[::-1]
+                                              nstep)))[::-1] / alpha
    
 def strong_rules(path_obj,
                  lagrange_seq,
@@ -378,7 +384,6 @@ def warm_start(path_obj,
     loss = path_obj.full_loss()
     all_vars = np.ones(path_obj.penalty.shape, np.bool)
     penalty = path_obj.restricted_penalty(None)
-    problem = simple_problem(loss, penalty)
 
     # take a guess at the inverse step size
     if initial_step is None:
@@ -391,15 +396,22 @@ def warm_start(path_obj,
     solutions = []
     
     for lagrange in lagrange_seq:
+        enet_loss = path_obj.enet_loss(lagrange)
+        total_loss = smooth_sum([loss, enet_loss])
+        penalty.lagrange = lagrange * path_obj.alpha
+
+        problem = simple_problem(total_loss, penalty)
         problem.coefs[:] = solution
-        penalty.lagrange = lagrange
         solve_args['tol'] = inner_tol
+        solve_args['start_step'] = path_obj.final_step
         solution = problem.solve(**solve_args)
 
         objective.append(loss.smooth_objective(solution, mode='func'))
         solutions.append(solution.T.copy())
-        grad_solution = loss.smooth_objective(solution, 'grad')
-        
+        grad_solution = total_loss.smooth_objective(solution, 'grad')
+        path_obj.final_step = problem.final_step
+
+        verbose = True
         if verbose:
             print({'lagrange':lagrange,
                    'sparsity':(solution != 0).sum(),
