@@ -435,8 +435,12 @@ def stacked_poisson(Xs, Ys, *args, **keyword_args):
     loss = glm.stacked_loglike.poisson(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
-def stacked_huber(Xs, Ys, *args, **keyword_args):
-    loss = glm.stacked_loglike.huber(Ys) # Ys a sequence of response vectors
+def stacked_huber(Xs, Ys, smoothing_parameter, *args, **keyword_args):
+    loss = glm.stacked_loglike.huber(Ys, smoothing_parameter) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
+def stacked_huber_svm(Xs, Ys, smoothing_parameter, *args, **keyword_args):
+    loss = glm.stacked_loglike.huber_svm(Ys, smoothing_parameter) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 # private functions

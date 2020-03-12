@@ -293,9 +293,13 @@ def poisson(X, Y, *args, **keyword_args):
     Y = np.asarray(Y)
     return group_lasso_path(glm.poisson_loglike(Y.shape, Y), X, *args, **keyword_args)
 
-def huber(X, Y, *args, **keyword_args):
+def huber(X, Y, smoothing_parameter, *args, **keyword_args):
     Y = np.asarray(Y)
-    return group_lasso_path(glm.huber_loss(Y.shape, Y), X, *args, **keyword_args)
+    return group_lasso_path(glm.huber_loss(Y.shape, Y, smoothing_parameter), X, *args, **keyword_args)
+
+def huber_svm(X, Y, smoothing_parameter, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return group_lasso_path(glm.huber_svm(Y.shape, Y, smoothing_parameter), X, *args, **keyword_args)
 
 # private functions
 

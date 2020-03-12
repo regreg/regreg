@@ -17,7 +17,8 @@ from .glm import (glm,
                   logistic_loglike,
                   poisson_loglike,
                   cox_loglike,
-                  huber_loss)
+                  huber_loss,
+                  huber_svm)
 
 class mglm(glm):
 
@@ -625,6 +626,61 @@ class stacked_common_loglike(smooth_atom):
                              response,
                              smoothing_parameter) 
                   for response in responses]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def huber_svm(klass,
+                  X, 
+                  successes,
+                  smoothing_parameter,
+                  case_weights=None,
+                  coef=1., 
+                  offset=None,
+                  quadratic=None, 
+                  initial=None):
+        """
+        Create a loss for a regression model using
+        Huber loss.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Response vectors. 
+
+        smoothing_parameter : float
+            Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [huber_svm(response.shape,
+                            response,
+                            smoothing_parameter) 
+                  for response in successes]
 
         return klass(losses,
                      offset=offset,

@@ -38,7 +38,9 @@ class grouped_path(object):
         loss.shape = self.X.input_shape
         return loss
 
-    def full_elastic_net(self, lagrange):
+    def enet_loss(self, 
+                  lagrange,
+                  candidate_set):
         raise NotImplementedError
 
     # methods potentially overwritten in subclasses for I/O considerations
