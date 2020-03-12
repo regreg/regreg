@@ -5,7 +5,6 @@ import numpy as np
 import numpy.linalg as npl
 
 from scipy.stats import rankdata
-import scipy.sparse
 
 from . import subsample_columns, grouped_path, default_lagrange_sequence
 from ..affine import astransform, power_L

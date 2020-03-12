@@ -104,6 +104,7 @@ def cross_validate_alt(path_obj,
                        fit_args,
                        lagrange_seq,
                        path_fitter=strong_rules,
+                       initial_data=None,
                        cv=5,
                        group_labels=None,
                        n_jobs=-1,
@@ -153,6 +154,7 @@ def cross_validate_alt(path_obj,
                               test,
                               train,
                               path_fitter,
+                              initial_data,
                               *fit_args)
             for train, test in folds)
 

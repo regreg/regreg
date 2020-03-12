@@ -8,7 +8,6 @@ import numpy as np
 import numpy.linalg as npl
 
 from scipy.stats import rankdata
-import scipy.sparse
 
 from . import (subsample_columns, 
                grouped_path)
@@ -462,7 +461,8 @@ def _restricted_elastic_net(elastic_net_params,
 
     new_params = elastic_net_params * (1 - alpha)
     new_params[penalized] *= lagrange 
-    new_params = new_params[candidate_groups]
+    if candidate_groups is not None:
+        new_params = new_params[candidate_groups]
     return quadratic_loss(new_params.shape,
                           new_params,
                           Qdiag=True)
@@ -486,10 +486,6 @@ def _restricted_problem(X,
     restricted_loss.shape = restricted_penalty.shape
 
     X_c = astransform(X_candidate)
-#    import sys; sys.stderr.write('shapes: ' + repr((X_c.input_shape,
-#                                                    X_c.output_shape,
-#                                                    restricted_penalty.shape,
-#                                                    restricted_loss.shape)) + '\n')
     return restricted_loss, restricted_penalty, X_candidate, candidate_bool
 
 # for paths

@@ -8,7 +8,6 @@ import numpy as np
 import numpy.linalg as npl
 
 from scipy.stats import rankdata
-import scipy.sparse
 
 from . import subsample_columns
 from ..affine import power_L, normalize, astransform
