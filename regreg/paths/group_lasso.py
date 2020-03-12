@@ -80,6 +80,17 @@ class group_lasso_path(grouped_path):
 
     # method potentially overwritten in subclasses for penalty considerations
 
+    def enet_loss(self,
+                  lagrange,
+                  candidate_groups=None):
+
+        return _restricted_elastic_net(self.elastic_net_param, 
+                                       self._penalized_vars,
+                                       self.penalty.groups,
+                                       lagrange,
+                                       self.alpha,
+                                       candidate_groups)
+
     def subsample(self,
                   case_idx):
         '''
@@ -188,16 +199,10 @@ class group_lasso_path(grouped_path):
                                                                            candidate_groups,
                                                                            self.subsample_columns)
         if self.alpha < 1:
-            sub_elastic_net = _restricted_elastic_net(self.elastic_net_param, 
-                                                      self._penalized_vars,
-                                                      self.penalty.groups,
-                                                      lagrange_new,
-                                                      self.alpha,
-                                                      candidate_groups)
-
+            sub_elastic_net = self.enet_loss(lagrange_new,
+                                             candidate_groups)
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
-        print('penalty', sub_penalty.lagrange)
         sub_problem = simple_problem(sub_loss, sub_penalty)
         sub_problem.coefs[:] = solution[candidate_bool] # warm start
         sub_soln = sub_problem.solve(**solve_args)
@@ -324,11 +329,11 @@ def _restricted_elastic_net(elastic_net_params,
                             alpha,
                             candidate_groups):
 
-    candidate_bool = _candidate_bool(groups, candidate_groups)
-
     new_params = elastic_net_params * (1 - alpha)
     new_params[penalized] *= lagrange 
-    new_params = new_params[candidate_bool]
+    if candidate_groups is not None:
+        candidate_bool = _candidate_bool(groups, candidate_groups)
+        new_params = new_params[candidate_bool]
     return quadratic_loss(new_params.shape,
                           new_params,
                           Qdiag=True)

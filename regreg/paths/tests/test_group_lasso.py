@@ -434,5 +434,9 @@ def test_basil_enet(n=200,p=100):
                       (group_lasso2.solution.copy(), group_lasso2.grad_solution.copy()),
                       inner_tol=1.e-14)['beta']
 
-    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
+    rel_errors = np.array([np.linalg.norm(sol1[i]-sol2[i]) / np.linalg.norm(sol1[i])
+                           for i in range(1, sol1.shape[0])])
+
+    assert(np.percentile(rel_errors, 90) < 1.e-4)
+
 

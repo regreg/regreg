@@ -46,7 +46,12 @@ class sparse_group_common_path(group_lasso_path):
                                  # implied l1,l2 penalties
 
         self.saturated_loss = saturated_loss
+        self._X = np.asarray(X)
         self.X = astransform(X)
+        self.X.output_shape = self.saturated_loss.shape
+        if len(self.X.input_shape) == 1:                         # assumes X is matrix like, 
+            self.X.input_shape = (self.X.input_shape +           # but its output should be same shape
+                                  self.saturated_loss.shape[1:]) # as self.saturated_loss.shape
 
         self.l1_penalty = l1_penalty
         self.l2_penalty = l2_penalty
@@ -57,12 +62,11 @@ class sparse_group_common_path(group_lasso_path):
         # the penalty parameters
 
         self.alpha = alpha
-        self.penalty = sparse_group_block(self.X.input_shape + saturated_loss.shape[1:],
+        self.penalty = sparse_group_block(self.X.input_shape,
                                           l1_penalty, 
                                           l2_penalty, 
                                           lagrange=1)
         self.group_shape = (self.penalty.shape[0],)
-        self.X.input_shape = self.penalty.shape
         self.shape = self.penalty.shape
 
         # elastic net part
@@ -101,21 +105,33 @@ class sparse_group_common_path(group_lasso_path):
 
     # methods potentially overwritten in subclasses for I/O considerations
 
+    def enet_loss(self,
+                  lagrange,
+                  candidate_groups=None):
+        return _restricted_elastic_net(self.elastic_net_param, 
+                                       self._penalized_vars,
+                                       lagrange,
+                                       self.alpha,
+                                       candidate_groups)
+
     def subsample_columns(self, 
-                          X, 
+                          X,  # ignored
                           columns):
         """
         Extract columns of self.Xs into ndarray or
         Argument `X` is ignored here.
         """
-        X = astransform(group_lasso_path.subsample_columns(self,
-                                                           X,
-                                                           columns))
+        old_shape = self.X.output_shape
+        # because it is common we know that self._X is its matrix representation
+        Xsub = astransform(group_lasso_path.subsample_columns(self,
+                                                              self._X,
+                                                              columns))
         mask = np.zeros(self.penalty.shape[0], np.bool)
         mask[columns] = 1
-        X.input_shape = (mask.sum(),
+        Xsub.input_shape = (mask.sum(),
                          self.penalty.shape[1])
-        return X
+        Xsub.output_shape = old_shape
+        return Xsub
 
     def subsample(self,
                   case_idx):
@@ -145,7 +161,7 @@ class sparse_group_common_path(group_lasso_path):
         '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
-                              self.X,
+                              self._X,
                               self.l1_penalty,
                               self.l2_penalty,
                               elastic_net_param=self.elastic_net_param,
@@ -227,11 +243,8 @@ class sparse_group_common_path(group_lasso_path):
                                                                            candidate_groups,
                                                                            self.subsample_columns)
         if self.alpha < 1:
-            sub_elastic_net = _restricted_elastic_net(self.elastic_net_param, 
-                                                      self._penalized_vars,
-                                                      lagrange_new,
-                                                      self.alpha,
-                                                      candidate_groups)
+            sub_elastic_net = self.enet_loss(lagrange_new,
+                                             candidate_groups)
 
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
             sub_loss.shape = sub_elastic_net.shape

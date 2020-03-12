@@ -33,20 +33,22 @@ class sparse_group_lasso_path(group_lasso_path):
                  weights={},
                  elastic_net_param=None,
                  alpha=1.,  # elastic net mixing -- 1 is LASSO
-                 l1_weight=0.95, # mix between l1 and l2 penalty
+                 l1_alpha=0.95, # mix between l1 and l2 penalty
                  ):
 
         self.saturated_loss = saturated_loss
         self.X = astransform(X)
+        self.l1_alpha = l1_alpha # used only in constructor and 
+                                 # in subsample
 
         # the penalty parameters
 
         self.alpha = alpha
         self.penalty = sparse_group_lasso(groups, lasso_weights, weights=weights, lagrange=1)
-        l2_weight = 1 - l1_weight
+        l2_weight = 1 - l1_alpha
         for g in self.penalty.weights.keys():
             self.penalty.set_weight(g, l2_weight * self.penalty.weights[g])
-        self.penalty.lasso_weights *= l1_weight
+        self.penalty.lasso_weights = self.penalty.lasso_weights * l1_alpha
         self.group_shape = (len(np.unique(self.penalty.groups)),)
         self.shape = self.penalty.shape
 
@@ -125,7 +127,8 @@ class sparse_group_lasso_path(group_lasso_path):
                               self.penalty.lasso_weights,
                               weights=self.penalty.weights,
                               elastic_net_param=self.elastic_net_param,
-                              alpha=self.alpha)
+                              alpha=self.alpha,
+                              l1_alpha=self.l1_alpha)
 
     def check_KKT(self,
                   grad_solution,
@@ -203,12 +206,8 @@ class sparse_group_lasso_path(group_lasso_path):
                                                                            candidate_groups,
                                                                            self.subsample_columns)
         if self.alpha < 1:
-            sub_elastic_net = _restricted_elastic_net(self.elastic_net_param, 
-                                                      self._penalized_vars,
-                                                      self.penalty.groups,
-                                                      lagrange_new,
-                                                      self.alpha,
-                                                      candidate_groups)
+            sub_elastic_net = self.enet_loss(lagrange_new,
+                                             candidate_groups)
 
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
@@ -286,21 +285,21 @@ def _strong_set(penalty,
                                      penalty.weights[g]) == False
     return test
 
-def _restricted_elastic_net(elastic_net_params, 
-                            penalized,
-                            groups,
-                            lagrange, 
-                            alpha,
-                            candidate_groups):
+# def _restricted_elastic_net(elastic_net_params, 
+#                             penalized,
+#                             groups,
+#                             lagrange, 
+#                             alpha,
+#                             candidate_groups):
 
-    candidate_bool = _candidate_bool(groups, candidate_groups)
+#     candidate_bool = _candidate_bool(groups, candidate_groups)
 
-    new_params = elastic_net_params * (1 - alpha)
-    new_params[penalized] *= lagrange 
-    new_params = new_params[candidate_bool]
-    return quadratic_loss(new_params.shape,
-                          new_params,
-                          Qdiag=True)
+#     new_params = elastic_net_params * (1 - alpha)
+#     new_params[penalized] *= lagrange 
+#     new_params = new_params[candidate_bool]
+#     return quadratic_loss(new_params.shape,
+#                           new_params,
+#                           Qdiag=True)
 
 def _restricted_problem(X, 
                         saturated_loss, 

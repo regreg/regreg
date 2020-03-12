@@ -55,6 +55,46 @@ def test_warm_start(n=200,p=50):
     beta2 = sol2['beta']
 
     np.testing.assert_allclose(beta1, beta2, rtol=1.e-4)
+
+@set_seed_for_test()
+def test_warm_start_enet(n=200,p=50):
+    '''
+    compare full problem with warm start to strong rules path
+    including elastic net
+
+    '''
+    X = np.random.standard_normal((n,p))
+    Y = np.random.standard_normal(n)
+    betaX = np.zeros(p)
+    betaX[:3] = [3,4,5]
+    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+
+    enet = np.ones(X.shape[1])
+    enet[4:8] = 0
+
+    lasso1 = lasso.gaussian(X, 
+                            Y, 
+                            np.ones(X.shape[1]),
+                            alpha=0.5,
+                            elastic_net_param=enet)
+
+    lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
+                                                        lasso1.grad_solution,
+                                                        nstep=23,
+                                                        alpha=lasso1.alpha) # initialized at "null" model
+    sol1 = strong_rules(lasso1, 
+                        lagrange_sequence, 
+                        (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                        inner_tol=1.e-14)
+    beta1 = sol1['beta']
+
+    sol2 = warm_start(lasso1, 
+                      lagrange_sequence, 
+                      (lasso1.solution.copy(), lasso1.grad_solution.copy()),
+                      inner_tol=1.e-14)
+    beta2 = sol2['beta']
+
+    assert(np.linalg.norm(beta1 - beta2)/np.linalg.norm(beta1) < 1.e-4)
     
    
 @set_seed_for_test()
@@ -151,7 +191,8 @@ def test_elastic_net(n=200, p=50):
                             elastic_net_param=np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
-                                                        nstep=23) # initialized at "null" model
+                                                        nstep=23,
+                                                        alpha=lasso1.alpha) # initialized at "null" model
     sol1 = strong_rules(lasso1,
                         lagrange_sequence, 
                         (lasso1.solution.copy(), lasso1.grad_solution.copy()),
@@ -183,7 +224,8 @@ def test_elastic_net_unpenalized(n=200, p=50):
                             elastic_net_param=enet)
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
-                                                        nstep=23) # initialized at "null" model
+                                                        nstep=23,
+                                                        alpha=lasso1.alpha) # initialized at "null" model
     sol1 = strong_rules(lasso1, 
                         lagrange_sequence, 
                         (lasso1.solution.copy(), lasso1.grad_solution.copy()),
@@ -308,9 +350,12 @@ def test_basil_enet(n=500,p=200):
                             np.ones(X.shape[1]),
                             alpha=0.5,
                             elastic_net_param=enet)
+
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,
-                                                        nstep=100) # initialized at "null" model
+                                                        lagrange_proportion=0.5,
+                                                        nstep=50,
+                                                        alpha=lasso1.alpha) # initialized at "null" model
     sol1 = basil(lasso1, 
                  lagrange_sequence, 
                  (lasso1.solution.copy(), lasso1.grad_solution.copy()),
@@ -323,10 +368,20 @@ def test_basil_enet(n=500,p=200):
                             np.ones(X.shape[1]),
                             alpha=0.5,
                             elastic_net_param=enet)
+
     sol2 = warm_start(lasso2, 
                       lagrange_sequence, 
                       (lasso2.solution.copy(), lasso2.grad_solution.copy()),
                       inner_tol=1.e-14)['beta']
 
-    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
+    lagrange_sequence2 = lasso.default_lagrange_sequence(lasso2.penalty,
+                                                         lasso2.grad_solution,
+                                                         lagrange_proportion=0.5,
+                                                         nstep=50,
+                                                         alpha=lasso2.alpha) # initialized at "null" model
+
+    rel_errors = np.array([np.linalg.norm(sol1[i]-sol2[i]) / np.linalg.norm(sol1[i])
+                           for i in range(1, sol1.shape[0])])
+
+    assert(np.percentile(rel_errors, 90) < 1.e-4)
 

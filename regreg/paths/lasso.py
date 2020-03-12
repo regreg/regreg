@@ -72,6 +72,16 @@ class lasso_path(grouped_path):
 
     # LASSO specific part
 
+    def enet_loss(self, 
+                  lagrange,
+                  candidate_set=None):
+
+        return _restricted_elastic_net(self.elastic_net_param, 
+                                       self.penalty.weights,
+                                       lagrange,
+                                       self.alpha,
+                                       candidate_set)
+
     def subsample(self,
                   case_idx):
         '''
@@ -187,11 +197,9 @@ class lasso_path(grouped_path):
                                                            candidate_set,
                                                            self.subsample_columns)
         if self.alpha < 1:
-            sub_elastic_net = _restricted_elastic_net(self.elastic_net_param, 
-                                                      self.penalty.weights,
-                                                      lagrange_new,
-                                                      self.alpha,
-                                                      candidate_set)
+            sub_elastic_net = self.enet_loss(lagrange_new,
+                                             candidate_set)
+
             sub_loss = smooth_sum([sub_loss, sub_elastic_net])
 
         sub_problem = simple_problem(sub_loss, sub_penalty)
@@ -295,11 +303,12 @@ def _restricted_elastic_net(elastic_net_params,
                             lasso_weights, 
                             lagrange, 
                             alpha, 
-                            candidate_set):
+                            candidate_set=None):
     penalized = lasso_weights != 0
     new_params = elastic_net_params * (1 - alpha)
     new_params[penalized] *= lagrange 
-    new_params = new_params[candidate_set]
+    if candidate_set is not None:
+        new_params = new_params[candidate_set]
     return quadratic_loss(new_params.shape,
                           new_params,
                           Qdiag=True)

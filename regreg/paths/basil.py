@@ -50,7 +50,6 @@ def basil_inner_loop(path_obj,
     if candidate_set is not None:
         subproblem_set = sorted(set(subproblem_set + candidate_set))
 
-    subproblem_set
     for lagrange in lagrange_subseq:
 
         (final_step, 

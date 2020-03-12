@@ -23,7 +23,7 @@ def test_lasso_agreement1(n=200,p=50):
                                                       Y, 
                                                       groups,
                                                       l1weights,
-                                                      l1_weight=1,
+                                                      l1_alpha=1,
                                                       weights=weights)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
@@ -35,7 +35,6 @@ def test_lasso_agreement1(n=200,p=50):
 
     weights = np.ones(p)
 
-    print('testing agreement')
     lasso2 = lasso.gaussian(X, 
                             Y, 
                             weights)
@@ -43,8 +42,6 @@ def test_lasso_agreement1(n=200,p=50):
     lagrange_sequence2 = lasso.default_lagrange_sequence(lasso2.penalty,
                                                          lasso2.grad_solution,
                                                          nstep=23) # initialized at "null" model
-    print(lagrange_sequence, 'lagrange')
-    print(lagrange_sequence2, 'lagrange2')
     sol2 = strong_rules(lasso2, 
                         lagrange_sequence, 
                         (lasso2.solution, lasso2.grad_solution),
@@ -52,10 +49,6 @@ def test_lasso_agreement1(n=200,p=50):
     beta1 = sol1['beta']
     beta2 = sol2['beta']
 
-    print([np.sum(beta2[:,j]**2) for j in range(beta2.shape[0])])
-    print([np.sum(beta1[:,j]**2) for j in range(beta1.shape[0])])
-    print(beta1.shape)
-    print(np.linalg.norm(beta1 - beta2) / np.linalg.norm(beta1))
     assert(np.linalg.norm(beta1 - beta2) / np.linalg.norm(beta1) < 1.e-5)
 
 @set_seed_for_test()
@@ -86,7 +79,7 @@ def test_path_subsample(n=200,p=50):
                                                       Y, 
                                                       groups,
                                                       l1weights,
-                                                      l1_weight=1,
+                                                      l1_alpha=1,
                                                       weights=weights)
     cases = range(100)
     sparse_group_lasso1 = sparse_group_lasso1.subsample(cases)
@@ -103,8 +96,12 @@ def test_path_subsample(n=200,p=50):
                                                       Y[cases], 
                                                       groups,
                                                       l1weights,
-                                                      l1_weight=1,
+                                                      l1_alpha=1,
                                                       weights=weights)
+    lagrange_sequence2 = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso2.penalty,
+                                                                      sparse_group_lasso2.grad_solution,
+                                                                      nstep=23) # initialized at "null" model
+
     sol2 = strong_rules(sparse_group_lasso2, 
                         lagrange_sequence, 
                         (sparse_group_lasso2.solution, sparse_group_lasso2.grad_solution),
@@ -131,7 +128,7 @@ def test_lasso_agreement2(n=200,p=50):
                                                       Y, 
                                                       groups,
                                                       l1weights,
-                                                      l1_weight=0)
+                                                      l1_alpha=0)
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
                                                                      nstep=23) # initialized at "null" model
@@ -298,7 +295,7 @@ def test_elastic_net_unpenalized(n=200, p=50):
 
 
 @set_seed_for_test()
-def test_basil_inner_loop(n=1000,p=600):
+def test_basil_inner_loop(n=600,p=200):
     '''
     test one run of the BASIL inner loop
 
@@ -379,24 +376,36 @@ def test_basil(n=200,p=100):
 
     lagrange_sequence = sparse_group_lasso.default_lagrange_sequence(sparse_group_lasso1.penalty,
                                                                      sparse_group_lasso1.grad_solution,
-                                                                     nstep=100) # initialized at "null" model
+                                                                     lagrange_proportion=0.5,
+                                                                     nstep=20) # initialized at "null" model
+    print(sparse_group_lasso1.penalty.conjugate.seminorm(sparse_group_lasso1.grad_solution, lagrange=1))
+    print(lagrange_sequence, 'lagrange 1')
     sol1 = basil(sparse_group_lasso1, 
-                 lagrange_sequence, 
+                 lagrange_sequence.copy(), 
                  (sparse_group_lasso1.solution.copy(), sparse_group_lasso1.grad_solution.copy()),
                  inner_tol=1.e-14,
                  step_nvar=10,
                  step_lagrange=20)
     
+    print(lagrange_sequence, 'lagrange 2')
+
     sparse_group_lasso2 = sparse_group_lasso.gaussian(X, 
                                                       Y, 
                                                       groups,
                                                       l1weights,
                                                       weights=weights)
+    print(sparse_group_lasso2.penalty.conjugate.seminorm(sparse_group_lasso2.grad_solution, lagrange=1))
+    print(lagrange_sequence, 'lagrange 3')
+
     sol2 = warm_start(sparse_group_lasso2, 
                       lagrange_sequence, 
                       (sparse_group_lasso2.solution.copy(), sparse_group_lasso2.grad_solution.copy()),
                       inner_tol=1.e-14)['beta']
 
+    print(lagrange_sequence, 'lagrange 4')
+    print(sparse_group_lasso2.penalty.conjugate.seminorm(sparse_group_lasso2.grad_solution, lagrange=1))
+    print(sparse_group_lasso1.penalty.conjugate.seminorm(sparse_group_lasso1.grad_solution, lagrange=1))
+    print(np.linalg.norm(sparse_group_lasso1.grad_solution - sparse_group_lasso2.grad_solution))
     assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
 
 @set_seed_for_test()
