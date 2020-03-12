@@ -21,7 +21,8 @@ def test_logistic():
             L.smooth_objective(np.zeros(L.shape), 'both')
             L.hessian(np.zeros(L.shape))
 
-            L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+            sat_sub = L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+            sat_sub.smooth_objective(np.zeros(sat_sub.shape))
 
             # check that subsample is getting correct answer
 
@@ -110,7 +111,9 @@ def test_poisson():
 
         Lcp = copy(L)
         L_sub = L.subsample(np.arange(5))
-        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+
+        sat_sub = L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+        sat_sub.smooth_objective(np.zeros(sat_sub.shape))
 
         np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                    X.T.dot(1 - Y))
@@ -169,7 +172,10 @@ def test_gaussian():
         L = glm.glm.gaussian(X, Y, case_weights=case_weights)
         L.hessian(np.zeros(L.shape))
         L.smooth_objective(np.zeros(L.shape), 'both')
-        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+
+        sat_sub = L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+        sat_sub.smooth_objective(np.zeros(sat_sub.shape))
+
         L_sub = L.subsample(np.arange(5))
 
         Xs = X[np.arange(5)]
@@ -247,7 +253,35 @@ def test_huber():
         Lcp = copy(L)
         L_sub = L.subsample(np.arange(5))
 
-        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+        sat_sub = L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+        sat_sub.smooth_objective(np.zeros(sat_sub.shape))
+
+        L.gradient(np.zeros(L.shape))
+        nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))
+
+        L.objective(np.zeros(L.shape))
+        L.latexify()
+
+        L.saturated_loss.data = Y
+        L.saturated_loss.data
+
+        L.data = (X, Y)
+        L.data
+
+def test_huber_svm():
+
+    X = np.random.standard_normal((10,5))
+    Y = np.random.binomial(1,0.5,size=(10,))
+
+    for case_weights in [np.ones(10), None]:
+        L = glm.glm.huber_svm(X, Y, 0.1, case_weights=case_weights)
+        L.smooth_objective(np.zeros(L.shape), 'both')
+
+        Lcp = copy(L)
+        L_sub = L.subsample(np.arange(5))
+
+        sat_sub = L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+        sat_sub.smooth_objective(np.zeros(sat_sub.shape))
 
         L.gradient(np.zeros(L.shape))
         nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))
