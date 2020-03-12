@@ -21,6 +21,8 @@ def test_logistic():
             L.smooth_objective(np.zeros(L.shape), 'both')
             L.hessian(np.zeros(L.shape))
 
+            L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+
             # check that subsample is getting correct answer
 
             Xsub = X[np.arange(5)]
@@ -108,6 +110,7 @@ def test_poisson():
 
         Lcp = copy(L)
         L_sub = L.subsample(np.arange(5))
+        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
 
         np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                    X.T.dot(1 - Y))
@@ -166,6 +169,7 @@ def test_gaussian():
         L = glm.glm.gaussian(X, Y, case_weights=case_weights)
         L.hessian(np.zeros(L.shape))
         L.smooth_objective(np.zeros(L.shape), 'both')
+        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
         L_sub = L.subsample(np.arange(5))
 
         Xs = X[np.arange(5)]
@@ -231,8 +235,6 @@ def test_gaussian():
         np.testing.assert_allclose(L_sub.gradient(beta),
                                    Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) - Ysub))
 
-
-
 def test_huber():
 
     X = np.random.standard_normal((10,5))
@@ -244,6 +246,8 @@ def test_huber():
 
         Lcp = copy(L)
         L_sub = L.subsample(np.arange(5))
+
+        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
 
         L.gradient(np.zeros(L.shape))
         nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))
@@ -270,6 +274,8 @@ def test_coxph():
         L.saturated_loss.hessian_mult(np.zeros(T.shape), np.ones(T.shape))
         L.hessian(np.zeros(L.shape))
 
+        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
+
         L.gradient(np.zeros(L.shape))
 
         L.objective(np.zeros(L.shape))
@@ -289,6 +295,8 @@ def test_stacked():
         sat = glm.stacked_loglike.gaussian(Y.T)
         L = glm.glm(Xstack, sat.data, sat, case_weights=case_weights)
         L.smooth_objective(np.zeros(L.shape), 'both')
+
+        L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
 
         np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
                                    -X.T.dot(Y))

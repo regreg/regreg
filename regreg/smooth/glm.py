@@ -1238,7 +1238,13 @@ class huber_loss(smooth_atom):
             self.response = np.asarray(response)
 
         if case_weights is not None:
-            raise ValueError('case_weights not implemented for Huber')
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.response.shape:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
     def smooth_objective(self, 
                          param, 
@@ -1274,25 +1280,27 @@ class huber_loss(smooth_atom):
         else returns both.
         """
         
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         x = param # shorthand
 
         x = self.apply_offset(x)
         resid = x - self.response 
 
-        if case_weights is None:
-            return self.smoothed_atom.smooth_objective(resid,
-                                                       mode=mode,
-                                                       check_feasibility=check_feasibility)
+        f, g = _huber_loss(resid, smoothing_parameter=self.smoothing_parameter)
+
+        if mode == 'func':
+            return self.scale((f * cw).sum())
+        elif mode == 'grad':
+            return self.scale(g * cw)
+        elif mode == 'both':
+            return (f * cw).sum(), g * cw
         else:
-            value = np.array([self.smoothed_atom.smooth_objective(r,
-                                                                  mode=mode,
-                                                                  check_feasibility=check_feasibility) for r in resid]).T
-            if mode == 'func':
-                return (value * case_weights).sum()
-            elif mode == 'grad':
-                return value * case_weights
-            else:
-                return (value[0] * case_weights).sum(), value[1] * case_weights
+            raise ValueError("mode incorrectly specified")
 
     # Begin loss API
 
@@ -1372,6 +1380,13 @@ class huber_loss(smooth_atom):
                           initial=copy(self.coefs))
 
     # End loss API
+
+def _huber_loss(arg, smoothing_parameter):
+    # returns vector whose sum is total loss as well as gradient vector
+    eps = smoothing_parameter
+    proj_arg = np.sign(arg) * np.minimum(np.abs(arg) / eps, 1) # the maximizer is the gradient
+                                                               # by convex conjugacy
+    return arg * proj_arg - eps * proj_arg**2 / 2, proj_arg 
 
 class stacked_loglike(smooth_atom):
 
