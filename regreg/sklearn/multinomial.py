@@ -6,13 +6,14 @@ try:
                        sklearn_regression_lagrange,
                        sklearn_classifier,
                        sklearn_classifier_lagrange)
-except:
+except ImportError:
     have_sklearn = False
-from ..smooth.glm import (glm, 
-                          logistic_loglike)
+
+from ..smooth.mglm import (mglm, 
+                           multinomial_loglike)
 
 if have_sklearn:
-    class sklearn_logistic(sklearn_regression):
+    class sklearn_multinomial(sklearn_regression):
 
         """
 
@@ -24,36 +25,24 @@ if have_sklearn:
         def _loglike_factory(self, X, y):
             response, case_weights_, offset_ = self._check_y_arg(y)
 
-            if response.ndim == 2:
-                successes = response[:,0]
-                trials = response[:,1]
-            else:
-                successes = response
-                trials = None
+            successes = response
 
-            return glm.logistic(X, 
-                                successes,
-                                trials=trials,
-                                case_weights=case_weights_,
-                                coef=self.coef,
-                                saturated_offset=offset_)
+            return mglm.multinomial(X, 
+                                    successes,
+                                    case_weights=case_weights_,
+                                    coef=self.coef,
+                                    saturated_offset=offset_)
 
         def _saturated_score(self,
                              predictions,
                              response,
                              case_weights=None):
 
-            if response.ndim == 2:
-                successes = response[:,0]
-                trials = response[:,1]
-            else:
-                successes = response
-                trials = None
+            successes = response
 
-            loss = lambda yhat: logistic_loglike(successes.shape,
-                                                 successes,
-                                                 trials=trials,
-                                                 case_weights=case_weights).smooth_objective(yhat, 'func')
+            loss = lambda yhat: multinomial_loglike(successes.shape,
+                                                    successes,
+                                                    case_weights=case_weights).smooth_objective(yhat, 'func')
 
             if self.score_method == 'deviance':
                 return np.sum(loss(predictions))
@@ -69,10 +58,10 @@ if have_sklearn:
             else:
                 return np.nan
 
-    class sklearn_logistic_lagrange(sklearn_regression_lagrange, sklearn_logistic):
+    class sklearn_multinomial_lagrange(sklearn_regression_lagrange, sklearn_multinomial):
         pass
 
-    class sklearn_logistic_classifier(sklearn_classifier):
+    class sklearn_multinomial_classifier(sklearn_classifier):
 
         """
 
@@ -84,35 +73,45 @@ if have_sklearn:
         def _loglike_factory(self, X, y):
             response, case_weights_, offset_ = self._check_y_arg(y)
 
-            if response.ndim == 2:
-                successes = response[:,0]
-                trials = response[:,1]
-            else:
-                successes = response
-                trials = None
+            successes = response
 
-            return glm.logistic(X, 
-                                successes,
-                                trials=trials,
-                                case_weights=case_weights_,
-                                coef=self.coef,
-                                saturated_offset=offset_)
+            return mglm.multinomial(X, 
+                                    successes,
+                                    case_weights=case_weights_,
+                                    coef=self.coef,
+                                    saturated_offset=offset_ # should be None
+                                    )
 
         def _saturated_score(self,
                              predictions,
                              response,
                              case_weights=None):
 
-            if response.ndim == 2:
-                successes = response[:,0]
-                trials = response[:,1]
-            else:
-                successes = response
-                trials = None
+            successes = response
 
             if self.score_method == 'accuracy':
                 return np.mean(predictions == successes)
             return np.nan
+
+        def predict(self, X):
+            """
+            Predict labels in classification setting.
+
+            Parameters
+            ----------
+
+            X : np.ndarray((n, p))
+                Feature matrix.
+
+            Returns
+            -------
+
+            probs : np.ndarray(n)
+                Predictions from classification model.
+
+            """
+            linpred = X.dot(self._coefs)
+            return np.argmax(linpred, 1)
 
         def predict_proba(self, X):
             """
@@ -133,8 +132,8 @@ if have_sklearn:
             """
             linpred = X.dot(self._coefs)
             exp_lin = np.exp(linpred)
-            return exp_lin / (1 + exp_lin)
+            return exp_lin / exp_lin.sum(1)
 
-    class sklearn_logistic_classifier_lagrange(sklearn_logistic_classifier):
+    class sklearn_multinomial_classifier_lagrange(sklearn_multinomial_classifier):
         pass
 

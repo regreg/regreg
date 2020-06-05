@@ -19,6 +19,10 @@ if have_sklearn:
                            sklearn_logistic_lagrange as logistic_lagrange,
                            sklearn_logistic_classifier as logistic_classifier,
                            sklearn_logistic_classifier_lagrange as logistic_classifier_lagrange)
+    from .multinomial import (sklearn_multinomial as multinomial,
+                              sklearn_multinomial_lagrange as multinomial_lagrange,
+                              sklearn_multinomial_classifier as multinomial_classifier,
+                              sklearn_multinomial_classifier_lagrange as multinomial_classifier_lagrange)
     from .probit import (sklearn_probit as probit,
                          sklearn_probit_lagrange as probit_lagrange,
                          sklearn_probit_classifier as probit_classifier,

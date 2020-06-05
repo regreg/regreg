@@ -147,9 +147,9 @@ class mglm(glm):
     def multinomial(klass, 
                     X, 
                     successes, 
-                    trials=None,
                     case_weights=None,
                     coef=1., 
+                    saturated_offset=None,
                     offset=None,
                     quadratic=None, 
                     initial=None,
@@ -166,12 +166,12 @@ class mglm(glm):
         successes : ndarray
             Responses (should be non-negative integers).
 
-        trials : ndarray (optional)
-            Number of trials for each success. If `None`,
-            defaults to `np.ones_like(successes)`.
-
         case_weights : ndarray
             Non-negative case weights
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -195,15 +195,14 @@ class mglm(glm):
             loss = multinomial_loglike(successes.shape,
                                        successes,
                                        coef=coef,
-                                       trials=trials)
+                                       offset=saturated_offset)
         else:
             loss = multinomial_baseline_loglike(successes.shape,
                                                 successes,
                                                 coef=coef,
-                                                trials=trials)
+                                                offset=saturated_offset)
 
         return klass(X, 
-                     (successes, loss.trials),
                      loss,
                      offset=offset,
                      quadratic=quadratic,
@@ -214,8 +213,10 @@ class mglm(glm):
     def stacked(klass, 
                 X, 
                 losses,
+                case_weights=None,
                 coef=1., 
                 offset=None,
+                saturated_offset=None,
                 quadratic=None, 
                 initial=None):
         """
@@ -227,12 +228,11 @@ class mglm(glm):
         X : [ndarray, `regreg.affine.affine_transform`]
             Design matrix
 
-        successes : ndarray
-            Responses (should be non-negative integers).
+        losses : sequence
+            Sequence of saturated losses.
 
-        trials : ndarray (optional)
-            Number of trials for each success. If `None`,
-            defaults to `np.ones_like(successes)`.
+        coef : float
+            Scaling to be put in front of loss.
 
         case_weights : ndarray
             Non-negative case weights
@@ -255,13 +255,12 @@ class mglm(glm):
 
         """
 
-        loss = stacked_loglike(losses,
-                               successes,
-                               coef=coef,
-                               trials=trials)
+        loss = stacked_common_loglike(losses,
+                                      successes,
+                                      coef=coef,
+                                      offset=saturated_offset)
 
         return klass(X, 
-                     (successes, loss.trials),
                      loss,
                      offset=offset,
                      quadratic=quadratic,

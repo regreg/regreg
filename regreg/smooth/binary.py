@@ -751,3 +751,180 @@ class cloglog_loglike(smooth_atom):
         eta = np.clip(eta, -5, 5)
         return 1 - np.exp(-np.exp(eta))
 
+class huber_svm(smooth_atom):
+
+    objective_template = r"""\ell^{\text{Huber,SVM}}\left(%(var)s\right)"""
+
+    def __init__(self, 
+                 shape, 
+                 successes, 
+                 smoothing_parameter,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None,
+                 initial=None,
+                 case_weights=None):
+
+        smooth_atom.__init__(self,
+                             shape,
+                             offset=offset,
+                             quadratic=quadratic,
+                             initial=initial,
+                             coef=coef)
+
+        self.smoothing_parameter = smoothing_parameter
+                                         
+        if sparse.issparse(successes):
+            self.successes = successes.toarray().flatten()
+        else:
+            self.successes = np.asarray(successes)
+
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.successes.shape:
+                raise ValueError('case_weights should have same shape as successes')
+        else:
+            self.case_weights = None
+
+    def smooth_objective(self, 
+                         param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
+        """
+
+        Evaluate the smooth objective, computing its value, gradient or both.
+
+        Parameters
+        ----------
+
+        param : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `param` is not
+            in the domain.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `param`, else if `mode` is 'grad' returns the gradient
+        else returns both.
+        """
+        
+        if case_weights is None:
+            case_weights = np.ones_like(param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
+        param = self.apply_offset(param)
+        huber_arg = (2 * self.successes - 1) * param # first encode binary as \pm 1
+                                                     # then multiply by linpred
+
+        f, g = _huber_svm(huber_arg, smoothing_parameter=self.smoothing_parameter)
+        g *= (2 * self.successes - 1) # chain rule for (2 * y - 1) in encoding of y to binary
+        if mode == 'func':
+            return self.scale((f * cw).sum())
+        elif mode == 'grad':
+            return self.scale(g * cw)
+        elif mode == 'both':
+            return self.scale((f * cw).sum()), self.scale(g * cw)
+        else:
+            raise ValueError("mode incorrectly specified")
+
+    # Begin loss API
+
+    def hessian(self, param, case_weights=None):
+        """
+        Hessian of the loss.
+
+        Parameters
+        ----------
+
+        param : ndarray
+            Parameters where Hessian will be evaluated.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        Returns
+        -------
+
+        hess : ndarray
+            A 1D-array representing the diagonal of the Hessian
+            evaluated at `natural_param`.
+        """
+
+        # it is piecwise C^2 though... maybe use this?
+        raise NotImplementedError('Huber SVM loss is not twice differentiable')
+
+    def get_data(self):
+        return self.successes
+
+    def set_data(self, data):
+        self.successes = data
+
+    data = property(get_data, set_data)
+
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
+    def __copy__(self):
+        successes = self.data
+        return huber_svm(self.shape,
+                         copy(successes),
+                         self.smoothing_parameter,
+                         coef=self.coef,
+                         offset=copy(self.offset),
+                         quadratic=copy(self.quadratic),
+                         initial=copy(self.coefs))
+    
+    # End loss API
+
+def _huber_svm(z, smoothing_parameter):
+    eps = smoothing_parameter
+    arg = (1 - z) / eps # function of (2 * y - 1) * eta when y is binary
+    proj_arg = (0 < arg) * (arg < 1) * arg + (arg >= 1) 
+    return arg * proj_arg - eps * proj_arg**2 / 2, -proj_arg
+

@@ -635,21 +635,23 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
 
 ### Final mixins
 
-class sklearn_regression_lagrange(lagrange_mixin, BaseEstimator, RegressorMixin): 
-    pass
+if have_sklearn:
 
-class sklearn_regression(base_mixin, BaseEstimator, RegressorMixin): 
-    pass
+    class sklearn_regression_lagrange(lagrange_mixin, BaseEstimator, RegressorMixin): 
+        pass
 
-class sklearn_classifier(classifier_mixin, BaseEstimator, ClassifierMixin):
-    pass
+    class sklearn_regression(base_mixin, BaseEstimator, RegressorMixin): 
+        pass
 
-class sklearn_classifier_lagrange(classifier_lagrange_mixin, BaseEstimator, ClassifierMixin):
-    pass
+    class sklearn_classifier(classifier_mixin, BaseEstimator, ClassifierMixin):
+        pass
 
-class sklearn_survival(survival_mixin, BaseEstimator, RegressorMixin):
-    pass
+    class sklearn_classifier_lagrange(classifier_lagrange_mixin, BaseEstimator, ClassifierMixin):
+        pass
 
-class sklearn_survival_lagrange(classifier_mixin, BaseEstimator, RegressorMixin):
-    pass
+    class sklearn_survival(survival_mixin, BaseEstimator, RegressorMixin):
+        pass
+
+    class sklearn_survival_lagrange(classifier_mixin, BaseEstimator, RegressorMixin):
+        pass
 
