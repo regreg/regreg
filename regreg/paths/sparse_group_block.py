@@ -430,6 +430,14 @@ def stacked_logistic(Xs, Ys, *args, **keyword_args):
     loss = glm.stacked_loglike.logistic(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
+def stacked_probit(Xs, Ys, *args, **keyword_args):
+    loss = glm.stacked_loglike.probit(Ys) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
+def stacked_cloglog(Xs, Ys, *args, **keyword_args):
+    loss = glm.stacked_loglike.cloglog(Ys) # Ys a sequence of response vectors
+    return sparse_group_block_path(loss, Xs, *args, **keyword_args)
+
 def stacked_poisson(Xs, Ys, *args, **keyword_args):
     loss = glm.stacked_loglike.poisson(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)

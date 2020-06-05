@@ -259,6 +259,14 @@ def logistic(X, Y, *args, **keyword_args):
     Y = np.asarray(Y)
     return lasso_path(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
 
+def probit(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return lasso_path(glm.probit_loglike(Y.shape, Y), X, *args, **keyword_args)
+
+def cloglog(X, Y, *args, **keyword_args):
+    Y = np.asarray(Y)
+    return lasso_path(glm.cloglog_loglike(Y.shape, Y), X, *args, **keyword_args)
+
 def gaussian(X, Y, *args, **keyword_args):
     Y = np.asarray(Y)
     return lasso_path(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
