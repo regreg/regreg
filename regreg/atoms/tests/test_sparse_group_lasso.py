@@ -119,10 +119,9 @@ class SparseGroupSolverFactory(SolverFactory):
     L_choices = [0.3]
     coef_stop_choices = [False]
 
-    def __init__(self, klass, mode, use_sklearn=True):
+    def __init__(self, klass, mode):
         self.klass = klass
         self.mode = mode
-        self.use_sklearn = use_sklearn
 
     def __iter__(self):
         pen_choices = itertools.product(self.weights,
@@ -166,7 +165,7 @@ def test_proximal_maps():
         for solver in factory:
             for t in solver.all_tests():
                 yield t
-        factory = SparseGroupSolverFactory(klass, mode, use_sklearn=False)
+        factory = SparseGroupSolverFactory(klass, mode)
         for solver in factory:
             for t in solver.all_tests():
                 yield t

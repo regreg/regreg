@@ -73,6 +73,14 @@ class glm(smooth_atom):
         if case_weights is None:
             case_weights = np.ones(X.shape[0])
         self.case_weights = case_weights
+        
+        if self.case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != loss.shape:
+                raise ValueError('case_weights should have same shape as loss')
+
         smooth_atom.__init__(self,
                              X.shape[1],
                              coef=1.,
@@ -280,13 +288,13 @@ class glm(smooth_atom):
 
         return subsample_loss
         
-        
     @classmethod
     def gaussian(klass,
                  X, 
                  response,
                  case_weights=None,
                  coef=1., 
+                 saturated_offset=None,
                  offset=None,
                  quadratic=None, 
                  initial=None):
@@ -305,8 +313,15 @@ class glm(smooth_atom):
         case_weights : ndarray
             Non-negative case weights
 
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
         offset : ndarray (optional)
-            Offset to be applied in parameter space before 
+            Offset to be applied in saturated space before 
             evaluating loss.
 
         quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
@@ -325,7 +340,8 @@ class glm(smooth_atom):
 
         loss = gaussian_loglike(response.shape,
                                 response,
-                                coef=coef)
+                                coef=coef,
+                                offset=saturated_offset)
 
         return klass(X, 
                      response, 
@@ -343,6 +359,7 @@ class glm(smooth_atom):
                  case_weights=None,
                  coef=1., 
                  offset=None,
+                 saturated_offset=None,
                  quadratic=None, 
                  initial=None):
         """
@@ -363,6 +380,13 @@ class glm(smooth_atom):
 
         case_weights : ndarray
             Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -385,6 +409,7 @@ class glm(smooth_atom):
         loss = logistic_loglike(successes.shape,
                                 successes,
                                 coef=coef,
+                                offset=saturated_offset,
                                 trials=trials)
 
         return klass(X, 
@@ -401,6 +426,7 @@ class glm(smooth_atom):
                 counts,
                 case_weights=None,
                 coef=1., 
+                saturated_offset=None,
                 offset=None,
                 quadratic=None, 
                 initial=None):
@@ -418,6 +444,13 @@ class glm(smooth_atom):
 
         case_weights : ndarray
             Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -439,6 +472,7 @@ class glm(smooth_atom):
 
         loss = poisson_loglike(counts.shape,
                                counts,
+                               offset=saturated_offset,
                                coef=coef)
 
         return klass(X, counts, loss,
@@ -454,6 +488,7 @@ class glm(smooth_atom):
               smoothing_parameter,
               case_weights=None,
               coef=1., 
+              saturated_offset=None,
               offset=None,
               quadratic=None, 
               initial=None):
@@ -476,6 +511,13 @@ class glm(smooth_atom):
         case_weights : ndarray
             Non-negative case weights
 
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
             evaluating loss.
@@ -497,6 +539,7 @@ class glm(smooth_atom):
         loss = huber_loss(response.shape,
                           response,
                           smoothing_parameter,
+                          offset=saturated_offset,
                           coef=coef)
 
         return klass(X, 
@@ -515,6 +558,7 @@ class glm(smooth_atom):
                   case_weights=None,
                   coef=1., 
                   offset=None,
+                  saturated_offset=None,
                   quadratic=None, 
                   initial=None):
         """
@@ -535,6 +579,13 @@ class glm(smooth_atom):
 
         case_weights : ndarray
             Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -557,6 +608,7 @@ class glm(smooth_atom):
         loss = huber_svm(successes.shape,
                          successes,
                          smoothing_parameter,
+                         offset=saturated_offset,
                          coef=coef)
 
         return klass(X, 
@@ -574,6 +626,7 @@ class glm(smooth_atom):
             censoring,
             case_weights=None,
             coef=1., 
+            saturated_offset=None,
             offset=None,
             quadratic=None, 
             initial=None):
@@ -596,6 +649,13 @@ class glm(smooth_atom):
         case_weights : ndarray
             Non-negative case weights
 
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
             evaluating loss.
@@ -617,6 +677,7 @@ class glm(smooth_atom):
         loss = cox_loglike(event_times.shape,
                            event_times,
                            censoring,
+                           offset=saturated_offset,
                            coef=coef)
 
         return klass(X, 
@@ -818,7 +879,8 @@ class logistic_loglike(smooth_atom):
     """
 
     objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
-    #TODO: Make init more standard, replace np.dot with shape friendly alternatives in case successes.shape is (n,1)
+    #TODO: Make init more standard, replace np.dot with shape friendly 
+    #      alternatives in case successes.shape is (n,1)
 
     def __init__(self, 
                  shape, 
