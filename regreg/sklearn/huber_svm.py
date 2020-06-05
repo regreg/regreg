@@ -3,9 +3,9 @@ import numpy as np
 from .base import (sklearn_regression,
                    sklearn_regression_lagrange)
 from ..smooth.glm import (glm, 
-                          huber_loss)
+                          huber_svm)
 
-class sklearn_huber(sklearn_regression):
+class sklearn_huber_svm(sklearn_regression):
 
     def __init__(self, 
                  smoothing_parameter,
@@ -22,7 +22,7 @@ class sklearn_huber(sklearn_regression):
         ----------
 
         smoothing_parameter : float
-            Smoothing parameter for Huber loss.
+            Smoothing parameter for Huber SVM loss.
 
         atom_constructor : callable
             Atom constructor that is to to be used as a regularizer.
@@ -72,22 +72,22 @@ class sklearn_huber(sklearn_regression):
 
     def _loglike_factory(self, X, y):
         response, case_weights_, offset_ = self._check_y_arg(y)
-        return glm.huber(X, 
-                         response, 
-                         self.smoothing_parameter,
-                         case_weights=case_weights_,
-                         coef=self.coef,
-                         saturated_offset=offset_)
+        return glm.huber_svm(X, 
+                             response, 
+                             self.smoothing_parameter,
+                             case_weights=case_weights_,
+                             coef=self.coef,
+                             saturated_offset=offset_)
 
     def _saturated_score(self,
                          predictions,
                          response,
                          case_weights=None):
 
-        loss = lambda yhat: huber_loss(response.shape,
-                                       response,
-                                       self.smoothing_parameter,
-                                       case_weights=case_weights).smooth_objective(yhat, 'func')
+        loss = lambda yhat: huber_svm(response.shape,
+                                      response,
+                                      self.smoothing_parameter,
+                                      case_weights=case_weights).smooth_objective(yhat, 'func')
 
         if self.score_method == 'deviance':
             return np.sum(loss(predictions))
@@ -100,7 +100,7 @@ class sklearn_huber(sklearn_regression):
         else:
             return np.nan
 
-class sklearn_huber_lagrange(sklearn_regression_lagrange, sklearn_huber):
+class sklearn_huber_svm_lagrange(sklearn_regression_lagrange, sklearn_huber_svm):
 
     def __init__(self, 
                  smoothing_parameter,
@@ -118,7 +118,7 @@ class sklearn_huber_lagrange(sklearn_regression_lagrange, sklearn_huber):
         ----------
 
         smoothing_parameter : float
-            Smoothing parameter for Huber loss.
+            Smoothing parameter for Huber SVM loss.
 
         atom_constructor : callable
             Atom constructor that is to to be used as a regularizer.

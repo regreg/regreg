@@ -6,9 +6,9 @@ from .base import (sklearn_regression,
                    sklearn_classifier_lagrange)
 
 from ..smooth.glm import (glm, 
-                          logistic_loglike)
+                          cloglog_loglike)
 
-class sklearn_logistic(sklearn_regression):
+class sklearn_cloglog(sklearn_regression):
 
     """
 
@@ -27,12 +27,12 @@ class sklearn_logistic(sklearn_regression):
             successes = response
             trials = None
 
-        return glm.logistic(X, 
-                            successes,
-                            trials=trials,
-                            case_weights=case_weights_,
-                            coef=self.coef,
-                            saturated_offset=offset_)
+        return glm.cloglog(X, 
+                           successes,
+                           trials=trials,
+                           case_weights=case_weights_,
+                           coef=self.coef,
+                           saturated_offset=offset_)
 
     def _saturated_score(self,
                          predictions,
@@ -46,10 +46,10 @@ class sklearn_logistic(sklearn_regression):
             successes = response
             trials = None
 
-        loss = lambda yhat: logistic_loglike(successes.shape,
-                                             successes,
-                                             trials=trials,
-                                             case_weights=case_weights).smooth_objective(yhat, 'func')
+        loss = lambda yhat: cloglog_loglike(successes.shape,
+                                            successes,
+                                            trials=trials,
+                                            case_weights=case_weights).smooth_objective(yhat, 'func')
 
         if self.score_method == 'deviance':
             return np.sum(loss(predictions))
@@ -65,10 +65,10 @@ class sklearn_logistic(sklearn_regression):
         else:
             return np.nan
 
-class sklearn_logistic_lagrange(sklearn_regression_lagrange, sklearn_logistic):
+class sklearn_cloglog_lagrange(sklearn_regression_lagrange, sklearn_cloglog):
     pass
 
-class sklearn_logistic_classifier(sklearn_classifier):
+class sklearn_cloglog_classifier(sklearn_classifier):
 
     """
 
@@ -87,12 +87,12 @@ class sklearn_logistic_classifier(sklearn_classifier):
             successes = response
             trials = None
 
-        return glm.logistic(X, 
-                            successes,
-                            trials=trials,
-                            case_weights=case_weights_,
-                            coef=self.coef,
-                            saturated_offset=offset_)
+        return glm.cloglog(X, 
+                           successes,
+                           trials=trials,
+                           case_weights=case_weights_,
+                           coef=self.coef,
+                           saturated_offset=offset_)
 
     def _saturated_score(self,
                          predictions,
@@ -131,6 +131,6 @@ class sklearn_logistic_classifier(sklearn_classifier):
         exp_lin = np.exp(linpred)
         return exp_lin / (1 + exp_lin)
 
-class sklearn_logistic_classifier_lagrange(sklearn_logistic_classifier):
+class sklearn_cloglog_classifier_lagrange(sklearn_cloglog_classifier):
     pass
 

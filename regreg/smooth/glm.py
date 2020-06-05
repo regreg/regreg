@@ -1837,6 +1837,114 @@ class stacked_loglike(smooth_atom):
                      case_weights=case_weights)
 
     @classmethod
+    def probit(klass, 
+               successes, 
+               trials=None,
+               case_weights=None,
+               coef=1., 
+               offset=None,
+               quadratic=None, 
+               initial=None):
+        """
+        Create a loss for a probit regression model.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [probit_loglike(successes[i],
+                                 trials[i],
+                                 coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def cloglog(klass, 
+                successes, 
+                trials=None,
+                case_weights=None,
+                coef=1., 
+                offset=None,
+                quadratic=None, 
+                initial=None):
+        """
+        Create a loss for a logistic regression model.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [cloglog_loglike(successes[i],
+                                  trials[i],
+                                  coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
     def poisson(klass,
                 counts,
                 case_weights=None,

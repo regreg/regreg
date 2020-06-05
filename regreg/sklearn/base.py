@@ -356,7 +356,7 @@ class classifier_mixin(base_mixin):
                  case_weights=False,
                  coef=1., 
                  quadratic=None,
-                 score_method='deviance'):
+                 score_method='accuracy'):
 
         """
 
@@ -379,7 +379,7 @@ class classifier_mixin(base_mixin):
 
         score_method : str
             Which score to use as default `score`?
-            One of ['deviance', 'mean_deviance', 'R2', 'accuracy']
+            One of ['accuracy']
 
         Notes
         -----
@@ -391,9 +391,17 @@ class classifier_mixin(base_mixin):
 
         """
 
+        base_mixin.__init__(self,
+                            atom_constructor, 
+                            atom_params, 
+                            case_weights=case_weights,
+                            coef=coef,
+                            quadratic=quadratic,
+                            score_method=score_method)
+
     def predict(self, X):
         """
-        Predict new response in regression setting.
+        Predict new labels in setting.
 
         Parameters
         ----------
@@ -410,7 +418,26 @@ class classifier_mixin(base_mixin):
         """
         return X.dot(self._coefs) > 0
 
-class classifier_mixin_lagrange(classifier_mixin, lagrange_mixin):
+    def predict_proba(self, X):
+        """
+        Predict new probabilities in classification setting.
+
+        Parameters
+        ----------
+
+        X : np.ndarray((n, p))
+            Feature matrix.
+
+        Returns
+        -------
+
+        probs : np.ndarray(n)
+            Predictions from classification model.
+
+        """
+        raise NotImplementedError
+
+class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
 
     def __init__(self, 
                  atom_constructor, 
@@ -418,7 +445,7 @@ class classifier_mixin_lagrange(classifier_mixin, lagrange_mixin):
                  case_weights=False,
                  enet_alpha=0.,
                  coef=1., 
-                 score_method='deviance'):
+                 score_method='accuracy'):
 
         """
 
@@ -444,7 +471,7 @@ class classifier_mixin_lagrange(classifier_mixin, lagrange_mixin):
 
         score_method : str
             Which score to use as default `score`?
-            One of ['deviance', 'mean_deviance', 'R2', 'accuracy']
+            One of ['accuracy']
 
         Notes
         -----
@@ -617,7 +644,7 @@ class sklearn_regression(base_mixin, BaseEstimator, RegressorMixin):
 class sklearn_classifier(classifier_mixin, BaseEstimator, ClassifierMixin):
     pass
 
-class sklearn_classifier_lagrange(classifier_mixin, BaseEstimator, ClassifierMixin):
+class sklearn_classifier_lagrange(classifier_lagrange_mixin, BaseEstimator, ClassifierMixin):
     pass
 
 class sklearn_survival(survival_mixin, BaseEstimator, RegressorMixin):

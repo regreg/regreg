@@ -39,6 +39,8 @@ class sklearn_gaussian(sklearn_regression):
             SSE = np.sum(loss(predictions))
             SST = np.sum(loss(response.mean() * np.ones_like(response)))
             return 1 - SSE / SST
+        else:
+            return np.nan
 
 class sklearn_gaussian_lagrange(sklearn_regression_lagrange, sklearn_gaussian):
 

@@ -48,7 +48,9 @@ class sklearn_cox(sklearn_regression):
             SST = np.sum(loss(response.mean() * np.ones(response.shape[0])))
             return 1 - SSE / SST
         elif self.score_method == 'C-index':
-            return 1
+            return np.nan
+        else:
+            return np.nan
 
 class sklearn_cox_lagrange(sklearn_regression_lagrange, sklearn_cox):
 
