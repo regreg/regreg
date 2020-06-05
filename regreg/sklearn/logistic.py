@@ -61,6 +61,9 @@ class sklearn_logistic(sklearn_regression):
             return np.mean(labels == response)
 
 class sklearn_logistic_lagrange(sklearn_regression_lagrange, sklearn_logistic):
+    pass
+
+class sklearn_logistic_classifier(sklearn_classifier):
 
     """
 
@@ -68,5 +71,38 @@ class sklearn_logistic_lagrange(sklearn_regression_lagrange, sklearn_logistic):
     that allows any atom to be used as a regularizer.
 
     """
+
+    def _loglike_factory(self, X, y):
+        response, case_weights_, offset_ = self._check_y_arg(y)
+
+        if response.ndim == 2:
+            successes = response[:,0]
+            trials = response[:,1]
+        else:
+            successes = response
+            trials = None
+
+        return glm.logistic(X, 
+                            successes,
+                            trials=trials,
+                            case_weights=case_weights_,
+                            coef=self.coef,
+                            saturated_offset=offset_)
+
+    def _saturated_score(self,
+                         predictions,
+                         response,
+                         case_weights=None):
+        
+        if response.ndim == 2:
+            successes = response[:,0]
+            trials = response[:,1]
+        else:
+            successes = response
+            trials = None
+
+        return np.mean(prediction == successes)
+
+class sklearn_logistic_classifier_lagrange(sklearn_logistic_classifier):
     pass
 

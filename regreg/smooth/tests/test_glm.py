@@ -6,99 +6,6 @@ import numpy as np
 from .. import glm
 from ...affine.block_maps import block_columns
 
-def test_logistic():
-
-    for Y, T in [(np.random.binomial(1,0.5,size=(10,)),
-                  np.ones(10)),
-                 (np.random.binomial(1,0.5,size=(10,)),
-                  None),
-                 (np.random.binomial(3,0.5,size=(10,)),
-                  3*np.ones(10))]:
-        X = np.random.standard_normal((10,5))
-
-        for case_weights in [None, np.ones(10)]:
-            L = glm.glm.logistic(X, Y, trials=T, case_weights=case_weights)
-            L.smooth_objective(np.zeros(L.shape), 'both')
-            L.hessian(np.zeros(L.shape))
-
-            sat_sub = L.saturated_loss.subsample(np.arange(5)) # check that subsample of saturated loss at least works
-            sat_sub.smooth_objective(np.zeros(sat_sub.shape))
-
-            # check that subsample is getting correct answer
-
-            Xsub = X[np.arange(5)]
-            Ysub = Y[np.arange(5)]
-            if T is not None:
-                Tsub = T[np.arange(5)]
-                T_num = T
-            else:
-                Tsub = np.ones(5)
-                T_num = np.ones(10)
-
-            beta = np.ones(L.shape)
-
-            if case_weights is not None:
-                Lsub2 = glm.glm.logistic(Xsub, Ysub, trials=Tsub, case_weights=case_weights[np.arange(5)])
-                Lsub3 = glm.glm.logistic(Xsub, Ysub, trials=Tsub, case_weights=case_weights[np.arange(5)])
-                case_cp = case_weights.copy() * 0
-                case_cp[np.arange(5)] = 1
-                Lsub4 = glm.glm.logistic(X, Y, trials=T, case_weights=case_cp)
-            else:
-                Lsub2 = glm.glm.logistic(Xsub, Ysub, trials=Tsub)
-                Lsub3 = glm.glm.logistic(Xsub, Ysub, trials=Tsub)
-
-            Lsub3.coef *= 2.
-
-            f2, g2 = Lsub2.smooth_objective(beta, 'both')
-            f3, g3 = Lsub3.smooth_objective(beta, 'both')
-            f4, g4 = Lsub2.smooth_objective(beta, 'both')
-
-            np.testing.assert_allclose(f3, 2*f2)
-            np.testing.assert_allclose(g3, 2*g2)
-
-            np.testing.assert_allclose(f2, f4)
-            np.testing.assert_allclose(g2, g4)
-
-            Lcp = copy(L)
-            prev_value = L.smooth_objective(np.zeros(L.shape), 'func')
-            L_sub = L.subsample(np.arange(5))
-            L_sub.coef *= 45
-            new_value = L.smooth_objective(np.zeros(L.shape), 'func')            
-            assert(prev_value == new_value)
-            
-
-            np.testing.assert_allclose(L_sub.gradient(beta),
-                                       45 * Lsub2.gradient(beta))
-
-            np.testing.assert_allclose(L.gradient(beta),
-                                       X.T.dot(L.saturated_loss.mean_function(X.dot(beta)) * T_num - Y))
-
-            np.testing.assert_allclose(L_sub.gradient(beta),
-                                       45 * Xsub.T.dot(L_sub.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
-
-            np.testing.assert_allclose(L_sub.gradient(beta),
-                                       45 * Xsub.T.dot(Lsub2.saturated_loss.mean_function(Xsub.dot(beta)) * Tsub - Ysub))
-
-            # other checks on gradient
-
-            if T is None:
-                np.testing.assert_allclose(L.gradient(np.zeros(L.shape)),
-                                           X.T.dot(0.5 - Y))
-                np.testing.assert_allclose(L.hessian(np.zeros(L.shape)),
-                                           X.T.dot(X) / 4.)
-            else:
-                L.gradient(np.zeros(L.shape))
-                L.hessian(np.zeros(L.shape))
-
-            L.objective(np.zeros(L.shape))
-            L.latexify()
-
-            L.saturated_loss.data = (Y, T)
-            L.saturated_loss.data
-
-            L.data = (X, (Y, T))
-            L.data
-
 def test_poisson():
 
     X = np.random.standard_normal((10,5))
@@ -325,7 +232,7 @@ def test_stacked():
     Y = np.random.standard_normal((10,3))
 
     Xstack = block_columns([X for _ in range(3)])
-    for case_weights in [np.ones(10), None]:
+    for case_weights in [np.ones(30), None]:
         sat = glm.stacked_loglike.gaussian(Y.T)
         L = glm.glm(Xstack, sat.data, sat, case_weights=case_weights)
         L.smooth_objective(np.zeros(L.shape), 'both')

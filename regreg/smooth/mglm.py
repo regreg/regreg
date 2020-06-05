@@ -126,7 +126,6 @@ class mglm(glm):
 
         beta : ndarray
             Parameters.
-
         """
 
         raise NotImplementedError
@@ -143,7 +142,6 @@ class mglm(glm):
                      initial=copy(self.coefs),
                      offset=copy(self.offset),
                      case_weights=copy(self.case_weights))
-
        
     @classmethod
     def multinomial(klass, 

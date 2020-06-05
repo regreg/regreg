@@ -354,7 +354,6 @@ class classifier_mixin(base_mixin):
                  atom_constructor, 
                  atom_params, 
                  case_weights=False,
-                 offset=False,
                  coef=1., 
                  quadratic=None,
                  score_method='deviance'):
@@ -372,9 +371,6 @@ class classifier_mixin(base_mixin):
         atom_params : dict
             Dictionary of arguments to construct atom.
 
-        offset : bool
-            While `y` include an offset column when fitting?
-
         case_weights : bool
             Will `y` include a case weight column when fitting?
 
@@ -388,17 +384,10 @@ class classifier_mixin(base_mixin):
         Notes
         -----
 
-        If `case_weights` or `offset` is True, then the `fit`
-        method should pass a 2-d array for `y` rather than just a
-        response. If only one of these is not None, then the
-        quantity is assumed to be the last column.  If both are
-        not None, then the 2nd to last are to be the case weights
-        and the last is to be the offset.
-
-        The `offset` argument, if not None
-        is *subtracted* from the linear predictor
-        before evaluating the loss -- this sign is different
-        than behavior in e.g. `R` where it is *added* instead.
+        If `case_weights` is True, then the `fit`
+        method should pass at least 2-d array for `y` rather than just a
+        response. The last column will be taken to be
+        `case_weights`.
 
         """
 
@@ -427,7 +416,6 @@ class classifier_mixin_lagrange(classifier_mixin, lagrange_mixin):
                  atom_constructor, 
                  atom_params, 
                  case_weights=False,
-                 offset=False,
                  enet_alpha=0.,
                  coef=1., 
                  score_method='deviance'):
@@ -445,9 +433,6 @@ class classifier_mixin_lagrange(classifier_mixin, lagrange_mixin):
         atom_params : dict
             Dictionary of arguments to construct atom.
 
-        offset : bool
-            While `y` include an offset column when fitting?
-
         case_weights : bool
             Will `y` include a case weight column when fitting?
 
@@ -464,17 +449,10 @@ class classifier_mixin_lagrange(classifier_mixin, lagrange_mixin):
         Notes
         -----
 
-        If `case_weights` or `offset` is True, then the `fit`
-        method should pass a 2-d array for `y` rather than just a
-        response. If only one of these is not None, then the
-        quantity is assumed to be the last column.  If both are
-        not None, then the 2nd to last are to be the case weights
-        and the last is to be the offset.
-
-        The `offset` argument, if not None
-        is *subtracted* from the linear predictor
-        before evaluating the loss -- this sign is different
-        than behavior in e.g. `R` where it is *added* instead.
+        If `case_weights` is True, then the `fit`
+        method should pass at least 2-d array for `y` rather than just a
+        response. The last column will be taken to be
+        `case_weights`.
 
         """
 
