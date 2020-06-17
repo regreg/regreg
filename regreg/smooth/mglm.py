@@ -197,7 +197,8 @@ class mglm(glm):
                                        coef=coef,
                                        offset=saturated_offset)
         else:
-            loss = multinomial_baseline_loglike(successes.shape,
+            loss = multinomial_baseline_loglike((successes.shape[0],
+                                                 successes.shape[1]-1),
                                                 successes,
                                                 coef=coef,
                                                 offset=saturated_offset)
@@ -743,6 +744,8 @@ class stacked_common_loglike(smooth_atom):
 
 class multinomial_loglike(smooth_atom):
 
+    overflow_clip = 50
+
     """
     An overparametrized multinomial regression for nominal responses (e.g. Agresti, pg 267)
     """
@@ -773,7 +776,7 @@ class multinomial_loglike(smooth_atom):
 
         self.J = self.counts.shape[1]
 
-        if not np.allclose(np.round(self.counts),self.counts):
+        if not np.allclose(np.round(self.counts), self.counts):
             raise ValueError("Counts vector is not integer valued")
         if np.min(self.counts) < 0:
             raise ValueError("Counts vector is not non-negative")
@@ -808,7 +811,7 @@ class multinomial_loglike(smooth_atom):
     data = property(get_data, set_data)
 
     def smooth_objective(self, 
-                         x, 
+                         natural_param, 
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
@@ -819,28 +822,28 @@ class multinomial_loglike(smooth_atom):
         if mode == 'grad', return only the gradient
         if mode == 'func', return only the function value
         """
-        x = self.apply_offset(x)
-        exp_x = np.exp(x)
+        eta = self.apply_offset(natural_param)  # shorthand
+        eta = np.clip(eta, 
+                      -self.overflow_clip, 
+                      self.overflow_clip) # to prevent overflow
+        exp_eta = np.exp(eta)
 
         if case_weights is None:
-            cw = np.ones(x.shape[0])
+            cw = np.ones(natural_param.shape[0])
         else:
             cw = case_weights
 
-        #TODO: Using transposes to scale the rows of a 2d array - should we use an affine_transform to do this?
-        #JT: should be able to do this with np.newaxis
-
         if mode == 'both':
-            ratio = ((self.trials/np.sum(exp_x, axis=1)) * exp_x.T).T
-            f, g = (- self.scale(np.sum(cw[:,None] * self.counts * x) -  np.dot(cw * self.trials, np.log(np.sum(exp_x, axis=1)))),
+            ratio = ((self.trials/np.sum(exp_eta, axis=1)) * exp_eta.T).T
+            f, g = (- self.scale(np.sum(cw[:,None] * self.counts * eta) -  np.dot(cw * self.trials, np.log(np.sum(exp_eta, axis=1)))),
                       - self.scale(cw[:,None] * (self.counts - ratio)))
             return f, g
         elif mode == 'grad':
-            ratio = ((self.trials/np.sum(exp_x, axis=1)) * exp_x.T).T
+            ratio = ((self.trials/np.sum(exp_eta, axis=1)) * exp_eta.T).T
             f, g = None, - self.scale(cw[:,None] * (self.counts - ratio))
             return g
         elif mode == 'func':
-            f, g = - self.scale(np.sum(cw[:,None] * self.counts * x) -  np.dot(cw * self.trials, np.log(np.sum(exp_x, axis=1)))), None
+            f, g = - self.scale(np.sum(cw[:,None] * self.counts * eta) -  np.dot(cw * self.trials, np.log(np.sum(exp_eta, axis=1)))), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -879,6 +882,8 @@ class multinomial_loglike(smooth_atom):
         return loss_cp
 
 class multinomial_baseline_loglike(smooth_atom):
+
+    overflow_clip = 50
 
     """
     A class for baseline-category logistic regression for nominal responses (e.g. Agresti, pg 267)
@@ -950,7 +955,7 @@ class multinomial_baseline_loglike(smooth_atom):
     data = property(get_data, set_data)
 
     def smooth_objective(self, 
-                         x, 
+                         natural_parameter,
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
@@ -961,11 +966,14 @@ class multinomial_baseline_loglike(smooth_atom):
         if mode == 'grad', return only the gradient
         if mode == 'func', return only the function value
         """
-        x = self.apply_offset(x)
-        exp_x = np.exp(x)
+        eta = self.apply_offset(natural_parameter) # shorthand
+        eta = np.clip(eta, 
+                      -self.overflow_clip, 
+                      self.overflow_clip) # to prevent overflow
+        exp_eta = np.exp(eta)
 
         if case_weights is None:
-            cw = np.ones(x.shape[0])
+            cw = np.ones(eta.shape[0])
         else:
             cw = case_weights
 
@@ -973,16 +981,16 @@ class multinomial_baseline_loglike(smooth_atom):
         #JT: should be able to do this with np.newaxis
 
         if mode == 'both':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = (- self.scale(np.sum(cw[:,None] * self.firstcounts * x) -  np.dot(cw * self.trials, np.log(1. + np.sum(exp_x, axis=1)))), 
+            ratio = ((self.trials/(1. + np.sum(exp_eta, axis=1))) * exp_eta.T).T
+            f, g = (- self.scale(np.sum(cw[:,None] * self.firstcounts * eta) -  np.dot(cw * self.trials, np.log(1. + np.sum(exp_eta, axis=1)))), 
                       - self.scale(cw[:,None] * (self.firstcounts - ratio)))
             return f, g
         elif mode == 'grad':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
+            ratio = ((self.trials/(1. + np.sum(exp_eta, axis=1))) * exp_eta.T).T
             f, g = None, - self.scale(cw[:,None] * (self.firstcounts - ratio))
             return g
         elif mode == 'func':
-            f, g = - self.scale(np.sum(cw[:,None] * self.firstcounts * x) -  np.dot(cw * self.trials, np.log(1. + np.sum(exp_x, axis=1)))), None
+            f, g = - self.scale(np.sum(cw[:,None] * self.firstcounts * eta) -  np.dot(cw * self.trials, np.log(1. + np.sum(exp_eta, axis=1)))), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
