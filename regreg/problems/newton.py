@@ -26,6 +26,8 @@ class quasi_newton(object):
 
     """
 
+    damping_term = 0.01
+
     def __init__(self, 
                  smooth_atom, 
                  proximal_atom,
@@ -59,8 +61,10 @@ class quasi_newton(object):
         self.proximal_atom = proximal_atom
         self.coefs = self.smooth_atom.coefs = self.proximal_atom.coefs
         self.hessian = initial_hessian.copy()
+        self.diag_hessian = np.mean(np.diag(self.hessian)) * np.identity(self.hessian.shape[0])
         self.quadratic_loss = quadratic_loss(self.coefs.shape,
-                                             Q=self.hessian)
+                                             Q=self.hessian +
+                                               self.damping_term * self.diag_hessian)
         if quadratic is None:
             quadratic = identity_quadratic(0, 0, 0, 0)
         self.quadratic = quadratic
@@ -105,7 +109,7 @@ class quasi_newton(object):
             raise ValueError('failure in BFGS update -- dot product is negative')
 
         self.hessian += np.multiply.outer(y, y) / y.dot(s) - np.multiply.outer(Bs, Bs) / s.dot(Bs)
-        self.quadratic_loss.Q[:] = self.hessian # not sure copy is necessary here
+        self.quadratic_loss.Q[:] = self.hessian + self.damping_term * self.diag_hessian
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         '''
@@ -172,6 +176,7 @@ class quasi_newton(object):
 
     def solve_inner_loop(self, 
                          return_optimum=False, 
+                         initial_step=None,
                          **fit_args):
         
         '''
@@ -208,12 +213,14 @@ class quasi_newton(object):
         linear_term = (grad - self.hessian.dot(self.coefs))
         quad = identity_quadratic(0, 0, linear_term, 0)
         self.quadratic_problem.coefs[:] = self.coefs # warm start the subproblem
-        quad_soln = self.quadratic_problem.solve(quad + self.quadratic)
+        quad_soln = self.quadratic_problem.solve(quad + self.quadratic, **fit_args)
         direction = quad_soln - self.coefs
-        return direction, grad
+        return direction, grad 
 
     def solve(self,
               niter=30,
+              maxfun=10,
+              maxiter=5,
               **fit_args, # for inner loop solver
               ):
         
@@ -226,6 +233,12 @@ class quasi_newton(object):
         niter : int
             Number of quasi-Newton steps to take.
 
+        maxfun : int
+            Maximum function evaluations passed to `fmin_powell`
+
+        maxiter : int
+            Maximum iterations passed to `fmin_powell`
+
         Returns
         -------
 
@@ -234,9 +247,13 @@ class quasi_newton(object):
           
         '''
 
-        for _ in range(niter):
+        self.solver_results = []
+        for i in range(niter):
             direction, grad = self.solve_inner_loop(**fit_args)
-            stepsize = self.backtrack(direction)
+            fit_args['start_step'] = 1.5 * self.quadratic_problem.final_step
+            stepsize, val = self.backtrack(direction,
+                                           maxfun=maxfun,
+                                           maxiter=maxiter)
             delta = stepsize * direction
 
             new_grad = self.smooth_objective(self.coefs + delta, 'grad')
@@ -246,12 +263,15 @@ class quasi_newton(object):
 
             self.coefs += delta
             self.stepsize = stepsize
+            self.solver_results.append(val)
 
+        self.solver_results = np.array(self.solver_results)
         return self.coefs
 
     def backtrack(self, 
                   direction,
-                  maxiter=10):
+                  maxiter=10,
+                  maxfun=6):
         '''
         Run a simple backtracking using `scipy.optimize.fmin_powell`
         to determine optimal stepsize.
@@ -291,5 +311,6 @@ class quasi_newton(object):
         step =  fmin_powell(restriction, 
                             self.stepsize, 
                             disp=False,
-                            maxiter=maxiter)
-        return step
+                            maxiter=maxiter,
+                            maxfun=maxfun)
+        return step, restriction(step)
