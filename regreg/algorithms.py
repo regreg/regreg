@@ -105,7 +105,9 @@ class FISTA(algorithm):
         self.weight_old = 1.
 
         working_smooth = self.composite.smooth_objective(self.working_coefs, mode='func')
-        working_obj = working_smooth + self.composite.nonsmooth_objective(self.working_coefs, check_feasibility=True)
+        working_obj = (working_smooth + 
+                       self.composite.nonsmooth_objective(self.working_coefs, 
+                                                          check_feasibility=True))
         
         if np.isnan(working_obj):
             raise ValueError('objective is NaN')
@@ -231,17 +233,25 @@ class FISTA(algorithm):
         working_smooth, working_grad = self.composite.smooth_objective(self.working_coefs, mode='both')
         while True:
             if self.prox_control != {}:
-                proposed_coefs = self.composite.proximal_step(sq(1. / self.step, self.working_coefs, working_grad, 0), prox_control=prox_control)
+                proposed_coefs = self.composite.proximal_step(sq(1. / self.step, 
+                                                                 self.working_coefs, 
+                                                                 working_grad, 
+                                                                 0), 
+                                                              prox_control=prox_control)
             else:
-                proposed_coefs = self.composite.proximal_step(sq(1. / self.step, self.working_coefs, working_grad, 0))
+                proposed_coefs = self.composite.proximal_step(sq(1. / self.step, 
+                                                                 self.working_coefs, 
+                                                                 working_grad,
+                                                                 0))
 
             proposed_smooth = self.composite.smooth_objective(proposed_coefs, mode='func')
 
             if not np.isfinite(proposed_smooth):
                 stop = False
             elif np.fabs(proposed_smooth - working_smooth)/np.max([1., proposed_smooth]) > 1e-10:
-                stop = (proposed_smooth <= working_smooth + np.dot((proposed_coefs - self.working_coefs).reshape(-1),
-                                                                   working_grad.reshape(-1)) + \
+                stop = (proposed_smooth <= (working_smooth + 
+                                            np.dot((proposed_coefs - self.working_coefs).reshape(-1),
+                                                   working_grad.reshape(-1)) + \
                             (0.5/self.step)*np.linalg.norm(proposed_coefs-self.working_coefs)**2)
             else:
                 proposed_grad = self.composite.smooth_objective(proposed_coefs, mode='grad')

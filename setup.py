@@ -108,7 +108,9 @@ def main(**extra_args):
                           'regreg.smooth',
                           'regreg.smooth.tests',
                           'regreg.paths',
-                          'regreg.paths.tests'
+                          'regreg.paths.tests',
+                          'regreg.sklearn',
+                          'regreg.sklearn.tests',
                          ],
           ext_modules = EXTS,
           package_data = {},
