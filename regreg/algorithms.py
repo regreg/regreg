@@ -252,7 +252,7 @@ class FISTA(algorithm):
                 stop = (proposed_smooth <= (working_smooth + 
                                             np.dot((proposed_coefs - self.working_coefs).reshape(-1),
                                                    working_grad.reshape(-1)) + \
-                            (0.5/self.step)*np.linalg.norm(proposed_coefs-self.working_coefs)**2)
+                            (0.5/self.step)*np.linalg.norm(proposed_coefs-self.working_coefs)**2))
             else:
                 proposed_grad = self.composite.smooth_objective(proposed_coefs, mode='grad')
                 stop = (np.fabs(np.dot((proposed_coefs - self.working_coefs).reshape(-1),
