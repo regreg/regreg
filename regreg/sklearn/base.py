@@ -36,7 +36,9 @@ class base_mixin(object):
                  offset=False,
                  coef=1., 
                  quadratic=None,
-                 score_method='deviance'):
+                 score_method='deviance',
+                 solve_args={},
+                 initial=None):
 
         """
 
@@ -64,6 +66,12 @@ class base_mixin(object):
             Which score to use as default `score`?
             One of ['deviance', 'mean_deviance', 'R2']
 
+        solve_args : dict
+            Keyword arguments passed to `simple_problem.solve`
+
+        initial : ndarray
+            Warmstart.
+
         Notes
         -----
 
@@ -87,6 +95,8 @@ class base_mixin(object):
         self.coef = coef
         self.offset = offset
         self.score_method = score_method
+        self.solve_args = solve_args
+        self.initial = initial
 
     def fit(self, X, y):
         """
@@ -111,7 +121,9 @@ class base_mixin(object):
         loglike = self._loglike_factory(X, y)
         atom_ = self._construct_atom()
         problem = simple_problem(loglike, atom_)
-        self._coefs = problem.solve()
+        if self.initial is not None:
+            problem.coefs[:] = self.initial
+        self._coefs = problem.solve(**self.solve_args)
         return self
 
     def predict(self, X):
@@ -232,7 +244,8 @@ class lagrange_mixin(base_mixin):
                  enet_alpha=0.,
                  coef=1., 
                  score_method='deviance',
-                 unpenalized=False):
+                 unpenalized=False,
+                 solve_args={}):
 
         """
 
@@ -269,6 +282,9 @@ class lagrange_mixin(base_mixin):
             `lagrange=np.inf` requires solving a 
             problem. 
 
+        solve_args : dict
+            Keyword arguments passed to `simple_problem.solve`
+
         Notes
         -----
 
@@ -294,7 +310,8 @@ class lagrange_mixin(base_mixin):
         self.score_method = score_method
         self.enet_alpha = enet_alpha
         self.unpenalized = unpenalized
-
+        self.solve_args = solve_args
+        
     def fit(self, X, y):
         """
         Fit a regularized regression estimator.
@@ -327,7 +344,9 @@ class lagrange_mixin(base_mixin):
             null_grad = self._fit_null_soln(loglike, atom_)
         atom_ = self._construct_atom(null_grad)
         problem = simple_problem(loglike, atom_)
-        self._coefs = problem.solve()
+        if self.initial is not None:
+            problem.coefs[:] = self.initial
+        self._coefs = problem.solve(**self.solve_args)
 
         return self
 
