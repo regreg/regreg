@@ -57,15 +57,18 @@ if have_sklearn:
                                                 trials=trials,
                                                 case_weights=case_weights).smooth_objective(yhat, 'func')
 
+            # factor of 2 to form proper deviance (default is negative log-likelihood,
+            # while deviance is 2 * negative log-likelihood
+
             if self.score_method == 'deviance':
-                return loss(predictions)
+                return 2 * loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return loss(predictions)
+                return 2 * loss(predictions)
             elif self.score_method == 'R2':
-                SSE = loss(predictions)
+                SSE = 2 * loss(predictions)
                 pi_0 = response.mean()
                 cloglog_0 = gumbel_r.ppf(pi_0)
-                SST = np.sum(loss(cloglog_0 * np.ones_like(response))) # XXX: correct for cloglog?
+                SST = 2 * loss(cloglog_0 * np.ones_like(response)) # X: correct for cloglog?
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
                 labels = predictions > 0

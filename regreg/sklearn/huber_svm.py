@@ -101,7 +101,7 @@ if have_sklearn:
                 return loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = loss(predictions)
-                SST = loss(response.mean() * np.ones_like(response)) # XXX: right for huber_svm?
+                SST = loss(response.mean() * np.ones_like(response)) # X: right for huber_svm?
                 return 1 - SSE / SST
             else:
                 return np.nan

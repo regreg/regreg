@@ -44,13 +44,16 @@ if have_sklearn:
                                             censoring,
                                             case_weights=case_weights).smooth_objective(yhat, 'func')
 
+            # factor of 2 to form proper deviance (default is negative log-likelihood,
+            # while deviance is 2 * negative log-likelihood
+
             if self.score_method == 'deviance':
-                return loss(predictions)
+                return 2 * loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return loss(predictions) / predictions.shape[0]
+                return 2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
-                SSE = loss(predictions)
-                SST = loss(response.mean() * np.ones(response.shape[0])) # XXX: correct for Cox?
+                SSE = 2 * loss(predictions)
+                SST = loss(response.mean() * np.ones(response.shape[0])) # X: correct for Cox?
                 return 1 - SSE / SST
             elif self.score_method == 'C-index':
                 return np.nan

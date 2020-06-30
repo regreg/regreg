@@ -44,15 +44,18 @@ if have_sklearn:
                                                     successes,
                                                     case_weights=case_weights).smooth_objective(yhat, 'func')
 
+            # factor of 2 to form proper deviance (default is negative log-likelihood,
+            # while deviance is 2 * negative log-likelihood
+
             if self.score_method == 'deviance':
-                return loss(predictions)
+                return 2 * loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return loss(predictions) / predictions.shape[0]
+                return 2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
-                SSE = loss(predictions)
+                SSE = 2 * loss(predictions)
                 pi_0 = np.mean(response, 0)
                 multinom_0 = np.log(pi_0)
-                SST = loss(np.multiply.outer(multinom_0,  np.ones_like(response)))
+                SST = 2 * loss(np.multiply.outer(multinom_0,  np.ones_like(response)))
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
                 labels = predictions > 0
