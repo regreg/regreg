@@ -39,7 +39,6 @@ if have_sklearn:
             if self.score_method == 'deviance':
                 return loss(predictions)
             elif self.score_method == 'mean_deviance':
-                print(loss(predictions) / predictions.shape[0], 'huh')
                 return loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = np.sum(loss(predictions))
