@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import norm as normal_dbn
 
 have_sklearn = True
 try:
@@ -56,12 +57,14 @@ if have_sklearn:
                                                case_weights=case_weights).smooth_objective(yhat, 'func')
 
             if self.score_method == 'deviance':
-                return np.sum(loss(predictions))
+                return loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return np.mean(loss(predictions))
+                return loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
-                SSE = np.sum(loss(predictions))
-                SST = np.sum(loss(response.mean() * np.ones_like(response)))
+                SSE = loss(predictions)
+                pi_0 = response.mean()
+                probit_0 = normal_dbn.ppf(pi_0)
+                SST = loss(probit_0 * np.ones_like(response)) # XXX: correct for probit?
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
                 labels = predictions > 0

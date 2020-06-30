@@ -245,7 +245,8 @@ class lagrange_mixin(base_mixin):
                  coef=1., 
                  score_method='deviance',
                  unpenalized=False,
-                 solve_args={}):
+                 solve_args={},
+                 initial=None):
 
         """
 
@@ -311,6 +312,7 @@ class lagrange_mixin(base_mixin):
         self.enet_alpha = enet_alpha
         self.unpenalized = unpenalized
         self.solve_args = solve_args
+        self.initial = initial
         
     def fit(self, X, y):
         """
@@ -375,7 +377,8 @@ class classifier_mixin(base_mixin):
                  case_weights=False,
                  coef=1., 
                  quadratic=None,
-                 score_method='accuracy'):
+                 score_method='accuracy',
+                 initial=None):
 
         """
 
@@ -416,7 +419,8 @@ class classifier_mixin(base_mixin):
                             case_weights=case_weights,
                             coef=coef,
                             quadratic=quadratic,
-                            score_method=score_method)
+                            score_method=score_method,
+                            initial=initial)
 
     def predict(self, X):
         """
@@ -464,7 +468,8 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
                  case_weights=False,
                  enet_alpha=0.,
                  coef=1., 
-                 score_method='accuracy'):
+                 score_method='accuracy',
+                 initial=None):
 
         """
 
@@ -509,81 +514,12 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
                        offset=offset,
                        enet_alpha=enet_alpha,
                        coef=coef, 
-                       score_method=score_method)
+                       score_method=score_method,
+                       initial=initial)
                        
 
 class survival_mixin(base_mixin):
-
-    def __init__(self, 
-                 atom_constructor, 
-                 atom_params, 
-                 case_weights=False,
-                 offset=False,
-                 coef=1., 
-                 quadratic=None,
-                 score_method='deviance'):
-
-        """
-
-        Parameters
-        ----------
-
-        atom_constructor : callable
-
-            Atom constructor that is to to be used as a regularizer.
-            Final atom will be constructed as `atom_constructor(**atom_params)`.
-
-        atom_params : dict
-            Dictionary of arguments to construct atom.
-
-        offset : bool
-            While `y` include an offset column when fitting?
-
-        case_weights : bool
-            Will `y` include a case weight column when fitting?
-
-        coef : float
-            Scaling to be put in front of loss.
-
-        score_method : str
-            Which score to use as default `score`?
-            One of ['deviance', 'mean_deviance', 'R2', 'C-index']
-
-        Notes
-        -----
-
-        If `case_weights` or `offset` is True, then the `fit`
-        method should pass a 2-d array for `y` rather than just a
-        response. If only one of these is not None, then the
-        quantity is assumed to be the last column.  If both are
-        not None, then the 2nd to last are to be the case weights
-        and the last is to be the offset.
-
-        The `offset` argument, if not None
-        is *subtracted* from the linear predictor
-        before evaluating the loss -- this sign is different
-        than behavior in e.g. `R` where it is *added* instead.
-
-        """
-
-    def predict(self, X):
-        """
-        Predict new response in regression setting.
-
-        Parameters
-        ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
-
-        Returns
-        -------
-
-        labels : np.ndarray(n)
-            Predictions from classification model.
-
-        """
-        return X.dot(self._coefs) > 0
+    pass
 
 class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
 
@@ -594,7 +530,8 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
                  offset=False,
                  enet_alpha=0.,
                  coef=1., 
-                 score_method='deviance'):
+                 score_method='deviance',
+                 initial=None):
 
         """
 
@@ -642,14 +579,15 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
 
         """
 
-        lagrange_mixin(self, 
-                       atom_constructor, 
-                       atom_params, 
-                       case_weights=case_weights,
-                       offset=offset,
-                       enet_alpha=enet_alpha,
-                       coef=coef, 
-                       score_method=score_method)
+        lagrange_mixin.__init__(self, 
+                                atom_constructor, 
+                                atom_params, 
+                                case_weights=case_weights,
+                                offset=offset,
+                                enet_alpha=enet_alpha,
+                                coef=coef, 
+                                score_method=score_method,
+                                initial=initial)
                        
 
 ### Final mixins

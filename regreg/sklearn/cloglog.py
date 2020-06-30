@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import gumbel_r
 
 have_sklearn = True
 try:
@@ -57,12 +58,14 @@ if have_sklearn:
                                                 case_weights=case_weights).smooth_objective(yhat, 'func')
 
             if self.score_method == 'deviance':
-                return np.sum(loss(predictions))
+                return loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return np.mean(loss(predictions))
+                return loss(predictions)
             elif self.score_method == 'R2':
-                SSE = np.sum(loss(predictions))
-                SST = np.sum(loss(response.mean() * np.ones_like(response)))
+                SSE = loss(predictions)
+                pi_0 = response.mean()
+                cloglog_0 = gumbel_r.ppf(pi_0)
+                SST = np.sum(loss(cloglog_0 * np.ones_like(response))) # XXX: correct for cloglog?
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
                 labels = predictions > 0

@@ -95,12 +95,12 @@ if have_sklearn:
                                            case_weights=case_weights).smooth_objective(yhat, 'func')
 
             if self.score_method == 'deviance':
-                return np.sum(loss(predictions))
+                return loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return np.mean(loss(predictions))
+                return loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
-                SSE = np.sum(loss(predictions))
-                SST = np.sum(loss(response.mean() * np.ones_like(response)))
+                SSE = loss(predictions)
+                SST = loss(response.mean() * np.ones_like(response)) # XXX: correct for huber?
                 return 1 - SSE / SST
             else:
                 return np.nan
