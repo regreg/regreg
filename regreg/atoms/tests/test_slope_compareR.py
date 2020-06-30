@@ -71,9 +71,9 @@ def fit_slope_R(X, Y, W = None, normalize = True, choice_weights = "gaussian"):
 
     if W is None:
         r_W = robjects.NA_Logical
-        if choice_weights is "gaussian":
+        if choice_weights == "gaussian":
             r_choice_weights  = robjects.StrVector('gaussian')
-        elif choice_weights is "bhq":
+        elif choice_weights == "bhq":
             r_choice_weights = robjects.StrVector('bhq')
     else:
         r_W = robjects.r.matrix(W, nrow=p, ncol=1)
