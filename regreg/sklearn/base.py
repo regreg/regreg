@@ -118,7 +118,7 @@ class base_mixin(object):
 
         """
 
-        loglike = self._loglike_factory(X, y)
+        self._loglike = loglike = self._loglike_factory(X, y)
         atom_ = self._construct_atom()
         problem = simple_problem(loglike, atom_)
         if self.initial is not None:
@@ -334,7 +334,7 @@ class lagrange_mixin(base_mixin):
 
         """
 
-        loglike = self._loglike_factory(X, y)
+        self._loglike = loglike = self._loglike_factory(X, y)
 
         # with unpenalized parameters possible,
         # this may be best found by solving a problem with an atom with lagrange=np.inf
