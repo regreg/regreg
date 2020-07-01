@@ -7,19 +7,24 @@ from ..simple import simple_problem
 
 def test_lagrange():
 
-    n, p = 1000, 50
+    n, p, s = 1000, 50, 5
     X = np.random.standard_normal((n, p))
-    Y = np.random.binomial(1, 0.5, size=(n,))
+    beta = np.zeros(p)
+    beta[:s] = 20 * np.random.standard_normal(s) / np.sqrt(n)
+    eta = X.dot(beta)
+    pi = np.exp(eta) / (1 + np.exp(eta))
+    Y = np.random.binomial(1, pi)
+    assert(Y.shape == pi.shape)
     loss = glm.logistic(X, Y)
-    penalty = l1norm(p, lagrange=3)
+    penalty = l1norm(p, lagrange=4)
 
     qn = quasi_newton(loss,
                       penalty,
                       X.T.dot(X))
-    soln_newton = qn.solve(niter=20)
+    soln_newton = qn.solve(niter=100, tol=1.e-14, min_its=200)
 
     problem = simple_problem(loss, penalty)
-    soln_simple = problem.solve()
+    soln_simple = problem.solve(min_its=200, tol=1.e-14)
 
     assert(np.linalg.norm(soln_newton - soln_simple) / np.linalg.norm(soln_simple) < 1.e-6)
 

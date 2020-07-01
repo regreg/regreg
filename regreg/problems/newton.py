@@ -221,7 +221,7 @@ class quasi_newton(object):
               niter=30,
               maxfun=10,
               maxiter=5,
-              **fit_args, # for inner loop solver
+              **fit_args # for inner loop solver
               ):
         
         '''
