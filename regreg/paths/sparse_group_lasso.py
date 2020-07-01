@@ -91,6 +91,34 @@ class sparse_group_lasso_path(group_lasso_path):
                                                  self.linear_predictor) + self.enet_grad(self.solution, 
                                                                                          self._penalized_vars,
                                                                                          1))
+
+    @property
+    def unpenalized(self):
+        """
+        Unpenalized groups and variables.
+
+        Returns
+        -------
+
+        groups : sequence
+            Groups with weights equal to 0.
+
+        variables : ndarray
+            Boolean indicator that is True if no penalty on that variable.
+
+        """
+        if not hasattr(self, "_unpen_groups"):
+            self._unpen_groups = []
+            self._unpen_group_idx = np.zeros(self.group_shape, np.bool)
+            for i, g in enumerate(self.penalty._sorted_groupids):
+                unpen_group = (self.penalty.weights[g] == 0 +
+                               np.any(self.penalty.lasso_weights[self.penalty.groups == g]
+                                      == 0))
+                self._unpen_group_idx[i] = unpen_group
+                if unpen_group:
+                    self._unpen_groups.append(g)
+        return self._unpen_groups, self._unpen_group_idx
+
     # methods potentially overwritten in subclasses for I/O considerations
 
     def subsample(self,
