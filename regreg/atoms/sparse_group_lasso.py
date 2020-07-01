@@ -327,7 +327,7 @@ def inside_set(atom, point):
 
 def gauge_function_dual(atom,
                         point,
-                        tol=1.e-6,
+                        tol=1.e-10,
                         max_iter=50): 
 
      """
@@ -400,13 +400,13 @@ for n1, n2 in [(sparse_group_lasso, sparse_group_lasso_dual)]:
 
 # for terms of strong rules
 
-def _inside_set_strong(point, bound, lasso_weights, group_weight):
+def _inside_set_strong(point, bound, lasso_weights, group_weight, tol=1.e-5):
 
     # soft_thresh = np.sign(point) * np.maximum(np.fabs(point) - bound * lasso_weights, 0)
     # sign doesn't matter for testing inside the dual ball
     soft_thresh = np.maximum(np.fabs(point) - bound * lasso_weights, 0)
     norm_soft = np.linalg.norm(soft_thresh)
-    if norm_soft <= bound * group_weight:
+    if norm_soft <= bound * (group_weight + tol):
         return True
     return False
 
