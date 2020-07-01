@@ -95,10 +95,12 @@ if have_sklearn:
                                           self.smoothing_parameter,
                                           case_weights=case_weights).smooth_objective(yhat, 'func')
 
+            # negative sign is to align with sklearn's maximizing a score with grid search
+
             if self.score_method == 'deviance':
-                return loss(predictions)
+                return -loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return loss(predictions) / predictions.shape[0]
+                return -loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = loss(predictions)
                 SST = loss(response.mean() * np.ones_like(response)) # X: right for huber_svm?

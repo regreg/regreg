@@ -46,11 +46,12 @@ if have_sklearn:
 
             # factor of 2 to form proper deviance (default is negative log-likelihood,
             # while deviance is 2 * negative log-likelihood
+            # negative sign is to align with sklearn's maximizing a score with grid search
 
             if self.score_method == 'deviance':
-                return 2 * loss(predictions)
+                return -2 * loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return 2 * loss(predictions) / predictions.shape[0]
+                return -2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = 2 * loss(predictions)
                 SST = loss(response.mean() * np.ones(response.shape[0])) # X: correct for Cox?
