@@ -286,7 +286,7 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          >>> penalty = rr.sparse_group_lasso_dual(groups, l1weights, lagrange=1.)
          >>> arg = [2,4,5,3,4]
          >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
-         [1.6666..., 2.08333...]
+         [1.666..., 2.0833...]
 
          """
          arg = np.asarray(arg)
