@@ -174,6 +174,14 @@ class l1norm(seminorm):
     def bound_prox(self, x, bound=None):
         raise NotImplementedError
 
+    def terms(self, arg):
+        """
+        Return the args that are summed
+        in computing the seminorm.
+
+        """
+        arg = np.asarray(arg)
+        return np.fabs(arg) * self.weights
 
 @objective_doc_templater()
 class supnorm(seminorm):
@@ -214,6 +222,18 @@ class supnorm(seminorm):
     def bound_prox(self, x, bound=None):
         bound = seminorm.bound_prox(self, x, bound)
         return np.clip(x, -bound * self.invweights, bound * self.invweights)
+
+    def terms(self, arg, check_feasibility=True):
+        """
+        Return the args that are maximized
+        in computing the seminorm.
+
+        """
+        arg = np.asarray(arg)
+        v = np.fabs(arg) / self.weights
+        if check_feasibility:
+            v[self.weights == 0] = np.where(np.fabs(arg[self.weights == 0]) != 0, np.inf, 0)
+        return v
 
 conjugate_weighted_pairs = {}
 for n1, n2 in [(l1norm,supnorm)]:

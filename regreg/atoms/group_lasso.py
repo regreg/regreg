@@ -330,7 +330,7 @@ class group_lasso_dual(group_lasso):
             if w > 0:
                 norms.append(np.linalg.norm(arg[group]) / w)
             else:
-                if check_feasibility:
+                if check_feasibility and np.linalg.norm(arg[group]) > 0:
                     norms.append(np.inf)  
                 else:
                     norms.append(0)
