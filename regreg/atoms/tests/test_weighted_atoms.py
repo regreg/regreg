@@ -28,12 +28,17 @@ class WeightedSolverFactory(SolverFactory):
         self.mode = mode
 
     def __iter__(self):
-        for offset, FISTA, coef_stop, L, q, w in itertools.product(self.offset_choices,
-                                                                   self.FISTA_choices,
-                                                                   self.coef_stop_choices,
-                                                                   self.L_choices,
-                                                                   self.quadratic_choices,
-                                                                   self.weight_choices):
+        for (offset,
+             FISTA,
+             coef_stop,
+             L,
+             q,
+             w) in itertools.product(self.offset_choices,
+                                     self.FISTA_choices,
+                                     self.coef_stop_choices,
+                                     self.L_choices,
+                                     self.quadratic_choices,
+                                     self.weight_choices):
             self.FISTA = FISTA
             self.coef_stop = coef_stop
             self.L = L
@@ -44,12 +49,15 @@ class WeightedSolverFactory(SolverFactory):
                 atom = self.klass(w, bound=self.bound)
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0,
+                                                       0,
+                                                       np.random.standard_normal(atom.shape)*0.02)
 
             if offset:
                 atom.offset = 0.02 * np.random.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom,
+                            interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -58,7 +66,8 @@ class WeightedSolverFactory(SolverFactory):
 @set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps():
-    for klass, mode in zip([WA.l1norm, WA.supnorm], ['lagrange', 'bound']):
+    for klass, mode in itertools.product([WA.l1norm, WA.supnorm],
+                                         ['lagrange', 'bound']):
         factory = WeightedSolverFactory(klass, mode)
         for solver in factory:
             for t in solver.all_tests():
@@ -71,6 +80,14 @@ def test_weighted_l1():
     z = np.random.standard_normal(10)
     npt.assert_equal(b.lagrange_prox(z), a.lagrange_prox(z))
     npt.assert_equal(b.dual[1].bound_prox(z), a.dual[1].bound_prox(z))
+
+@set_seed_for_test()
+def test_weighted_l1_bound():
+    a =rr.weighted_supnorm(2*np.ones(10), bound=2)
+    b= rr.supnorm(10, bound=1)
+    z = np.random.standard_normal(10)
+    npt.assert_equal(b.bound_prox(z), a.bound_prox(z))
+    npt.assert_equal(b.dual[1].lagrange_prox(z), a.dual[1].lagrange_prox(z))
 
 @set_seed_for_test()
 def test_weighted_l1_with_zero():
