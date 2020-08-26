@@ -62,11 +62,12 @@ class quasi_newton(object):
         self.smooth_atom = smooth_atom
         self.proximal_atom = proximal_atom
         self.coefs = self.smooth_atom.coefs = self.proximal_atom.coefs
-        self.hessian = initial_hessian.copy()
-        self.diag_hessian = np.identity(self.hessian.shape[0])
+        H0 = initial_hessian
+        self.hessian = H0 + (self.damping_term *
+                             (np.diag(H0).mean() *
+                              np.identity(H0.shape[0])))
         self.quadratic_loss = quadratic_loss(self.coefs.shape,
-                                             Q=self.hessian +
-                                               self.damping_term * self.diag_hessian)
+                                             Q=self.hessian)
         if quadratic is None:
             quadratic = identity_quadratic(0, 0, 0, 0)
         self.quadratic = quadratic
@@ -74,6 +75,21 @@ class quasi_newton(object):
         self.quadratic_problem = simple_problem(self.quadratic_loss,
                                                 proximal_atom)
         self.stepsize = initial_step
+
+    def objective(self,
+                  coefs):
+        """
+        Total objective
+
+        Parameters
+        ----------
+
+        coefs : np.ndarray
+            Where to evaluate the objective
+
+        """
+        return (self.smooth_objective(coefs, 'func') +
+                self.nonsmooth_objective(coefs, 'func'))
 
     def update_hessian(self,
                        old_soln,
@@ -114,8 +130,11 @@ class quasi_newton(object):
         if (y.dot(s) < -1e-5):
             raise ValueError('failure in BFGS update -- dot product is negative')
 
+        # update is done in place
+        # note that this means self.quadratic_problem.Q is also updated!
+        
         self.hessian += np.multiply.outer(y, y) / y.dot(s) - np.multiply.outer(Bs, Bs) / s.dot(Bs)
-        self.quadratic_loss.Q[:] = self.hessian + self.damping_term * self.diag_hessian
+
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         '''
@@ -212,13 +231,16 @@ class quasi_newton(object):
 
         # return search direction 
         # loss is 
-        # x -> (\nabla g(x_cur) - H x_cur)^Tx + 1/2 x^THx + P(x)
+        # x -> (\nabla g(x_cur) - Q x_cur)^Tx + 1/2 x^TQx + P(x)
+        #
+        # this gives a direction x^* - x_cur (with x^* optimizer from above)
 
         Q = self.quadratic_loss.Q
         grad = self.smooth_objective(self.coefs,
                                      'grad')
         linear_term = (grad - Q.dot(self.coefs))
         quad = identity_quadratic(0, 0, linear_term, 0)
+
         # warm start the subproblem
         self.quadratic_problem.coefs[:] = self.coefs 
 
