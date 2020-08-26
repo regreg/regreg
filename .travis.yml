@@ -57,13 +57,8 @@ matrix:
         # Wheel install should collect all dependencies
         - INSTALL_TYPE=wheel
         - DEPENDS="cython numpy scipy joblib"
-    - python: 2.7
-      env:
-        # pip fails below if DEPENDS is empty so we put a depend on nose
-        - INSTALL_TYPE=requirements
-        - DEPENDS="nose" 
-    # test 3.5 against pre-release builds of everything
-    - python: 3.5
+    # test 3.6 against pre-release builds of everything
+    - python: 3.6
       env:
         - EXTRA_PIP_FLAGS="$EXTRA_PIP_FLAGS $PRE_PIP_FLAGS"
     # test python setup.py install
@@ -78,12 +73,7 @@ matrix:
       dist: trusty
       env:
         - DOC_BUILD=1
-    - python: 3.5
-      sudo: true
-      dist: trusty
-      env:
-        - R_TESTS=1
-    - python: 2.7
+    - python: 3.7
       sudo: true
       dist: trusty
       env:
