@@ -2,9 +2,8 @@ import numpy as np
 try:
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import GridSearchCV
-    from .. import (cox,
-                    cox_lagrange
-                    )
+    from ..api import (cox,
+                       cox_lagrange)
     have_sklearn = True
 except ImportError:
     have_sklearn = False

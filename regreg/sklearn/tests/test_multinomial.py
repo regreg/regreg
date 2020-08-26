@@ -2,11 +2,10 @@ import numpy as np
 try:
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import GridSearchCV
-    from .. import (multinomial,
-                    multinomial_lagrange,
-                    multinomial_classifier,
-                    multinomial_classifier_lagrange,
-                    )
+    from ..api import (multinomial,
+                       multinomial_lagrange,
+                       multinomial_classifier,
+                       multinomial_classifier_lagrange)
     have_sklearn = True
 except ImportError:
     have_sklearn = False

@@ -2,11 +2,10 @@ import numpy as np
 try:
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import GridSearchCV
-    from .. import (logistic,
-                    logistic_lagrange,
-                    logistic_classifier,
-                    logistic_classifier_lagrange,
-                    )
+    from ..api import (logistic,
+                       logistic_lagrange,
+                       logistic_classifier,
+                       logistic_classifier_lagrange)
     have_sklearn = True
 except ImportError:
     have_sklearn = False

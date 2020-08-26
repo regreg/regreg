@@ -2,9 +2,8 @@ import numpy as np
 try:
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import GridSearchCV
-    from .. import (huber,
-                    huber_lagrange,
-                    )
+    from ..api import (huber,
+                       huber_lagrange)
     have_sklearn = True
 except ImportError:
     have_sklearn = False
