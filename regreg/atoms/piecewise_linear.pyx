@@ -43,7 +43,7 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
     if (weights * norms).sum() < b:
         return np.inf
 
-    cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms / weights
+    cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms / np.maximum(weights, 1e-20)
     cdef cnp.ndarray[DTYPE_intp_t, ndim=1] order = np.argsort(knots)
 
     slope = - slope # move the linear piece to the LHS
