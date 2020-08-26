@@ -20,8 +20,9 @@ def test_lagrange():
 
     qn = quasi_newton(loss,
                       penalty,
-                      X.T.dot(X))
-    soln_newton = qn.solve(niter=100, tol=1.e-14, min_its=200)
+                      X.T.dot(X) / 4.)
+    soln_newton = qn.solve(niter=1000, tol=1.e-6,
+                           maxfun=5, maxiter=5)
 
     problem = simple_problem(loss, penalty)
     soln_simple = problem.solve(min_its=200, tol=1.e-14)
@@ -34,14 +35,16 @@ def test_bound():
     X = np.random.standard_normal((n, p))
     Y = np.random.binomial(1, 0.5, size=(n,))
     loss = glm.logistic(X, Y)
-    penalty = l1norm(p, bound=0.2)
+    penalty = l1norm(p, bound=0.5)
 
     qn = quasi_newton(loss,
                       penalty,
-                      X.T.dot(X))
-    soln_newton = qn.solve(niter=40)
+                      X.T.dot(X) / 4.)
+    soln_newton = qn.solve(niter=1000, tol=1.e-10,
+                           maxfun=5, maxiter=5)
 
     problem = simple_problem(loss, penalty)
-    soln_simple = problem.solve()
+    soln_simple = problem.solve(tol=1.e-14)
 
-    assert(np.fabs(soln_simple - soln_newton).sum() / 0.2)
+    assert(np.linalg.norm(soln_newton - soln_simple) / max(np.linalg.norm(soln_simple), 1) < 1.e-5)
+    assert(np.fabs(problem.objective(soln_newton) - problem.objective(soln_simple)) < 1.e-6)

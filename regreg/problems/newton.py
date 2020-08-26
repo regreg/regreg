@@ -4,6 +4,8 @@ a smooth function and a single penalty.
 """
 from __future__ import print_function, division, absolute_import
 
+from functools import partial
+
 import numpy as np, warnings
 from scipy.optimize import fmin_powell
 
@@ -26,7 +28,7 @@ class quasi_newton(object):
 
     """
 
-    damping_term = 0.01
+    damping_term = 1.
 
     def __init__(self, 
                  smooth_atom, 
@@ -61,7 +63,7 @@ class quasi_newton(object):
         self.proximal_atom = proximal_atom
         self.coefs = self.smooth_atom.coefs = self.proximal_atom.coefs
         self.hessian = initial_hessian.copy()
-        self.diag_hessian = np.mean(np.diag(self.hessian)) * np.identity(self.hessian.shape[0])
+        self.diag_hessian = np.identity(self.hessian.shape[0])
         self.quadratic_loss = quadratic_loss(self.coefs.shape,
                                              Q=self.hessian +
                                                self.damping_term * self.diag_hessian)
@@ -73,7 +75,11 @@ class quasi_newton(object):
                                                 proximal_atom)
         self.stepsize = initial_step
 
-    def update_hessian(self, old_soln, new_soln, old_grad, new_grad):
+    def update_hessian(self,
+                       old_soln,
+                       new_soln,
+                       old_grad,
+                       new_grad):
         """
         Update current Hessian using 
         [BFGS](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm)
@@ -208,14 +214,18 @@ class quasi_newton(object):
         # loss is 
         # x -> (\nabla g(x_cur) - H x_cur)^Tx + 1/2 x^THx + P(x)
 
+        Q = self.quadratic_loss.Q
         grad = self.smooth_objective(self.coefs,
                                      'grad')
-        linear_term = (grad - self.hessian.dot(self.coefs))
+        linear_term = (grad - Q.dot(self.coefs))
         quad = identity_quadratic(0, 0, linear_term, 0)
-        self.quadratic_problem.coefs[:] = self.coefs # warm start the subproblem
-        quad_soln = self.quadratic_problem.solve(quad + self.quadratic, **fit_args)
+        # warm start the subproblem
+        self.quadratic_problem.coefs[:] = self.coefs 
+
+        quad_soln = self.quadratic_problem.solve(quad + self.quadratic,
+                                                 **fit_args)
         direction = quad_soln - self.coefs
-        return direction, grad 
+        return direction, grad, quad_soln 
 
     def solve(self,
               niter=30,
@@ -249,23 +259,28 @@ class quasi_newton(object):
 
         self.solver_results = []
         for i in range(niter):
-            direction, grad = self.solve_inner_loop(**fit_args)
+            direction, grad, quad_soln = self.solve_inner_loop(**fit_args)
             fit_args['start_step'] = 1.5 * self.quadratic_problem.final_step
             stepsize, val = self.backtrack(direction,
                                            maxfun=maxfun,
                                            maxiter=maxiter)
             delta = stepsize * direction
-
             new_grad = self.smooth_objective(self.coefs + delta, 'grad')
+
+            if np.all(np.fabs(delta) < 1.e-10):
+                break
             self.update_hessian(self.coefs, self.coefs + delta, grad, new_grad)
 
             # update state 
 
-            self.coefs += delta
+            self.coefs = self.coefs + delta
             self.stepsize = stepsize
             self.solver_results.append(val)
 
         self.solver_results = np.array(self.solver_results)
+        self.coefs[:] = quad_soln # ensures the last solution
+                                  # will satisfy the constraint
+                                  # if in bound form
         return self.coefs
 
     def backtrack(self, 
@@ -297,19 +312,20 @@ class quasi_newton(object):
 
         BIG = 1e16
 
-        def restriction(stepsize):
-            val = (self.smooth_objective(self.coefs + stepsize * direction, 'func') +
-                   self.nonsmooth_objective(self.coefs + stepsize * direction,
+        def restriction(direction, coefs, stepsize):
+            val = (self.smooth_objective(coefs + stepsize * direction, 'func') +
+                   self.nonsmooth_objective(coefs + stepsize * direction,
                                             check_feasibility=True))
             if np.isnan(val):
                 val = BIG
-            grad = self.smooth_objective(self.coefs + stepsize * direction, 'grad')
+            grad = self.smooth_objective(coefs + stepsize * direction, 'grad')
             if np.any(np.isnan(grad)):
                 val += BIG
             return val
 
-        step =  fmin_powell(restriction, 
-                            self.stepsize, 
+        restriction = partial(restriction, direction, self.coefs)
+        step =  fmin_powell(restriction,
+                            1, 
                             disp=False,
                             maxiter=maxiter,
                             maxfun=maxfun)
