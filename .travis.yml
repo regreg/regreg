@@ -73,7 +73,7 @@ matrix:
       dist: trusty
       env:
         - DOC_BUILD=1
-    - python: 3.7
+    - python: 3.6
       sudo: true
       dist: trusty
       env:
