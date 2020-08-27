@@ -279,7 +279,7 @@ class quasi_newton(object):
           
         '''
 
-        self.solver_results = []
+        self.solver_results = [np.inf]
         for i in range(niter):
             direction, grad, quad_soln = self.solve_inner_loop(**fit_args)
             fit_args['start_step'] = 1.5 * self.quadratic_problem.final_step
@@ -289,8 +289,14 @@ class quasi_newton(object):
             delta = stepsize * direction
             new_grad = self.smooth_objective(self.coefs + delta, 'grad')
 
-            if np.all(np.fabs(delta) < 1.e-10):
+            if self.converged(self.solver_results[-1],
+                              val,
+                              self.coefs,
+                              self.coefs + delta,
+                              grad,
+                              new_grad):
                 break
+
             self.update_hessian(self.coefs, self.coefs + delta, grad, new_grad)
 
             # update state 
@@ -304,6 +310,38 @@ class quasi_newton(object):
                                   # will satisfy the constraint
                                   # if in bound form
         return self.coefs
+
+    def converged(self,
+                  old_value,
+                  new_value,
+                  old_soln,
+                  new_soln,
+                  old_grad,
+                  new_grad):
+        """
+        Parameters
+        ----------
+
+        old_soln : ndarray
+            Current value.
+
+        new_soln : ndarray
+            Next value.
+
+        old_soln : ndarray
+            Current position.
+
+        new_soln : ndarray
+            Next position.
+
+        old_grad : ndarray
+            Current gradient.
+
+        new_grad : ndarray
+            Next gradient.
+        """
+        return (np.fabs(old_soln - new_soln).max()
+                < 1.e-6 * np.linalg.norm(new_soln))
 
     def backtrack(self, 
                   direction,
