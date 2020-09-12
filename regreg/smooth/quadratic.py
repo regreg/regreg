@@ -77,10 +77,10 @@ class quadratic_loss(smooth_atom):
                   quadratic=None,
                   initial=None):
         return quadratic_loss((Q.shape[0],), 
-                         Q=Q,
-                         offset=offset,
-                         quadratic=quadratic,
-                         initial=initial)
+                              Q=Q,
+                              offset=offset,
+                              quadratic=quadratic,
+                              initial=initial)
 
     @staticmethod
     def squared_transform(transform, 

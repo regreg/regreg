@@ -187,8 +187,10 @@ class l1norm(seminorm):
                                                    0,
                                                    np.fabs(arg[_keep]),
                                                    self.weights[_keep])
-        return np.sign(arg) * np.maximum(np.fabs(arg)-_lagrange * self.weights, 0)
-
+        cut = self.weights * (_lagrange + _isinf)
+        value = np.sign(arg) * np.maximum(np.fabs(arg) - cut, 0)
+        return value
+    
     def terms(self, arg):
         """
         Return the args that are summed

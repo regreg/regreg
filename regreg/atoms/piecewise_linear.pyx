@@ -41,7 +41,7 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
     cdef int stop = 0
 
     if (weights * norms).sum() < b:
-        return np.inf
+        return 0
 
     cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms / np.maximum(weights, 1e-20)
     cdef cnp.ndarray[DTYPE_intp_t, ndim=1] order = np.argsort(knots)
@@ -107,7 +107,7 @@ def find_solution_piecewise_linear_c(DTYPE_float_t b,
     cdef int stop = 0
 
     if (norms).sum() < b:
-        return np.inf
+        return 0
 
     cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms
     cdef cnp.ndarray[DTYPE_intp_t, ndim=1] order = np.argsort(knots)

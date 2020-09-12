@@ -143,7 +143,7 @@ from .identity_quadratic import identity_quadratic
 
 have_sklearn = True
 try:
-    from sklearn_mixin import (sklearn_regression,
-                               sklearn_classifier)
+    from .sklearn_mixin import (sklearn_regression,
+                                sklearn_classifier)
 except ImportError:
     have_sklearn = False

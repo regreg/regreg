@@ -98,3 +98,17 @@ def test_weighted_l1_with_zero():
     npt.assert_equal(a.lagrange_prox(z), z-b.bound_prox(z))
     npt.assert_equal(a.lagrange_prox(z)[0], z[0])
     npt.assert_equal(a.lagrange_prox(z)[1:], c.lagrange_prox(z[1:]))
+
+@set_seed_for_test()
+def test_weighted_l1_bound_loose():
+    n, p = 100, 10
+    X = np.random.standard_normal((n, p))
+    Y = np.random.standard_normal(n)
+    beta = np.linalg.pinv(X).dot(Y)
+    bound = 2 * np.fabs(beta).sum()
+    atom = rr.weighted_l1norm(np.ones(p), bound=bound)
+    loss = rr.squared_error(X, Y)
+    problem = rr.simple_problem(loss, atom)
+    soln = problem.solve(tol=1.e-12, min_its=100)
+    npt.assert_allclose(soln, beta)
+    
