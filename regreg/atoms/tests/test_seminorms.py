@@ -43,8 +43,13 @@ y : %s
 @set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):
-    for klass in [S.l1norm, S.supnorm, S.l2norm,
-                  S.positive_part, S.constrained_max]:
+    for klass in [S.l1norm,
+                  S.supnorm,
+                  S.l2norm,
+                  S.positive_part,
+                  S.constrained_max,
+                  S.constrained_positive_part,
+                  S.max_positive_part]:
         factory = SolverFactory(klass, 'lagrange')
         for solver in factory:
             penalty = solver.atom
