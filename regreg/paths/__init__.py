@@ -413,7 +413,6 @@ def warm_start(path_obj,
         grad_solution = total_loss.smooth_objective(solution, 'grad')
         path_obj.final_step = problem.final_step
 
-        verbose = True
         if verbose:
             print({'lagrange':lagrange,
                    'sparsity':(solution != 0).sum(),

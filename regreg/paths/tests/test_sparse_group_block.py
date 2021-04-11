@@ -234,12 +234,5 @@ def test_basil(n=300,p=100):
                                                                     Y, 
                                                                     1,
                                                                     np.sqrt(2))
-#     stop
-#     sol2 = warm_start(sparse_group_block2, 
-#                       lagrange_sequence, 
-#                       (sparse_group_block2.solution.copy(), sparse_group_block2.grad_solution.copy()),
-#                       inner_tol=1.e-14)['beta']
 
     return sparse_group_block2
-#     assert(np.sum(np.array([np.linalg.norm(sol1[i] - sol2[i]) / max(np.linalg.norm(sol2[i]), 1) 
-#                             for i in range(sol1.shape[0])]) >= 1.e-4) <= 2)
