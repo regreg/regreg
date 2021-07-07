@@ -65,7 +65,6 @@ def test_gaussian_blocks():
     print(np.sqrt((beta1**2).sum(2).sum(1)))
     
 @set_seed_for_test()
-@set_seed_for_test()
 def test_multinomial():
     '''
     run a basic path algorithm with multinomial loss

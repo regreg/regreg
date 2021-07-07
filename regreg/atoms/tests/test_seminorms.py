@@ -143,7 +143,8 @@ class SolverFactory(object):
             if offset:
                 atom.offset = 0.02 * np.random.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom,
+                            interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)

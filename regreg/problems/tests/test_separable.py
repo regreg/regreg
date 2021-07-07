@@ -22,7 +22,10 @@ def test_lasso_separable():
 
     penalty1 = rr.l1norm(10, lagrange=1.2)
     penalty2 = rr.l1norm(10, lagrange=1.2)
-    penalty = rr.separable((20,), [penalty1, penalty2], [slice(0,10), slice(10,20)], test_for_overlap=True)
+    penalty = rr.separable((20,),
+                           [penalty1, penalty2],
+                           [slice(0,10), slice(10,20)],
+                           test_for_overlap=True)
 
     # ensure code is tested
 
@@ -68,6 +71,7 @@ def test_lasso_separable():
     np.testing.assert_almost_equal(coefs, coefs_s)
 
 
+    
 @set_seed_for_test()
 def test_group_lasso_separable():
     """
@@ -164,3 +168,43 @@ def test_nonnegative_positive_part(debug=False):
 
     nt.assert_true(np.linalg.norm(coefs - coefs_s) / np.linalg.norm(coefs) < 1.0e-02)
 
+@set_seed_for_test()
+def test_different_dim():
+    """
+    This test checks that the reshape argument of separable
+    works properly.
+    """
+
+    X = np.random.standard_normal((100,20))
+    Y = (np.random.standard_normal((100,)) +
+         np.dot(X, np.random.standard_normal(20)))
+
+    penalty1 = rr.nuclear_norm((5, 2), lagrange=1.2)
+    penalty2 = rr.l1norm(10, lagrange=1.2)
+    penalty = rr.separable((20,),
+                           [penalty1, penalty2],
+                           [slice(0,10), slice(10,20)],
+                           test_for_overlap=True,
+                           shapes=[(5,2), None])
+
+    # ensure code is tested
+
+    print(penalty1.latexify())
+
+    print(penalty.latexify())
+    print(penalty.conjugate)
+    print(penalty.dual)
+    print(penalty.seminorm(np.ones(penalty.shape)))
+    print(penalty.constraint(np.ones(penalty.shape), bound=2.))
+
+    pencopy = copy(penalty)
+    pencopy.set_quadratic(rr.identity_quadratic(1,0,0,0))
+    pencopy.conjugate
+
+    # solve using separable
+    
+    loss = rr.quadratic_loss.affine(X, -Y, coef=0.5)
+    problem = rr.separable_problem.fromatom(penalty, loss)
+    solver = rr.FISTA(problem)
+    solver.fit(min_its=200, tol=1.0e-12)
+    coefs = solver.composite.coefs

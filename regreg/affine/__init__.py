@@ -296,29 +296,43 @@ class selector(linear_transform):
 
     """
 
-    def __init__(self, index_obj, initial_shape, affine_transform=None):
+    def __init__(self,
+                 index_obj,
+                 initial_shape,
+                 affine_transform=None,
+                 reshape=None):
+
         self.index_obj = index_obj
         self.initial_shape = initial_shape
-
+        self.reshape = reshape
         if affine_transform == None:
             test = np.empty(initial_shape)
             affine_transform = identity(test[index_obj].shape)
         self.affine_transform = affine_transform
         self.affine_offset = self.affine_transform.affine_offset
         self.input_shape = initial_shape
-        self.output_shape = self.affine_transform.output_shape
-
+        if self.reshape is None:
+            self.output_shape = self.affine_transform.output_shape
+        else:
+            self.output_shape = self.reshape
+            
     def linear_map(self, x):
         x_indexed = x[self.index_obj]
+        if self.reshape is not None:
+            x_indexed.shape = self.reshape
         return self.affine_transform.linear_map(x_indexed)
 
     def affine_map(self, x):
         x_indexed = x[self.index_obj]
+        if self.reshape is not None:
+            x_indexed.shape = self.reshape
         return self.affine_transform.affine_map(x_indexed)
 
     def adjoint_map(self, u):
         if not hasattr(self, "_output"):
             self._output = np.zeros(self.initial_shape)
+        if self.reshape is not None:
+            u.shape = self.affine_transform.output_shape
         self._output[self.index_obj] = self.affine_transform.adjoint_map(u)
         return self._output
 

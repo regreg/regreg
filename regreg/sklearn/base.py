@@ -97,6 +97,7 @@ class base_mixin(object):
         self.score_method = score_method
         self.solve_args = solve_args
         self.initial = initial
+        self.quadratic = quadratic
 
     def fit(self, X, y):
         """
