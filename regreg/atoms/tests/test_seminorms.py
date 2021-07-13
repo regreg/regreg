@@ -12,7 +12,7 @@ from regreg.tests.decorators import set_seed_for_test
 
 def all_close(x, y, msg, solver):
     """
-    Check to see if x and y are close
+    Check to see if x and y are close. 
     """
     try:
         v = np.linalg.norm(x-y) <= 1.0e-03 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
