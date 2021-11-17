@@ -776,8 +776,6 @@ class multinomial_loglike(smooth_atom):
 
         self.J = self.counts.shape[1]
 
-        if not np.allclose(np.round(self.counts), self.counts):
-            raise ValueError("Counts vector is not integer valued")
         if np.min(self.counts) < 0:
             raise ValueError("Counts vector is not non-negative")
 
