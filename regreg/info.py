@@ -13,7 +13,7 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
                "Programming Language :: Python",
                "Topic :: Scientific/Engineering"]
 
-description  = 'A multi-algorithm Python framework for regularized regression'
+description  = 'A Python framework for regularized regression'
 
 # Minimum package versions
 # Check against requirements.txt and .travis.yml
@@ -26,11 +26,11 @@ MAINTAINER          = "regreg developers"
 MAINTAINER_EMAIL    = ""
 DESCRIPTION         = description
 URL                 = "http://github.org/regreg/regreg"
-DOWNLOAD_URL        = ""#"http://github.com/regreg/regreg/archives/master"
+DOWNLOAD_URL        = ""
 LICENSE             = "BSD license"
 CLASSIFIERS         = CLASSIFIERS
 AUTHOR              = "regreg developers"
-AUTHOR_EMAIL        = ""#"regreg-devel@neuroimaging.scipy.org"
+AUTHOR_EMAIL        = ""
 PLATFORMS           = "OS Independent"
 STATUS              = 'alpha'
 PROVIDES            = ["regreg"]
