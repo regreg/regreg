@@ -12,6 +12,7 @@ from ..identity_quadratic import identity_quadratic
 from ..atoms import _work_out_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
+from .piecewise_linear import find_solution_piecewise_linear
 
 class seminorm(unweighted_seminorm):
 
@@ -143,21 +144,27 @@ class l1norm(seminorm):
     objective_template = r"""\|W%(var)s\|_1"""
 
     @doc_template_user
-    def seminorm(self, x, lagrange=None, check_feasibility=False):
-        lagrange = seminorm.seminorm(self, x, 
-                                 check_feasibility=check_feasibility, 
-                                 lagrange=lagrange)
+    def seminorm(self,
+                 arg,
+                 lagrange=None,
+                 check_feasibility=False):
+        lagrange = seminorm.seminorm(self,
+                                     arg, 
+                                     check_feasibility=check_feasibility, 
+                                     lagrange=lagrange)
         finite = np.isfinite(self.weights)
         if check_feasibility:
-            check_zero = ~finite * (x != 0)
+            check_zero = ~finite * (arg != 0)
             if check_zero.sum():
                 return np.inf
-        return lagrange * np.fabs(x[finite] * self.weights[finite]).sum()
+        arg = np.asarray(arg)
+        return lagrange * np.fabs(arg[finite] * self.weights[finite]).sum()
 
     @doc_template_user
-    def constraint(self, x, bound=None):
-        bound = seminorm.constraint(self, x, bound=bound)
-        inbox = self.seminorm(x, lagrange=1,
+    def constraint(self, arg, bound=None):
+        bound = seminorm.constraint(self, arg, bound=bound)
+        inbox = self.seminorm(arg,
+                              lagrange=1,
                               check_feasibility=True) <= bound * (1 + self.tol)
         if inbox:
             return 0
@@ -165,14 +172,33 @@ class l1norm(seminorm):
             return np.inf
 
     @doc_template_user
-    def lagrange_prox(self, x,  lipschitz=1, lagrange=None):
-        lagrange = seminorm.lagrange_prox(self, x, lipschitz, lagrange)
-        return np.sign(x) * np.maximum(np.fabs(x)-lagrange * self.weights /lipschitz, 0)
+    def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
+        lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        return np.sign(arg) * np.maximum(np.fabs(arg)-lagrange * self.weights
+                                       / lipschitz, 0)
 
     @doc_template_user
-    def bound_prox(self, x, bound=None):
-        raise NotImplementedError
+    def bound_prox(self, arg, bound=None):
+        bound = seminorm.constraint(self, arg, bound=bound)
+        _isinf = np.isinf(self.weights)
+        _is0 = self.weights == 0
+        _keep = ~(_isinf + _is0)
+        _lagrange = find_solution_piecewise_linear(bound,
+                                                   0,
+                                                   np.fabs(arg[_keep]),
+                                                   self.weights[_keep])
+        cut = self.weights * (_lagrange + _isinf)
+        value = np.sign(arg) * np.maximum(np.fabs(arg) - cut, 0)
+        return value
+    
+    def terms(self, arg):
+        """
+        Return the args that are summed
+        in computing the seminorm.
 
+        """
+        arg = np.asarray(arg)
+        return np.fabs(arg) * self.weights
 
 @objective_doc_templater()
 class supnorm(seminorm):
@@ -184,21 +210,25 @@ class supnorm(seminorm):
     objective_template = r"""\|W%(var)s\|_{\infty}"""
 
     @doc_template_user
-    def seminorm(self, x, lagrange=None, check_feasibility=False):
-        lagrange = seminorm.seminorm(self, x, 
-                                 check_feasibility=check_feasibility, 
-                                 lagrange=lagrange)
+    def seminorm(self,
+                 arg,
+                 lagrange=None,
+                 check_feasibility=False):
+        lagrange = seminorm.seminorm(self,
+                                     arg, 
+                                     check_feasibility=check_feasibility, 
+                                     lagrange=lagrange)
         finite = np.isfinite(self.weights)
         if check_feasibility:
-            check_zero = ~finite * (x != 0)
+            check_zero = ~finite * (arg != 0)
             if check_zero.sum():
                 return np.inf
-        return lagrange * np.fabs(x[finite] * self.weights[finite]).max()
+        return lagrange * np.fabs(arg[finite] * self.weights[finite]).max()
 
     @doc_template_user
-    def constraint(self, x, bound=None):
-        bound = seminorm.constraint(self, x, bound=bound)
-        inbox = self.seminorm(x, lagrange=1,
+    def constraint(self, arg, bound=None):
+        bound = seminorm.constraint(self, arg, bound=bound)
+        inbox = self.seminorm(arg, lagrange=1,
                               check_feasibility=True) <= bound * (1+self.tol)
         if inbox:
             return 0
@@ -206,13 +236,36 @@ class supnorm(seminorm):
             return np.inf
 
     @doc_template_user
-    def lagrange_prox(self, x,  lipschitz=1, lagrange=None):
-        raise NotImplementedError
+    def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
+        lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
+        weights = self.invweights
+        _isinf = np.isinf(weights)
+        _is0 = weights == 0
+        _keep = ~(_isinf + _is0)
+        _lagrange = find_solution_piecewise_linear(lagrange / lipschitz,
+                                                   0,
+                                                   np.fabs(arg[_keep]),
+                                                   weights[_keep])
+        resid = np.sign(arg) * np.maximum(np.fabs(arg)-_lagrange * weights, 0)
+
+        return arg - resid
 
     @doc_template_user
-    def bound_prox(self, x, bound=None):
-        bound = seminorm.bound_prox(self, x, bound)
-        return np.clip(x, -bound * self.invweights, bound * self.invweights)
+    def bound_prox(self, arg, bound=None):
+        bound = seminorm.bound_prox(self, arg, bound)
+        return np.clip(arg, -bound * self.invweights, bound * self.invweights)
+
+    def terms(self, arg, check_feasibility=True):
+        """
+        Return the args that are maximized
+        in computing the seminorm.
+
+        """
+        arg = np.asarray(arg)
+        v = np.fabs(arg) / self.weights
+        if check_feasibility:
+            v[self.weights == 0] = np.where(np.fabs(arg[self.weights == 0]) != 0, np.inf, 0)
+        return v
 
 conjugate_weighted_pairs = {}
 for n1, n2 in [(l1norm,supnorm)]:

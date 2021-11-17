@@ -244,13 +244,15 @@ class linf_l2(block_max):
     objective_vars['dualnormklass'] = 'l1_l2'
     objective_vars['initargs'] = '(5,4)'
 
-    def __init__(self, shape,
+    def __init__(self, 
+                 shape,
                  lagrange=None,
                  bound=None,
                  offset=None,
                  quadratic=None,
                  initial=None):
-        block_max.__init__(self, seminorms.l2norm,
+        block_max.__init__(self, 
+                           seminorms.l2norm,
                            shape,
                            lagrange=lagrange,
                            bound=bound,

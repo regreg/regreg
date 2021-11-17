@@ -17,6 +17,7 @@ from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 from ..atoms import _work_out_conjugate
 from .block_norms import l1_l2
+from .sparse_group_lasso import _gauge_function_dual_strong, _inside_set_strong
 
 # for the docstring, we need l1norm
 l1norm = seminorms.l1norm
@@ -119,6 +120,29 @@ class sparse_group_block(l1_l2):
                                lagrange=copy(self.lagrange),
                                offset=copy(self.offset))
 
+    def terms(self, arg):
+        """
+        Return the args that are summed
+        in computing the seminorm.
+
+        >>> import regreg.api as rr
+        >>> groups = [1,1,2,2,2]
+        >>> penalty = rr.group_lasso(groups, lagrange=1.)
+        >>> arg = [2,4,5,3,4]
+        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        [6.3245..., 12.2474...]
+        >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+        18.5720...
+        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        (6.3245..., 12.2474...)
+        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        18.5720...
+        
+        """
+        terms = (np.fabs(arg).sum(1) * self.l1_weight + 
+                 np.sqrt((arg**2).sum(1)) * self.l1_weight)
+        return terms
+
 class sparse_group_block_dual(sparse_group_block):
 
     objective_template = r"""\|%(var)s\|_{w_1,w_2,\text{block}}"""
@@ -205,6 +229,27 @@ class sparse_group_block_dual(sparse_group_block):
         self._conjugate._conjugate = self
         return self._conjugate
     conjugate = property(get_conjugate)
+
+    def terms(self, arg):
+         """
+         Return the args that are maximized
+         in computing the seminorm.
+         
+         >>> import regreg.api as rr
+         >>> groups = [1,1,2,2,2]
+         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
+         >>> arg = [2,4,5,3,4]
+         >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+         [3.1622..., 4.0824...]
+         >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
+         (3.1622..., 4.0824...)
+         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
+         4.0824...
+
+         """
+         return np.array([_gauge_function_dual_strong(arg[i],
+                                                      self.l1_weight,
+                                                      self.l2_weight)[0] for i in range(arg.shape[0])])
 
 # fast Lagrange prox
 
@@ -310,3 +355,4 @@ sparse_group_block_pairs = {}
 for n1, n2 in [(sparse_group_block, sparse_group_block_dual)]:
     sparse_group_block_pairs[n1] = n2
     sparse_group_block_pairs[n2] = n1
+

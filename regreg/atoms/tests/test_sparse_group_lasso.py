@@ -110,7 +110,7 @@ def test_inside_set():
     assert np.fabs(gauge_function_dual(pen2, Z - proxZ) - 1.2) < 1.e-4
     assert not inside_set(pen, Z - proxZ) # its gauge norm is 1.2, larger than 1
 
-class SlopeSolverFactory(SolverFactory):
+class SparseGroupSolverFactory(SolverFactory):
 
     groups = [[0]*12 + [1]*8]
     weights = [{0:0.1,1:0.04}]
@@ -119,10 +119,9 @@ class SlopeSolverFactory(SolverFactory):
     L_choices = [0.3]
     coef_stop_choices = [False]
 
-    def __init__(self, klass, mode, use_sklearn=True):
+    def __init__(self, klass, mode):
         self.klass = klass
         self.mode = mode
-        self.use_sklearn = use_sklearn
 
     def __iter__(self):
         pen_choices = itertools.product(self.weights,
@@ -162,11 +161,11 @@ def test_proximal_maps():
     for klass, mode in zip([sparse_group_lasso, 
                             sparse_group_lasso_dual], 
                            ['lagrange', 'bound']):
-        factory = SlopeSolverFactory(klass, mode)
+        factory = SparseGroupSolverFactory(klass, mode)
         for solver in factory:
             for t in solver.all_tests():
                 yield t
-        factory = SlopeSolverFactory(klass, mode, use_sklearn=False)
+        factory = SparseGroupSolverFactory(klass, mode)
         for solver in factory:
             for t in solver.all_tests():
                 yield t

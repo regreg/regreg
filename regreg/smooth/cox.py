@@ -1,3 +1,5 @@
+from copy import copy
+
 import numpy as np
 from scipy.stats import rankdata
 
@@ -31,7 +33,7 @@ class cox_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        self.data = (event_times, censoring)
+        self.data = np.asarray([event_times, censoring]).T
 
         self._ordering = np.argsort(self.event_times).astype(np.intp)
         self._rankmax = (rankdata(self.event_times, method='max') - 1).astype(np.intp)
@@ -53,7 +55,11 @@ class cox_loglike(smooth_atom):
         self._outer_1st = np.zeros(self.event_times.shape, np.float) # for log(W)
         self._outer_2nd = np.zeros(self.event_times.shape, np.float) # used in Hessian
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -72,6 +78,9 @@ class cox_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -84,7 +93,13 @@ class cox_loglike(smooth_atom):
 
         eta = self.apply_offset(eta)
 
-        censoring = self.data[1]
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
+        censoring = self.censoring
 
         if mode in ['both', 'grad']:
             G = cox_gradient(self._G,
@@ -92,7 +107,7 @@ class cox_loglike(smooth_atom):
                              self._exp_buffer,
                              self._exp_accum,
                              self._outer_1st,
-                             self.case_weights,
+                             cw,
                              censoring,
                              self._ordering,
                              self._rankmin,
@@ -104,7 +119,7 @@ class cox_loglike(smooth_atom):
                               self._exp_buffer,
                               self._exp_accum,
                               self._outer_1st,
-                              self.case_weights,
+                              cw,
                               censoring,
                               self._ordering,
                               self._rankmin,
@@ -122,7 +137,10 @@ class cox_loglike(smooth_atom):
 
     # Begin loss API
 
-    def hessian_mult(self, natural_param, right_vector):
+    def hessian_mult(self, 
+                     natural_param, 
+                     right_vector,
+                     case_weights=None):
         """
         Evaluate Hessian of the loss at a pair of vectors.
 
@@ -138,6 +156,9 @@ class cox_loglike(smooth_atom):
         right_vec : ndarray
             Vector on the left in Hessian evaluation.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -145,9 +166,15 @@ class cox_loglike(smooth_atom):
             Hessian evaluated at this pair of left and right vectors
         """
 
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         eta = natural_param # shorthand
         eta = self.apply_offset(eta)
-        censoring = self.data[1]
+        censoring = self.censoring
 
         H = np.zeros(eta.shape, np.float)
 
@@ -159,7 +186,7 @@ class cox_loglike(smooth_atom):
                            self._expZ_accum,
                            self._outer_1st,
                            self._outer_2nd,
-                           self.case_weights,
+                           cw,
                            censoring,
                            self._ordering,
                            self._rankmin,
@@ -167,17 +194,17 @@ class cox_loglike(smooth_atom):
                            eta.shape[0])
 
     def get_data(self):
-        return self.event_times, self.censoring
+        return np.array([self.event_times, self.censoring]).T
 
     def set_data(self, data):
-        event_times, censoring = data
+        event_times, censoring = np.asarray(data).T
         self.event_times, self.censoring = (np.asarray(event_times),
                                             np.asarray(censoring).astype(np.intp))
 
     data = property(get_data, set_data)
 
     def __copy__(self):
-        event_times, censoring = self.data
+        event_times, censoring = self.event_times, self.censoring
         return cox_loglike(self.shape,
                            copy(event_times),
                            copy(censoring),
@@ -186,6 +213,39 @@ class cox_loglike(smooth_atom):
                            quadratic=copy(self.quadratic),
                            initial=copy(self.coefs),
                            case_weights=copy(self.case_weights))
+
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
 
     def latexify(self, var=None, idx=''):
         # a trick to get latex representation looking right

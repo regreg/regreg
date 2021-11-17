@@ -1,41 +1,7 @@
 import numpy as np
 import regreg.api as rr
 import nose.tools as nt
-from regreg.tests.decorators import set_seed_for_test
-
-@set_seed_for_test()
-def test_lasso_path():
-
-    X = np.random.standard_normal((100,5))
-    Z = np.zeros((100,10))
-    Y = np.random.standard_normal(100)
-    Z[:,5:] = -X
-    Z[:,:5] = X
-
-    lasso1 = rr.lasso.squared_error(X,Y, nstep=12)
-    lasso2 = rr.lasso.squared_error(Z,Y, positive_part=np.arange(10), nstep=12)
-
-    sol1 = lasso1.main()
-    beta1 = sol1['beta'].todense()[1:]
-
-    sol2 = lasso2.main()
-    beta2 = sol2['beta'].todense()[1:]
-    beta2 = beta2[:5] - beta2[5:]
-
-    nt.assert_true(np.linalg.norm(beta1-beta2) < 1.e-3 * np.linalg.norm(beta1))
-    Z2 = np.zeros((100,8))
-    Z2[:,:3] = X[:,:3]
-    Z2[:,3:6] = -X[:,:3]
-    Z2[:,6:] = -X[:,3:]
-    lasso3 = rr.lasso.squared_error(Z2,Y, positive_part=np.arange(6), nstep=12)
-    sol3 = lasso3.main()
-
-    beta3 = sol3['beta'].todense()[1:]
-
-    newbeta3 = np.zeros_like(beta2)
-    newbeta3[:3] = beta3[:3] - beta3[3:6]
-    newbeta3[3:] = -beta3[6:]
-    nt.assert_true(np.linalg.norm(beta1-newbeta3) < 1.e-3 * np.linalg.norm(beta1))
+from ...tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
 @np.testing.dec.skipif(True, msg='NESTA path not implemented correctly')

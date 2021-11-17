@@ -1,0 +1,92 @@
+---
+jupyter:
+  jupytext:
+    cell_metadata_filter: all,-slideshow
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.1.1
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+```{python}
+# %load_ext rpy2.ipython
+import regreg.api as rr
+```
+
+## Link `probit`
+
+```{r magic_args='-o Y,X,C'}
+X = matrix(rnorm(500), 50, 10)
+Y = rbinom(50, 1, 0.5)
+M = glm(Y ~ X - 1, family=binomial('probit'))
+C = coef(M)
+summary(M)
+```
+
+```{python collapsed=TRUE}
+loss = rr.glm.probit(X, Y)
+C2 = loss.solve(tol=1.e-10)
+```
+
+```{python}
+C, C2
+```
+
+```{python}
+2 * loss.smooth_objective(C, 'func'), 2 * loss.smooth_objective(C2, 'func')
+```
+
+```{python}
+loss.smooth_objective(C2, 'grad')
+```
+
+```{python}
+loss.smooth_objective(C, 'grad')
+```
+
+## Link `cloglog`
+
+```{r magic_args='-o Y,X,C'}
+X = matrix(rnorm(500), 50, 10)
+Y = rbinom(50, 1, 0.5)
+M = glm(Y ~ X - 1, family=binomial('cloglog'))
+C = coef(M)
+summary(M)
+```
+
+```{python}
+loss = rr.glm.cloglog(X, Y)
+C2 = loss.solve(tol=1.e-10)
+```
+
+```{python}
+C, C2
+```
+
+```{python}
+2 * loss.smooth_objective(C, 'func'), 2 * loss.smooth_objective(C2, 'func')
+```
+
+```{python}
+loss.smooth_objective(C2, 'grad')
+```
+
+```{python lines_to_next_cell=0}
+loss.smooth_objective(C, 'grad')
+```
+```{python}
+X.dot(C)
+```
+
+```{python}
+import numpy as np
+np.exp(-np.exp(5))
+```
+
+

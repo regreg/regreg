@@ -12,7 +12,7 @@ from regreg.tests.decorators import set_seed_for_test
 
 def all_close(x, y, msg, solver):
     """
-    Check to see if x and y are close
+    Check to see if x and y are close. 
     """
     try:
         v = np.linalg.norm(x-y) <= 1.0e-03 * max([1, np.linalg.norm(x), np.linalg.norm(y)])
@@ -43,8 +43,13 @@ y : %s
 @set_seed_for_test()
 @np.testing.dec.slow
 def test_proximal_maps(interactive=False):
-    for klass in [S.l1norm, S.supnorm, S.l2norm,
-                  S.positive_part, S.constrained_max]:
+    for klass in [S.l1norm,
+                  S.supnorm,
+                  S.l2norm,
+                  S.positive_part,
+                  S.constrained_max,
+                  S.constrained_positive_part,
+                  S.max_positive_part]:
         factory = SolverFactory(klass, 'lagrange')
         for solver in factory:
             penalty = solver.atom
@@ -138,7 +143,8 @@ class SolverFactory(object):
             if offset:
                 atom.offset = 0.02 * np.random.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom,
+                            interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)

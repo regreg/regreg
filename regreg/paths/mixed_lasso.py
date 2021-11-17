@@ -6,17 +6,17 @@ import gc
 import numpy as np
 import numpy.linalg as npl
 
+from .lasso import lasso_path
+
 import scipy.sparse
 
-from .affine import power_L, normalize, selector, identity, adjoint
-from .atoms.seminorms import l1norm, constrained_positive_part
-from .smooth import sum as smooth_sum, affine_smooth
-from .smooth.glm import logistic_loss
-from .smooth.quadratic import squared_error
-from .problems.separable import separable_problem, separable
-from .problems.simple import simple_problem
-from .identity_quadratic import identity_quadratic as iq
-from .atoms.mixed_lasso import mixed_lasso, strong_set as strong_set_ml, check_KKT
+from ..affine import power_L, normalize, selector, identity, adjoint
+from ..atoms.seminorms import l1norm, constrained_positive_part
+from ..smooth import sum as smooth_sum, affine_smooth
+from ..smooth.glm import glm
+from ..problems.simple import simple_problem
+from ..identity_quadratic import identity_quadratic as iq
+from ..atoms.mixed_lasso import mixed_lasso, strong_set as strong_set_ml, check_KKT
 
 # Constants used below
 
@@ -25,9 +25,12 @@ L1_PENALTY = -2
 POSITIVE_PART = -3
 NONNEGATIVE = -4
 
-class lasso(object):
+class mixed_lasso_path(lasso_path):
 
-    def __init__(self, loss_factory, X, penalty_structure=None, 
+    def __init__(self, 
+                 loss_factory, 
+                 X, 
+                 penalty_structure=None, 
                  group_weights={},
                  elastic_net=iq(0,0,0,0),
                  alpha=0., intercept=True,
@@ -381,143 +384,9 @@ class lasso(object):
 
     @classmethod
     def logistic(cls, X, Y, *args, **keyword_args):
-        return cls(logistic_factory(Y), X, *args, **keyword_args)
+        return cls(lambda Xs: glm.logistic(Xs, Y), X, *args, **keyword_args)
 
     @classmethod
-    def squared_error(cls, X, Y, *args, **keyword_args):
-        return cls(squared_error_factory(Y), X, *args, **keyword_args)
+    def gaussian(cls, X, Y, *args, **keyword_args):
+        return cls(lambda Xs: glm.gaussian(Xs, Y), X, *args, **keyword_args)
 
-class loss_factory(object):
-
-    def __init__(self, response):
-        self._response = np.asarray(response)
-
-    def __call__(self, X):
-        raise NotImplementedError
-
-    def get_response(self):
-        return self._response
-
-    def set_response(self, response):
-        self._response = response
-    response = property(get_response, set_response)
-
-class logistic_factory(loss_factory):
-
-    def __call__(self, X):
-        return logistic_loss(X, self.response, coef=0.5)
-
-class squared_error_factory(loss_factory):
-
-    def __call__(self, X):
-        n = self.response.shape[0]
-        return squared_error(X, self.response, coef=1./n)
-
-
-class nesta(lasso):
-
-    # atom_factory takes candidate_set, epsilon
-
-    def __init__(self, loss_factory, X, atom_factory, epsilon=None,
-                 **lasso_keywords):
-        lasso.__init__(self, loss_factory, X, **lasso_keywords)
-        self.atom_factory = atom_factory 
-        if epsilon is None:
-            epsilon = [1] * 200
-        self.epsilon_values = epsilon
-        self.epsilon = self.epsilon_values[0]
-
-    def construct_loss(self, candidate_set, lagrange):
-        Xslice = self.slice_columns(candidate_set)
-        loss = self.loss_factory(Xslice)
-        atom = self.atom_factory(candidate_set)
-        dual_term = self.get_dual_term(lagrange)
-        if dual_term is None:
-            self.nesta_loss = atom.smoothed(iq(self.epsilon, 0, 0, 0))
-            self.nesta_loss.smooth_objective(np.zeros(Xslice.input_shape), mode='grad')
-            self.dual_term = self.nesta_loss.grad
-            self.set_dual_term(lagrange, self.dual_term)
-        else:
-            self.dual_term = dual_term
-            self.nesta_loss = atom.smoothed(iq(self.epsilon, self.dual_term, 0, 0))
-        loss = smooth_sum([loss, self.nesta_loss])
-
-        if self.intercept:
-            Xslice.intercept_column = 0
-
-        return Xslice, loss
-
-    def set_dual_term(self, lagrange, dual_term):
-        if not hasattr(self, "_dual_term_lookup"):
-            self._dual_term_lookup = {}
-        self._dual_term_lookup[lagrange] = dual_term
-
-    def get_dual_term(self, lagrange):
-        if not hasattr(self, "_dual_term_lookup"):
-            self._dual_term_lookup = {}
-        return self._dual_term_lookup.get(lagrange, None)
-
-    @property
-    def problem(self):
-        if not hasattr(self, '_problem'):
-            self.epsilon = self.epsilon_values[0]
-            self._problem = self.restricted_problem(np.ones(self.shape[1], np.bool),
-                                                    self.lagrange_max)[0]
-        return self._problem
-
-    def set_epsilon(self, epsilon):
-        self._epsilon = epsilon
-        self._problem = self.restricted_problem(np.ones(self.shape[1], np.bool),
-                                                self.lagrange_max)[0]
-    def get_epsilon(self):
-        return self._epsilon
-    epsilon = property(get_epsilon, set_epsilon)
-
-    def set_final_step(self, value):
-        if not hasattr(self, "_final_step_lookup"):
-            self._final_step_lookup = {}
-        self._final_step_lookup[self.epsilon] = value
-
-    def get_final_step(self):
-        if not hasattr(self, "_final_step_lookup"):
-            self._final_step_lookup = {}
-        if self.epsilon not in self._final_step_lookup:
-            self._final_step_lookup[self.epsilon] = \
-                max(self._final_step_lookup.value())
-        return self._final_step_lookup[self.epsilon]
-    final_step = property(get_final_step, set_final_step)
-
-    def solve_subproblem(self, candidate_set, lagrange_new, **solve_args):
-    
-        tol = 1.e-4
-        # try to solve the problem with the active set
-        for epsilon in self.epsilon_values:
-            self.epsilon = epsilon
-            subproblem, selector, penalty_structure = self.restricted_problem(candidate_set, lagrange_new)
-            subproblem.coefs[:] = selector.linear_map(self.solution)
-            sub_soln = subproblem.solve(**solve_args)
-            self.final_step = subproblem.final_step
-
-            candidate = selector.adjoint_map(sub_soln)
-            print(npl.norm(self.solution - candidate) /
-                  max(npl.norm(candidate), 1))
-            if (npl.norm(self.solution - candidate) <
-                tol * max(npl.norm(candidate),1)):
-                print('breaking')
-                break
-            self.solution[:] = candidate
-            self.dual_term = self.nesta_loss.grad
-            print(self._dual_term_lookup)
-            self.set_dual_term(self.lagrange, self.dual_term)
-
-        grad = subproblem.smooth_objective(sub_soln, mode='grad') 
-        return self.final_step, grad, sub_soln, penalty_structure
-
-def newsgroup():
-    import scipy.io
-
-    D = scipy.io.loadmat('newsgroup.mat')
-    X = D['X']; Y = D['Y']
-
-    newsgroup_lasso = lasso.logistic(X, Y)
-    newsgroup_lasso.main()

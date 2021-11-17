@@ -63,8 +63,8 @@ The losses can very easily be combined with a penalty.
     Y = as.numeric(Y)
     G = glmnet(X, Y, intercept=FALSE, standardize=FALSE, family='binomial')
     print(coef(G, s=2 / nrow(X), x=X, y=Y, exact=TRUE))
-    ''')
-
+    '''
+    )
 
 Suppose we want to match ``glmnet`` exactly without having to specify
 ``intercept=FALSE`` and ``standardize=FALSE``. The ``normalize``
@@ -86,7 +86,6 @@ transformation can be used here.
     :format: python
 
     coefG = np.array(rpy2.r('as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))'))
-
 
 .. nbplot::
     :format: python
@@ -122,7 +121,6 @@ Dividing ``regreg``'s coefficients by the ``col_stds`` corrects this.
     coefG = as.numeric(coef(G, s=2 / nrow(X), exact=TRUE, x=X, y=Y))
     ''')
     coefG = np.array(rpy2.r('coefG'))
-
 
 .. nbplot::
     :format: python
@@ -434,7 +432,7 @@ probabilities are measured relative to a baseline category :math:`J`
 .. nbplot::
     :format: python
 
-    from regreg.smooth.glm import multinomial_loglike
+    from regreg.smooth.mglm import multinomial_baseline_loglike
 
 The only code needed to add multinomial regression to RegReg is a class
 with one method which computes the objective and its gradient.
@@ -461,7 +459,7 @@ linear\_transform object that multiplies by X,
     :format: python
 
     multX = rr.linear_transform(X, input_shape=(p,J-1))
-    loss = rr.multinomial_loglike.linear(multX, counts=Y)
+    loss = multinomial_baseline_loglike.linear(multX, counts=Y)
     loss.shape
 
 Next, we can solve the problem
@@ -481,7 +479,7 @@ model
     J = 2
     Y = np.random.randint(0,10,n*J).reshape((n,J))
     multX = rr.linear_transform(X, input_shape=(p,J-1))	
-    loss = rr.multinomial_loglike.linear(multX, counts=Y)
+    loss = multinomial_baseline_loglike.linear(multX, counts=Y)
     solver = rr.FISTA(loss)
     solver.fit(tol=1e-6)
     multinomial_coefs = solver.composite.coefs.flatten()

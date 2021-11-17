@@ -208,7 +208,7 @@ def _basic_proximal_map(center, weights, use_sklearn=have_sklearn_iso):
      # reassigns the signs
      
      _arg = np.argsort(np.fabs(center))
-     shifted_center = np.fabs(center)[_arg] - weights[::-1]
+     shifted_center = np.array(np.fabs(center)[_arg] - weights[::-1]).astype(np.float)
      if use_sklearn:
           _prox_val = np.clip(isotonic_regression_sk(shifted_center), 0, np.inf)
      else:

@@ -57,6 +57,7 @@ class group_lasso(seminorm):
         self.weights = copy(weights)
         self._group_array = np.zeros(shape, np.intp)
         self._group_dict = {}
+        self._group_inv_dict = {}
 
         sg = self._sorted_groupids = sorted(np.unique(self.groups))
         self._weight_array = np.ones(len(sg))
@@ -65,8 +66,19 @@ class group_lasso(seminorm):
             group = self.groups == g
             self._group_array[group] = i
             self._group_dict[g] = i
+            self._group_inv_dict[i] = g
             self._weight_array[i] = self.weights.get(g, np.sqrt(group.sum()))
             self.weights[g] = self._weight_array[i]
+
+        # buffers for cython computations
+
+        self._l1_cython = np.array([], np.intp)
+        self._unpenalized_cython = np.array([], np.intp)
+        self._positive_part_cython = np.array([], np.intp)
+        self._nonnegative_cython = np.array([], np.intp)
+        self._norms_cython = np.zeros_like(self._weight_array)
+        self._factors_cython = np.zeros_like(self._weight_array)
+        self._projection_cython = np.zeros(self.shape)
 
     def set_weight(self, group, weight):
         """
@@ -158,7 +170,7 @@ class group_lasso(seminorm):
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
         [6.3245..., 12.2474...]
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         18.5720...
@@ -170,10 +182,10 @@ class group_lasso(seminorm):
         """
         arg = np.asarray(arg)
         norms = []
-        for g in np.unique(self.groups):
+        for g in self._sorted_groupids:
             group = self.groups == g
             norms.append(np.linalg.norm(arg[group]) * self.weights[g])
-        return norms
+        return np.array(norms)
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
@@ -181,40 +193,66 @@ class group_lasso(seminorm):
                                      lagrange=lagrange,
                                      check_feasibility=check_feasibility)
         arg = np.asarray(arg, np.float)
-        return lagrange * seminorm_mixed_lasso(arg, \
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    self._group_array,
-                                    self._weight_array,
-                                    False)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+
+        return lagrange * seminorm_mixed_lasso(arg, 
+                                               self._l1_cython,
+                                               self._unpenalized_cython,
+                                               self._positive_part_cython,
+                                               self._nonnegative_cython,
+                                               self._group_array,
+                                               self._weight_array,
+                                               self._norms_cython,
+                                               False)
 
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+        self._factors_cython[:] = 0
+        self._projection_cython[:] = 0
+
         return mixed_lasso_lagrange_prox(arg, 
                                          float(lagrange),
                                          float(lipschitz),
-                                         np.array([], np.intp),
-                                         np.array([], np.intp),
-                                         np.array([], np.intp),
-                                         np.array([], np.intp),
+                                         self._l1_cython,
+                                         self._unpenalized_cython,
+                                         self._positive_part_cython,
+                                         self._nonnegative_cython,
                                          self._group_array,
-                                         self._weight_array)
+                                         self._weight_array,
+                                         self._norms_cython,
+                                         self._factors_cython,
+                                         self._projection_cython)
 
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+        self._factors_cython[:] = 0
+        self._projection_cython[:] = 0
+
         return mixed_lasso_bound_prox(arg, float(bound),
-                                      np.array([], np.intp),
-                                      np.array([], np.intp),
-                                      np.array([], np.intp),
-                                      np.array([], np.intp),
+                                      self._l1_cython,
+                                      self._unpenalized_cython,
+                                      self._positive_part_cython,
+                                      self._nonnegative_cython,
                                       self._group_array,
-                                      self._weight_array)
+                                      self._weight_array,
+                                      self._norms_cython,
+                                      self._factors_cython,
+                                      self._projection_cython)
 
     @doc_template_user
     def constraint(self, arg, bound=None):
@@ -263,16 +301,20 @@ class group_lasso_dual(group_lasso):
 
     tol = 1.0e-05
 
-    def terms(self, arg):
+    def terms(self, arg, check_feasibility=True):
         """
         Return the args that are maximized
         in computing the seminorm.
+
+        If `check_feasibility` then return `np.inf`
+        for groups whose norms aren't 0 with a weight of 0.
+        Otherwise, return 0 for these entries
 
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> penalty.terms(arg) # doctest: +ELLIPSIS
+        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
         [3.1622..., 4.0824...]
         >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
         (3.1622..., 4.0824...)
@@ -282,48 +324,81 @@ class group_lasso_dual(group_lasso):
         """
         arg = np.asarray(arg)
         norms = []
-        for g in np.unique(self.groups):
+        for g in self._sorted_groupids:
             group = self.groups == g
-            norms.append(np.linalg.norm(arg[group]) / self.weights[g])
-        return norms
+            w = self.weights[g]
+            if w > 0:
+                norms.append(np.linalg.norm(arg[group]) / w)
+            else:
+                if check_feasibility and np.linalg.norm(arg[group]) > 0:
+                    norms.append(np.inf)  
+                else:
+                    norms.append(0)
+        return np.array(norms)
 
     @doc_template_user
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, arg, lagrange=lagrange,
                                      check_feasibility=check_feasibility)
         arg = np.asarray(arg, np.float)
-        return lagrange * seminorm_mixed_lasso_dual(arg, \
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    self._group_array,
-                                    self._weight_array,
-                                    False)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+
+        return lagrange * seminorm_mixed_lasso_dual(arg, 
+                                                    self._l1_cython,
+                                                    self._unpenalized_cython,
+                                                    self._positive_part_cython,
+                                                    self._nonnegative_cython,
+                                                    self._group_array,
+                                                    self._weight_array,
+                                                    self._norms_cython,
+                                                    False)
 
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+        self._factors_cython[:] = 0
+        self._projection_cython[:] = 0
+
         return mixed_lasso_dual_bound_prox(arg, float(bound),
-                                           np.array([], np.intp),
-                                           np.array([], np.intp),
-                                           np.array([], np.intp),
-                                           np.array([], np.intp),
+                                           self._l1_cython,
+                                           self._unpenalized_cython,
+                                           self._positive_part_cython,
+                                           self._nonnegative_cython,
                                            self._group_array,
-                                           self._weight_array)
+                                           self._weight_array,
+                                           self._norms_cython,
+                                           self._factors_cython,
+                                           self._projection_cython)
 
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self._norms_cython[:] = 0
+        self._factors_cython[:] = 0
+        self._projection_cython[:] = 0
+
         r = mixed_lasso_bound_prox(arg, lagrange / lipschitz,
-                                   np.array([], np.intp),
-                                   np.array([], np.intp),
-                                   np.array([], np.intp),
-                                   np.array([], np.intp),
+                                   self._l1_cython,
+                                   self._unpenalized_cython,
+                                   self._positive_part_cython,
+                                   self._nonnegative_cython,
                                    self._group_array,
-                                   self._weight_array)
+                                   self._weight_array,
+                                   self._norms_cython,
+                                   self._factors_cython,
+                                   self._projection_cython)
         return arg - r
 
 
@@ -460,13 +535,23 @@ class group_lasso_epigraph(group_lasso_cone):
     @doc_template_user
     def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self.snorm._norms_cython[:] = 0
+        self.snorm._factors_cython[:] = 0
+        self.snorm._projection_cython[:] = 0
+
         return mixed_lasso_epigraph(arg,
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
-                                    np.array([], np.intp),
+                                    self.snorm._l1_cython,
+                                    self.snorm._unpenalized_cython,
+                                    self.snorm._positive_part_cython,
+                                    self.snorm._nonnegative_cython,
                                     self.snorm._group_array,
-                                    self.snorm._weight_array)
+                                    self.snorm._weight_array,
+                                    self.snorm._norms_cython,
+                                    self.snorm._factors_cython,
+                                    self.snorm._projection_cython)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -499,13 +584,23 @@ class group_lasso_epigraph_polar(group_lasso_cone):
     @doc_template_user
     def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self.snorm._norms_cython[:] = 0
+        self.snorm._factors_cython[:] = 0
+        self.snorm._projection_cython[:] = 0
+
         return arg - mixed_lasso_epigraph(arg,
-                                          np.array([], np.intp),
-                                          np.array([], np.intp),
-                                          np.array([], np.intp),
-                                          np.array([], np.intp),
+                                          self.snorm._l1_cython,
+                                          self.snorm._unpenalized_cython,
+                                          self.snorm._positive_part_cython,
+                                          self.snorm._nonnegative_cython,
                                           self.snorm._group_array,
-                                          self.snorm._weight_array)
+                                          self.snorm._weight_array,
+                                          self.snorm._norms_cython,
+                                          self.snorm._factors_cython,
+                                          self.snorm._projection_cython)
 
     @doc_template_user
     def constraint(self, arg):
@@ -546,13 +641,23 @@ class group_lasso_dual_epigraph(group_lasso_cone):
     @doc_template_user
     def cone_prox(self, arg, lipschitz=1):
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self.snorm._norms_cython[:] = 0
+        self.snorm._factors_cython[:] = 0
+        self.snorm._projection_cython[:] = 0
+
         return arg + mixed_lasso_epigraph(-arg,
-                                           np.array([], np.intp),
-                                           np.array([], np.intp),
-                                           np.array([], np.intp),
-                                           np.array([], np.intp),
+                                           self.snorm._l1_cython,
+                                           self.snorm._unpenalized_cython,
+                                           self.snorm._positive_part_cython,
+                                           self.snorm._nonnegative_cython,
                                            self.snorm._group_array,
-                                           self.snorm._weight_array)
+                                           self.snorm._weight_array,
+                                           self.snorm._norms_cython,
+                                           self.snorm._factors_cython,
+                                           self.snorm._projection_cython)
 
     @doc_template_user
     def constraint(self, arg):
@@ -594,13 +699,23 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
         arg = np.asarray(arg, np.float)
+
+        # flush buffers for computations
+
+        self.snorm._norms_cython[:] = 0
+        self.snorm._factors_cython[:] = 0
+        self.snorm._projection_cython[:] = 0
+
         return -mixed_lasso_epigraph(-arg,
-                                      np.array([], np.intp),
-                                      np.array([], np.intp),
-                                      np.array([], np.intp),
-                                      np.array([], np.intp),
+                                      self.snorm._l1_cython,
+                                      self.snorm._unpenalized_cython,
+                                      self.snorm._positive_part_cython,
+                                      self.snorm._nonnegative_cython,
                                       self.snorm._group_array,
-                                      self.snorm._weight_array)
+                                      self.snorm._weight_array,
+                                      self.snorm._norms_cython,
+                                      self.snorm._factors_cython,
+                                      self.snorm._projection_cython)
 
     @doc_template_user
     def constraint(self, arg):
@@ -630,3 +745,57 @@ conjugate_cone_pairs[group_lasso_epigraph] = group_lasso_epigraph_polar
 conjugate_cone_pairs[group_lasso_epigraph_polar] = group_lasso_epigraph
 conjugate_cone_pairs[group_lasso_dual_epigraph_polar] = group_lasso_dual_epigraph
 conjugate_cone_pairs[group_lasso_dual_epigraph] = group_lasso_dual_epigraph_polar
+
+# for paths
+
+def strong_set(glasso, 
+               lagrange_cur, 
+               lagrange_new, 
+               grad,
+               slope_estimate=1):
+
+    """
+    Guess at active groups at 
+    lagrange_new based on gradient
+    at lagrange_cur.
+    """
+
+    dual = glasso.conjugate
+    terms = dual.terms(grad)
+    candidates = np.nonzero(terms >= ((slope_estimate + 1) * lagrange_new - 
+                                      slope_estimate * lagrange_cur))[0]
+    return [glasso._group_inv_dict[i] for i in candidates]
+
+def check_KKT(glasso, 
+              grad, 
+              solution, 
+              lagrange, 
+              tol=1.e-2):
+
+    """
+    Check whether (grad, solution) satisfy
+    KKT conditions at a given tolerance.
+
+    Assumes glasso is group_lasso in lagrange form
+    so that glasso.lagrange is not None
+    """
+
+    failing = False
+    norm_soln = np.linalg.norm(solutionn)
+    active = glasso.terms(solution) > tol * norm_soln
+    inactive_groups = np.nonzero(~active)[0]
+    active_groups = np.nozero(active)[0]
+    for g in active_groups:
+        group = glasso.groups == g
+        subgrad_g = -grad[group]
+        soln_g = solution[group]
+        if np.linalg.norm(subgrad_g) < glasso.lagrange * glasso._weight_array[g] * (1 - tol):
+            failing = True
+        if np.linalg.norm(subgrad_g / np.linalg.norm(subgrad_g) - soln_g / np.linalg.norm(soln_g)) > tol:
+            failing = True
+    for g in inactive_groups:
+        group = glasso.groups == g
+        subgrad_g = -grad[group]
+        if np.linalg.norm(subgrad_g) > glasso.lagrange * glasso._weight_array[g] * (1 + tol):
+            failing = True
+    return failing

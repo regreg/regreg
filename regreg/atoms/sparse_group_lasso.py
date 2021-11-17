@@ -133,16 +133,17 @@ class sparse_group_lasso(group_lasso, seminorm):
 
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
-        >>> penalty = rr.group_lasso(groups, lagrange=1.)
+        >>> l1weights = [1,1,1,1,1]
+        >>> penalty = rr.sparse_group_lasso(groups, l1weights, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> penalty.terms(arg) # doctest: +ELLIPSIS
-        [6.3245..., 12.2474...]
+        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        [12.3245..., 24.2474...]
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
-        18.5720...
-        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-        (6.3245..., 12.2474...)
-        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-        18.5720...
+        36.5720...
+        >>> np.sqrt((2**2 + 4**2)*2) + 6, np.sqrt((5**2 + 3**2 + 4**2) * 3.) + 12 # doctest: +ELLIPSIS
+        (12.3245..., 24.2474...)
+        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) + np.sum(np.fabs(arg)) # doctest: +ELLIPSIS
+        36.5720...
         
         """
         arg = np.asarray(arg)
@@ -151,7 +152,7 @@ class sparse_group_lasso(group_lasso, seminorm):
             group = self.groups == g
             arg_g = arg[group]
             term = np.linalg.norm(arg_g) * self.weights[g]
-            term += np.fabs(arg_g).sum() * self.lasso_weights[group]
+            term += np.fabs(arg_g * self.lasso_weights[group]).sum()
             norms.append(term)
         return np.array(norms)
 
@@ -276,22 +277,17 @@ class sparse_group_lasso_dual(sparse_group_lasso):
 
      def terms(self, arg):
          """
-         Return the args that are summed
+         Return the args that are maximized
          in computing the seminorm.
          
          >>> import regreg.api as rr
          >>> groups = [1,1,2,2,2]
-         >>> penalty = rr.group_lasso(groups, lagrange=1.)
+         >>> l1weights = [1,1,1,1,1]
+         >>> penalty = rr.sparse_group_lasso_dual(groups, l1weights, lagrange=1.)
          >>> arg = [2,4,5,3,4]
-         >>> penalty.terms(arg) # doctest: +ELLIPSIS
-         [6.3245..., 12.2474...]
-         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
-         18.5720...
-         >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-         (6.3245..., 12.2474...)
-         >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-         18.5720...
-        
+         >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+         [1.666..., 2.0833...]
+
          """
          arg = np.asarray(arg)
          norms = []
@@ -300,7 +296,7 @@ class sparse_group_lasso_dual(sparse_group_lasso):
              arg_g = arg[group]
              term = _gauge_function_dual_strong(arg_g,
                                                 self.lasso_weights[group],
-                                                self.weights[g])
+                                                self.weights[g])[0]
              norms.append(term)
          return np.array(norms)
 
@@ -331,7 +327,7 @@ def inside_set(atom, point):
 
 def gauge_function_dual(atom,
                         point,
-                        tol=1.e-6,
+                        tol=1.e-10,
                         max_iter=50): 
 
      """
@@ -404,19 +400,15 @@ for n1, n2 in [(sparse_group_lasso, sparse_group_lasso_dual)]:
 
 # for terms of strong rules
 
-def _inside_set_strong(point, bound, lasso_weights, group_weight):
+def _inside_set_strong(point, bound, lasso_weights, group_weight, tol=1.e-5):
 
-    soft_thresh = np.sign(point) * np.maximum(np.fabs(point) - bound * lasso_weights, 0)
+    # soft_thresh = np.sign(point) * np.maximum(np.fabs(point) - bound * lasso_weights, 0)
+    # sign doesn't matter for testing inside the dual ball
+    soft_thresh = np.maximum(np.fabs(point) - bound * lasso_weights, 0)
     norm_soft = np.linalg.norm(soft_thresh)
-    if norm_soft > 0:
-        prox_point = (soft_thresh / norm_soft) * max(norm_soft - bound * group_weight, 0)
-    else:
-        prox_point = 0
-    proj_point = point - prox_point
-
-    if np.linalg.norm(proj_point - point) > max(np.linalg.norm(point), 1) * 1.e-7:
-        return False
-    return True
+    if norm_soft <= bound * (group_weight + tol):
+        return True
+    return False
 
 def _gauge_function_dual_strong(point,
                                 lasso_weights, 
@@ -457,7 +449,7 @@ def _gauge_function_dual_strong(point,
 
                iter += 1
                if iter == max_iter:
-                    return 0
+                    return 0, None, None
      else:
           # gauge is lower bounded by 1
           # find an upper bound
@@ -474,7 +466,7 @@ def _gauge_function_dual_strong(point,
 
                iter += 1
                if iter == max_iter:
-                    return np.inf
+                    return np.inf, None, None
 
      # binary search
 
@@ -496,5 +488,9 @@ def _gauge_function_dual_strong(point,
              upper = mid
          else:
              lower = mid
-     return mid
+
+     soft_thresh = np.maximum(np.fabs(point) - mid * lasso_weights, 0) * np.sign(point)
+     l1_subgrad = point - soft_thresh # a point in the appropriate cube
+     l2_subgrad = soft_thresh / np.linalg.norm(soft_thresh) * group_weight * mid
+     return mid, l1_subgrad, l2_subgrad
 

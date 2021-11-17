@@ -56,13 +56,23 @@ def has_overlap(shape, groups):
 
 class separable(atom):
 
-    def __init__(self, shape, atoms, groups, test_for_overlap=False,
+    def __init__(self,
+                 shape,
+                 atoms,
+                 groups,
+                 test_for_overlap=False,
+                 shapes=[],
                  initial=None):
         if test_for_overlap and has_overlap(shape, groups):
             raise ValueError('groups are not separable')
         self.shape = shape
         self.groups = groups
         self.atoms = atoms
+        if shapes == []:
+            shapes = [None] * len(atoms)
+        self.shapes = shapes
+        test = np.empty(self.shape)
+        self.assign_shapes = [test[group].shape for group in groups]
         self.zero_atom = zero(shape)
 
         if initial is None:
@@ -87,28 +97,53 @@ class separable(atom):
 
     def seminorm(self, x, lagrange=None, check_feasibility=False):
         value = 0.
-        for atom, group in zip(self.atoms, self.groups):
-            value += atom.seminorm(x[group], lagrange=lagrange, check_feasibility=check_feasibility)
+        for atom, group, shape in zip(self.atoms,
+                                      self.groups,
+                                      self.shapes):
+            x_group = x[group]
+            if shape is not None:
+                x_group.shape = shape
+            value += atom.seminorm(x_group,
+                                   lagrange=lagrange,
+                                   check_feasibility=check_feasibility)
         return value
 
     def constraint(self, x, bound=None):
         value = 0.
-        for atom, group in zip(self.atoms, self.groups):
-            value += atom.constraint(x[group], bound=bound)
+        for atom, group, shape in zip(self.atoms,
+                                      self.groups,
+                                      self.shapes):
+            x_group = x[group]
+            if shape is not None:
+                x_group.shape = shape
+            value += atom.constraint(x_group, bound=bound)
         return value
 
     def nonsmooth_objective(self, x, check_feasibility=False):
         value = 0
-        for atom, group in zip(self.atoms, self.groups):
-            value += atom.nonsmooth_objective(x[group], check_feasibility=check_feasibility)
+        for atom, group, shape in zip(self.atoms,
+                                      self.groups,
+                                      self.shapes):
+            x_group = x[group]
+            if shape is not None:
+                x_group.shape = shape
+            value += atom.nonsmooth_objective(x_group,
+                                              check_feasibility=check_feasibility)
         return value
 
     def proximal(self, proxq, prox_control=None):
-        # This allows separable to not have every coefficient penalized in a natural way
+        # This allows separable to not have every
+        # coefficient penalized in a natural way
         # because this instantiates it at the prox map of the zero penalty
         v = self.zero_atom.proximal(proxq)
-        for atom, group in zip(self.atoms, self.groups):
-            v[group] = atom.proximal(proxq[group], prox_control)
+        for atom, group, shape, assign_shape in zip(self.atoms,
+                                                    self.groups,
+                                                    self.shapes,
+                                                    self.assign_shapes):
+            proxq_group = proxq[group]
+            if shape is not None:
+                proxq_group.linear_term.shape = shape
+            v[group] = atom.proximal(proxq_group, prox_control).reshape(assign_shape)
         return v
 
     @property
@@ -117,7 +152,8 @@ class separable(atom):
             conjugate_atom = separable(self.shape,
                                        [atom.conjugate 
                                         for atom in self.atoms],
-                                       self.groups)
+                                       self.groups,
+                                       shapes=self.shapes)
         else:
             conjugate_atom = smooth_conjugate(self)
         self._conjugate = conjugate_atom
@@ -125,29 +161,48 @@ class separable(atom):
         return self._conjugate
 
     def __repr__(self):
-        return "separable(%s, %s, %s)" % (repr(self.shape),
-                                          repr(self.atoms),
-                                          repr(self.groups))
+        return "separable(%s, %s, %s, %s)" % (repr(self.shape),
+                                              repr(self.atoms),
+                                              repr(self.groups),
+                                              repr(self.shapes))
 
     @property
     def selectors(self):
-        return [selector(group, self.shape) for group in self.groups]
+        return [selector(group, self.shape, reshape)
+                for group, shape in zip(self.groups, self.shapes)]
 
 class separable_problem(simple_problem):
     
-    def __init__(self, smooth_atom, shape, atoms, groups, test_for_overlap=False):
-        nonsmooth_atom = separable(shape, atoms, groups, test_for_overlap)
+    def __init__(self,
+                 smooth_atom,
+                 shape,
+                 atoms,
+                 groups,
+                 test_for_overlap=False,
+                 shapes=[]):
+
+        nonsmooth_atom = separable(shape,
+                                   atoms,
+                                   groups,
+                                   test_for_overlap,
+                                   shapes=shapes)
         simple_problem.__init__(self, smooth_atom, nonsmooth_atom)
         
     @staticmethod
     def singleton(atom, smooth_f):
-        return separable_problem(smooth_f, atom.shape, [atom], [slice(None)], False)
+        return separable_problem(smooth_f,
+                                 atom.shape,
+                                 [atom],
+                                 [slice(None)],
+                                 False)
 
     @staticmethod
     def fromatom(separable_atom, smooth_f):
         return separable_problem(smooth_f, separable_atom.shape, 
                                  separable_atom.atoms,
-                                 separable_atom.groups, False)
+                                 separable_atom.groups,
+                                 False,
+                                 shapes=separable_atom.shapes)
     @property
     def selectors(self):
-        return [selector(group, self.proximal_atom.shape) for group in self.proximal_atom.groups]
+        return self.proximal_atom.selectors

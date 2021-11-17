@@ -3,16 +3,20 @@ from copy import copy
 
 import numpy as np
 from scipy import sparse
+from scipy.stats import norm as normal_dbn
 
 from . import smooth_atom, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
-                      affine_transform)
+                      affine_transform,
+                      scaler)
 from ..identity_quadratic import identity_quadratic
 from ..atoms.seminorms import l1norm
 from .cox import cox_loglike
-
-
+from .binary import (logistic_loglike,
+                     probit_loglike,
+                     cloglog_loglike,
+                     huber_svm)
 
 class glm(smooth_atom):
 
@@ -34,7 +38,8 @@ class glm(smooth_atom):
                  loss, 
                  quadratic=None, 
                  initial=None,
-                 offset=None):
+                 offset=None,
+                 case_weights=None):
 
         """
 
@@ -58,11 +63,29 @@ class glm(smooth_atom):
         initial : ndarray
             An initial guess at the minimizer.
 
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
         """
 
         self.saturated_loss = loss
         self.data = X, Y
         self.affine_atom = affine_smooth(loss, X)
+        if case_weights is None:
+            case_weights = np.ones(X.shape[0])
+        self.case_weights = case_weights
+        
+        if self.case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != loss.shape[:1]:
+                raise ValueError('case_weights should have same shape as loss.shape[:1]')
+
         smooth_atom.__init__(self,
                              X.shape[1],
                              coef=1.,
@@ -70,7 +93,10 @@ class glm(smooth_atom):
                              quadratic=quadratic,
                              initial=initial)
 
-    def smooth_objective(self, beta, mode='func', check_feasibility=False):
+    def smooth_objective(self, 
+                         beta, 
+                         mode='func', 
+                         check_feasibility=False):
         """
 
         Parameters
@@ -95,12 +121,18 @@ class glm(smooth_atom):
         else returns both.
         """
         beta = self.apply_offset(beta)
-        value = self.affine_atom.smooth_objective(beta, mode=mode, check_feasibility=check_feasibility)
+        linear_pred = self.affine_atom.affine_transform.dot(beta)
+        value = self.saturated_loss.smooth_objective(linear_pred, 
+                                                     mode=mode, 
+                                                     check_feasibility=check_feasibility,
+                                                     case_weights=self.case_weights)
 
-        if mode in ['func', 'grad']:
+        if mode == 'func':
             return self.scale(value)
+        elif mode == 'grad':
+            return self.scale(self.affine_atom.affine_transform.adjoint_map(value))
         else:
-            return self.scale(value[0]), self.scale(value[1])
+            return self.scale(value[0]), self.scale(self.affine_atom.affine_transform.adjoint_map(value[1]))
 
     def get_data(self):
         return self._X, self.saturated_loss.data
@@ -203,9 +235,12 @@ class glm(smooth_atom):
                 raise ValueError('loss has no hessian or hessian_mult method')
             right_mult = np.zeros(X.shape)
             for j in range(X.shape[1]):
-                right_mult[:,j] = self.saturated_loss.hessian_mult(linpred, X[:,j])
+                right_mult[:,j] = self.saturated_loss.hessian_mult(linpred, 
+                                                                   X[:,j], 
+                                                                   case_weights=self.case_weights)
         else:
-            W = self.saturated_loss.hessian(linpred)
+            W = self.saturated_loss.hessian(linpred, 
+                                            case_weights=self.case_weights)
             right_mult = W[:,None] * X
         if not sparse.issparse(X): # assuming it is an ndarray
             return X.T.dot(right_mult)
@@ -223,7 +258,8 @@ class glm(smooth_atom):
                      copy(self.saturated_loss), 
                      quadratic=copy(self.quadratic),
                      initial=copy(self.coefs),
-                     offset=copy(self.offset))
+                     offset=copy(self.offset),
+                     case_weights=self.case_weights.copy())
 
     def subsample(self, idx):
         """
@@ -244,6 +280,7 @@ class glm(smooth_atom):
         subsample_loss : `glm`
             Loss after discarding all
             cases not in `idx.
+
         """
 
         subsample_loss = copy(self)
@@ -252,17 +289,17 @@ class glm(smooth_atom):
         idx_bool = np.zeros(n, np.bool)
         idx_bool[idx] = 1
 
-        if not hasattr(subsample_loss.saturated_loss, 'case_weights') or subsample_loss.saturated_loss.case_weights is None:
-            subsample_loss.saturated_loss.case_weights = np.ones(n)
-        subsample_loss.saturated_loss.case_weights *= idx_bool
+        subsample_loss.case_weights *= idx_bool
 
         return subsample_loss
         
-        
     @classmethod
     def gaussian(klass,
-                 X, response,
+                 X, 
+                 response,
+                 case_weights=None,
                  coef=1., 
+                 saturated_offset=None,
                  offset=None,
                  quadratic=None, 
                  initial=None):
@@ -275,11 +312,21 @@ class glm(smooth_atom):
         X : [ndarray, `regreg.affine.affine_transform`]
             Design matrix
 
-        Y : ndarray
+        response : ndarray
             Response vector.
 
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
         offset : ndarray (optional)
-            Offset to be applied in parameter space before 
+            Offset to be applied in saturated space before 
             evaluating loss.
 
         quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
@@ -295,21 +342,29 @@ class glm(smooth_atom):
             General linear model loss.
 
         """
+
         loss = gaussian_loglike(response.shape,
                                 response,
-                                coef=coef)
+                                coef=coef,
+                                offset=saturated_offset)
+
         return klass(X, 
                      response, 
                      loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
-    def logistic(klass, X, successes, 
+    def logistic(klass, 
+                 X, 
+                 successes, 
                  trials=None,
+                 case_weights=None,
                  coef=1., 
                  offset=None,
+                 saturated_offset=None,
                  quadratic=None, 
                  initial=None):
         """
@@ -327,6 +382,16 @@ class glm(smooth_atom):
         trials : ndarray (optional)
             Number of trials for each success. If `None`,
             defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -349,23 +414,30 @@ class glm(smooth_atom):
         loss = logistic_loglike(successes.shape,
                                 successes,
                                 coef=coef,
+                                offset=saturated_offset,
                                 trials=trials)
+
         return klass(X, 
                      (successes, loss.trials),
                      loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
-    def poisson(klass,
-                X, counts,
-                coef=1., 
-                offset=None,
-                quadratic=None, 
-                initial=None):
+    def probit(klass, 
+               X, 
+               successes, 
+               trials=None,
+               case_weights=None,
+               coef=1., 
+               offset=None,
+               saturated_offset=None,
+               quadratic=None, 
+               initial=None):
         """
-        Create a loss for a Poisson regression model.
+        Create a loss for a probit regression model.
 
         Parameters
         ----------
@@ -373,8 +445,22 @@ class glm(smooth_atom):
         X : [ndarray, `regreg.affine.affine_transform`]
             Design matrix
 
-        counts : ndarray
-            Response vector. Should be non-negative integers.
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -393,20 +479,159 @@ class glm(smooth_atom):
             General linear model loss.
 
         """
+
+        loss = probit_loglike(successes.shape,
+                              successes,
+                              coef=coef,
+                              offset=saturated_offset,
+                              trials=trials)
+
+        return klass(X, 
+                     (successes, loss.trials),
+                     loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def cloglog(klass, 
+                X, 
+                successes, 
+                trials=None,
+                case_weights=None,
+                coef=1., 
+                offset=None,
+                saturated_offset=None,
+                quadratic=None, 
+                initial=None):
+        """
+        Create a loss for a cloglog regression model.
+
+        Parameters
+        ----------
+
+        X : [ndarray, `regreg.affine.affine_transform`]
+            Design matrix
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        glm_obj : `regreg.glm.glm`
+            General linear model loss.
+
+        """
+
+        loss = cloglog_loglike(successes.shape,
+                               successes,
+                               coef=coef,
+                               offset=saturated_offset,
+                               trials=trials)
+
+        return klass(X, 
+                     (successes, loss.trials),
+                     loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def poisson(klass,
+                X, 
+                counts,
+                case_weights=None,
+                coef=1., 
+                saturated_offset=None,
+                offset=None,
+                quadratic=None, 
+                initial=None):
+        """
+        Create a loss for a Poisson regression model.
+
+        Parameters
+        ----------
+
+        X : [ndarray, `regreg.affine.affine_transform`]
+            Design matrix
+
+        counts : ndarray
+            Response vector. Should be non-negative integers.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        glm_obj : `regreg.glm.glm`
+            General linear model loss.
+
+        """
+
         loss = poisson_loglike(counts.shape,
-                                    counts,
-                                    coef=coef)
+                               counts,
+                               offset=saturated_offset,
+                               coef=coef)
+
         return klass(X, counts, loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def huber(klass,
               X, 
               response,
               smoothing_parameter,
+              case_weights=None,
               coef=1., 
+              saturated_offset=None,
               offset=None,
               quadratic=None, 
               initial=None):
@@ -425,6 +650,16 @@ class glm(smooth_atom):
 
         smoothing_parameter : float
             Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -447,18 +682,94 @@ class glm(smooth_atom):
         loss = huber_loss(response.shape,
                           response,
                           smoothing_parameter,
+                          offset=saturated_offset,
                           coef=coef)
-        return klass(X, response, loss,
+
+        return klass(X, 
+                     response, 
+                     loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def huber_svm(klass,
+                  X, 
+                  successes,
+                  smoothing_parameter,
+                  case_weights=None,
+                  coef=1., 
+                  offset=None,
+                  saturated_offset=None,
+                  quadratic=None, 
+                  initial=None):
+        """
+        Create a loss for a binary regression model using
+        Huber SVM loss.
+
+        Parameters
+        ----------
+
+        X : [ndarray, `regreg.affine.affine_transform`]
+            Design matrix
+
+        successes : ndarray
+            Response vector. 
+
+        smoothing_parameter : float
+            Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        glm_obj : `regreg.glm.glm`
+            General linear model loss.
+
+        """
+
+        loss = huber_svm(successes.shape,
+                         successes,
+                         smoothing_parameter,
+                         offset=saturated_offset,
+                         coef=coef)
+
+        return klass(X, 
+                     successes,
+                     loss,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
 
     @classmethod
     def cox(klass, 
             X, 
             event_times,
             censoring,
+            case_weights=None,
             coef=1., 
+            saturated_offset=None,
             offset=None,
             quadratic=None, 
             initial=None):
@@ -471,12 +782,22 @@ class glm(smooth_atom):
         X : [ndarray, `regreg.affine.affine_transform`]
             Design matrix
 
-        successes : ndarray
-            Responses (should be non-negative integers).
+        event_times : ndarray
+            Observed times for Cox proportional hazard model.
 
-        trials : ndarray (optional)
-            Number of trials for each success. If `None`,
-            defaults to `np.ones_like(successes)`.
+        censoring : ndarray 
+            Censoring indicator for Cox proportional hazard model
+            - 1 indicates observation is a failure, 0 a censored observation.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        coef : float
+            Scaling to be put in front of loss.
+
+        saturated_offset : ndarray (optional)
+            Offset to be applied in saturated parameter space before 
+            evaluating loss.
 
         offset : ndarray (optional)
             Offset to be applied in parameter space before 
@@ -499,14 +820,16 @@ class glm(smooth_atom):
         loss = cox_loglike(event_times.shape,
                            event_times,
                            censoring,
+                           offset=saturated_offset,
                            coef=coef)
 
         return klass(X, 
-                     (event_times, censoring),
+                     np.array([event_times, censoring]).T,
                      loss,
                      offset=offset,
                      quadratic=quadratic,
-                     initial=initial)
+                     initial=initial,
+                     case_weights=case_weights)
 
 
 class gaussian_loglike(smooth_atom):
@@ -552,7 +875,11 @@ class gaussian_loglike(smooth_atom):
         else:
             self.case_weights = None
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -571,6 +898,9 @@ class gaussian_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -579,32 +909,30 @@ class gaussian_loglike(smooth_atom):
         else returns both.
         """
         
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         natural_param = self.apply_offset(natural_param)
         resid = natural_param - self.response 
-        if self.case_weights is None:
-            if mode == 'both':
-                f, g = self.scale(np.sum(resid**2)) / 2., self.scale(resid)
-                return f, g
-            elif mode == 'grad':
-                return self.scale(resid) 
-            elif mode == 'func':
-                return self.scale(np.sum(resid**2)) / 2.
-            else:
-                raise ValueError("mode incorrectly specified")
+
+        if mode == 'both':
+            f, g = self.scale(np.sum(cw*resid**2)) / 2., self.scale(cw*resid)
+            return f, g
+        elif mode == 'grad':
+            return self.scale(cw*resid) 
+        elif mode == 'func':
+            return self.scale(np.sum(cw*resid**2)) / 2.
         else:
-            if mode == 'both':
-                f, g = self.scale(np.sum(self.case_weights*resid**2)) / 2., self.scale(self.case_weights*resid)
-                return f, g
-            elif mode == 'grad':
-                return self.scale(self.case_weights*resid) 
-            elif mode == 'func':
-                return self.scale(np.sum(self.case_weights*resid**2)) / 2.
-            else:
-                raise ValueError("mode incorrectly specified")
+            raise ValueError("mode incorrectly specified")
             
     # Begin loss API
 
-    def hessian(self, natural_param):
+    def hessian(self, 
+                natural_param, 
+                case_weights=None):
         """
         Hessian of the loss.
 
@@ -620,11 +948,17 @@ class gaussian_loglike(smooth_atom):
         hess : ndarray
             A 1D-array representing the diagonal of the Hessian
             evaluated at `natural_param`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
         """
-        if self.case_weights is None:
-            return self.scale(np.ones_like(natural_param))
-        else:
-            return self.scale(self.case_weights)
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+        return self.scale(np.ones_like(natural_param) * cw)
 
     def get_data(self):
         return self.response
@@ -643,227 +977,43 @@ class gaussian_loglike(smooth_atom):
                                 initial=copy(self.coefs),
                                 case_weights=copy(self.case_weights))
 
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
     # End loss API
 
     def mean_function(self, eta):
         return eta
-
-class logistic_loglike(smooth_atom):
-
-    """
-    A class for combining the logistic log-likelihood with a general seminorm
-    """
-
-    objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
-    #TODO: Make init more standard, replace np.dot with shape friendly alternatives in case successes.shape is (n,1)
-
-    def __init__(self, 
-                 shape, 
-                 successes, 
-                 trials=None, 
-                 coef=1., 
-                 offset=None,
-                 quadratic=None,
-                 initial=None,
-                 case_weights=None):
-
-        smooth_atom.__init__(self,
-                             shape,
-                             offset=offset,
-                             quadratic=quadratic,
-                             initial=initial,
-                             coef=coef)
-
-        self.data = (successes, trials)
-
-        saturated = self.successes / self.trials
-
-        _mask = (saturated != 0) * (saturated != 1)
-        loss_terms = (np.log(saturated[_mask]) * self.successes[_mask] +
-                      np.log(1 - saturated[_mask]) *
-                      ((self.trials - self.successes)[_mask]))
-        loss_constant = -coef * loss_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-loss_constant)
-        self.quadratic += devq
-
-        if case_weights is not None:
-            if not np.all(case_weights >= 0):
-                raise ValueError('case_weights should be non-negative')
-            self.case_weights = np.asarray(case_weights)
-            if self.case_weights.shape != self.successes.shape:
-                raise ValueError('case_weights should have same shape as successes')
-        else:
-            self.case_weights = None
-
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
-
-        Parameters
-        ----------
-
-        natural_param : ndarray
-            The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `natural_param` is not
-            in the domain.
-
-        Returns
-        -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `natural_param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
-        """
-        
-        x = natural_param # shorthand
-
-        #Check for overflow in np.exp (can occur during initial backtracking steps)
-        x = self.apply_offset(x)
-        if np.max(x) > 1e2:
-            overflow = True
-            not_overflow_ind = np.where(x <= 1e2)[0]
-            exp_x = np.exp(x[not_overflow_ind])
-        else:
-            overflow = False
-            exp_x = np.exp(x)
-            
-        if mode == 'both':
-            ratio = self.trials * 1.
-            if overflow:
-                log_exp_x = x * 1.
-                log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
-                ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
-            else:
-                log_exp_x = np.log(1.+exp_x)
-                ratio *= exp_x/(1.+exp_x)
-                
-            if self.case_weights is None:
-                f, g = -self.scale((np.dot(self.successes, x) - 
-                                    np.sum(self.trials * log_exp_x))), - self.scale(self.successes - ratio)
-            else:
-                f, g = -self.scale((np.dot(self.case_weights * self.successes, x) - 
-                                    np.sum(self.case_weights * self.trials * log_exp_x))), - self.scale(self.case_weights * (self.successes - ratio))
-                
-            return f, g
-        elif mode == 'grad':
-            ratio = self.trials * 1.
-            if overflow:
-                ratio[not_overflow_ind] *= exp_x/(1.+exp_x)
-            else:
-                ratio *= exp_x/(1.+exp_x)
-            if self.case_weights is None:
-                f, g = None, - self.scale(self.successes - ratio)
-            else:
-                f, g = None, - self.scale(self.case_weights * (self.successes - ratio))
-            return g
-
-        elif mode == 'func':
-            if overflow:
-                log_exp_x = x * 1.
-                log_exp_x[not_overflow_ind] = np.log(1.+exp_x)
-            else:
-                log_exp_x = np.log(1.+exp_x)
-            if self.case_weights is None:
-                f, g = - self.scale(np.dot(self.successes, x) - np.sum(self.trials * log_exp_x)), None
-            else:
-                f, g = - self.scale(np.dot(self.case_weights * self.successes, x) - np.sum(self.case_weights * self.trials * log_exp_x)), None
-            return f
-        else:
-            raise ValueError("mode incorrectly specified")
-
-    # Begin loss API
-
-    def hessian(self, natural_param):
-        """
-        Hessian of the loss.
-
-        Parameters
-        ----------
-
-        natural_param : ndarray
-            Parameters where Hessian will be evaluated.
-
-        Returns
-        -------
-
-        hess : ndarray
-            A 1D-array representing the diagonal of the Hessian
-            evaluated at `natural_param`.
-        """
-
-        x = natural_param # shorthand
-
-        if np.max(x) > 1e2:
-            overflow = True
-            not_overflow_ind = np.where(x <= 1e2)[0]
-            exp_x = np.zeros_like(x)
-            exp_x[not_overflow_ind] = np.exp(x[not_overflow_ind])
-            exp_x[~not_overflow_ind] = np.exp(100)
-        else:
-            overflow = False
-            exp_x = np.exp(x)
-
-        if self.case_weights is None:
-            return self.scale(exp_x / (1 + exp_x)**2 * self.trials)
-        else:
-            return self.scale(exp_x / (1 + exp_x)**2 * self.trials * self.case_weights)
-
-    def get_data(self):
-        return self.successes
-
-    def set_data(self, data):
-        if type(data) == type((3,)):
-            successes, trials = data
-        else:
-            successes = data
-            trials = None
-
-        if sparse.issparse(successes):
-            #Convert sparse success vector to an array
-            self.successes = successes.toarray().flatten() * 1.
-        else:
-            self.successes = np.asarray(successes).astype(np.float)
-
-        if trials is None and hasattr(self, 'trials') and self.trials is not None:
-            trials = self.trials
-
-        if trials is None:
-            if not set([0,1]).issuperset(np.unique(self.successes)):
-                raise ValueError("Number of successes is not binary - must specify number of trials")
-            self.trials = np.ones_like(self.successes)
-        else:
-            if np.min(trials-self.successes) < 0:
-                raise ValueError("Number of successes greater than number of trials")
-            if np.min(self.successes) < 0:
-                raise ValueError("Response coded as negative number - should be non-negative number of successes")
-            self.trials = trials * 1.
-
-    data = property(get_data, set_data)
-
-    def __copy__(self):
-        successes, trials = self.data, self.trials
-        return logistic_loglike(self.shape,
-                                copy(successes),
-                                trials=copy(trials),
-                                coef=self.coef,
-                                offset=copy(self.offset),
-                                quadratic=copy(self.quadratic),
-                                initial=copy(self.coefs),
-                                case_weights=copy(self.case_weights))
-
-    # End loss API
-
-    def mean_function(self, eta, trials=None):
-        _exp_eta = np.exp(eta)
-        return _exp_eta / (1. + _exp_eta)
 
 class poisson_loglike(smooth_atom):
 
@@ -913,12 +1063,14 @@ class poisson_loglike(smooth_atom):
             if not np.all(case_weights >= 0):
                 raise ValueError('case_weights should be non-negative')
             self.case_weights = np.asarray(case_weights)
-            if self.case_weights.shape != self.successes.shape:
-                raise ValueError('case_weights should have same shape as successes')
         else:
             self.case_weights = None
 
-    def smooth_objective(self, natural_param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -937,6 +1089,9 @@ class poisson_loglike(smooth_atom):
             point is not feasible, i.e. when `natural_param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -945,35 +1100,32 @@ class poisson_loglike(smooth_atom):
         else returns both.
         """
 
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
         x = natural_param # shorthand
 
         x = self.apply_offset(x)
         exp_x = np.exp(x)
         
         if mode == 'both':
-            if self.case_weights is None:
-                f, g = - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), - self.scale(self.counts - exp_x)
-            else:
-                f, g = - self.scale(-np.sum(self.case_weights * exp_x) + np.dot(self.case_weights * self.counts,x)), - self.scale(self.case_weights * (self.counts - exp_x))
+            f, g = - self.scale(-np.sum(cw * exp_x) + np.dot(cw * self.counts,x)), - self.scale(cw * (self.counts - exp_x))
             return f, g
         elif mode == 'grad':
-            if self.case_weights is None:
-                f, g = None, - self.scale(self.counts - exp_x)
-            else:
-                f, g = None, - self.scale(self.case_weights * (self.counts - exp_x))
+            f, g = None, - self.scale(cw * (self.counts - exp_x))
             return g
         elif mode == 'func':
-            if self.case_weights is None:
-                f, g =  - self.scale(-np.sum(exp_x) + np.dot(self.counts,x)), None
-            else:
-                f, g =  - self.scale(-np.sum(self.case_weights * exp_x) + np.dot(self.case_weights * self.counts,x)), None
+            f, g =  - self.scale(-np.sum(cw * exp_x) + np.dot(cw * self.counts,x)), None
             return f
         else:
             raise ValueError("mode incorrectly specified")
 
     # Begin loss API
 
-    def hessian(self, natural_param):
+    def hessian(self, natural_param, case_weights=None):
         """
         Hessian of the loss.
 
@@ -983,6 +1135,9 @@ class poisson_loglike(smooth_atom):
         natural_param : ndarray
             Parameters where Hessian will be evaluated.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -991,10 +1146,14 @@ class poisson_loglike(smooth_atom):
             evaluated at `natural_param`.
         """
         x = natural_param # shorthand
-        if self.case_weights is None:
-            return self.scale(np.exp(x))
-        else:
-            return self.scale(self.case_weights * np.exp(x))
+
+        if case_weights is None:
+            case_weights = np.ones_like(natural_param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
+
+        return self.scale(cw * np.exp(x))
             
     def get_data(self):
         return self.counts
@@ -1014,6 +1173,38 @@ class poisson_loglike(smooth_atom):
                                initial=copy(self.coefs),
                                case_weights=copy(self.case_weights))
 
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
 
     # End loss API
 
@@ -1052,9 +1243,19 @@ class huber_loss(smooth_atom):
             self.response = np.asarray(response)
 
         if case_weights is not None:
-            raise ValueError('case_weights not implemented for Huber')
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.response.shape:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
-    def smooth_objective(self, param, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
 
         Evaluate the smooth objective, computing its value, gradient or both.
@@ -1073,6 +1274,9 @@ class huber_loss(smooth_atom):
             point is not feasible, i.e. when `param` is not
             in the domain.
 
+        case_weights : ndarray
+            Non-negative case weights
+
         Returns
         -------
 
@@ -1081,16 +1285,29 @@ class huber_loss(smooth_atom):
         else returns both.
         """
         
-        x = param # shorthand
+        if case_weights is None:
+            case_weights = np.ones_like(param)
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
 
-        x = self.apply_offset(x)
-        resid = x - self.response 
-        return self.smoothed_atom.smooth_objective(resid,
-                                                   mode=mode,
-                                                   check_feasibility=check_feasibility)
+        param = self.apply_offset(param)
+        resid = param - self.response 
+
+        f, g = _huber_loss(resid, smoothing_parameter=self.smoothing_parameter)
+
+        if mode == 'func':
+            return self.scale((f * cw).sum())
+        elif mode == 'grad':
+            return self.scale(g * cw)
+        elif mode == 'both':
+            return self.scale((f * cw).sum()), self.scale(g * cw)
+        else:
+            raise ValueError("mode incorrectly specified")
+
     # Begin loss API
 
-    def hessian(self, param):
+    def hessian(self, param, case_weights=None):
         """
         Hessian of the loss.
 
@@ -1099,6 +1316,9 @@ class huber_loss(smooth_atom):
 
         param : ndarray
             Parameters where Hessian will be evaluated.
+
+        case_weights : ndarray
+            Non-negative case weights
 
         Returns
         -------
@@ -1119,6 +1339,39 @@ class huber_loss(smooth_atom):
 
     data = property(get_data, set_data)
 
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
     def __copy__(self):
         response = self.data
         return huber_loss(self.shape,
@@ -1131,22 +1384,33 @@ class huber_loss(smooth_atom):
 
     # End loss API
 
-class multinomial_loglike(smooth_atom):
+def _huber_loss(arg, smoothing_parameter):
+    # returns vector whose sum is total loss as well as gradient vector
+    eps = smoothing_parameter
+    proj_arg = np.sign(arg) * np.minimum(np.abs(arg) / eps, 1) # the maximizer is the gradient
+                                                               # by convex conjugacy
+    return arg * proj_arg - eps * proj_arg**2 / 2, proj_arg 
+
+class stacked_loglike(smooth_atom):
 
     """
-    A class for baseline-category logistic regression for nominal responses (e.g. Agresti, pg 267)
+    A class for stacking `K=len(losses)` saturated losses with common
+    shapes (roughly speaking) summed over losses.
+
+    Roughly speaking a model of `K` independent measurements per individual.
     """
 
-    objective_template = r"""\ell^{M}\left(%(var)s\right)"""
+    objective_template = r"""\ell^{\text{stack}}\left(%(var)s\right)"""
 
     def __init__(self, 
-                 shape, 
-                 counts, 
+                 losses,
                  coef=1., 
                  offset=None,
+                 quadratic=None,
                  initial=None,
-                 quadratic=None):
+                 case_weights=None):
 
+        shape = (np.sum([l.shape[0] for l in losses]),)
         smooth_atom.__init__(self,
                              shape,
                              offset=offset,
@@ -1154,61 +1418,570 @@ class multinomial_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        if sparse.issparse(counts):
-            #Convert sparse success vector to an array
-            self.counts = counts.toarray()
+        responses = [l.data for l in losses]
+        shapes = [r.shape for r in responses]
+        dims = np.array([len(s) for s in shapes])
+        if np.all(dims == 1):
+            self.data = np.hstack(responses)
+        elif np.all(dims == 2):
+            self.data = np.vstack(responses)
         else:
-            self.counts = counts
+            raise ValueError('expecting either 1 or dimensional data for saturated losses')
 
-        self.J = self.counts.shape[1]
-        #Select the counts for the first J-1 categories
-        self.firstcounts = self.counts[:,range(self.J-1)]
+        self._slices = []
+        idx = 0
+        for l in losses:
+            self._slices.append(slice(idx, idx + l.shape[0], 1))
+            idx += l.shape[0]
 
-        if not np.allclose(np.round(self.counts),self.counts):
-            raise ValueError("Counts vector is not integer valued")
-        if np.min(self.counts) < 0:
-            raise ValueError("Counts vector is not non-negative")
+        self._losses = losses
+        self._gradient = np.zeros(self.shape)
 
-        self.trials = np.sum(self.counts, axis=1)
+        if case_weights is not None:
+            if not np.all(case_weights >= 0):
+                raise ValueError('case_weights should be non-negative')
+            self.case_weights = np.asarray(case_weights)
+            if self.case_weights.shape != self.shape[:1]:
+                raise ValueError('case_weights should have same shape as response')
+        else:
+            self.case_weights = None
 
-        if shape[1] != self.J - 1:
-            raise ValueError("Primal shape is incorrect - should only have coefficients for first J-1 categories")
-
-        saturated = self.counts / (1. * self.trials[:,np.newaxis])
-        loss_terms = np.log(saturated) * self.counts
-        loss_terms[np.isnan(loss_terms)] = 0
-        loss_constant = - coef * loss_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-loss_constant)
-        self.quadratic += devq
-
-    def smooth_objective(self, x, mode='both', check_feasibility=False):
+    def smooth_objective(self, 
+                         natural_param, 
+                         mode='both', 
+                         check_feasibility=False,
+                         case_weights=None):
         """
-        Evaluate a smooth function and/or its gradient
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Evaluate the smooth objective, computing its value, gradient or both.
+
+        Parameters
+        ----------
+
+        natural_param : ndarray
+            The current parameter values.
+
+        mode : str
+            One of ['func', 'grad', 'both']. 
+
+        check_feasibility : bool
+            If True, return `np.inf` when
+            point is not feasible, i.e. when `natural_param` is not
+            in the domain.
+
+        Returns
+        -------
+
+        If `mode` is 'func' returns just the objective value 
+        at `natural_param`, else if `mode` is 'grad' returns the gradient
+        else returns both.
         """
-        x = self.apply_offset(x)
-        exp_x = np.exp(x)
+        
+        if case_weights is None:
+            case_weights = np.ones(natural_param.shape[:1])
+        cw = case_weights
+        if self.case_weights is not None:
+            cw *= self.case_weights
 
-        #TODO: Using transposes to scale the rows of a 2d array - should we use an affine_transform to do this?
-        #JT: should be able to do this with np.newaxis
+        linpred = natural_param # shorthand
 
-        if mode == 'both':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = - self.scale(np.sum(self.firstcounts * x) -  np.dot(self.trials, np.log(1. + np.sum(exp_x, axis=1)))), - self.scale(self.firstcounts - ratio) 
-            return f, g
-        elif mode == 'grad':
-            ratio = ((self.trials/(1. + np.sum(exp_x, axis=1))) * exp_x.T).T
-            f, g = None, - self.scale(self.firstcounts - ratio) 
-            return g
+        linpred = self.apply_offset(linpred)
+        if mode == 'grad':
+            for d, slice in enumerate(self._slices):
+                self._gradient[slice] = self._losses[d].smooth_objective(linpred[slice], 'grad')
+            return self.scale(self._gradient)
         elif mode == 'func':
-            f, g = - self.scale(np.sum(self.firstcounts * x) -  np.dot(self.trials, np.log(1. + np.sum(exp_x, axis=1)))), None
-            return f
+            value = 0
+            for d, slice in enumerate(self._slices):
+                value += self._losses[d].smooth_objective(linpred[slice], 'func')
+            return self.scale(value)
+        elif mode == 'both':
+            value = 0
+            for d, slice in enumerate(self._slices):
+                f, g = self._losses[d].smooth_objective(linpred[slice], 'both')
+                self._gradient[slice] = g
+                value += f
+            return self.scale(value), self.scale(self._gradient)
         else:
             raise ValueError("mode incorrectly specified")
+
+    def get_data(self):
+        return self._data
+
+    def set_data(self, data):
+        self._data = data
+
+    data = property(get_data, set_data)
+
+    def __copy__(self):
+        return stacked_loglike(copy(self._losses),
+                               coef=self.coef,
+                               offset=copy(self.offset),
+                               quadratic=copy(self.quadratic),
+                               initial=copy(self.coefs),
+                               case_weights=copy(self.case_weights))
+
+    def subsample(self, case_idx):
+        """
+        Create a saturated loss using a subsample of the data.
+        Makes a copy of the loss and 
+        multiplies case_weights by the indicator for
+        `idx`.
+
+        Parameters
+        ----------
+
+        idx : index
+            Indices of np.arange(n) to keep.
+
+        Returns
+        -------
+
+        subsample_loss : `smooth_atom`
+            Loss after discarding all
+            cases not in `idx.
+
+        """
+        loss_cp = copy(self)
+        if loss_cp.case_weights is None:
+            case_weights = loss_cp.case_weights = np.ones(self.shape[0])
+        else:
+            case_weights = loss_cp.case_weights
+
+        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool[case_idx] = 1
+
+        case_weights *= idx_bool
+        return loss_cp
+
+    @classmethod
+    def gaussian(klass,
+                 responses,
+                 case_weights=None,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None, 
+                 initial=None):
+        """
+        Create a loss for a Gaussian regression model.
+
+        Parameters
+        ----------
+
+        responses : ndarray
+            Response vectors.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [gaussian_loglike(response.shape,
+                                   response,
+                                   coef=coef)
+                  for response in responses]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def logistic(klass, 
+                 successes, 
+                 trials=None,
+                 case_weights=None,
+                 coef=1., 
+                 offset=None,
+                 quadratic=None, 
+                 initial=None):
+        """
+        Create a loss for a logistic regression model.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [logistic_loglike(successes[i],
+                                   trials[i],
+                                   coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def probit(klass, 
+               successes, 
+               trials=None,
+               case_weights=None,
+               coef=1., 
+               offset=None,
+               quadratic=None, 
+               initial=None):
+        """
+        Create a loss for a probit regression model.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [probit_loglike(successes[i],
+                                 trials[i],
+                                 coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def cloglog(klass, 
+                successes, 
+                trials=None,
+                case_weights=None,
+                coef=1., 
+                offset=None,
+                quadratic=None, 
+                initial=None):
+        """
+        Create a loss for a logistic regression model.
+
+        Parameters
+        ----------
+
+        successes : ndarray
+            Responses (should be non-negative integers).
+
+        trials : ndarray (optional)
+            Number of trials for each success. If `None`,
+            defaults to `np.ones_like(successes)`.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [cloglog_loglike(successes[i],
+                                  trials[i],
+                                  coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def poisson(klass,
+                counts,
+                case_weights=None,
+                coef=1., 
+                offset=None,
+                quadratic=None, 
+                initial=None):
+        """
+        Create a loss for a Poisson regression model.
+
+        Parameters
+        ----------
+
+        counts : ndarray
+            Response vector. Should be non-negative integers.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [logistic_loglike(successes[i],
+                                   trials[i],
+                                   coef=coef)
+                  for i in range(len(successes))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def huber(klass,
+              X, 
+              responses,
+              smoothing_parameter,
+              case_weights=None,
+              coef=1., 
+              offset=None,
+              quadratic=None, 
+              initial=None):
+        """
+        Create a loss for a regression model using
+        Huber loss.
+
+        Parameters
+        ----------
+
+        response : ndarray
+            Response vector. 
+
+        smoothing_parameter : float
+            Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [huber_loss(response.shape,
+                             response,
+                             smoothing_parameter) 
+                  for response in responses]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def huber_svm(klass,
+                  X, 
+                  successes,
+                  smoothing_parameter,
+                  case_weights=None,
+                  coef=1., 
+                  offset=None,
+                  quadratic=None, 
+                  initial=None):
+        """
+        Create a loss for a regression model using
+        Huber loss.
+
+        Parameters
+        ----------
+
+        response : ndarray
+            Response vector. 
+
+        smoothing_parameter : float
+            Smoothing parameter for Huber loss.
+
+        case_weights : ndarray
+            Non-negative case weights
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [huber_svm(response.shape,
+                            response,
+                            smoothing_parameter) 
+                  for response in successes]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+    @classmethod
+    def cox(klass, 
+            X, 
+            event_times,
+            censoring,
+            coef=1., 
+            offset=None,
+            quadratic=None, 
+            initial=None,
+            case_weights=None):
+        """
+        Create a loss for a Cox regression model.
+
+        Parameters
+        ----------
+
+        X : [ndarray, `regreg.affine.affine_transform`]
+            Design matrix
+
+        event_times : ndarray
+            Observed times for Cox proportional hazard model.
+
+        censoring : ndarray 
+            Censoring indicator for Cox proportional hazard model
+            - 1 indicates observation is a failure, 0 a censored observation.
+
+        offset : ndarray (optional)
+            Offset to be applied in parameter space before 
+            evaluating loss.
+
+        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
+            Optional quadratic to be added to objective.
+
+        initial : ndarray
+            Initial guess at coefficients.
+           
+        Returns
+        -------
+
+        mglm_obj : `regreg.mglm.mglm`
+            General linear model loss.
+
+        """
+
+        losses = [cox_loglike(event_times[i].shape,
+                              event_times[i],
+                              censoring[i],
+                              coef=coef)
+                  for i in range(len(event_times))]
+
+        return klass(losses,
+                     offset=offset,
+                     quadratic=quadratic,
+                     initial=initial,
+                     case_weights=case_weights)
+
+
+# Deprecated
 
 def logistic_loss(X, Y, trials=None, coef=1.):
     '''
@@ -1229,3 +2002,4 @@ def logistic_loss(X, Y, trials=None, coef=1.):
                         Y,
                         trials=trials,
                         coef=coef)
+

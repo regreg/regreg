@@ -1058,7 +1058,7 @@ class constrained_positive_part(seminorm):
         v = np.atleast_1d(v)
         pos = arg > 0
         if np.any(pos):
-            v[pos] = projl1(v[pos], bound)
+            v[pos] = projl1(arg[pos], bound)
         return v.reshape(arg.shape)
 
     @doc_template_user
@@ -1106,7 +1106,7 @@ class max_positive_part(seminorm):
         lagrange = seminorm.seminorm(self, arg, 
                                  check_feasibility=check_feasibility, 
                                  lagrange=lagrange)
-        return np.max(np.maximum(x,0)) * lagrange
+        return np.max(np.maximum(arg,0)) * lagrange
 
     @doc_template_user
     def constraint(self, arg, bound=None):
@@ -1129,7 +1129,7 @@ class max_positive_part(seminorm):
         v = np.atleast_1d(v)
         pos = arg > 0
         if np.any(pos):
-            v[pos] = projl1(v[pos], lagrange / lipschitz)
+            v[pos] = projl1(arg[pos], lagrange / lipschitz)
         return arg - v.reshape(arg.shape)
 
     @doc_template_user
