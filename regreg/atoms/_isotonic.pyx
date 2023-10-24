@@ -12,7 +12,7 @@ which has been merged into sklearn.
 import numpy as np, sys
 cimport numpy as np
 
-DTYPE_float = np.float
+DTYPE_float = float
 ctypedef np.float_t DTYPE_float_t
 
 def _isotonic_regression(np.ndarray[DTYPE_float_t, ndim=1] y,
