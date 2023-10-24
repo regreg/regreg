@@ -192,7 +192,7 @@ class group_lasso(seminorm):
         lagrange = seminorm.seminorm(self, arg, 
                                      lagrange=lagrange,
                                      check_feasibility=check_feasibility)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -211,7 +211,7 @@ class group_lasso(seminorm):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -235,7 +235,7 @@ class group_lasso(seminorm):
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -340,7 +340,7 @@ class group_lasso_dual(group_lasso):
     def seminorm(self, arg, lagrange=None, check_feasibility=False):
         lagrange = seminorm.seminorm(self, arg, lagrange=lagrange,
                                      check_feasibility=check_feasibility)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -359,7 +359,7 @@ class group_lasso_dual(group_lasso):
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -381,7 +381,7 @@ class group_lasso_dual(group_lasso):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -534,7 +534,7 @@ class group_lasso_epigraph(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg, lipschitz=1):
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -583,7 +583,7 @@ class group_lasso_epigraph_polar(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg, lipschitz=1):
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -640,7 +640,7 @@ class group_lasso_dual_epigraph(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg, lipschitz=1):
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
@@ -698,7 +698,7 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
 
     @doc_template_user
     def cone_prox(self, arg,  lipschitz=1):
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
 
         # flush buffers for computations
 
