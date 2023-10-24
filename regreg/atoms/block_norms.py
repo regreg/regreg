@@ -397,7 +397,7 @@ class linf_linf(linf_l2):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorms.seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
-        arg = np.asarray(arg, np.float).reshape(-1)
+        arg = np.asarray(arg, float).reshape(-1)
         absarg = np.fabs(arg)
         cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, absarg)
         if cut < np.inf:
@@ -599,7 +599,7 @@ class l1_l1(l1_l2):
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorms.seminorm.bound_prox(self, arg, bound)
-        arg = np.asarray(arg, np.float).reshape(-1)
+        arg = np.asarray(arg, float).reshape(-1)
         absarg = np.fabs(arg)
         cut = find_solution_piecewise_linear_c(bound, 0, absarg)
         if cut < np.inf:
