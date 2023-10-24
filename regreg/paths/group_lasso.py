@@ -383,8 +383,8 @@ def _check_KKT(penalty,
     INACTIVE = 2
     UNPENALIZED = 3
 
-    active_results = np.zeros(len(penalty._sorted_groupids), np.int)
-    inactive_results = np.zeros(len(penalty._sorted_groupids), np.float)
+    active_results = np.zeros(len(penalty._sorted_groupids), int)
+    inactive_results = np.zeros(len(penalty._sorted_groupids), float)
     for i, g in enumerate(penalty._sorted_groupids):
         group = penalty.groups == g
         w = penalty.weights[g]
