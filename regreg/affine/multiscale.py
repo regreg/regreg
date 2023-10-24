@@ -14,8 +14,8 @@ class multiscale(affine_transform):
     all intervals of a minimum size.
     """
 
-    dtype = np.dtype([('start', np.int),
-                      ('end', np.int)])
+    dtype = np.dtype([('start', int),
+                      ('end', int)])
 
     def __init__(self, p, minsize=None, slices=[],
                  scaling=None):
@@ -32,9 +32,9 @@ class multiscale(affine_transform):
 
         slices : []
             A list of intervals to use in the transform.
-            Will be coerced to have dtype([('start', np.int), ('end', np.int)])
+            Will be coerced to have dtype([('start', int), ('end', int)])
 
-        scaling : np.float((slices.shape))
+        scaling : float((slices.shape))
             An optional scaling to apply after computing
             mean over each interval.
 
@@ -81,7 +81,7 @@ class multiscale(affine_transform):
 
         slices : []
             List of (i,j) intervals to compute.
-            Will be converted to have dtype([('start', np.int), ('end', np.int)])
+            Will be converted to have dtype([('start', int), ('end', int)])
 
         """
         slices = np.asarray(slices)
@@ -106,12 +106,12 @@ class multiscale(affine_transform):
         Parameters
         ----------
 
-        x : np.float(self.input_shape)
+        x : float(self.input_shape)
 
         Returns
         -------
 
-        v : np.float(self.output_shape)
+        v : float(self.output_shape)
 
         """
         x_centered = x - x.mean()
@@ -141,12 +141,12 @@ class multiscale(affine_transform):
         Parameters
         ----------
 
-        v : np.float(self.output_shape)
+        v : float(self.output_shape)
 
         Returns
         -------
 
-        v : np.float(self.input_shape)
+        v : float(self.input_shape)
         """
 
         if v.ndim == 1:
