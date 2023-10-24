@@ -319,7 +319,7 @@ def partial_svd(transform,
     n = np.product(transform.output_shape)
     p = np.product(transform.input_shape)
 
-    rank = np.int(np.min([rank,p]))
+    rank = int(np.min([rank,p]))
     q = np.min([rank + padding, p])
     if warm_start is not None:
         if warm_start.shape == (n,q):
