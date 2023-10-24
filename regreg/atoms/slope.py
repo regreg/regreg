@@ -44,7 +44,7 @@ class slope(seminorm):
                  quadratic=None,
                  initial=None):
 
-         weights = np.array(weights, np.float)
+         weights = np.array(weights, float)
          if not np.allclose(-weights, np.sort(-weights)):
               raise ValueError('weights should be non-increasing')
          if not np.all(weights > 0):
@@ -208,7 +208,7 @@ def _basic_proximal_map(center, weights, use_sklearn=have_sklearn_iso):
      # reassigns the signs
      
      _arg = np.argsort(np.fabs(center))
-     shifted_center = np.array(np.fabs(center)[_arg] - weights[::-1]).astype(np.float)
+     shifted_center = np.array(np.fabs(center)[_arg] - weights[::-1]).astype(float)
      if use_sklearn:
           _prox_val = np.clip(isotonic_regression_sk(shifted_center), 0, np.inf)
      else:
