@@ -330,7 +330,7 @@ class seminorm(atom):
         Returns
         -------
 
-        Z : `np.ndarray(np.float)`
+        Z : `np.ndarray(float)`
             The proximal map of the implied center of `quadratic`.
 
         """
@@ -388,7 +388,7 @@ class seminorm(atom):
         Parameters
         ----------
 
-        arg : `np.ndarray(np.float)`
+        arg : `np.ndarray(float)`
             Argument of the proximal map.
 
         lipschitz : `float`
@@ -401,7 +401,7 @@ class seminorm(atom):
         Returns
         -------
 
-        Z : `np.ndarray(np.float)`
+        Z : `np.ndarray(float)`
             The proximal map of `arg`.
 
         """
@@ -432,7 +432,7 @@ class seminorm(atom):
         Parameters
         ----------
 
-        arg : `np.ndarray(np.float)`
+        arg : `np.ndarray(float)`
             Argument of the proximal map.
 
         bound : `float` (optional)
@@ -442,7 +442,7 @@ class seminorm(atom):
         Returns
         -------
 
-        Z : `np.ndarray(np.float)`
+        Z : `np.ndarray(float)`
             The proximal map of `arg`.
 
         """
@@ -464,7 +464,7 @@ class seminorm(atom):
         Parameters
         ----------
 
-        arg : `np.ndarray(np.float)`
+        arg : `np.ndarray(float)`
             Argument of the seminorm.
 
         check_feasibility : `bool`
@@ -473,7 +473,7 @@ class seminorm(atom):
         Returns
         -------
 
-        value : `np.float`
+        value : `float`
             The seminorm of `arg`.
 
         """
@@ -590,7 +590,7 @@ class seminorm(atom):
 
         atom : `seminorm`
 
-        prox_center : np.ndarray(np.float)
+        prox_center : np.ndarray(float)
              Center for the proximal map.
 
         Returns
@@ -652,7 +652,7 @@ class l1norm(seminorm):
     @doc_template_user
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
         absarg = np.fabs(arg)
         cut = find_solution_piecewise_linear_c(bound, 0, absarg)
         if cut < np.inf:
@@ -718,7 +718,7 @@ class supnorm(seminorm):
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
         absarg = np.fabs(arg)
         cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, absarg)
         if cut < np.inf:
@@ -895,7 +895,7 @@ class positive_part(seminorm):
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg)
-        v = arg.copy().astype(np.float)
+        v = arg.copy().astype(float)
         v = np.atleast_1d(v)
         pos = v > 0
         if np.any(pos):
@@ -967,7 +967,7 @@ class constrained_max(seminorm):
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg)
-        v = arg.copy().astype(np.float)
+        v = arg.copy().astype(float)
         v = np.atleast_1d(v)
         pos = v > 0
         if np.any(pos):
@@ -1054,7 +1054,7 @@ class constrained_positive_part(seminorm):
     def bound_prox(self, arg, bound=None):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg)
-        v = np.zeros(arg.shape, np.float)
+        v = np.zeros(arg.shape, float)
         v = np.atleast_1d(v)
         pos = arg > 0
         if np.any(pos):
@@ -1125,7 +1125,7 @@ class max_positive_part(seminorm):
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg)
-        v = np.zeros(arg.shape, np.float)
+        v = np.zeros(arg.shape, float)
         v = np.atleast_1d(v)
         pos = arg > 0
         if np.any(pos):
