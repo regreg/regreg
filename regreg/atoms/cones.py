@@ -186,7 +186,7 @@ class cone(atom):
         Returns
         -------
 
-        Z : `np.ndarray(np.float)`
+        Z : `np.ndarray(float)`
             The proximal map of the implied center of `quadratic`.
 
         """
@@ -282,7 +282,7 @@ class cone(atom):
         atom : `cone`
              A cone instance with a `proximal` method.
 
-        prox_center : np.ndarray(np.float)
+        prox_center : np.ndarray(float)
              Center for the proximal map.
 
         Returns
@@ -588,7 +588,7 @@ class l1_epigraph_polar(cone):
 
     @doc_template_user
     def cone_prox(self, arg):
-        arg = np.asarray(arg, np.float).copy()
+        arg = np.asarray(arg, float).copy()
         return arg - projl1_epigraph(arg)
 
     @doc_template_user
@@ -624,7 +624,7 @@ class linf_epigraph(cone):
 
     @doc_template_user
     def cone_prox(self, arg):
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
         return arg + projl1_epigraph(-arg)
 
     @doc_template_user
@@ -661,7 +661,7 @@ class linf_epigraph_polar(cone):
 
     @doc_template_user
     def cone_prox(self, arg):
-        arg = np.asarray(arg, np.float)
+        arg = np.asarray(arg, float)
         return -projl1_epigraph(-arg)
 
     @doc_template_user
