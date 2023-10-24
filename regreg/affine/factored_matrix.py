@@ -139,13 +139,13 @@ def compute_iterative_svd(transform,
         ndarray, it is first cast with :func:`astransform()`
     initial_rank : None or int, optional
         A guess at the rank of the matrix.
-    warm_start : np.ndarray(np.float), optional
+    warm_start : np.ndarray(float), optional
         A guess at the left singular vectors of the matrix.
         For fat matrices, these should be right singular vectors,
         while for tall matrices these should be left singular vectors.
-    min_singular : np.float, optional
+    min_singular : float, optional
         Stop when the singular value has this relative tolerance.
-    tol: np.float, optional
+    tol: float, optional
         Tolerance at which the norm of the singular values are deemed
         to have converged.
     debug: bool, optional
@@ -165,7 +165,7 @@ def compute_iterative_svd(transform,
 
     Returns
     -------
-    U, D, VT, Ufull : np.ndarray(np.float)
+    U, D, VT, Ufull : np.ndarray(float)
         An SVD of the transform. Ufull is the full set of left singular vectors
         found.
 
@@ -275,11 +275,11 @@ def partial_svd(transform,
     max_its : int, optional
         How many iterations of the full cycle to complete.
 
-    tol : np.float, optional
+    tol : float, optional
         Tolerance at which the norm of the singular values are deemed
         to have converged.
 
-    warm_start : np.ndarray(np.float), optional
+    warm_start : np.ndarray(float), optional
         A guess at the singular vectors of the matrix. 
         For fat matrices, these should be right singular vectors,
         while for tall matrices these should be left singular vectors.
@@ -295,7 +295,7 @@ def partial_svd(transform,
 
     Returns
     -------
-    U, D, VT, Ufull : np.ndarray(np.float)
+    U, D, VT, Ufull : np.ndarray(float)
         An SVD up to `rank` of the transform.
         Ufull is the full set of left singular vectors found.
 
