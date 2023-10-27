@@ -35,9 +35,9 @@ class cox_loglike(smooth_atom):
 
         self.data = np.asarray([event_times, censoring]).T
 
-        self._ordering = np.argsort(self.event_times).astype(intp)
-        self._rankmax = (rankdata(self.event_times, method='max') - 1).astype(intp)
-        self._rankmin = (rankdata(self.event_times, method='min') - 1).astype(intp)
+        self._ordering = np.argsort(self.event_times).astype(np.intp)
+        self._rankmax = (rankdata(self.event_times, method='max') - 1).astype(np.intp)
+        self._rankmin = (rankdata(self.event_times, method='min') - 1).astype(np.intp)
 
         if case_weights is not None:
             case_weights = np.asarray(case_weights).astype(float)
@@ -199,7 +199,7 @@ class cox_loglike(smooth_atom):
     def set_data(self, data):
         event_times, censoring = np.asarray(data).T
         self.event_times, self.censoring = (np.asarray(event_times),
-                                            np.asarray(censoring).astype(intp))
+                                            np.asarray(censoring).astype(np.intp))
 
     data = property(get_data, set_data)
 
