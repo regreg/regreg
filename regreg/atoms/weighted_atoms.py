@@ -26,7 +26,7 @@ class seminorm(unweighted_seminorm):
                  quadratic=None,
                  initial=None):
 
-        self.weights = np.asarray(weights, np.float)
+        self.weights = np.asarray(weights, float)
         unweighted_seminorm.__init__(self, self.weights.shape,
                                      lagrange=lagrange,
                                      bound=bound,

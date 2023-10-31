@@ -13,7 +13,7 @@ def difference_transform(X, order=1, sorted=False,
     Parameters
     ----------
 
-    X: np.array, np.float, ndim=1
+    X: np.array, float, ndim=1
         X coordinates where discrete derivative is computed.
 
     order: int

@@ -150,14 +150,14 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
     epsilon: np.array
         A decreasing array of positive constants for Moreau-Yosida smoothing.
         
-    tol : np.float
+    tol : float
         Tolerance to which each problem is solved is max(tol, epsilon)
     
     max_iter s: int
         Maximum number of iterations. If epsilon is not supplied,
         it is taken to be [1]*max_iters
 
-    initial_primal, initial_dual : `np.ndarray(np.float)`
+    initial_primal, initial_dual : `np.ndarray(float)`
         Initial conditions for both primal and dual variables.
 
     coef_tol : float
@@ -295,14 +295,14 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     epsilon: np.array
         A decreasing array of positive constants for Moreau-Yosida smoothing.
         
-    tol: np.float
+    tol: float
         Tolerance to which each problem is solved is max(tol, epsilon)
     
     max_iters: int
         Maximum number of iterations. If epsilon is not supplied,
         it is taken to be [1]*max_iters
 
-    initial_primal, initial_dual : `np.ndarray(np.float)`
+    initial_primal, initial_dual : `np.ndarray(float)`
         Initial conditions for both primal and dual variables.
 
     coef_tol : float

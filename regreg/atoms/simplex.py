@@ -110,7 +110,7 @@ class simplex_constraint(atom):
         Parameters
         ----------
 
-        arg : `np.ndarray(np.float)`
+        arg : `np.ndarray(float)`
             Argument of the seminorm.
 
         check_feasibility : `bool`
@@ -119,7 +119,7 @@ class simplex_constraint(atom):
         Returns
         -------
 
-        value : `np.float`
+        value : `float`
             The seminorm of `arg`.
 
         """
@@ -236,7 +236,7 @@ class maximum(atom):
         Parameters
         ----------
 
-        arg : `np.ndarray(np.float)`
+        arg : `np.ndarray(float)`
             Argument of the seminorm.
 
         check_feasibility : `bool`
@@ -245,7 +245,7 @@ class maximum(atom):
         Returns
         -------
 
-        value : `np.float`
+        value : `float`
             The seminorm of `arg`.
 
         """

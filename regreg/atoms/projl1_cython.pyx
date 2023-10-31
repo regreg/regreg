@@ -11,7 +11,7 @@ author = {Duchi, John and Shalev-Shwartz, Shai and Singer, Yoram and Chandra,
 Tushar}
 """
 
-DTYPE_float = np.float
+DTYPE_float = float
 ctypedef np.float_t DTYPE_float_t
 
 def projl1(np.ndarray[DTYPE_float_t, ndim=1]  x, 

@@ -40,20 +40,20 @@ class cox_loglike(smooth_atom):
         self._rankmin = (rankdata(self.event_times, method='min') - 1).astype(np.intp)
 
         if case_weights is not None:
-            case_weights = np.asarray(case_weights).astype(np.float)
+            case_weights = np.asarray(case_weights).astype(float)
             if not np.all(case_weights >= 0):
                 raise ValueError('case_weights should be non-negative')
             self.case_weights = np.asarray(case_weights)
         else:
-            self.case_weights = np.ones(self.event_times.shape, np.float)
+            self.case_weights = np.ones(self.event_times.shape, float)
 
         # buffers to store results used by C code
-        self._G = np.zeros(self.event_times.shape, np.float) # gradient 
-        self._exp_buffer = np.zeros(self.event_times.shape, np.float) # exp(eta)
-        self._exp_accum = np.zeros(self.event_times.shape, np.float) # accum of exp(eta)
-        self._expZ_accum = np.zeros(self.event_times.shape, np.float) # accum of Z*exp(eta)
-        self._outer_1st = np.zeros(self.event_times.shape, np.float) # for log(W)
-        self._outer_2nd = np.zeros(self.event_times.shape, np.float) # used in Hessian
+        self._G = np.zeros(self.event_times.shape, float) # gradient 
+        self._exp_buffer = np.zeros(self.event_times.shape, float) # exp(eta)
+        self._exp_accum = np.zeros(self.event_times.shape, float) # accum of exp(eta)
+        self._expZ_accum = np.zeros(self.event_times.shape, float) # accum of Z*exp(eta)
+        self._outer_1st = np.zeros(self.event_times.shape, float) # for log(W)
+        self._outer_2nd = np.zeros(self.event_times.shape, float) # used in Hessian
 
     def smooth_objective(self, 
                          natural_param, 
@@ -176,7 +176,7 @@ class cox_loglike(smooth_atom):
         eta = self.apply_offset(eta)
         censoring = self.censoring
 
-        H = np.zeros(eta.shape, np.float)
+        H = np.zeros(eta.shape, float)
 
         return cox_hessian(H,
                            eta,

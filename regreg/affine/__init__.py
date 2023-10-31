@@ -537,7 +537,7 @@ class vstack(affine_transform):
             total_output += increment
 
         self.output_shape = (total_output,)
-        self.group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
+        self.group_dtype = np.dtype([('group_%d' % i, float, shape) 
                                      for i, shape in enumerate(self.output_shapes)])
         self.output_groups = self.group_dtype.names 
 
@@ -598,7 +598,7 @@ class hstack(affine_transform):
             total_input += increment
 
         self.input_shape = (total_input,)
-        self.group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
+        self.group_dtype = np.dtype([('group_%d' % i, float, shape) 
                                      for i, shape in enumerate(self.input_shapes)])
         self.input_groups = self.group_dtype.names 
 
@@ -666,11 +666,11 @@ class product(affine_transform):
 
         self.input_shape = (total_input,)
         self.output_shape = (total_output,)
-        self.input_group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
+        self.input_group_dtype = np.dtype([('group_%d' % i, float, shape) 
                                            for i, shape in enumerate(self.input_shapes)])
         self.input_groups = self.input_group_dtype.names 
 
-        self.output_group_dtype = np.dtype([('group_%d' % i, np.float, shape) 
+        self.output_group_dtype = np.dtype([('group_%d' % i, float, shape) 
                                            for i, shape in enumerate(self.input_shapes)])
         self.output_groups = self.output_group_dtype.names 
 

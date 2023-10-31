@@ -62,7 +62,7 @@ class block_columns(affine_transform):
 
     def affine_map(self, arg):
         
-        _buffer = np.empty(self.output_shape, np.float)
+        _buffer = np.empty(self.output_shape, float)
         for i, info in enumerate(zip(self._slices, 
                                      self._transforms)):
             slice, trans = info
@@ -72,7 +72,7 @@ class block_columns(affine_transform):
 
     def linear_map(self, arg):
         
-        _buffer = np.empty(self.output_shape, np.float)
+        _buffer = np.empty(self.output_shape, float)
         for i, info in enumerate(zip(self._slices, 
                                      self._transforms)):
             slice, trans = info
@@ -82,7 +82,7 @@ class block_columns(affine_transform):
 
     def adjoint_map(self, arg):
         
-        _adj_buffer = np.empty(self.input_shape, np.float)
+        _adj_buffer = np.empty(self.input_shape, float)
         for i, info in enumerate(zip(self._slices, 
                                      self._transforms)):
             slice, trans = info

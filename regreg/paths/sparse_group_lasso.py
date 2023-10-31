@@ -384,8 +384,8 @@ def _check_KKT(sglasso,
     INACTIVE = 2
     UNPENALIZED = 3
 
-    active_results = np.zeros(len(sglasso._sorted_groupids), np.int)
-    inactive_results = np.zeros(len(sglasso._sorted_groupids), np.float)
+    active_results = np.zeros(len(sglasso._sorted_groupids), int)
+    inactive_results = np.zeros(len(sglasso._sorted_groupids), float)
 
     for i, g in enumerate(sglasso._sorted_groupids):
         group = sglasso.groups == g

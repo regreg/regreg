@@ -7,9 +7,9 @@ from .piecewise_linear import find_solution_piecewise_linear
 Implements prox and dual of group LASSO, strong set, seminorm and dual seminorm. The 
 """
 
-DTYPE_float = np.float
+DTYPE_float = float
 ctypedef cnp.float_t DTYPE_float_t
-DTYPE_int = np.int
+DTYPE_int = int
 ctypedef cnp.int_t DTYPE_int_t
 ctypedef cnp.intp_t DTYPE_intp_t
 

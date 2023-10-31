@@ -197,7 +197,7 @@ class logistic_loglike(smooth_atom):
             #Convert sparse success vector to an array
             self.successes = successes.toarray().flatten() * 1.
         else:
-            self.successes = np.asarray(successes).astype(np.float)
+            self.successes = np.asarray(successes).astype(float)
 
         if trials is None and hasattr(self, 'trials') and self.trials is not None:
             trials = self.trials
@@ -438,7 +438,7 @@ class probit_loglike(smooth_atom):
             #Convert sparse success vector to an array
             self.successes = successes.toarray().flatten() * 1.
         else:
-            self.successes = np.asarray(successes).astype(np.float)
+            self.successes = np.asarray(successes).astype(float)
 
         if trials is None and hasattr(self, 'trials') and self.trials is not None:
             trials = self.trials
@@ -683,7 +683,7 @@ class cloglog_loglike(smooth_atom):
             #Convert sparse success vector to an array
             self.successes = successes.toarray().flatten() * 1.
         else:
-            self.successes = np.asarray(successes).astype(np.float)
+            self.successes = np.asarray(successes).astype(float)
 
         if trials is None and hasattr(self, 'trials') and self.trials is not None:
             trials = self.trials
