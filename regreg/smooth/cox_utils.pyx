@@ -5,7 +5,7 @@ cimport numpy as cnp
 DTYPE_float = float
 ctypedef cnp.float_t DTYPE_float_t
 DTYPE_int = int
-ctypedef cnp.int_t DTYPE_int_t
+ctypedef cnp.intp_t DTYPE_int_t
 ctypedef cnp.intp_t DTYPE_intp_t
 
 cdef extern from "cox_fns.h":
