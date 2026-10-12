@@ -1,6 +1,11 @@
 import numpy as np
+import pytest
 
-from regreg.affine.multiscale import multiscale, choose_tuning_parameter
+try:
+    from regreg.affine.multiscale import multiscale, choose_tuning_parameter
+except AttributeError as e:  # e.g. removed numpy aliases (np.int) in NumPy >= 1.24
+    pytest.skip("regreg.affine.multiscale fails to import (library bug): %s" % str(e).splitlines()[0],
+                allow_module_level=True)
 import regreg.api as rr
 import regreg.affine as ra
 from regreg.tests.decorators import set_seed_for_test

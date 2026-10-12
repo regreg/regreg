@@ -1,6 +1,6 @@
+import pytest
 from copy import copy
 
-import nose.tools as nt
 import numpy as np
 
 from .. import glm
@@ -164,7 +164,8 @@ def test_huber():
         sat_sub.smooth_objective(np.zeros(sat_sub.shape))
 
         L.gradient(np.zeros(L.shape))
-        nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))
+        with pytest.raises(NotImplementedError):
+            L.hessian(np.zeros(L.shape))
 
         L.objective(np.zeros(L.shape))
         L.latexify()
@@ -191,7 +192,8 @@ def test_huber_svm():
         sat_sub.smooth_objective(np.zeros(sat_sub.shape))
 
         L.gradient(np.zeros(L.shape))
-        nt.assert_raises(NotImplementedError, L.hessian, np.zeros(L.shape))
+        with pytest.raises(NotImplementedError):
+            L.hessian(np.zeros(L.shape))
 
         L.objective(np.zeros(L.shape))
         L.latexify()

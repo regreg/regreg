@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 try:
     from sklearn.model_selection import cross_validate
@@ -13,7 +14,7 @@ except ImportError:
 from ...api import l1_l2
 from ...tests.decorators import set_seed_for_test
 
-@np.testing.dec.skipif(True or not have_sklearn, msg='multinomial not working on its own yet')
+@pytest.mark.skipif(True or not have_sklearn, reason='multinomial not working on its own yet')
 @set_seed_for_test()
 def test_multinomial():
 

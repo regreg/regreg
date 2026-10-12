@@ -128,7 +128,7 @@ def test_path_subsample(n=200,p=50):
                         inner_tol=1.e-10)
     beta2 = sol2['beta']
 
-    yield np.testing.assert_allclose, beta1, beta2, 1.e-3
+    np.testing.assert_allclose(beta1, beta2, 1.e-3)
 
     # check that the subsample did not change the original
     # path object
@@ -143,7 +143,7 @@ def test_path_subsample(n=200,p=50):
                          (lasso3.solution.copy(), lasso3.grad_solution.copy()),
                          inner_tol=1.e-10)['beta']
 
-    yield np.testing.assert_allclose, beta3, beta4, 1.e-3
+    np.testing.assert_allclose(beta3, beta4, 1.e-3)
 
 @set_seed_for_test()
 def test_unpenalized(n=200, p=50):

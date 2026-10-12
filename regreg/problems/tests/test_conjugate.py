@@ -1,6 +1,6 @@
+import pytest
 from copy import copy
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
@@ -33,7 +33,8 @@ def test_conjugate_l1norm():
 
     v2.smooth_objective(w, mode='func')
     v2.smooth_objective(w, mode='grad')
-    nt.assert_raises(ValueError, v2.smooth_objective, w, 'blah')
+    with pytest.raises(ValueError):
+        v2.smooth_objective(w, 'blah')
 
 @set_seed_for_test()
 def test_conjugate_sqerror():

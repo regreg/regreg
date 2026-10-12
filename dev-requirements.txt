@@ -2,4 +2,4 @@
 # Check these dependencies against regreg/info.py
 -r requirements.txt
 cython>=0.18
-nose
+pytest>=7

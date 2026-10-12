@@ -1,3 +1,4 @@
+import pytest
 import itertools
 
 import numpy as np
@@ -7,9 +8,8 @@ import regreg.atoms.cones as C
 import regreg.atoms.svd_norms as C_SVD
 from regreg.tests.decorators import set_seed_for_test
 
-import nose.tools as nt
 
-from .test_seminorms import Solver, SolverFactory
+from .test_seminorms import Solver, SolverFactory, run_checks
 
 
 class ConeSolverFactory(SolverFactory):
@@ -50,18 +50,19 @@ class ConeSolverFactory(SolverFactory):
             yield solver
 
 
+_svd_cones = [C_SVD.nuclear_norm_epigraph,
+              C_SVD.nuclear_norm_epigraph_polar,
+              C_SVD.operator_norm_epigraph,
+              C_SVD.operator_norm_epigraph_polar]
+
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', sorted(C.conjugate_cone_pairs.keys(), key=str), ids=lambda k: k.__name__)
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass in sorted(C.conjugate_cone_pairs.keys(), key=str):
-        if klass in [C_SVD.nuclear_norm_epigraph,
-                     C_SVD.nuclear_norm_epigraph_polar,
-                     C_SVD.operator_norm_epigraph,
-                     C_SVD.operator_norm_epigraph_polar]:
-            ConeSolverFactory.shape = (5,4)
-        else:
-            ConeSolverFactory.shape = 20
-        factory = ConeSolverFactory(klass)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
+def test_proximal_maps(klass):
+    factory = ConeSolverFactory(klass)
+    if klass in _svd_cones:
+        factory.shape = (5,4)
+    else:
+        factory.shape = 20
+    for solver in factory:
+        run_checks(solver.all_tests())

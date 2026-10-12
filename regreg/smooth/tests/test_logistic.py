@@ -5,9 +5,8 @@ import numpy as np
 import regreg.api as rr
 
 from numpy import testing as npt
-from numpy.testing import dec
 
-@dec.setastest(True)
+
 def test_logistic_counts():
     """
     Test the equivalence of binary/count specification in logistic_loglike
@@ -51,7 +50,6 @@ def test_logistic_counts():
     npt.assert_array_almost_equal(solution1, solution2, 3)
 
 
-@dec.setastest(True)
 def test_logistic_offset():
     """
     Test the equivalence of binary/count specification in logistic_likelihood

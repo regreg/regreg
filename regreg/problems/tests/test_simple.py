@@ -2,7 +2,6 @@ from copy import copy
 from itertools import product
 
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.atoms.tests.test_seminorms import all_close
@@ -68,12 +67,12 @@ def test_gengrad():
     solver2 = rr.FISTA(problem2)
     solver2.fit(tol=1.0e-10, debug=True, coef_stop=True)
 
-    yield all_close, prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad', None
-    yield all_close, prox_coef, separable_coef, 'prox to separable', None
-    yield all_close, prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth', None
-    yield all_close, prox_coef, simple_coef, 'prox to simple', None
-    yield all_close, prox_coef, loss2_coefs, 'simple where loss has quadratic 1', None
-    yield all_close, prox_coef, solver2.composite.coefs, 'simple where loss has quadratic 2', None
+    all_close(prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad', None)
+    all_close(prox_coef, separable_coef, 'prox to separable', None)
+    all_close(prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth', None)
+    all_close(prox_coef, simple_coef, 'prox to simple', None)
+    all_close(prox_coef, loss2_coefs, 'simple where loss has quadratic 1', None)
+    all_close(prox_coef, solver2.composite.coefs, 'simple where loss has quadratic 2', None)
 
 @set_seed_for_test()
 def test_gengrad_blocknorms():
@@ -109,9 +108,9 @@ def test_gengrad_blocknorms():
     solver.fit(tol=1.0e-10)
     separable_coef = solver.composite.coefs
 
-    yield (all_close, prox_coef, simple_coef, 'prox to simple', None)
-    yield (all_close, prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad', None)
-    yield (all_close, prox_coef, separable_coef, 'prox to separable', None)
-    yield (all_close, prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth', None)
+    all_close(prox_coef, simple_coef, 'prox to simple', None)
+    all_close(prox_coef, simple_nonsmooth_gengrad, 'prox to nonsmooth gengrad', None)
+    all_close(prox_coef, separable_coef, 'prox to separable', None)
+    all_close(prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth', None)
 
 

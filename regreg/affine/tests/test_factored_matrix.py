@@ -1,4 +1,4 @@
-import nose.tools as nt
+import pytest
 import numpy as np
 import regreg.affine.factored_matrix as FM
 from regreg.affine import power_L, todense
@@ -19,7 +19,8 @@ def test_class():
 
         U = np.random.standard_normal((p, 10))
         V = np.random.standard_normal((n, 20))
-        nt.assert_raises(ValueError, FM.factored_matrix, X, -1)
+        with pytest.raises(ValueError):
+            FM.factored_matrix(X, -1)
 
         fm.linear_map(U)
         fm.affine_map(U)
@@ -38,7 +39,8 @@ def test_rankone():
 
     U = np.random.standard_normal((50, 10))
     V = np.random.standard_normal((100, 20))
-    nt.assert_raises(ValueError, FM.factored_matrix, X, -1)
+    with pytest.raises(ValueError):
+        FM.factored_matrix(X, -1)
 
     fm.linear_map(U)
     fm.affine_map(U)
@@ -60,11 +62,11 @@ def test_partial_svd():
 
     rank = 5
     U, D, VT = FM.partial_svd(X, rank=rank, padding=10, stopping_rule=lambda D: False, tol=1.e-12)
-    nt.assert_true(np.linalg.norm(np.dot(U.T, U) - np.identity(rank)) < 1.e-4)
-    nt.assert_true(np.linalg.norm(np.dot(VT, VT.T) - np.identity(rank)) < 1.e-4)
+    assert np.linalg.norm(np.dot(U.T, U) - np.identity(rank)) < 1.e-4
+    assert np.linalg.norm(np.dot(VT, VT.T) - np.identity(rank)) < 1.e-4
     U_np, D_np, VT_np = np.linalg.svd(X, full_matrices=False)
-    nt.assert_true(np.linalg.norm(U - np.dot(U, np.dot(U_np.T[:rank], U_np[:,:rank]))) < 1.e-4)
-    nt.assert_true(np.linalg.norm(VT - np.dot(VT, np.dot(VT_np[:rank].T, VT_np[:rank]))) < 1.e-4)
+    assert np.linalg.norm(U - np.dot(U, np.dot(U_np.T[:rank], U_np[:,:rank]))) < 1.e-4
+    assert np.linalg.norm(VT - np.dot(VT, np.dot(VT_np[:rank].T, VT_np[:rank]))) < 1.e-4
 
     FM.partial_svd(X, rank=rank, padding=10, stopping_rule=lambda D: False, tol=1.e-12,
                    warm_start=np.random.standard_normal(X.shape[0]))
@@ -93,7 +95,7 @@ def test_stopping_rule():
     all_close(D1[:rank], D2[:rank], 'stopping_rule', None)
 
 @set_seed_for_test()
-@np.testing.dec.skipif(True, msg="Proximal maps for factored_matrix are not fully worked out")
+@pytest.mark.skipif(True, reason="Proximal maps for factored_matrix are not fully worked out")
 def test_proximal_maps():
 
     X = np.random.standard_normal((100, 50))
@@ -121,8 +123,8 @@ def test_proximal_maps():
 
     all_close(bD[:bound_rank], projl1(D, B.bound)[:bound_rank], 'proximal bound', None)
 
-    nt.assert_true(np.linalg.norm(RPO+RB-X) / np.linalg.norm(X) < 0.01)
-    nt.assert_true(np.linalg.norm(RBO+RP-X) / np.linalg.norm(X) < 0.01)
+    assert np.linalg.norm(RPO+RB-X) / np.linalg.norm(X) < 0.01
+    assert np.linalg.norm(RBO+RP-X) / np.linalg.norm(X) < 0.01
 
     # running code to ensure it is tested
 
@@ -143,7 +145,7 @@ def test_proximal_maps():
     PO.conjugate
 
 @set_seed_for_test()
-@np.testing.dec.skipif(True, msg="Proximal maps for factored_matrix are not fully worked out")
+@pytest.mark.skipif(True, reason="Proximal maps for factored_matrix are not fully worked out")
 def test_proximal_method():
 
     X = np.random.standard_normal((100, 50))
@@ -172,20 +174,21 @@ def test_proximal_method():
 
     all_close(bD[:bound_rank], projl1(D, B.bound)[:bound_rank], 'proximal method bound', None)
 
-    nt.assert_true(np.linalg.norm(RPO+RB-X) / np.linalg.norm(X) < 0.01)
-    nt.assert_true(np.linalg.norm(RBO+RP-X) / np.linalg.norm(X) < 0.01)
+    assert np.linalg.norm(RPO+RB-X) / np.linalg.norm(X) < 0.01
+    assert np.linalg.norm(RBO+RP-X) / np.linalg.norm(X) < 0.01
 
 @set_seed_for_test()
 def test_max_rank():
 
     X = np.random.standard_normal((100, 200))
-    nt.assert_raises(ValueError, FM.compute_iterative_svd, X, max_rank=2)
+    with pytest.raises(ValueError):
+        FM.compute_iterative_svd(X, max_rank=2)
 
     U, D, VT = FM.compute_iterative_svd(X)
-    nt.assert_true(np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6)
-    nt.assert_true(np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6)
+    assert np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
+    assert np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
 
     U, D, VT = FM.compute_iterative_svd(X, max_rank=200)
-    nt.assert_true(np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6)
-    nt.assert_true(np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6)
+    assert np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
+    assert np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
 

@@ -1,6 +1,5 @@
 from copy import copy
 
-import nose.tools as nt
 import numpy as np
 from scipy.stats import norm as normal_dbn
 

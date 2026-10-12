@@ -234,4 +234,3 @@ def test_basil(n=300,p=100):
                                                                     1,
                                                                     np.sqrt(2))
 
-    return sparse_group_block2

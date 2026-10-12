@@ -1,16 +1,17 @@
+import pytest
 import itertools
 
 import numpy as np, regreg.api as rr
 from .. import mixed_lasso as ml
 from .. import group_lasso as gl
 from ...tests.decorators import set_seed_for_test
-from .test_seminorms import Solver, all_close, SolverFactory
+from .test_seminorms import Solver, all_close, SolverFactory, run_checks
 
 
 @set_seed_for_test()
 def test_mixed_lasso():
 
-    prox_center = np.array([1,3,5,7,-9,3,4,6,7,8,9,11,13,4,-23,40], np.float)
+    prox_center = np.array([1,3,5,7,-9,3,4,6,7,8,9,11,13,4,-23,40], float)
     l1_penalty = np.array([0,1], np.intp)
     unpenalized = np.array([2,3], np.intp)
     positive_part = np.array([4,5], np.intp)
@@ -281,17 +282,13 @@ class MixedSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+@pytest.mark.slow
+@pytest.mark.parametrize('klass,mode', [(ml.mixed_lasso, 'lagrange'),
+                                        (ml.mixed_lasso_dual, 'bound')],
+                         ids=['mixed_lasso', 'mixed_lasso_dual'])
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass, mode in zip([ml.mixed_lasso, 
-                            ml.mixed_lasso_dual], 
-                           ['lagrange', 'bound']):
+def test_proximal_maps(klass, mode):
+    for _ in range(2):
         factory = MixedSolverFactory(klass, mode)
         for solver in factory:
-            for t in solver.all_tests():
-                yield t
-        factory = MixedSolverFactory(klass, mode)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
+            run_checks(solver.all_tests())
