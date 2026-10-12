@@ -33,18 +33,18 @@ def basil_inner_loop(path_obj,
                                         path_obj.alpha * np.min(lagrange_subseq))[1]
 
     linear_predictor = path_obj.X.dot(solution)
-    unpen = np.zeros(path_obj.group_shape, np.bool)
+    unpen = np.zeros(path_obj.group_shape, bool)
     unpen[path_obj.unpenalized[1]] = True
     ever_active = list(path_obj.updated_ever_active(unpen)) # unpenalized groups
 
     solutions = []
     lagrange_solved = []
 
-    all_failing = np.zeros(path_obj.group_shape, np.bool)
+    all_failing = np.zeros(path_obj.group_shape, bool)
 
     M = min(step_nvar, (inactive_ranks >= 0).sum())
 
-    candidate_bool = np.zeros(path_obj.group_shape, np.bool)
+    candidate_bool = np.zeros(path_obj.group_shape, bool)
     subproblem_set = path_obj.updated_ever_active((inactive_ranks < M) * (inactive_ranks >= 0) +
                                                   unpen)
     if candidate_set is not None:

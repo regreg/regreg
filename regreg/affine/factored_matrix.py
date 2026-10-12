@@ -316,8 +316,8 @@ def partial_svd(transform,
 
     transform = astransform(transform)
 
-    n = np.product(transform.output_shape)
-    p = np.product(transform.input_shape)
+    n = np.prod(transform.output_shape)
+    p = np.prod(transform.input_shape)
 
     rank = int(np.min([rank,p]))
     q = np.min([rank + padding, p])

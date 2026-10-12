@@ -66,7 +66,7 @@ class sparse_group_lasso_path(group_lasso_path):
 
         self._unpenalized_vars = _candidate_bool(self.penalty.groups, 
                                                  unpenalized_groups)
-        self._penalized_vars = np.zeros(self.shape, np.bool)
+        self._penalized_vars = np.zeros(self.shape, bool)
         self._penalized_vars[self._unpenalized_vars] = 0
 
         if np.any(unpenalized_idx):
@@ -109,7 +109,7 @@ class sparse_group_lasso_path(group_lasso_path):
         """
         if not hasattr(self, "_unpen_groups"):
             self._unpen_groups = []
-            self._unpen_group_idx = np.zeros(self.group_shape, np.bool)
+            self._unpen_group_idx = np.zeros(self.group_shape, bool)
             for i, g in enumerate(self.penalty._sorted_groupids):
                 unpen_group = (self.penalty.weights[g] == 0 +
                                np.any(self.penalty.lasso_weights[self.penalty.groups == g]
@@ -294,7 +294,7 @@ def huber_svm(X, Y, smoothing_parameter, *args, **keyword_args):
 
 def _candidate_bool(groups, candidate_groups):
 
-    candidate_bool = np.zeros(groups.shape, np.bool)
+    candidate_bool = np.zeros(groups.shape, bool)
     for g in candidate_groups:
         group = groups == g
         candidate_bool += group
@@ -315,7 +315,7 @@ def _strong_set(penalty,
 
     thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
     thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
-    test = np.zeros(len(penalty._sorted_groupids), np.bool)
+    test = np.zeros(len(penalty._sorted_groupids), bool)
     for i, g in enumerate(penalty._sorted_groupids):
         group = penalty.groups == g
         test[i] = _inside_set_strong(gradient[group],

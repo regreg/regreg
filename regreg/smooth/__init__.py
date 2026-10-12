@@ -146,7 +146,7 @@ def acceptable_init_args(cls, proposed_keywords):
 
     Returns True/False
     """
-    args = inspect.getargspec(cls.__init__).args
+    args = inspect.getfullargspec(cls.__init__).args
     forbidden = ['self', 'shape', 'coef', 'quadratic', 'initial', 'offset']
     for kw in proposed_keywords.keys():
         if not kw in args:

@@ -89,7 +89,7 @@ class affine_transform(object):
 
 
             # does it support the affine_transform API
-            if np.alltrue([hasattr(self.linear_operator, n) for 
+            if np.all([hasattr(self.linear_operator, n) for 
                            n in ['linear_map',
                                  'affine_map',
                                  'affine_offset',
@@ -532,7 +532,7 @@ class vstack(affine_transform):
                     raise ValueError("input dimensions don't agree")
             self.transforms.append(transform)
             self.output_shapes.append(transform.output_shape)
-            increment = np.product(transform.output_shape)
+            increment = np.prod(transform.output_shape)
             self.output_slices.append(slice(total_output, total_output + increment))
             total_output += increment
 
@@ -593,7 +593,7 @@ class hstack(affine_transform):
                     raise ValueError("output dimensions don't agree")
             self.transforms.append(transform)
             self.input_shapes.append(transform.input_shape)
-            increment = np.product(transform.input_shape)
+            increment = np.prod(transform.input_shape)
             self.input_slices.append(slice(total_input, total_input + increment))
             total_input += increment
 
@@ -657,8 +657,8 @@ class product(affine_transform):
             self.transforms.append(transform)
             self.input_shapes.append(transform.input_shape)
             self.output_shapes.append(transform.output_shape)
-            input_increment = np.product(transform.input_shape)
-            output_increment = np.product(transform.output_shape)
+            input_increment = np.prod(transform.input_shape)
+            output_increment = np.prod(transform.output_shape)
             self.input_slices.append(slice(total_input, total_input + input_increment))
             self.output_slices.append(slice(total_output, total_output + output_increment))
             total_input += input_increment
@@ -972,7 +972,7 @@ def todense(transform):
     carefully -- it could be large.
     """
     if len(transform.input_shape) == 1:
-        I = np.identity(np.product(transform.input_shape))
+        I = np.identity(np.prod(transform.input_shape))
         return transform.linear_map(I)
     else:
         raise NotImplementedError('expecting a 1D shape as input')
