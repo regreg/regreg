@@ -1,3 +1,14 @@
+"""
+Cython wrappers for the Cox proportional hazards loss.
+
+These wrap the C implementation (``cox_fns.c``) of the Cox negative log
+partial likelihood, its gradient and Hessian-vector products.
+
+All functions take the linear predictor together with preallocated work
+buffers, case weights, censoring indicators, the ordering of the event
+times and their 0-based ranks (with min and max tie breaking).
+"""
+
 import warnings
 import numpy as np, cython
 cimport numpy as cnp
@@ -39,8 +50,8 @@ cdef extern from "cox_fns.h":
                            size_t ncase)                  # how many subjects / times 
 
     void _update_outer_2nd(double *linear_pred_ptr,     # Linear term in objective 
-                           double *exp_accum_ptr,       # inner accumulation vector  Ze^{\eta} 
-                           double *expZ_accum_ptr,      # inner accumulation vector e^{\eta} 
+                           double *exp_accum_ptr,       # inner accumulation vector e^{\eta} 
+                           double *expZ_accum_ptr,      # inner accumulation vector Ze^{\eta} 
                            double *outer_accum_2nd_ptr, # outer accumulation vector 
                            double *case_weight_ptr,     # case weights 
                            size_t *censoring_ptr,         # censoring indicator 
@@ -89,6 +100,41 @@ def cox_objective(cnp.ndarray[DTYPE_float_t, ndim=1] linear_pred,
                   cnp.ndarray[DTYPE_intp_t, ndim=1] rankmin,
                   cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
                   size_t ncase):
+    """
+    Compute the Cox negative log partial likelihood.
+
+    The work buffers `exp_buffer`, `exp_accum` and `outer_1st_accum`
+    are updated in place.
+
+    Parameters
+    ----------
+    linear_pred : ndarray
+        Linear predictor (natural parameter).
+    exp_buffer : ndarray
+        Buffer to store the case-weighted ``exp(linear_pred)``.
+    exp_accum : ndarray
+        Buffer for the reversed cumulative sums of `exp_buffer`
+        over the risk sets.
+    outer_1st_accum : ndarray
+        Buffer for the outer accumulation used in the log term.
+    case_weight : ndarray
+        Non-negative case weights.
+    censoring : ndarray
+        Censoring indicator (1 for a failure, 0 for censored).
+    ordering : ndarray
+        0-based ordering of the event times, i.e. ``argsort(times)``.
+    rankmin : ndarray
+        0-based ranks of the event times with min tie breaking.
+    rankmax : ndarray
+        0-based ranks of the event times with max tie breaking.
+    ncase : int
+        Number of cases.
+
+    Returns
+    -------
+    value : float
+        The negative log partial likelihood.
+    """
 
     # check shapes are correct
 
@@ -155,7 +201,16 @@ def cox_gradient(cnp.ndarray[DTYPE_float_t, ndim=1] gradient,
                  cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
                  size_t ncase):
     """
-    Compute Cox partial likelihood gradient in place.
+    Compute the gradient of the Cox negative log partial likelihood.
+
+    The gradient is written into `gradient` (if it is contiguous) and
+    the work buffers are updated in place. The remaining arguments are
+    as in `cox_objective`.
+
+    Returns
+    -------
+    gradient : ndarray
+        Gradient with respect to `linear_pred`.
     """
 
     # check shapes are correct
@@ -232,7 +287,28 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
                 cnp.ndarray[DTYPE_intp_t, ndim=1] rankmax,
                 size_t ncase):
     """
-    Compute Cox partial likelihood gradient in place.
+    Multiply the Hessian of the Cox loss by a vector.
+
+    Computes the product of the Hessian of the Cox negative log partial
+    likelihood with `right_vector`. The product is written into
+    `hessian` (if it is contiguous) and the work buffers `exp_buffer`,
+    `exp_accum`, `expZ_accum`, `outer_1st_accum` and `outer_2nd_accum`
+    are updated in place. The remaining arguments are as in
+    `cox_objective`.
+
+    Parameters
+    ----------
+    hessian : ndarray
+        Buffer for the result.
+    linear_pred : ndarray
+        Linear predictor at which the Hessian is evaluated.
+    right_vector : ndarray
+        Vector multiplied on the right of the Hessian.
+
+    Returns
+    -------
+    hessian : ndarray
+        The Hessian at `linear_pred` times `right_vector`.
     """
 
     # ensure arrays are contiguous
@@ -268,7 +344,7 @@ def cox_hessian(cnp.ndarray[DTYPE_float_t, ndim=1] hessian,
     assert(hessian.shape[0] == rankmin.shape[0])
     assert(hessian.shape[0] == rankmax.shape[0])
 
-    # this computes e^{\eta} and stores cumsum at rankmin, stored in outer_accum_1st
+    # this computes e^{\eta} and stores its reversed cumsum in exp_accum
 
     _update_cox_exp(<double *>linear_pred.data,
                     <double *>exp_buffer.data,

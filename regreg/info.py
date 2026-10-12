@@ -1,8 +1,9 @@
-""" Define distrubution parameters for regreg, including package version
+"""
+Define distribution parameters for regreg.
 
-This file contains defines parameters for regreg that we use to fill settings
+This file defines parameters for regreg that we use to fill settings
 in setup.py, the regreg top-level docstring, and for building the docs.  In
-setup.py in particular, we exec this file, so it cannot import regreg
+setup.py in particular, we exec this file, so it cannot import regreg.
 """
 
 CLASSIFIERS = ["Development Status :: 3 - Alpha",

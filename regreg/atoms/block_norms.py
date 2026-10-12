@@ -1,7 +1,11 @@
-"""
-This module contains the implementation of block norms, i.e.
-l1/l*, linf/l* norms. These are used in multiresponse LASSOs.
+r"""
+Block norms of matrices.
 
+This module contains the implementation of block norms, i.e.
+:math:`\ell_1/\|\cdot\|` and :math:`\ell_{\infty}/\|\cdot\|` norms that
+apply a norm to each row of a matrix and then combine the row norms
+with an :math:`\ell_1` (sum) or :math:`\ell_{\infty}` (max) norm.
+These are used in multiresponse LASSOs.
 """
 from __future__ import print_function, division, absolute_import
 
@@ -22,6 +26,39 @@ l1norm = seminorms.l1norm
 
 @objective_doc_templater()
 class block_sum(seminorms.seminorm):
+
+    r"""
+    Sum of the norms of the rows of a matrix.
+
+    For a matrix :math:`B` of shape :math:`(n, p)` and a seminorm
+    :math:`\|\cdot\|` on :math:`\mathbb{R}^p` this is
+
+    .. math::
+
+       \|B\|_{1,\|\cdot\|} = \sum_{i=1}^n \|B[i]\|
+
+    where :math:`B[i]` is the :math:`i`-th row of :math:`B`.
+
+    Parameters
+    ----------
+    atom_cls : type
+        Class of the seminorm applied to each row, e.g.
+        `regreg.atoms.seminorms.l2norm`.
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
 
     objective_template = r"""\|%(var)s\|_{1,\|\cdot\|}"""
     objective_vars = seminorms.seminorm.objective_vars.copy()
@@ -55,7 +92,21 @@ class block_sum(seminorms.seminorm):
     @doc_template_provider
     def seminorms(self, x, lagrange=None, check_feasibility=False):
         """
-        Compute all seminorms in the block norm.
+        Compute the seminorm of each row of the block norm's argument.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Matrix whose rows are passed to the row seminorm.
+        lagrange : float, optional
+            Lagrange parameter passed to the row seminorm.
+        check_feasibility : bool, optional
+            Ignored: feasibility is never checked for the rows.
+
+        Returns
+        -------
+        value : np.ndarray
+            Array of shape ``(self.shape[0],)`` with the seminorm of each row.
         """
         value = np.empty(self.shape[0])
         for i in range(self.shape[0]):
@@ -167,6 +218,40 @@ class block_sum(seminorms.seminorm):
 @objective_doc_templater()
 class block_max(block_sum):
 
+    r"""
+    Maximum of the norms of the rows of a matrix.
+
+    For a matrix :math:`B` of shape :math:`(n, p)` and a seminorm
+    :math:`\|\cdot\|` on :math:`\mathbb{R}^p` this is
+
+    .. math::
+
+       \|B\|_{\infty,\|\cdot\|} = \max_{1 \leq i \leq n} \|B[i]\|
+
+    where :math:`B[i]` is the :math:`i`-th row of :math:`B`. It is the
+    dual of `block_sum` with the dual row seminorm.
+
+    Parameters
+    ----------
+    atom_cls : type
+        Class of the seminorm applied to each row, e.g.
+        `regreg.atoms.seminorms.l2norm`.
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
+
     objective_template = r"""\|%(var)s\|_{\infty,\| \cdot\|}"""
     objective_vars = block_sum.objective_vars.copy()
     objective_vars['normklass'] = 'block_max'
@@ -237,6 +322,33 @@ class block_max(block_sum):
 
 @objective_doc_templater()
 class linf_l2(block_max):
+
+    r"""
+    Maximum of the :math:`\ell_2` norms of the rows of a matrix.
+
+    .. math::
+
+       \|B\|_{\infty,2} = \max_{1 \leq i \leq n} \|B[i]\|_2
+
+    This is the dual norm of `l1_l2`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
 
     objective_template = r"""\|%(var)s\|_{\infty,2}"""
     objective_vars = block_sum.objective_vars.copy()
@@ -352,6 +464,33 @@ class linf_l2(block_max):
 @objective_doc_templater()
 class linf_linf(linf_l2):
 
+    r"""
+    Maximum absolute value of the entries of a matrix.
+
+    .. math::
+
+       \|B\|_{\infty,\infty} = \max_{i,j} |B_{ij}|
+
+    This is the dual norm of `l1_l1`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
+
     objective_template = r"""\|%(var)s\|_{\infty,\infty}"""
     objective_vars = linf_l2.objective_vars.copy()
     objective_vars['normklass'] = 'linf_linf'
@@ -441,6 +580,34 @@ class linf_linf(linf_l2):
 
 @objective_doc_templater()
 class l1_l2(block_sum):
+
+    r"""
+    Sum of the :math:`\ell_2` norms of the rows of a matrix.
+
+    .. math::
+
+       \|B\|_{1,2} = \sum_{i=1}^n \|B[i]\|_2
+
+    This is a group LASSO penalty with the rows of :math:`B` as groups,
+    and is the dual norm of `linf_l2`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
 
     objective_template = r"""\|%(var)s\|_{1,2}"""
     objective_vars = linf_l2.objective_vars.copy()
@@ -553,6 +720,33 @@ class l1_l2(block_sum):
 
 @objective_doc_templater()
 class l1_l1(l1_l2):
+
+    r"""
+    Sum of the absolute values of the entries of a matrix.
+
+    .. math::
+
+       \|B\|_{1,1} = \sum_{i,j} |B_{ij}|
+
+    This is the dual norm of `linf_linf`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
 
     objective_template = r"""\|%(var)s\|_{1,1}"""
     objective_vars = l1_l2.objective_vars.copy()

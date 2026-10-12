@@ -1,3 +1,7 @@
+"""
+Base classes for problems in composite (smooth plus nonsmooth) form.
+"""
+
 from numpy import zeros, asarray, any as npany
 from copy import copy
 
@@ -13,6 +17,21 @@ from ..doctemplates import (doc_template_user, doc_template_provider)
 class composite(object):
     """
     A generic way to specify a problem in composite form.
+
+    A composite objective is the sum of a smooth part
+    (`smooth_objective`), a nonsmooth part (`nonsmooth_objective`) and a
+    quadratic (`quadratic`).
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the argument of the objective.
+    offset : ndarray, optional
+        Offset subtracted from the argument before evaluation.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic part of the objective.
+    initial : ndarray, optional
+        Initial value for ``coefs``. Defaults to zeros.
     """
 
     objective_template = r"""f(%(var)s)"""
@@ -39,6 +58,9 @@ class composite(object):
             self.coefs = copy(initial)
 
     def set_offset(self, value):
+        """
+        Set the offset; an offset that is all zeros is ignored.
+        """
         if value is not None:
             value = asarray(value)
             if npany(value != 0):
@@ -47,12 +69,31 @@ class composite(object):
             self._offset = None
 
     def get_offset(self):
+        """
+        Get the offset (None if there is no offset).
+        """
         if not hasattr(self, "_offset"):
             self._offset = None
         return self._offset
     offset = property(get_offset, set_offset)
 
     def latexify(self, var=None, idx=''):
+        """
+        Return a LaTeX representation of the objective.
+
+        Parameters
+        ----------
+        var : str, optional
+            LaTeX name for the argument of the objective. Defaults to
+            ``self.objective_vars['var']``.
+        idx : str, optional
+            Subscript to attach to the parameters.
+
+        Returns
+        -------
+        latex : str
+            LaTeX string.
+        """
         template_dict = copy(self.objective_vars)
         template_dict['idx'] = idx
         if var is not None:
@@ -71,22 +112,78 @@ class composite(object):
         return r'$$' + self.latexify() + r'$$'
 
     def nonsmooth_objective(self, x, check_feasibility=False):
+        """
+        The nonsmooth part of the objective; here just the quadratic.
+
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible (unused here).
+
+        Returns
+        -------
+        value : float
+            Value of the nonsmooth part.
+        """
         return self.quadratic.objective(x, 'func')
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         '''
-        The smooth_objective and the quadratic_objective combined.
+        The smooth part of the objective and/or its gradient.
+
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        mode : str, optional
+            One of ``['func', 'grad', 'both']``.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible?
+
+        Returns
+        -------
+        value : float or ndarray or tuple
+            Function value, gradient, or both.
         '''
         raise NotImplementedError
 
     def objective(self, x, check_feasibility=False):
+        """
+        Total objective: smooth plus nonsmooth part.
+
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible?
+
+        Returns
+        -------
+        value : float
+            Value of the objective.
+        """
         return self.smooth_objective(x,mode='func', check_feasibility=check_feasibility) + self.nonsmooth_objective(x, check_feasibility=check_feasibility)
 
     @doc_template_provider
     def proximal_optimum(self, quadratic):
         r"""
-        Compute a proximal step, and return the minimizer
-        and nonsmooth objective the value.
+        Compute a proximal step, returning the minimizer and the optimal value.
+
+        Parameters
+        ----------
+        quadratic : `regreg.identity_quadratic.identity_quadratic`
+            Quadratic term of the proximal problem.
+
+        Returns
+        -------
+        argmin : ndarray
+            Minimizer of the proximal problem.
+        optimal_value : float
+            Value of `quadratic` plus the nonsmooth objective (and
+            ``self.quadratic``) at `argmin`.
         """
         argmin = self.proximal(quadratic)
         if self.quadratic is None:
@@ -96,12 +193,20 @@ class composite(object):
 
     def proximal_step(self, quadratic, prox_control=None):
         """
-        Compute the proximal optimization
+        Compute the proximal optimization.
 
         Parameters
         ----------
-        prox_control: [None, dict]
-            If not None, then a dictionary of parameters for the prox procedure
+        quadratic : `regreg.identity_quadratic.identity_quadratic`
+            Quadratic term of the proximal problem.
+        prox_control : dict, optional
+            If not None, then a dictionary of parameters for the prox
+            procedure.
+
+        Returns
+        -------
+        argmin : ndarray
+            Minimizer of the proximal problem.
         """
         # This seems like a null op -- if all proximals accept optional prox_control
         if prox_control is None:
@@ -111,7 +216,8 @@ class composite(object):
 
     def apply_offset(self, x):
         """
-        If self.offset is not None, return x-self.offset, else return x.
+        If ``self.offset`` is not None, return ``x-self.offset``, else
+        return `x`.
         """
         if self.offset is not None:
             return x - self.offset
@@ -134,7 +240,19 @@ class composite(object):
 
     def smoothed(self, smoothing_quadratic):
         '''
-        Add quadratic smoothing term
+        Smooth the composite by adding a quadratic to its conjugate.
+
+        Parameters
+        ----------
+        smoothing_quadratic : `regreg.identity_quadratic.identity_quadratic`
+            Quadratic added to the conjugate; its coefficient must be
+            nonzero.
+
+        Returns
+        -------
+        smoothed_atom : object
+            The conjugate of the smoothed conjugate, a smooth approximation
+            to this composite.
         '''
         conjugate_atom = copy(self.conjugate)
         sq = smoothing_quadratic
@@ -149,18 +267,20 @@ class composite(object):
         return smoothed_atom
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
+        """
+        Solve the problem. Must be implemented by subclasses.
+        """
         raise NotImplementedError('subclasses must implement their own solve methods')
 
 @objective_doc_templater()
 class nonsmooth(composite):
     """
-    A composite subclass that explicitly returns 0
-    as smooth_objective.
+    A composite subclass that explicitly returns 0 as smooth_objective.
     """
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         '''
-        The zero function.
+        The zero function (and its zero gradient).
         '''
 
         if mode == 'both':
@@ -172,6 +292,25 @@ class nonsmooth(composite):
         raise ValueError("Mode not specified correctly")
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
+        """
+        Minimize the objective plus `quadratic` with a single proximal step.
+
+        Parameters
+        ----------
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic added to the objective.
+        return_optimum : bool, optional
+            Also return the optimal value?
+        fit_args : dict
+            Ignored.
+
+        Returns
+        -------
+        optimal_value : float
+            Only returned if `return_optimum` is True.
+        coefs : ndarray
+            The minimizer.
+        """
         if quadratic is None:
             quadratic = sq(0, 0, 0, 0)
         self.coefs = self.proximal(quadratic)
@@ -184,33 +323,65 @@ class nonsmooth(composite):
 class smooth(composite):
 
     """
-    A composite subclass that has 0 as 
-    nonsmooth_objective and the proximal
-    is a null-op.
+    A composite subclass with no nonsmooth part.
+
+    The nonsmooth part is just the quadratic, so the proximal map
+    is that of a quadratic.
     """
 
     objective_vars = copy(composite.objective_vars)
     objective_vars['coef'] = 'C'
 
     def get_lipschitz(self):
+        """
+        Lipschitz constant of the gradient, including the quadratic.
+        """
         if hasattr(self, '_lipschitz'):
             return self._lipschitz + self.quadratic.coef
         return self.quadratic.coef
 
     def set_lipschitz(self, value):
+        """
+        Set the Lipschitz constant of the gradient (excluding the quadratic).
+        """
         if value < 0:
             raise ValueError('Lipschitz constant must be non-negative')
         self._lipschitz = value
     lipschitz = property(get_lipschitz, set_lipschitz)
 
     def smooth_objective(self, x, mode='func', check_feasibility=False):
+        """
+        Evaluate ``self._smooth_objective``; see `composite.smooth_objective`.
+        """
         return self._smooth_objective(x, mode=mode, check_feasibility=check_feasibility)
 
     def proximal(self, quadratic):
+        """
+        Minimizer of ``self.quadratic`` plus `quadratic`.
+        """
         totalq = self.quadratic + quadratic
         return -totalq.linear_term / totalq.coef
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
+        """
+        Minimize the objective plus `quadratic` using `FISTA`.
+
+        Parameters
+        ----------
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic added to the objective.
+        return_optimum : bool, optional
+            Also return the optimal value?
+        fit_args : dict
+            Keyword arguments passed to `regreg.algorithms.FISTA.fit`.
+
+        Returns
+        -------
+        optimal_value : float
+            Only returned if `return_optimum` is True.
+        coefs : ndarray
+            The minimizer.
+        """
         if quadratic is None:
             quadratic = sq(0, 0, 0, 0)
         oldq, self.quadratic = self.quadratic, self.quadratic + quadratic
@@ -225,16 +396,27 @@ class smooth(composite):
 
 class smooth_conjugate(smooth):
 
+    """
+    Smooth conjugate of an atom.
+
+    Given an atom, compute the conjugate of this atom plus an
+    identity_quadratic, which will be a smooth version of the conjugate of
+    the atom.
+
+    Parameters
+    ----------
+    atom : `regreg.atoms.atom`
+        The atom to conjugate.
+    smoothing_quadratic : `identity_quadratic`, optional
+        Quadratic added to the atom. The total quadratic coefficient (the
+        atom's plus this one) must be nonzero.
+
+    Notes
+    -----
+    Should we have an argument "collapse" that makes a copy?
+    """
+
     def __init__(self, atom, smoothing_quadratic=None):
-        """
-        Given an atom,
-        compute the conjugate of this atom plus 
-        an identity_quadratic which will be 
-        a smooth version of the conjugate of the atom.
-
-        should we have an argument "collapse" that makes a copy?
-
-        """
         # this holds a pointer to the original atom,
         # but will be replaced later
 
@@ -292,6 +474,10 @@ class smooth_conjugate(smooth):
         # where, in the last line we have used the fact that the $\sup$ over $u$ in the second to last line is infinite unless $x=v-\gamma$.
 
     def get_conjugate(self):
+        """
+        The conjugate of the smooth conjugate, i.e. the atom with
+        the quadratics added back in.
+        """
         if self.quadratic.iszero:
             if self.smoothing_quadratic.iszero:
                 return self.atom
@@ -351,6 +537,21 @@ class smooth_conjugate(smooth):
     conjugate = property(get_conjugate)
 
     def latexify(self, var=None, idx=''):
+        """
+        Return a LaTeX representation of the smooth conjugate.
+
+        Parameters
+        ----------
+        var : str, optional
+            LaTeX name for the argument.
+        idx : str, optional
+            Subscript to attach to the parameters.
+
+        Returns
+        -------
+        latex : str
+            LaTeX string.
+        """
         template_dict = copy(self.atom.objective_vars)
         template_dict['idx'] = idx
         if var is not None:
@@ -370,11 +571,23 @@ class smooth_conjugate(smooth):
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
-        Evaluate a smooth function and/or its gradient
+        Evaluate the smooth conjugate and/or its gradient.
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        mode : str, optional
+            If ``'both'``, return both function value and gradient;
+            if ``'grad'``, return only the gradient;
+            if ``'func'``, return only the function value.
+        check_feasibility : bool, optional
+            Unused.
+
+        Returns
+        -------
+        value : float or ndarray or tuple
+            Function value, gradient, or both.
         """
 
         q = self.smoothing_quadratic + sq(0,0,-x,0) 
@@ -400,4 +613,7 @@ class smooth_conjugate(smooth):
             raise ValueError("mode incorrectly specified")
 
     def proximal(self, proxq, prox_control=None):
+        """
+        Not defined for a smooth conjugate; raises ValueError.
+        """
         raise ValueError('no proximal defined')

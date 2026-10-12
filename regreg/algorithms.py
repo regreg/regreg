@@ -7,6 +7,17 @@ from .identity_quadratic import identity_quadratic as sq
 
 class algorithm(object):
 
+    """
+    Base class for iterative solvers of composite problems.
+
+    Parameters
+    ----------
+    composite : `regreg.problems.composite.composite`
+        The problem to be solved. It must provide ``coefs``,
+        ``smooth_objective``, ``nonsmooth_objective`` and
+        ``proximal_step``.
+    """
+
     perform_backtrack = True
     step = None
     alpha = 1.1
@@ -22,14 +33,15 @@ class algorithm(object):
     @property
     def output(self):
         """
-        Return the 'interesting' part of the composite arguments.
-        In the regression case, this is the tuple (beta, r).
+        The 'interesting' part of the composite arguments.
+
+        In the regression case, this is the tuple ``(beta, r)``.
         """
         return self.composite.output
 
     def fit(self):
         """
-        Abstract method.
+        Fit the problem. Abstract method, implemented by subclasses.
         """
         raise NotImplementedError
 
@@ -37,7 +49,10 @@ class algorithm(object):
 class FISTA(algorithm):
 
     """
-    The FISTA generalized gradient algorithm
+    The FISTA generalized gradient algorithm.
+
+    Accelerated proximal gradient descent (Beck and Teboulle, 2009) with
+    backtracking line search and adaptive restarting.
     """
 
     alpha = 1.1 # multiplicative factor for changing step
@@ -56,33 +71,46 @@ class FISTA(algorithm):
             prox_control={}):
 
         """
-        Use the FISTA (or ISTA) algorithm to fit the problem
+        Use the FISTA (or ISTA) algorithm to fit the problem.
 
         Parameters
         ----------
-        FISTA : bool
-              use Nesterov weights? If False, this is just gradient descent
-        start_step : float
-              used in backtracking. This is the starting value of self.step
-        restart : int
-              Restart Nesterov weights every restart iterations. Default is never (np.inf)
-        coef_stop : bool
-              Stop based on coefficient changes instead of objective value
-        return_objective_hist : bool
-              Return the sequence of objective values?
-        monotonicity_restart : bool
-              If True, Nesterov weights are restarted every time the objective value increases
-        debug : bool
-              Resets self.debug, which controls whether convergence information is printed
-        prox_control : dict
-              A dictionary of arguments for fit(), used when the composite.proximal_step itself is a FISTA problem
-    
+        tol : float, optional
+            Convergence tolerance on the relative change in objective (or
+            coefficients if `coef_stop` is True). Defaults to
+            ``self.default_tol``.
+        min_its : int, optional
+            Minimum number of iterations. Defaults to ``self.min_its``.
+        max_its : int, optional
+            Maximum number of iterations. Defaults to ``self.max_its``.
+        FISTA : bool, optional
+            Use Nesterov weights? If False, this is just proximal gradient
+            descent (ISTA).
+        start_step : float, optional
+            Used in backtracking. This is the starting value of ``self.step``
+            if no step is available from a previous fit.
+        restart : int, optional
+            Restart Nesterov weights every `restart` iterations. Default is
+            never (``np.inf``).
+        coef_stop : bool, optional
+            Stop based on coefficient changes instead of objective value.
+        return_objective_hist : bool, optional
+            Return the sequence of objective values?
+        monotonicity_restart : bool, optional
+            If True, Nesterov weights are restarted every time the objective
+            value increases.
+        debug : bool, optional
+            Resets ``self.debug``, which controls whether convergence
+            information is printed.
+        prox_control : dict, optional
+            A dictionary of arguments for ``fit()``, used when
+            ``composite.proximal_step`` itself is a FISTA problem.
+
         Returns
         -------
-
         objective_hist : ndarray
-              A vector of objective values. Only return if return_objective_hist is True.
-
+            A vector of objective values. Only returned if
+            `return_objective_hist` is True.
         """
 
         tol = tol or self.default_tol
@@ -215,6 +243,14 @@ class FISTA(algorithm):
             return objective_hist[:itercount]
 
     def update_working_coefs(self, proposed_coefs):
+        """
+        Update ``self.working_coefs`` with a Nesterov momentum step.
+
+        Parameters
+        ----------
+        proposed_coefs : ndarray
+            Coefficients produced by the latest proximal gradient step.
+        """
         if FISTA:
             #Use Nesterov weights
             self.weight_new = 0.5 * (1 + np.sqrt(1+4*(self.weight_old**2)))
@@ -226,6 +262,24 @@ class FISTA(algorithm):
             self.working_coefs = proposed_coefs
 
     def backtrack(self, itercount):
+        """
+        Take a proximal gradient step with backtracking line search.
+
+        The step size is decreased until the quadratic majorization
+        condition holds at the proposed coefficients.
+
+        Parameters
+        ----------
+        itercount : int
+            Current iteration number.
+
+        Returns
+        -------
+        proposed_coefs : ndarray
+            Coefficients after the accepted proximal gradient step.
+        proposed_smooth : float
+            Smooth objective evaluated at `proposed_coefs`.
+        """
 
         if np.mod(itercount+1,100)==0 or self.attempt_decrease:
             self.step *= self.alpha

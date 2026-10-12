@@ -4,31 +4,27 @@ from ..affine import affine_transform
 
 def formD_smaller(m, n):
     """
-    Generate a sparse
-    matrix that computes
-    the difference across all edges in a
-    2D lattice of shape (m,n).
+    Generate a sparse matrix that computes the difference across all
+    edges in a 2D lattice of shape ``(m,n)``.
 
     Parameters
     ----------
-
-    m: int
-
-    n: int
+    m : int
+        Number of rows of the lattice.
+    n : int
+        Number of columns of the lattice.
 
     Returns
     -------
-
-    D: scipy.csr_matrix
-       A matrix with 2*(m-1)*(n-1)+(m-1)+(n-1) rows
-       and m*n columns
+    D : scipy.sparse.csr_matrix
+       A matrix with ``2*(m-1)*(n-1)+(m-1)+(n-1)`` rows
+       and ``m*n`` columns
        representing each edge exactly once in the
        2D lattice.
 
-       The first 2*(m-1)*(n-1) rows represent
+       The first ``2*(m-1)*(n-1)`` rows represent
        interior vertices, then the right hand edges and
        finally the top edges with the origin in the bottom left.
-    
     """
     p = m*n
 
@@ -100,23 +96,21 @@ def formD_smaller(m, n):
 
 def formD(m, n):
     """
-    Generate a sparse
-    matrix that computes
-    the difference across all edges in a
-    2D lattice of shape (m,n).
+    Generate a sparse matrix that computes the difference across all
+    edges in a 2D lattice of shape ``(m,n)``.
 
     Parameters
     ----------
-    m: int
-
-    n: int
+    m : int
+        Number of rows of the lattice.
+    n : int
+        Number of columns of the lattice.
 
     Returns
     -------
-
-    D: scipy.csr_matrix
-       A matrix with 2*(m*n-1)
-       and m*n columns
+    D : scipy.sparse.csr_matrix
+       A matrix with ``2*(m*n-1)`` rows
+       and ``m*n`` columns
        representing each edge exactly once in the
        2D lattice and including some zero rows.
 
@@ -127,13 +121,12 @@ def formD(m, n):
        to which the l1_l2 proximal function
        can be applied.
 
-       The first (m-1)*(n-1) rows represent
+       The first ``(m-1)*(n-1)`` rows represent
        interior vertices, then the right hand edges and
        finally the top edges with the origin in the bottom left.
        This forms the first row of this two row matrix described above.
 
        The second row of the matrix has exactly the same structure.
-
     """
 
     p = m*n
@@ -209,6 +202,18 @@ def formD(m, n):
     return D1 + D2 + D3 + D4 + D5 + D6 + D7 + D8
 
 class image2d_differences(affine_transform):
+    """
+    Differences across all edges of a 2D image (lattice), as computed
+    by `formD`. The output has shape ``(m*n-1, 2)``, suitable for
+    an isotropic total variation penalty.
+
+    Parameters
+    ----------
+    image_shape : tuple
+        Shape ``(m, n)`` of the image.
+    affine_offset : None or ndarray, optional
+        Offset added in `affine_map`.
+    """
 
     def __init__(self, image_shape, affine_offset=None):
         self.image_shape = image_shape
@@ -220,65 +225,69 @@ class image2d_differences(affine_transform):
         self.affine_offset = affine_offset
 
     def linear_map(self, x, copy=True):
-        r"""Apply linear part of transform to `x`
+        r"""
+        Apply linear part of transform to `x`.
 
-        Return :math:`Dx`
+        Return :math:`Dx`.
 
         Parameters
         ----------
         x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
+            Image to which to apply transform, of shape `image_shape`
+            (or flattened).
         copy : {True, False}, optional
-            If True, in situations where return is identical to `x`, ensure
-            returned value is a copy.
+            Ignored.
 
         Returns
         -------
         Dx : ndarray
-            `x` transformed with linear component
+            `x` transformed with linear component, of shape
+            `output_shape`.
         """
         v = self.D * x.reshape(-1)
         return v.reshape(self.output_shape[::-1]).T
 
     def affine_map(self, x, copy=True):
-        r"""Apply linear part of transform to `x`
+        r"""
+        Apply linear part of transform and affine offset to `x`.
 
-        Return :math:`Dx+\alpha`
+        Return :math:`Dx+\alpha`.
 
         Parameters
         ----------
         x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
+            Image to which to apply transform, of shape `image_shape`
+            (or flattened).
         copy : {True, False}, optional
-            If True, in situations where return is identical to `x`, ensure
-            returned value is a copy.
+            Ignored.
 
         Returns
         -------
-        Dx + offset: ndarray
-            `x` transformed with linear component + offset
+        Dx_a : ndarray
+            `x` transformed with linear component + offset.
         """
         if self.affine_offset is not None:
             return self.linear_map(x) + self.affine_offset
         return self.linear_map(x)
 
     def adjoint_map(self, u, copy=True):
-        r"""Apply adjioint of transform to `u`
+        r"""
+        Apply adjoint of transform to `u`.
 
-        Return :math:`D^Tu`
+        Return :math:`D^Tu`.
 
         Parameters
         ----------
         u : ndarray
-            array to which to apply transform.  Can be 1D or 2D
+            Array of shape `output_shape` to which to apply the adjoint.
         copy : {True, False}, optional
-            If True, in situations where return is identical to ``, ensure
-            returned value is a copy.
+            Ignored.
 
         Returns
         -------
-        D.T*u : ndarray
-            `u` transformed with linear component
+        DTu : ndarray
+            `u` transformed with the adjoint of the linear component,
+            of shape `image_shape`.
         """
         v = self.DT * u.T.reshape(-1)
         return v.reshape(self.input_shape)

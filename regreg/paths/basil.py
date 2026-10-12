@@ -1,3 +1,7 @@
+"""
+The BASIL (batch screening iterative lasso) path algorithm.
+"""
+
 import numpy as np
 from ..affine import power_L
 
@@ -11,6 +15,49 @@ def basil_inner_loop(path_obj,
                      step_nvar=50,
                      candidate_set=None,
                      solve_args={}):
+    """
+    Solve a path over a short sequence of Lagrange parameters.
+
+    The subproblem is restricted to a candidate set formed from the
+    unpenalized groups, the `step_nvar` inactive groups with the largest KKT
+    violations, and `candidate_set`. The loop stops at the first Lagrange
+    parameter at which the KKT conditions fail.
+
+    Parameters
+    ----------
+    path_obj : `regreg.paths.grouped_path`
+        Path object describing the problem.
+    lagrange_subseq : sequence of float
+        Decreasing sequence of Lagrange parameters.
+    initial_data : tuple
+        Pair ``(solution, grad_solution)`` used as a warm start.
+    inner_tol : float, optional
+        Tolerance for each subproblem.
+    verbose : bool, optional
+        Print progress information?
+    initial_step : float, optional
+        Initial step size for the solver. If None, it is estimated from the
+        Lipschitz constant of ``path_obj.X``.
+    check_active : bool, optional
+        Also check KKT conditions for active groups?
+    step_nvar : int, optional
+        Number of inactive groups to add to the candidate set.
+    candidate_set : list, optional
+        Extra groups to include in the subproblem.
+    solve_args : dict, optional
+        Extra arguments passed to ``path_obj.solve_subproblem``.
+
+    Returns
+    -------
+    lagrange_solved : list
+        Lagrange parameters for which a solution was found.
+    solutions : list
+        Corresponding solutions.
+    last_grad : ndarray
+        Gradient at the last solution found.
+    ever_active : list
+        Updated candidate set of groups.
+    """
 
     debug = True
     coef_stop = False
@@ -113,6 +160,40 @@ def basil(path_obj,
           step_nvar=50,
           step_lagrange=5,
           solve_args={}):
+    """
+    Compute a regularization path with the BASIL algorithm.
+
+    The path is computed in batches of `step_lagrange` Lagrange parameters
+    using `basil_inner_loop`.
+
+    Parameters
+    ----------
+    path_obj : `regreg.paths.grouped_path`
+        Path object describing the problem.
+    lagrange_seq : ndarray
+        Decreasing sequence of Lagrange parameters.
+    initial_data : tuple
+        Pair ``(solution, grad_solution)`` at ``lagrange_seq[0]``.
+    inner_tol : float, optional
+        Tolerance for each subproblem.
+    verbose : bool, optional
+        Print progress information? (Currently unused.)
+    initial_step : float, optional
+        Initial step size for the solver. (Currently unused.)
+    check_active : bool, optional
+        Also check KKT conditions for active groups? (Currently unused.)
+    step_nvar : int, optional
+        Number of inactive groups added to the candidate set in each batch.
+    step_lagrange : int, optional
+        Number of Lagrange parameters in each batch.
+    solve_args : dict, optional
+        Extra arguments passed to ``path_obj.solve_subproblem``.
+
+    Returns
+    -------
+    solutions : ndarray
+        Solutions along the path.
+    """
 
     lagrange_solved, solutions, candidate_set = [np.inf], [], []
 

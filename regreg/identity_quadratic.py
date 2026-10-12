@@ -1,4 +1,6 @@
 r"""
+A class representing simple quadratic functions.
+
 This module contains a single class that is meant to represent
 a quadratic of the form
 
@@ -6,8 +8,8 @@ a quadratic of the form
 
    \frac{L}{2} \|x-\mu\|^2_2 + \langle \eta, x \rangle + \gamma
 
-with :math:`L, \mu, \eta, \gamma` = (coef, center, linear_term,
-constant_term).
+with :math:`(L, \mu, \eta, \gamma)` = ``(coef, center, linear_term,
+constant_term)``.
 """
 
 from copy import copy
@@ -18,7 +20,9 @@ from numpy import all, asarray, allclose
 class identity_quadratic(object):
 
     r"""
-    This object is a quadratic function
+    A quadratic function with identity Hessian (up to scaling).
+
+    This object represents the function
 
     .. math::
 
@@ -26,6 +30,16 @@ class identity_quadratic(object):
 
     used in the proximal methods of all atoms.
 
+    Parameters
+    ----------
+    coef : float
+        The coefficient :math:`L`. If None, it is set to 0.
+    center : ndarray or float
+        The center :math:`\mu`. May be None.
+    linear_term : ndarray or float
+        The linear term :math:`\eta`. May be None.
+    constant_term : float, optional
+        The constant :math:`\gamma`. If None, it is set to 0.
     """
 
     objective_vars = {'var': r'\beta', 'shape':'p', 'offset':r'\alpha'}
@@ -62,6 +76,9 @@ class identity_quadratic(object):
 
     @property
     def iszero(self):
+        """
+        True if every term of the quadratic is zero (or None).
+        """
         return all([self.coef in [0, None],
                     self.center is None or all(self.center == 0),
                     self.linear_term is None or all(self.linear_term == 0),
@@ -75,7 +92,9 @@ class identity_quadratic(object):
 
     def noneify(self):
         '''
-        replace zeros with nones
+        Replace zero center and linear term with None.
+
+        A coefficient or constant term of None is replaced with 0.
         '''
         if self.coef is None:
             self.coef = 0
@@ -87,11 +106,30 @@ class identity_quadratic(object):
             self.center_term = None
 
     def zeroify(self):
+        """
+        Replace any attribute that is None with 0, in place.
+        """
         for a in ['coef', 'center', 'linear_term', 'constant_term']:
             if getattr(self, a) is None:
                 setattr(self, a, 0)
 
     def recenter(self, offset):
+        """
+        Shift the center of the quadratic by `offset`.
+
+        Parameters
+        ----------
+        offset : ndarray or None
+            Offset to subtract from the center. If None or all zeros, no
+            shift is made.
+
+        Returns
+        -------
+        offset : ndarray or None
+            The offset, or None if it was None or all zeros.
+        quadratic : `identity_quadratic`
+            The collapsed (recentered) quadratic.
+        """
 
         if offset is not None and all(offset == 0):
             offset = None
@@ -106,6 +144,22 @@ class identity_quadratic(object):
 
 
     def objective(self, x, mode='both'):
+        """
+        Evaluate the quadratic and/or its gradient.
+
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        mode : str, optional
+            One of ``['func', 'grad', 'both']``.
+
+        Returns
+        -------
+        value : float or ndarray or tuple
+            The value (``'func'``), the gradient (``'grad'``) or a tuple of
+            both (``'both'``).
+        """
         coef, center, linear_term = self.coef, self.center, self.linear_term
         cons = self.constant_term
         if linear_term is None:
@@ -138,10 +192,11 @@ class identity_quadratic(object):
         return 'identity_quadratic(%f, %s, %s, %f)' % (self.coef, repr(self.center), repr(self.linear_term), self.constant_term)
 
     def __add__(self, other):
-        """ Return an identity quadratic given by the sum in the obvious way.
+        """
+        Return an identity quadratic given by the sum in the obvious way.
 
-        It has center of 0, would be nice to have None, but there are some
-        places we are still multiplying by -1
+        It has center of 0. It would be nice to have None, but there are
+        some places we are still multiplying by -1.
         """
         if not (other is None or isinstance(other, identity_quadratic)):
             raise ValueError('can only add None or other identity_quadratic')
@@ -159,7 +214,14 @@ class identity_quadratic(object):
 
     def get_shapes(self):
         '''
-        Determine shape of any pieces and make sure they agree
+        Determine shapes of the linear term and center, checking they agree.
+
+        Returns
+        -------
+        linear_term_shape : tuple
+            Shape of the linear term.
+        center_shape : tuple
+            Shape of the center.
         '''
         self.zeroify()
         lt = asarray(self.linear_term)
@@ -173,8 +235,9 @@ class identity_quadratic(object):
 
     def __getitem__(self, slice):
         '''
-        Return a new quadratic restricted to the variables in slice
-        with constant_term=0.
+        Return a new quadratic restricted to the variables in `slice`.
+
+        The resulting quadratic has ``constant_term=0``.
         '''
         lts, cts = self.get_shapes()
 
@@ -192,9 +255,11 @@ class identity_quadratic(object):
 
     def collapsed(self):
         """
-        Return an identity quadratic with center of 0,
-        would be nice to have None, but there are some 
-        places we are still multiplying by -1
+        Return an equivalent identity quadratic with center of 0.
+
+        The center is absorbed into the linear and constant terms. It would
+        be nice to have a center of None, but there are some places we are
+        still multiplying by -1.
         """
         coef = 0 if self.coef is None else self.coef
         linear_term = 0.
@@ -210,6 +275,21 @@ class identity_quadratic(object):
         return identity_quadratic(coef, 0, linear_term, constant_term)
 
     def latexify(self, var=r'\beta', idx=''):
+        """
+        Return a LaTeX representation of the quadratic.
+
+        Parameters
+        ----------
+        var : str, optional
+            LaTeX name for the argument of the quadratic.
+        idx : str, optional
+            Subscript to attach to the parameters.
+
+        Returns
+        -------
+        latex : str
+            LaTeX string.
+        """
 
         template_dict = copy(self.objective_vars)
         template_dict['idx'] = idx
@@ -236,6 +316,9 @@ class identity_quadratic(object):
 
     @property
     def true_center(self):
+        """
+        Minimizer of the quadratic, or None if ``coef`` is not positive.
+        """
         q = self.collapsed()
         if q.coef > 0:
             return -q.linear_term / q.coef
@@ -243,6 +326,12 @@ class identity_quadratic(object):
 
     @property
     def conjugate(self):
+        """
+        The convex conjugate of the quadratic.
+
+        If ``coef`` is nonzero this is another `identity_quadratic`;
+        otherwise it is a `zero_constraint` atom.
+        """
         a = self.collapsed()
         if a.coef != 0:
             return identity_quadratic(1./a.coef,

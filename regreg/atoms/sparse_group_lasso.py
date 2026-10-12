@@ -1,11 +1,14 @@
-"""
+r"""
 Implementation of the sparse group LASSO atom.
 
 This penalty is defined by groups and individual feature weights and is
-$$
-\beta \mapsto \sum_j \lambda_j |\beta_j| + \sum_g \alpha_g \|\beta_g\|_2
-$$
 
+.. math::
+
+    \beta \mapsto \sum_j \alpha_j |\beta_j| + \sum_g w_g \|\beta[g]\|_2
+
+where :math:`\alpha_j` are the feature (LASSO) weights and :math:`w_g`
+are the group weights.
 """
 
 from warnings import warn
@@ -24,8 +27,35 @@ from ..problems.composite import smooth_conjugate
 @objective_doc_templater()
 class sparse_group_lasso(group_lasso, seminorm):
 
-    """
-    Sparse group LASSO
+    r"""
+    The sparse group LASSO seminorm.
+
+    .. math::
+
+        \beta \mapsto \sum_j \alpha_j |\beta_j| + \sum_g w_g \|\beta[g]\|_2
+
+    Parameters
+    ----------
+    groups : array-like
+        Group labels for each coordinate of the argument.
+    lasso_weights : array-like
+        Feature weights :math:`\alpha_j`. If not of the same shape as
+        `groups`, it is broadcast to that shape.
+    weights : dict, optional
+        Group weights :math:`w_g` keyed by group label. Groups without a
+        weight get a default weight of the square root of the group size.
+    lagrange : float, optional
+        Lagrange parameter. Exactly one of `lagrange` and `bound`
+        must be specified.
+    bound : float, optional
+        Bound parameter. Exactly one of `lagrange` and `bound`
+        must be specified.
+    offset : `np.ndarray`, optional
+        Offset subtracted from the argument before evaluating the seminorm.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term added to the atom.
+    initial : `np.ndarray`, optional
+        Initial value for the coefficients.
     """
 
     objective_template = (r""" \left[ \sum_j \alpha_j |%(var)s_j|""" + 
@@ -127,10 +157,24 @@ class sparse_group_lasso(group_lasso, seminorm):
                                offset=copy(self.offset))
 
     def terms(self, arg):
-        """
-        Return the args that are summed
-        in computing the seminorm.
+        r"""
+        Return the terms that are summed in computing the seminorm.
 
+        Parameters
+        ----------
+        arg : `np.ndarray`
+            Argument of the seminorm.
+
+        Returns
+        -------
+        terms : `np.ndarray`
+            For each group (ordered by sorted group label), the weighted
+            Euclidean norm plus the weighted :math:`\ell_1` norm of
+            that group of `arg`.
+
+        Examples
+        --------
+        >>> import numpy as np
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
         >>> l1weights = [1,1,1,1,1]
@@ -144,7 +188,6 @@ class sparse_group_lasso(group_lasso, seminorm):
         (12.3245..., 24.2474...)
         >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) + np.sum(np.fabs(arg)) # doctest: +ELLIPSIS
         36.5720...
-        
         """
         arg = np.asarray(arg)
         norms = []
@@ -230,7 +273,10 @@ class sparse_group_lasso(group_lasso, seminorm):
 class sparse_group_lasso_dual(sparse_group_lasso):
 
      r"""
-     The dual of the slope penalty:math:`\ell_{\infty}` norm
+     The dual of the sparse group LASSO seminorm.
+
+     Takes the same arguments as `sparse_group_lasso`. The seminorm is
+     computed by a binary search for the gauge of the dual ball.
      """
 
      objective_template = r"""{\cal D}^{group sparse}(%(var)s)"""
@@ -239,11 +285,16 @@ class sparse_group_lasso_dual(sparse_group_lasso):
      @property
      def base_conjugate(self):
          """
-         For a sparse group LASSO dual in bound form,
-         an atom that agrees with its primal Lagrange form.
-         
-         Note: this conjugate does not take into account the atom's quadratic
-         and offset terms. 
+         The primal atom in Lagrange form matching this dual atom.
+
+         For a sparse group LASSO dual in bound form, this is a
+         `sparse_group_lasso` atom in Lagrange form whose Lagrange
+         parameter equals the bound of this atom.
+
+         Notes
+         -----
+         This conjugate does not take into account the atom's quadratic
+         and offset terms.
          """
          if not hasattr(self, "_conjugate_atom"):
               self._base_conjugate_atom = sparse_group_lasso(  
@@ -277,9 +328,21 @@ class sparse_group_lasso_dual(sparse_group_lasso):
 
      def terms(self, arg):
          """
-         Return the args that are maximized
-         in computing the seminorm.
-         
+         Return the terms that are maximized in computing the seminorm.
+
+         Parameters
+         ----------
+         arg : `np.ndarray`
+             Argument of the seminorm.
+
+         Returns
+         -------
+         terms : `np.ndarray`
+             The dual norm of each group of `arg` (ordered by sorted
+             group label).
+
+         Examples
+         --------
          >>> import regreg.api as rr
          >>> groups = [1,1,2,2,2]
          >>> l1weights = [1,1,1,1,1]
@@ -287,7 +350,6 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          >>> arg = [2,4,5,3,4]
          >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
          [1.666..., 2.0833...]
-
          """
          arg = np.asarray(arg)
          norms = []
@@ -302,14 +364,26 @@ class sparse_group_lasso_dual(sparse_group_lasso):
 
 def inside_set(atom, point):
     """
-    Is the point in the dual ball?
+    Check whether `point` is in the dual ball.
 
-    If the atom is the primal (necessarily in lagrange form), we check
-    whether point is in the dual ball (i.e.
-    the one determining the norm.
+    If the atom is the primal (necessarily in Lagrange form), we check
+    whether `point` is in the dual ball (i.e. the one determining the
+    norm).
 
     If the atom is a dual (necessarily in bound form), we just check
-    if we project onto the same point.
+    whether projecting `point` returns the same point.
+
+    Parameters
+    ----------
+    atom : `sparse_group_lasso` or `sparse_group_lasso_dual`
+        The atom determining the dual ball.
+    point : `np.ndarray`
+        The point to check.
+
+    Returns
+    -------
+    inside : bool
+        Whether `point` is in the dual ball.
     """
 
     if atom.__class__ == sparse_group_lasso:
@@ -331,9 +405,28 @@ def gauge_function_dual(atom,
                         max_iter=50): 
 
      """
-     Work out dual norm of sparse group LASSO by binary search.
+     Compute the dual norm of the sparse group LASSO by binary search.
 
-     NOTE: will have problems if the atom has infinite feature weights
+     Parameters
+     ----------
+     atom : `sparse_group_lasso` or `sparse_group_lasso_dual`
+         The atom determining the dual ball.
+     point : `np.ndarray`
+         Point at which to evaluate the dual norm.
+     tol : float, optional
+         Relative tolerance for the binary search.
+     max_iter : int, optional
+         Maximum number of halvings / doublings used to bracket the
+         dual norm.
+
+     Returns
+     -------
+     value : float
+         The dual norm of `point`.
+
+     Notes
+     -----
+     This will have problems if the atom has infinite feature weights.
      """
 
      point = np.asarray(point)
@@ -416,10 +509,36 @@ def _gauge_function_dual_strong(point,
                                 tol=1.e-6,
                                 max_iter=50): 
 
-     """
-     Work out dual norm of sparse group LASSO by binary search.
+     r"""
+     Compute the dual norm of one group of the sparse group LASSO
+     by binary search.
 
-     NOTE: will have problems if the atom has infinite feature weights
+     Parameters
+     ----------
+     point : `np.ndarray`
+         The coordinates of one group.
+     lasso_weights : `np.ndarray`
+         Feature weights for the coordinates of the group.
+     group_weight : float
+         Weight of the group.
+     tol : float, optional
+         Relative tolerance for the binary search.
+     max_iter : int, optional
+         Maximum number of halvings / doublings used to bracket the
+         dual norm.
+
+     Returns
+     -------
+     value : float
+         The dual norm of `point`.
+     l1_subgrad : `np.ndarray` or None
+         The part of `point` in the (scaled) :math:`\ell_{\infty}` ball.
+     l2_subgrad : `np.ndarray` or None
+         The part of the subgradient coming from the group norm.
+
+     Notes
+     -----
+     This will have problems if the atom has infinite feature weights.
      """
 
      point = np.asarray(point)

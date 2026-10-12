@@ -1,3 +1,5 @@
+"""sklearn estimators for Gaussian (least squares) regression."""
+
 import numpy as np
 
 have_sklearn = True
@@ -12,11 +14,9 @@ from ..smooth.glm import (glm,
 if have_sklearn:
     class sklearn_gaussian(sklearn_regression):
 
-        """
+        """Regularized Gaussian (least squares) regression for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
+        Any atom can be used as a regularizer.
         """
 
         def _loglike_factory(self, X, y):
@@ -53,11 +53,6 @@ if have_sklearn:
 
     class sklearn_gaussian_lagrange(sklearn_regression_lagrange, sklearn_gaussian):
 
-        """
-
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
-        """
+        """Lagrange-form Gaussian regression for sklearn."""
         pass
 

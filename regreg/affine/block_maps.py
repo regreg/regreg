@@ -6,20 +6,21 @@ from . import (affine_transform,
 
 class block_columns(affine_transform):
 
-    """
+    r"""
     Blockwise transform: mapping where arguments 
     have common number of columns.
 
-    Given a sequence of maps $X_i$ of shape
-    $(n_i, q)$ produces an output of shape
-    $(\sum_i n_i, q)$
+    Given a sequence of :math:`k` maps :math:`X_i` of shape
+    :math:`(n_i, p)`, produces a map taking input of shape
+    :math:`(p, k)` to output of shape :math:`(\sum_i n_i,)`
 
     .. math::
     
-       (X_1, \dots, X_k)(\beta_{p \times q) \mapsto 
-       \begin{pmatrix} X_1\beta_1 \\ \dots X_k \beta_q 
+       (X_1, \dots, X_k)(\beta_{p \times k}) \mapsto 
+       \begin{pmatrix} X_1\beta_1 \\ \vdots \\ X_k \beta_k 
        \end{pmatrix}
 
+    where :math:`\beta_i` is the :math:`i`-th column of :math:`\beta`.
     """
 
     def __init__(self, transforms):
@@ -27,12 +28,9 @@ class block_columns(affine_transform):
         '''
         Parameters
         ----------
-
         transforms : sequence
-             A sequence of `affine_transform` whose outputs
-             are similar in that their `input_shape` is common
-             and their outputs are stackable vertically.
-
+             A sequence of `affine_transform` whose `input_shape`
+             is common and whose outputs are stackable vertically.
         '''
 
         self._transforms = [astransform(trans) for trans in transforms]
@@ -92,20 +90,20 @@ class block_columns(affine_transform):
 
 class block_rows(affine_transform):
 
-    """
+    r"""
     Blockwise transform: mapping where arguments 
     have common number of rows.
 
-    Given a sequence of $k$ maps $X_i$ of shape
-    $(p, n_i)$ produces an output of shape
-    $(p, k)$.
+    Given a sequence of :math:`k` maps :math:`Z_i` of shape
+    :math:`(p, n_i)`, produces a map taking input of shape
+    :math:`(\sum_i n_i,)` to output of shape :math:`(p, k)`.
 
-    Formally this is an adjoint of `block_columns`
+    Formally this is the adjoint of a `block_columns`
 
     .. math::
     
-       (Z_1, \dots, Z_k)((Y_1, \dots, Y_k) \mapsto 
-       \begin{pmatrix} Z_1 Y_1 & \dots & \dots Z_k Y_k \beta_q 
+       (Z_1, \dots, Z_k)((Y_1, \dots, Y_k)) \mapsto 
+       \begin{pmatrix} Z_1 Y_1 & \dots & Z_k Y_k
        \end{pmatrix}
 
     """
@@ -115,12 +113,10 @@ class block_rows(affine_transform):
         '''
         Parameters
         ----------
-
         transforms : sequence
-             A sequence of `affine_transform` whose outputs
-             are similar in that their `input_shape` is common
-             and their outputs are stackable vertically.
-
+             A sequence of `affine_transform` whose `output_shape`
+             is common, so that their outputs can be stacked
+             horizontally (as columns).
         '''
 
         self._transforms = [astransform(trans) for trans in transforms]

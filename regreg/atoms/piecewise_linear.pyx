@@ -1,3 +1,8 @@
+r"""
+Solvers for piecewise linear equations arising in projections onto
+:math:`\ell_1` balls, :math:`\ell_1` epigraphs and simplices.
+"""
+
 import numpy as np, sys
 cimport numpy as cnp
 
@@ -13,28 +18,40 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
                                    cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                                    cnp.ndarray[DTYPE_float_t, ndim=1] weights):
     """
-    Given a piecewise linear function of the form
+    Solve a weighted piecewise linear equation.
 
-       f(t) = (weights[i] * (weights[i] * t < norms[i]) * (norms[i] - weights[i] * t)).sum()
+    Given a (decreasing) piecewise linear function of the form::
 
-    with weights[i] >= 0
+       f(t) = (weights * (weights * t < norms) * (norms - weights * t)).sum()
 
-    Return the t>=0 such that f(t)=slope*t+b, if one exists. 
-    Else, it returns np.inf.
+    with ``weights >= 0``, return the ``t >= 0`` such that
+    ``f(t) = slope * t + b``. That is, it returns::
 
-    That is, it returns
+       inf {t >= 0 : f(t) <= slope * t + b}
 
-    inf (t >= 0: f(t) >= slope*t + b)
+    If ``f(0) < b`` this is 0.
 
-    This function is used in projecting onto 
-    l1 balls of size s and epigraphs. The ball projection uses slope=0,
-    b=s,
-    and if this returns np.inf, one is already within the ball.
+    This function is used in projecting onto weighted
+    l1 balls of size s and epigraphs. The ball projection uses
+    ``slope=0, b=s``, and if this returns 0, one is already within the
+    ball. The epigraph projection uses ``slope=1`` and ``b`` the norm
+    part of the epigraph.
 
-    The epigraph projection uses slope=1 and b=the norm
-    part of the epigraph. If this
-    returns np.inf, one is already within the epigraph.
+    Parameters
+    ----------
+    b : float
+        Intercept of the linear function.
+    slope : float
+        Slope of the linear function.
+    norms : np.ndarray
+        Nonnegative knots (norms) of the piecewise linear function.
+    weights : np.ndarray
+        Nonnegative weights, same shape as `norms`.
 
+    Returns
+    -------
+    t : float
+        The solution.
     """
 
     cdef int q = norms.shape[0]
@@ -81,26 +98,38 @@ def find_solution_piecewise_linear_c(DTYPE_float_t b,
                                      DTYPE_float_t slope,
                                      cnp.ndarray[DTYPE_float_t, ndim=1] norms):
     """
-    Given a piecewise linear function of the form
+    Solve an unweighted piecewise linear equation.
 
-       f(t) = ((t < norms[i]) * (norms[i] - t)).sum()
+    Given a (decreasing) piecewise linear function of the form::
 
-    Return the t>=0 such that f(t)=slope*t+b, if one exists. 
-    Else, it returns np.inf.
+       f(t) = ((t < norms) * (norms - t)).sum()
 
-    That is, it returns
+    return the ``t >= 0`` such that ``f(t) = slope * t + b``. That is,
+    it returns::
 
-    inf (t >= 0: f(t) >= slope*t + b)
+       inf {t >= 0 : f(t) <= slope * t + b}
 
-    This function is used in projecting onto 
-    l1 balls of size s and epigraphs. The ball projection uses slope=0,
-    b=s,
-    and if this returns np.inf, one is already within the ball.
+    If ``f(0) < b`` this is 0.
 
-    The epigraph projection uses slope=1 and b=the norm
-    part of the epigraph. If this
-    returns np.inf, one is already within the epigraph.
+    This function is used in projecting onto
+    l1 balls of size s and epigraphs. The ball projection uses
+    ``slope=0, b=s``, and if this returns 0, one is already within the
+    ball. The epigraph projection uses ``slope=1`` and ``b`` the norm
+    part of the epigraph.
 
+    Parameters
+    ----------
+    b : float
+        Intercept of the linear function.
+    slope : float
+        Slope of the linear function.
+    norms : np.ndarray
+        Nonnegative knots (norms) of the piecewise linear function.
+
+    Returns
+    -------
+    t : float
+        The solution.
     """
 
     cdef int q = norms.shape[0]
@@ -146,15 +175,28 @@ def find_solution_piecewise_linear_c(DTYPE_float_t b,
 def find_solution_piecewise_linear_uncon(DTYPE_float_t b,
                                          cnp.ndarray[DTYPE_float_t, ndim=1] values):
     """
-    Given a piecewise linear function of the form
+    Solve an unconstrained piecewise linear equation.
 
-       f(t) = ((t < values[i]) * (values - t)).sum()
+    Given a piecewise linear function of the form::
 
-    Return the t>=0 such that f(t)=b.
+       f(t) = ((t < values) * (values - t)).sum()
 
-    This function is used in projecting onto 
-    the simplex.
+    return the ``t`` such that ``f(t) = b`` (``t`` is not restricted to
+    be nonnegative).
 
+    This function is used in projecting onto the simplex.
+
+    Parameters
+    ----------
+    b : float
+        Target value, assumed positive.
+    values : np.ndarray
+        Knots of the piecewise linear function.
+
+    Returns
+    -------
+    t : float
+        The solution.
     """
 
     cdef int q = values.shape[0]

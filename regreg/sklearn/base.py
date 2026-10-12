@@ -1,9 +1,8 @@
-"""
+"""Mixin classes for building sklearn estimators from regreg problems.
 
 If `sklearn` is importable, this module defines mixin classes that pair
-regression or classification losses with an atom so that cross-validation
-error can be evaluated.
-
+regression or classification losses with an atom so that, for
+example, cross-validation error can be evaluated.
 """
 
 import numpy as np
@@ -28,6 +27,7 @@ except ImportError:
 
 
 class base_mixin(object):
+    """Base mixin pairing a loss with an atom used as a regularizer."""
 
     def __init__(self, 
                  atom_constructor, 
@@ -40,53 +40,43 @@ class base_mixin(object):
                  solve_args={},
                  initial=None):
 
-        """
+        """Initialize the estimator.
 
         Parameters
         ----------
-
         atom_constructor : callable
-
-            Atom constructor that is to to be used as a regularizer.
-            Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+            Atom constructor that is to be used as a regularizer. The
+            final atom will be constructed as
+            ``atom_constructor(**atom_params)``.
         atom_params : dict
-            Dictionary of arguments to construct atom.
-
-        offset : bool
-            While `y` include an offset column when fitting?
-
-        case_weights : bool
+            Dictionary of arguments to construct the atom.
+        case_weights : bool, optional
             Will `y` include a case weight column when fitting?
-
-        coef : float
-            Scaling to be put in front of loss.
-
-        score_method : str
-            Which score to use as default `score`?
-            One of ['deviance', 'mean_deviance', 'R2']
-
-        solve_args : dict
-            Keyword arguments passed to `simple_problem.solve`
-
-        initial : ndarray
-            Warmstart.
+        offset : bool, optional
+            Will `y` include an offset column when fitting?
+        coef : float, optional
+            Scaling to be put in front of the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the problem.
+        score_method : str, optional
+            Which score to use as default `score`. One of
+            ``['deviance', 'mean_deviance', 'R2']``.
+        solve_args : dict, optional
+            Keyword arguments passed to `simple_problem.solve`.
+        initial : ndarray, optional
+            Warm start for the coefficients.
 
         Notes
         -----
+        If `case_weights` or `offset` is True, then the `fit` method
+        should pass a 2-d array for `y` rather than just a response. If
+        only one of these is True, then the quantity is assumed to be the
+        last column. If both are True, then the second to last column
+        holds the case weights and the last column holds the offset.
 
-        If `case_weights` or `offset` is True, then the `fit`
-        method should pass a 2-d array for `y` rather than just a
-        response. If only one of these is not None, then the
-        quantity is assumed to be the last column.  If both are
-        not None, then the 2nd to last are to be the case weights
-        and the last is to be the offset.
-
-        The `offset` argument, if not None
-        is *subtracted* from the linear predictor
-        before evaluating the loss -- this sign is different
-        than behavior in e.g. `R` where it is *added* instead.
-
+        The offset, if present, is *subtracted* from the linear predictor
+        before evaluating the loss -- this sign is different than the
+        behavior in e.g. `R` where it is *added* instead.
         """
 
         self.atom_constructor = atom_constructor
@@ -100,23 +90,19 @@ class base_mixin(object):
         self.quadratic = quadratic
 
     def fit(self, X, y):
-        """
-        Fit a regularized regression estimator.
-        
-            Parameters
+        """Fit a regularized regression estimator.
+
+        Parameters
         ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
-
-        y : np.ndarray(n)
-            Response vector.
+        X : ndarray
+            Feature matrix of shape ``(n, p)``.
+        y : ndarray
+            Response, of shape ``(n,)``, or a 2-d array that also holds case
+            weights and/or offset columns (see the Notes of `__init__`).
 
         Returns
         -------
-
         self
-
         """
 
         self._loglike = loglike = self._loglike_factory(X, y)
@@ -128,42 +114,42 @@ class base_mixin(object):
         return self
 
     def predict(self, X):
-        """
-        Predict new response in regression setting.
+        r"""Predict new responses in the regression setting.
 
         Parameters
         ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
+        X : ndarray
+            Feature matrix of shape ``(n, p)``.
 
         Returns
         -------
-
-        yhat : np.ndarray(n)
-            Predictions from regression model.
-
+        yhat : ndarray
+            Linear predictor :math:`X\hat{\beta}` of shape ``(n,)``.
         """
         return X.dot(self._coefs)
 
     def score(self, X, y, sample_weight=None):
-        '''
+        """Score the fitted model on data `X`, `y`.
+
+        The score is computed according to `score_method`. Deviance-type
+        scores are negated so that larger is better, as sklearn's model
+        selection tools maximize scores.
 
         Parameters
         ----------
-        X : array-like, shape = (n_samples, n_features)
+        X : array-like, shape (n_samples, n_features)
             Test samples.
-
-        y : array-like, shape = (n_samples) or (n_samples, n_outputs)
-            True values for X.
-
-        sample_weight : array-like, shape = [n_samples], optional
-            Sample weights.
+        y : array-like, shape (n_samples,) or (n_samples, n_outputs)
+            True values for `X`, possibly with case weight and offset
+            columns as in `fit`.
+        sample_weight : array-like, shape (n_samples,), optional
+            Sample weights, multiplied into the case weights (only used if
+            `y` includes case weights).
 
         Returns
         -------
         score : float
-        '''
+        """
 
         response, case_weights, offset = self._check_y_arg(y)
         predictions = X.dot(self._coefs)
@@ -182,10 +168,15 @@ class base_mixin(object):
         raise NotImplementedErorr
 
     def _check_y_arg(self, y):
-        """
-        Find response, case weights and 
-        offset (if applicable) from
-        `y` argument to fit.
+        """Split the `y` argument of `fit` into its components.
+
+        The components are the response, case weights and offset.
+
+        Returns
+        -------
+        response : ndarray
+        case_weights : ndarray or None
+        offset : ndarray or None
         """
         response_idx, case_weights_idx, offset_idx = {
             (False, False): (None, None, None),
@@ -225,16 +216,12 @@ class base_mixin(object):
 
 class lagrange_mixin(base_mixin):
 
-    """
-    A regularized estimator where atom constructed
-    is assumed to be in Lagrange form. Allows 
-    for ElasticNet type term.
+    """A regularized estimator where the atom is in Lagrange form.
 
-    The atom constructor can use the gradient
-    of the loss at 0 in order to construct
-    the appropriate atom -- commonly the 
-    Lagrange parameter is taken to be some multiple
-    in [0,1] of the dual norm of this vector.
+    Allows for an elastic net type ridge term. The atom constructor can
+    use the gradient of the loss at 0 (or at the null solution) to
+    construct the appropriate atom -- commonly the Lagrange parameter is
+    taken to be some multiple in [0, 1] of the dual norm of this vector.
     """
 
     def __init__(self, 
@@ -249,59 +236,51 @@ class lagrange_mixin(base_mixin):
                  solve_args={},
                  initial=None):
 
-        """
+        """Initialize the estimator.
 
         Parameters
         ----------
-
         atom_constructor : callable
-
-            Atom constructor that is to to be used as a regularizer.
-            Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+            Atom constructor that is to be used as a regularizer. The final
+            atom will be constructed as
+            ``atom_constructor(score, **atom_params)`` where `score` is the
+            gradient of the loss at the null solution.
         atom_params : dict
-            Dictionary of arguments to construct atom.
-
-        offset : bool
-            While `y` include an offset column when fitting?
-
-        case_weights : bool
+            Dictionary of arguments to construct the atom.
+        case_weights : bool, optional
             Will `y` include a case weight column when fitting?
-
-        enet_alpha : float
-            Weighting in [0, 1] between ridge and regularizer.
-
-        coef : float
-            Scaling to be put in front of loss.
-
-        score_method : str
-            Which score to use as default `score`?
-            One of ['deviance', 'mean_deviance', 'R2']
-
-        unpenalized : bool
-            If any features are unpenalized,
-            the null solution with
-            `lagrange=np.inf` requires solving a 
-            problem. 
-
-        solve_args : dict
-            Keyword arguments passed to `simple_problem.solve`
+        offset : bool, optional
+            Will `y` include an offset column when fitting?
+        enet_alpha : float, optional
+            Weighting in [0, 1] between the ridge term and the regularizer:
+            the atom's Lagrange parameter is multiplied by
+            ``1 - enet_alpha`` and a ridge term with coefficient
+            ``enet_alpha * lagrange`` is added.
+        coef : float, optional
+            Scaling to be put in front of the loss.
+        score_method : str, optional
+            Which score to use as default `score`. One of
+            ``['deviance', 'mean_deviance', 'R2']``.
+        unpenalized : bool, optional
+            Whether any features are unpenalized. If so, the null solution
+            (with ``lagrange=np.inf``) requires solving a problem, whose
+            gradient is then used to construct the atom.
+        solve_args : dict, optional
+            Keyword arguments passed to `simple_problem.solve`.
+        initial : ndarray, optional
+            Warm start for the coefficients.
 
         Notes
         -----
+        If `case_weights` or `offset` is True, then the `fit` method
+        should pass a 2-d array for `y` rather than just a response. If
+        only one of these is True, then the quantity is assumed to be the
+        last column. If both are True, then the second to last column
+        holds the case weights and the last column holds the offset.
 
-        If `case_weights` or `offset` is True, then the `fit`
-        method should pass a 2-d array for `y` rather than just a
-        response. If only one of these is not None, then the
-        quantity is assumed to be the last column.  If both are
-        not None, then the 2nd to last are to be the case weights
-        and the last is to be the offset.
-
-        The `offset` argument, if not None
-        is *subtracted* from the linear predictor
-        before evaluating the loss -- this sign is different
-        than behavior in e.g. `R` where it is *added* instead.
-
+        The offset, if present, is *subtracted* from the linear predictor
+        before evaluating the loss -- this sign is different than the
+        behavior in e.g. `R` where it is *added* instead.
         """
 
         self.atom_constructor = atom_constructor
@@ -316,23 +295,19 @@ class lagrange_mixin(base_mixin):
         self.initial = initial
         
     def fit(self, X, y):
-        """
-        Fit a regularized regression estimator.
+        """Fit a regularized regression estimator.
 
         Parameters
         ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
-
-        y : np.ndarray(n)
-            Response vector.
+        X : ndarray
+            Feature matrix of shape ``(n, p)``.
+        y : ndarray
+            Response, of shape ``(n,)``, or a 2-d array that also holds case
+            weights and/or offset columns (see the Notes of `__init__`).
 
         Returns
         -------
-
         self
-
         """
 
         self._loglike = loglike = self._loglike_factory(X, y)
@@ -371,6 +346,10 @@ class lagrange_mixin(base_mixin):
         return atom_
             
 class classifier_mixin(base_mixin):
+    """Mixin for classifiers.
+
+    Predictions are labels rather than linear predictors.
+    """
 
     def __init__(self, 
                  atom_constructor, 
@@ -381,37 +360,32 @@ class classifier_mixin(base_mixin):
                  score_method='accuracy',
                  initial=None):
 
-        """
+        """Initialize the estimator.
 
         Parameters
         ----------
-
         atom_constructor : callable
-
-            Atom constructor that is to to be used as a regularizer.
-            Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+            Atom constructor that is to be used as a regularizer. The
+            final atom will be constructed as
+            ``atom_constructor(**atom_params)``.
         atom_params : dict
-            Dictionary of arguments to construct atom.
-
-        case_weights : bool
+            Dictionary of arguments to construct the atom.
+        case_weights : bool, optional
             Will `y` include a case weight column when fitting?
-
-        coef : float
-            Scaling to be put in front of loss.
-
-        score_method : str
-            Which score to use as default `score`?
-            One of ['accuracy']
+        coef : float, optional
+            Scaling to be put in front of the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the problem.
+        score_method : str, optional
+            Which score to use as default `score`. One of ``['accuracy']``.
+        initial : ndarray, optional
+            Warm start for the coefficients.
 
         Notes
         -----
-
-        If `case_weights` is True, then the `fit`
-        method should pass at least 2-d array for `y` rather than just a
-        response. The last column will be taken to be
-        `case_weights`.
-
+        If `case_weights` is True, then the `fit` method should pass at least
+        a 2-d array for `y` rather than just a response. The last column will
+        be taken to be the case weights.
         """
 
         base_mixin.__init__(self,
@@ -424,44 +398,37 @@ class classifier_mixin(base_mixin):
                             initial=initial)
 
     def predict(self, X):
-        """
-        Predict new labels in setting.
+        """Predict new labels in the classification setting.
 
         Parameters
         ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
+        X : ndarray
+            Feature matrix of shape ``(n, p)``.
 
         Returns
         -------
-
-        labels : np.ndarray(n)
-            Predictions from classification model.
-
+        labels : ndarray
+            Boolean labels, True where the linear predictor is positive.
         """
         return X.dot(self._coefs) > 0
 
     def predict_proba(self, X):
-        """
-        Predict new probabilities in classification setting.
+        """Predict new probabilities in the classification setting (abstract).
 
         Parameters
         ----------
-
-        X : np.ndarray((n, p))
-            Feature matrix.
+        X : ndarray
+            Feature matrix of shape ``(n, p)``.
 
         Returns
         -------
-
-        probs : np.ndarray(n)
-            Predictions from classification model.
-
+        probs : ndarray
+            Predicted probabilities, of shape ``(n,)``.
         """
         raise NotImplementedError
 
 class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
+    """Classifier mixin with the atom in Lagrange form."""
 
     def __init__(self, 
                  atom_constructor, 
@@ -472,40 +439,36 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
                  score_method='accuracy',
                  initial=None):
 
-        """
+        """Initialize the estimator.
 
         Parameters
         ----------
-
         atom_constructor : callable
-
-            Atom constructor that is to to be used as a regularizer.
-            Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+            Atom constructor that is to be used as a regularizer. The final
+            atom will be constructed as
+            ``atom_constructor(score, **atom_params)`` where `score` is the
+            gradient of the loss at the null solution.
         atom_params : dict
-            Dictionary of arguments to construct atom.
-
-        case_weights : bool
+            Dictionary of arguments to construct the atom.
+        case_weights : bool, optional
             Will `y` include a case weight column when fitting?
-
-        enet_alpha : float
-            Weighting in [0, 1] between ridge and regularizer.
-
-        coef : float
-            Scaling to be put in front of loss.
-
-        score_method : str
-            Which score to use as default `score`?
-            One of ['accuracy']
+        enet_alpha : float, optional
+            Weighting in [0, 1] between the ridge term and the regularizer:
+            the atom's Lagrange parameter is multiplied by
+            ``1 - enet_alpha`` and a ridge term with coefficient
+            ``enet_alpha * lagrange`` is added.
+        coef : float, optional
+            Scaling to be put in front of the loss.
+        score_method : str, optional
+            Which score to use as default `score`. One of ``['accuracy']``.
+        initial : ndarray, optional
+            Warm start for the coefficients.
 
         Notes
         -----
-
-        If `case_weights` is True, then the `fit`
-        method should pass at least 2-d array for `y` rather than just a
-        response. The last column will be taken to be
-        `case_weights`.
-
+        If `case_weights` is True, then the `fit` method should pass at least
+        a 2-d array for `y` rather than just a response. The last column will
+        be taken to be the case weights.
         """
 
         lagrange_mixin(self, 
@@ -520,9 +483,12 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
                        
 
 class survival_mixin(base_mixin):
+    """Mixin for survival models."""
+
     pass
 
 class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
+    """Survival mixin with the atom in Lagrange form."""
 
     def __init__(self, 
                  atom_constructor, 
@@ -534,50 +500,45 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
                  score_method='deviance',
                  initial=None):
 
-        """
+        """Initialize the estimator.
 
         Parameters
         ----------
-
         atom_constructor : callable
-
-            Atom constructor that is to to be used as a regularizer.
-            Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+            Atom constructor that is to be used as a regularizer. The final
+            atom will be constructed as
+            ``atom_constructor(score, **atom_params)`` where `score` is the
+            gradient of the loss at the null solution.
         atom_params : dict
-            Dictionary of arguments to construct atom.
-
-        offset : bool
-            While `y` include an offset column when fitting?
-
-        case_weights : bool
+            Dictionary of arguments to construct the atom.
+        case_weights : bool, optional
             Will `y` include a case weight column when fitting?
-
-        enet_alpha : float
-            Weighting in [0, 1] between ridge and regularizer.
-
-        coef : float
-            Scaling to be put in front of loss.
-
-        score_method : str
-            Which score to use as default `score`?
-            One of ['deviance', 'mean_deviance', 'R2', 'C-index']
+        offset : bool, optional
+            Will `y` include an offset column when fitting?
+        enet_alpha : float, optional
+            Weighting in [0, 1] between the ridge term and the regularizer:
+            the atom's Lagrange parameter is multiplied by
+            ``1 - enet_alpha`` and a ridge term with coefficient
+            ``enet_alpha * lagrange`` is added.
+        coef : float, optional
+            Scaling to be put in front of the loss.
+        score_method : str, optional
+            Which score to use as default `score`. One of
+            ``['deviance', 'mean_deviance', 'R2', 'C-index']``.
+        initial : ndarray, optional
+            Warm start for the coefficients.
 
         Notes
         -----
+        If `case_weights` or `offset` is True, then the `fit` method
+        should pass a 2-d array for `y` rather than just a response. If
+        only one of these is True, then the quantity is assumed to be the
+        last column. If both are True, then the second to last column
+        holds the case weights and the last column holds the offset.
 
-        If `case_weights` or `offset` is True, then the `fit`
-        method should pass a 2-d array for `y` rather than just a
-        response. If only one of these is not None, then the
-        quantity is assumed to be the last column.  If both are
-        not None, then the 2nd to last are to be the case weights
-        and the last is to be the offset.
-
-        The `offset` argument, if not None
-        is *subtracted* from the linear predictor
-        before evaluating the loss -- this sign is different
-        than behavior in e.g. `R` where it is *added* instead.
-
+        The offset, if present, is *subtracted* from the linear predictor
+        before evaluating the loss -- this sign is different than the
+        behavior in e.g. `R` where it is *added* instead.
         """
 
         lagrange_mixin.__init__(self, 
@@ -596,20 +557,32 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
 if have_sklearn:
 
     class sklearn_regression_lagrange(lagrange_mixin, BaseEstimator, RegressorMixin): 
+        """sklearn regressor with a regularizer in Lagrange form."""
+
         pass
 
     class sklearn_regression(base_mixin, BaseEstimator, RegressorMixin): 
+        """sklearn regressor with an arbitrary atom as regularizer."""
+
         pass
 
     class sklearn_classifier(classifier_mixin, BaseEstimator, ClassifierMixin):
+        """sklearn classifier with an arbitrary atom as regularizer."""
+
         pass
 
     class sklearn_classifier_lagrange(classifier_lagrange_mixin, BaseEstimator, ClassifierMixin):
+        """sklearn classifier with a regularizer in Lagrange form."""
+
         pass
 
     class sklearn_survival(survival_mixin, BaseEstimator, RegressorMixin):
+        """sklearn survival estimator with an arbitrary atom as regularizer."""
+
         pass
 
     class sklearn_survival_lagrange(classifier_mixin, BaseEstimator, RegressorMixin):
+        """sklearn survival estimator with a regularizer in Lagrange form."""
+
         pass
 

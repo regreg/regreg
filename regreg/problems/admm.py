@@ -1,5 +1,5 @@
 """
-Simple ADMM implementation
+Simple ADMM implementation.
 """
 
 import numpy as np
@@ -10,19 +10,37 @@ from ..identity_quadratic import identity_quadratic
 
 class admm_problem(object):
 
-    """
+    r"""
+    A problem solved by the alternating direction method of multipliers.
+
     Objective function is the loss plus the atom composed with the transform.
 
     .. math::
 
         \ell(x) + {\cal P}(Dx + \alpha)
 
-    Our transform is a map $\beta \mapsto D\beta + \alpha, and we introduce new variables
-    $z=D\beta+\alpha$ so our affine constraint is $Dx-z=-\alpha$.
+    Our transform is a map :math:`x \mapsto Dx + \alpha`, and we introduce
+    new variables :math:`z=Dx+\alpha` so our affine constraint is
+    :math:`Dx-z=-\alpha`.
 
-    In ADMM slides p.14 of https://stanford.edu/class/ee364b/lectures/admm_slides.pdf
-    we have $A,B,c=D,-I,-\alpha$.
+    In the ADMM slides (p.14) of
+    https://stanford.edu/class/ee364b/lectures/admm_slides.pdf
+    we have :math:`(A,B,c)=(D,-I,-\alpha)`.
 
+    Parameters
+    ----------
+    loss : `regreg.smooth.smooth_atom`
+        The smooth loss :math:`\ell`.
+    atom : `regreg.atoms.atom`
+        The nonsmooth penalty :math:`{\cal P}`.
+    transform : `regreg.affine.affine_transform`
+        The affine map :math:`x \mapsto Dx + \alpha`.
+    augmented_param : float
+        The augmented Lagrangian parameter :math:`\rho`.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Stored, but currently unused.
+    fit_args : dict, optional
+        Keyword arguments for the solver used in the :math:`x` update.
     """
 
     def __init__(self, 
@@ -59,8 +77,14 @@ class admm_problem(object):
         assert (self.loss.shape == self.transform.output_shape)
 
     def update_loss_coefs(self):
-        """
-        Minimize over x: self.loss(x) + rho/2 x^TD^TDx + x^T D^T(y -rho * (z - \alpha))
+        r"""
+        Update :math:`x`, the coefficients of the loss.
+
+        Minimizes over :math:`x`
+
+        .. math::
+
+            \ell(x) + \frac{\rho}{2} x^TD^TDx + x^T D^T(y - \rho (z - \alpha))
         """
         y, z, rho, alpha = (self.dual_coefs,
                             self.atom_coefs,
@@ -73,8 +97,14 @@ class admm_problem(object):
                                                        **self.fit_args)
 
     def update_atom_coefs(self):
-        """
-        Minimize over z: atom(z) + rho/2 \|z-Dx-\alpha\|^2_2 - z^Ty
+        r"""
+        Update :math:`z`, the coefficients of the atom.
+
+        Minimizes over :math:`z`
+
+        .. math::
+
+            {\cal P}(z) + \frac{\rho}{2} \|z-Dx-\alpha\|^2_2 - z^Ty
         """
         rho = self.augmented_param
         center_term = self.transform.affine_map(self.loss_coefs)
@@ -83,13 +113,21 @@ class admm_problem(object):
         self.atom_coefs[:] = self.atom.proximal(Q)
 
     def update_dual_coefs(self):
-        """
-        Dual update
+        r"""
+        Dual update :math:`y \leftarrow y + \rho (Dx + \alpha - z)`.
         """
         rho = self.augmented_param
         self.dual_coefs[:] += rho * (self.transform.affine_map(self.loss_coefs) - self.atom_coefs)
 
     def solve(self, niter=20):
+        """
+        Run ADMM for a fixed number of iterations.
+
+        Parameters
+        ----------
+        niter : int, optional
+            Number of iterations.
+        """
         for _ in range(niter):
             self.update_loss_coefs()
             self.update_atom_coefs()

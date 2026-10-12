@@ -1,21 +1,38 @@
+r"""
+Projections onto the :math:`\ell_1` ball and the :math:`\ell_1` epigraph.
+
+Implements (expected) linear time projections onto the :math:`\ell_1`
+ball as described in Duchi, Shalev-Shwartz, Singer and Chandra,
+"Efficient projections onto the l1-ball for learning in high dimensions".
+"""
+
 import numpy as np, sys
 cimport numpy as np
 
 from .piecewise_linear import (find_solution_piecewise_linear,
                                find_solution_piecewise_linear_c)
 
-"""
-Implements (expected) linear time projections onto $\ell_1$ ball as described in
-title = {Efficient projections onto the l1-ball for learning in high dimensions}
-author = {Duchi, John and Shalev-Shwartz, Shai and Singer, Yoram and Chandra,
-Tushar}
-"""
-
 DTYPE_float = float
 ctypedef np.float_t DTYPE_float_t
 
 def projl1(np.ndarray[DTYPE_float_t, ndim=1]  x, 
            DTYPE_float_t bound=1.):
+    r"""
+    Project `x` onto the :math:`\ell_1` ball of radius `bound`.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        One-dimensional float array to project.
+    bound : float, optional
+        Radius of the :math:`\ell_1` ball.
+
+    Returns
+    -------
+    projection : np.ndarray
+        The projection of `x` onto :math:`\{v : \|v\|_1 \leq
+        \text{bound}\}`.
+    """
 
     cdef np.ndarray[DTYPE_float_t, ndim=1] sorted_x = np.sort(np.fabs(x))
     cdef int p = x.shape[0]
@@ -49,12 +66,23 @@ cdef soft_threshold(np.ndarray[DTYPE_float_t, ndim=1] x,
 
 
 def projl1_epigraph(np.ndarray[DTYPE_float_t, ndim=1] center):
-    """
-    Project center onto the l1 epigraph. The norm term is center[0],
-    the coef term is center[1:]
+    r"""
+    Project `center` onto the :math:`\ell_1` epigraph.
 
-    The l1 epigraph is the collection of points $(u,v): \|v\|_1 \leq u$
-    np.fabs(coef).sum() <= bound.
+    The norm term is ``center[-1]`` and the coefficient term is
+    ``center[:-1]``. The :math:`\ell_1` epigraph is the collection of
+    points :math:`(v, u)` with :math:`\|v\|_1 \leq u`, i.e.
+    ``np.fabs(center[:-1]).sum() <= center[-1]``.
+
+    Parameters
+    ----------
+    center : np.ndarray
+        One-dimensional float array to project.
+
+    Returns
+    -------
+    projection : np.ndarray
+        The projection of `center` onto the epigraph.
     """
 
     cdef np.ndarray[DTYPE_float_t, ndim=1] x = center[:-1]

@@ -1,3 +1,7 @@
+"""
+Convex conjugates of atoms, computed by solving an optimization problem.
+"""
+
 from __future__ import print_function, division, absolute_import
 
 from copy import copy
@@ -12,6 +16,33 @@ from .simple import simple_problem
 from ..identity_quadratic import identity_quadratic
 
 class conjugate(composite):
+
+    r"""
+    The convex conjugate of an atom plus a quadratic.
+
+    For an atom :math:`f` and quadratic :math:`Q` this represents the
+    smooth function
+
+    .. math::
+
+        v \mapsto \sup_{\beta} \left(\beta^Tv - f(\beta) - Q(\beta)\right)
+
+    where the atom's own quadratic is included in :math:`f`. Its gradient is
+    the maximizer, computed with the atom's proximal map (or by solving a
+    smooth problem if the atom is smooth).
+
+    Parameters
+    ----------
+    atom : `regreg.atoms.atom` or `regreg.smooth.smooth_atom`
+        The function to conjugate. It is copied.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic added to the atom; the total quadratic coefficient must
+        be nonzero.
+    negate : bool, optional
+        If True, evaluate the conjugate at :math:`-v` instead of :math:`v`.
+    fit_args : dict
+        Keyword arguments for the solver, used if `atom` is smooth.
+    """
 
     def __init__(self, atom, quadratic=None, negate=False, **fit_args):
         
@@ -50,11 +81,23 @@ class conjugate(composite):
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
-        Evaluate the conjugate function and/or its gradient
+        Evaluate the conjugate function and/or its gradient.
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        mode : str, optional
+            If ``'both'``, return both function value and gradient;
+            if ``'grad'``, return only the gradient;
+            if ``'func'``, return only the function value.
+        check_feasibility : bool, optional
+            Unused.
+
+        Returns
+        -------
+        value : float or ndarray or tuple
+            Function value, gradient, or both.
         """
         v = -x if self.negate else x
 

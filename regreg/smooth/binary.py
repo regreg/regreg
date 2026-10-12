@@ -1,3 +1,9 @@
+"""Losses for binary (binomial) responses.
+
+Defines the logistic, probit and complementary log-log negative
+log-likelihoods, and the Huberized SVM loss.
+"""
+
 from copy import copy
 
 import numpy as np
@@ -9,8 +15,44 @@ from . import smooth_atom
 
 class logistic_loglike(smooth_atom):
 
-    """
-    A class for combining the logistic log-likelihood with a general seminorm
+    r"""Logistic loss for binomial responses.
+
+    The negative log-likelihood of a binomial response with
+    logit link, as a function of the natural parameter (linear
+    predictor) :math:`\eta`:
+
+    .. math::
+
+       \ell(\eta) = -\sum_i w_i \left[ y_i \log \pi_i +
+           (n_i - y_i) \log(1 - \pi_i) \right],
+       \qquad \pi_i = \frac{e^{\eta_i}}{1 + e^{\eta_i}}
+
+    where :math:`y_i` are the successes, :math:`n_i` the trials and
+    :math:`w_i` the case weights. The log-likelihood of the saturated
+    model (times `coef`) is stored as a constant term in `quadratic`, so
+    that with unit case weights the full objective is `coef` times half
+    the deviance.
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the natural parameter.
+    successes : ndarray
+        Number of successes for each case (non-negative).
+    trials : ndarray, optional
+        Number of trials for each case. If None, the response must be
+        binary and ``np.ones_like(successes)`` is used.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    case_weights : ndarray, optional
+        Non-negative case weights.
     """
 
     objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
@@ -59,33 +101,30 @@ class logistic_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
+        """Evaluate the smooth objective, its gradient, or both.
 
         Parameters
         ----------
-
         natural_param : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `natural_param` is not
-            in the domain.
-
-        case_weights : ndarray
-            Non-negative case weights
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights, multiplied with any case weights
+            stored on the loss.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `natural_param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `natural_param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         
         if case_weights is None:
@@ -143,24 +182,20 @@ class logistic_loglike(smooth_atom):
     # Begin loss API
 
     def hessian(self, natural_param, case_weights=None):
-        """
-        Hessian of the loss.
+        """Compute the diagonal of the Hessian of the loss.
 
         Parameters
         ----------
-
         natural_param : ndarray
-            Parameters where Hessian will be evaluated.
-
-        case_weights : ndarray
-            Non-negative case weights
+            Parameters at which the Hessian is evaluated.
+        case_weights : ndarray, optional
+            Non-negative case weights.
 
         Returns
         -------
-
         hess : ndarray
-            A 1D-array representing the diagonal of the Hessian
-            evaluated at `natural_param`.
+            1D array holding the diagonal of the Hessian evaluated at
+            `natural_param`.
         """
 
         x = natural_param # shorthand
@@ -184,9 +219,19 @@ class logistic_loglike(smooth_atom):
         return self.scale(exp_x / (1 + exp_x)**2 * self.trials * cw)
 
     def get_data(self):
+        """Return the vector of successes."""
         return self.successes
 
     def set_data(self, data):
+        """Set the response.
+
+        Parameters
+        ----------
+        data : ndarray or tuple
+            Either `successes`, or a tuple ``(successes, trials)``. If `trials`
+            is not given, the existing trials are reused if present, otherwise
+            the response must be binary and the trials are set to one.
+        """
         if type(data) == type((3,)):
             successes, trials = data
         else:
@@ -227,25 +272,21 @@ class logistic_loglike(smooth_atom):
                                 case_weights=copy(self.case_weights))
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:
@@ -262,13 +303,65 @@ class logistic_loglike(smooth_atom):
     # End loss API
 
     def mean_function(self, eta, trials=None):
+        r"""Compute the mean function (inverse link).
+
+        The success probability is :math:`e^{\eta} / (1 + e^{\eta})`.
+
+        Parameters
+        ----------
+        eta : ndarray
+            Natural parameter (linear predictor).
+        trials : ndarray, optional
+            Ignored.
+
+        Returns
+        -------
+        mean : ndarray
+            Success probabilities.
+        """
         _exp_eta = np.exp(eta)
         return _exp_eta / (1. + _exp_eta)
 
 class probit_loglike(smooth_atom):
 
-    """
-    A class for combining the logistic log-likelihood with a general seminorm
+    r"""Probit loss for binomial responses.
+
+    The negative log-likelihood of a binomial response with
+    probit link, as a function of the natural parameter (linear
+    predictor) :math:`\eta`:
+
+    .. math::
+
+       \ell(\eta) = -\sum_i w_i \left[ y_i \log \pi_i +
+           (n_i - y_i) \log(1 - \pi_i) \right],
+       \qquad \pi_i = \Phi(\eta_i)
+
+    where :math:`y_i` are the successes, :math:`n_i` the trials and
+    :math:`w_i` the case weights. The log-likelihood of the saturated
+    model (times `coef`) is stored as a constant term in `quadratic`, so
+    that with unit case weights the full objective is `coef` times half
+    the deviance.
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the natural parameter.
+    successes : ndarray
+        Number of successes for each case (non-negative).
+    trials : ndarray, optional
+        Number of trials for each case. If None, the response must be
+        binary and ``np.ones_like(successes)`` is used.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    case_weights : ndarray, optional
+        Non-negative case weights.
     """
 
     objective_template = r"""\ell^{\text{probit}}\left(%(var)s\right)"""
@@ -317,33 +410,30 @@ class probit_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
+        """Evaluate the smooth objective, its gradient, or both.
 
         Parameters
         ----------
-
         natural_param : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `natural_param` is not
-            in the domain.
-
-        case_weights : ndarray
-            Non-negative case weights
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights, multiplied with any case weights
+            stored on the loss.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `natural_param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `natural_param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         
         if case_weights is None:
@@ -391,24 +481,26 @@ class probit_loglike(smooth_atom):
     # Begin loss API
 
     def hessian(self, natural_param, case_weights=None):
-        """
-        Hessian of the loss.
+        r"""Compute the diagonal of the Hessian of the loss.
 
         Parameters
         ----------
-
         natural_param : ndarray
-            Parameters where Hessian will be evaluated.
-
-        case_weights : ndarray
-            Non-negative case weights
+            Parameters at which the Hessian is evaluated.
+        case_weights : ndarray, optional
+            Non-negative case weights.
 
         Returns
         -------
-
         hess : ndarray
-            A 1D-array representing the diagonal of the Hessian
-            evaluated at `natural_param`.
+            1D array holding the diagonal of the Hessian evaluated at
+            `natural_param`.
+
+        Notes
+        -----
+        This is the expected (Fisher information) Hessian
+        :math:`w_i n_i \pi'(\eta_i)^2 / (\pi_i (1 - \pi_i))`, which differs
+        from the observed Hessian for this non-canonical link.
         """
 
         x = natural_param # shorthand
@@ -425,9 +517,19 @@ class probit_loglike(smooth_atom):
         return self.scale(deriv_term * self.trials * cw / V)
 
     def get_data(self):
+        """Return the vector of successes."""
         return self.successes
 
     def set_data(self, data):
+        """Set the response.
+
+        Parameters
+        ----------
+        data : ndarray or tuple
+            Either `successes`, or a tuple ``(successes, trials)``. If `trials`
+            is not given, the existing trials are reused if present, otherwise
+            the response must be binary and the trials are set to one.
+        """
         if type(data) == type((3,)):
             successes, trials = data
         else:
@@ -468,25 +570,21 @@ class probit_loglike(smooth_atom):
                               case_weights=copy(self.case_weights))
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:
@@ -503,12 +601,64 @@ class probit_loglike(smooth_atom):
     # End loss API
 
     def mean_function(self, eta, trials=None):
+        r"""Compute the mean function (inverse link).
+
+        The success probability is the standard normal CDF :math:`\Phi(\eta)`.
+
+        Parameters
+        ----------
+        eta : ndarray
+            Natural parameter (linear predictor).
+        trials : ndarray, optional
+            Ignored.
+
+        Returns
+        -------
+        mean : ndarray
+            Success probabilities.
+        """
         return normal_dbn.cdf(eta)
 
 class cloglog_loglike(smooth_atom):
 
-    """
-    A class for combining the logistic log-likelihood with a general seminorm
+    r"""Complementary log-log loss for binomial responses.
+
+    The negative log-likelihood of a binomial response with
+    complementary log-log link, as a function of the natural parameter (linear
+    predictor) :math:`\eta`:
+
+    .. math::
+
+       \ell(\eta) = -\sum_i w_i \left[ y_i \log \pi_i +
+           (n_i - y_i) \log(1 - \pi_i) \right],
+       \qquad \pi_i = 1 - \exp(-e^{\eta_i})
+
+    where :math:`y_i` are the successes, :math:`n_i` the trials and
+    :math:`w_i` the case weights. The log-likelihood of the saturated
+    model (times `coef`) is stored as a constant term in `quadratic`, so
+    that with unit case weights the full objective is `coef` times half
+    the deviance.
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the natural parameter.
+    successes : ndarray
+        Number of successes for each case (non-negative).
+    trials : ndarray, optional
+        Number of trials for each case. If None, the response must be
+        binary and ``np.ones_like(successes)`` is used.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    case_weights : ndarray, optional
+        Non-negative case weights.
     """
 
     objective_template = r"""\ell^{\text{cloglog}}\left(%(var)s\right)"""
@@ -557,33 +707,30 @@ class cloglog_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
+        """Evaluate the smooth objective, its gradient, or both.
 
         Parameters
         ----------
-
         natural_param : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `natural_param` is not
-            in the domain.
-
-        case_weights : ndarray
-            Non-negative case weights
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights, multiplied with any case weights
+            stored on the loss.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `natural_param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `natural_param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         
         if case_weights is None:
@@ -634,24 +781,26 @@ class cloglog_loglike(smooth_atom):
     # Begin loss API
 
     def hessian(self, natural_param, case_weights=None):
-        """
-        Hessian of the loss.
+        r"""Compute the diagonal of the Hessian of the loss.
 
         Parameters
         ----------
-
         natural_param : ndarray
-            Parameters where Hessian will be evaluated.
-
-        case_weights : ndarray
-            Non-negative case weights
+            Parameters at which the Hessian is evaluated.
+        case_weights : ndarray, optional
+            Non-negative case weights.
 
         Returns
         -------
-
         hess : ndarray
-            A 1D-array representing the diagonal of the Hessian
-            evaluated at `natural_param`.
+            1D array holding the diagonal of the Hessian evaluated at
+            `natural_param`.
+
+        Notes
+        -----
+        This is the expected (Fisher information) Hessian
+        :math:`w_i n_i \pi'(\eta_i)^2 / (\pi_i (1 - \pi_i))`, which differs
+        from the observed Hessian for this non-canonical link.
         """
 
         x = natural_param # shorthand
@@ -670,9 +819,19 @@ class cloglog_loglike(smooth_atom):
         return self.scale(deriv_term * self.trials * cw / V)
 
     def get_data(self):
+        """Return the vector of successes."""
         return self.successes
 
     def set_data(self, data):
+        """Set the response.
+
+        Parameters
+        ----------
+        data : ndarray or tuple
+            Either `successes`, or a tuple ``(successes, trials)``. If `trials`
+            is not given, the existing trials are reused if present, otherwise
+            the response must be binary and the trials are set to one.
+        """
         if type(data) == type((3,)):
             successes, trials = data
         else:
@@ -713,25 +872,21 @@ class cloglog_loglike(smooth_atom):
                                case_weights=copy(self.case_weights))
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:
@@ -748,10 +903,54 @@ class cloglog_loglike(smooth_atom):
     # End loss API
 
     def mean_function(self, eta, trials=None):
+        r"""Compute the mean function (inverse link).
+
+        The success probability is :math:`1 - \exp(-e^{\eta})`, with
+        :math:`\eta` clipped to :math:`[-5, 5]`.
+
+        Parameters
+        ----------
+        eta : ndarray
+            Natural parameter (linear predictor).
+        trials : ndarray, optional
+            Ignored.
+
+        Returns
+        -------
+        mean : ndarray
+            Success probabilities.
+        """
         eta = np.clip(eta, -5, 5)
         return 1 - np.exp(-np.exp(eta))
 
 class huber_svm(smooth_atom):
+    r"""Huberized hinge (SVM) loss for binary responses.
+
+    The binary response :math:`y \in \{0, 1\}` is encoded as
+    :math:`2y - 1 \in \{-1, 1\}` and a smoothed version of the hinge loss
+    :math:`(1 - (2y - 1)\eta)_+` is evaluated, the smoothing being
+    controlled by `smoothing_parameter`.
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the natural parameter.
+    successes : ndarray
+        Binary (0/1) responses.
+    smoothing_parameter : float
+        Smoothing parameter for the Huberized hinge loss.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    case_weights : ndarray, optional
+        Non-negative case weights.
+    """
 
     objective_template = r"""\ell^{\text{Huber,SVM}}\left(%(var)s\right)"""
 
@@ -793,33 +992,30 @@ class huber_svm(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
+        """Evaluate the smooth objective, its gradient, or both.
 
         Parameters
         ----------
-
         param : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `param` is not
-            in the domain.
-
-        case_weights : ndarray
-            Non-negative case weights
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights, multiplied with any case weights
+            stored on the loss.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         
         if case_weights is None:
@@ -846,57 +1042,52 @@ class huber_svm(smooth_atom):
     # Begin loss API
 
     def hessian(self, param, case_weights=None):
-        """
-        Hessian of the loss.
+        """Hessian of the loss (not implemented).
+
+        The Huber SVM loss is not twice differentiable, so this always
+        raises ``NotImplementedError``.
 
         Parameters
         ----------
-
         param : ndarray
-            Parameters where Hessian will be evaluated.
+            Parameters at which the Hessian would be evaluated.
+        case_weights : ndarray, optional
+            Non-negative case weights.
 
-        case_weights : ndarray
-            Non-negative case weights
-
-        Returns
-        -------
-
-        hess : ndarray
-            A 1D-array representing the diagonal of the Hessian
-            evaluated at `natural_param`.
+        Raises
+        ------
+        NotImplementedError
         """
 
-        # it is piecwise C^2 though... maybe use this?
+        # it is piecewise C^2 though... maybe use this?
         raise NotImplementedError('Huber SVM loss is not twice differentiable')
 
     def get_data(self):
+        """Return the vector of successes."""
         return self.successes
 
     def set_data(self, data):
+        """Set the vector of (binary) successes."""
         self.successes = data
 
     data = property(get_data, set_data)
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:

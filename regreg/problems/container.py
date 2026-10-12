@@ -1,3 +1,7 @@
+"""
+A container combining several smooth and nonsmooth atoms into one problem.
+"""
+
 import numpy as np
 from scipy import sparse
 
@@ -15,12 +19,18 @@ from ..identity_quadratic import identity_quadratic
 
 class container(composite):
     """
-    A container class for storing/combining seminorm_atom classes
+    A container class for storing/combining atoms.
 
-    Notes
-    -----
+    The objective is the sum of the smooth and nonsmooth atoms. The proximal
+    map is computed by solving a dual problem (see `dual_problem`) unless
+    the combined transform is an identity or a selector.
 
-    This function copies the nonsmooth atoms
+    Parameters
+    ----------
+    atoms : sequence
+        Smooth composites (`regreg.problems.composite.smooth`) and nonsmooth
+        atoms (`regreg.problems.composite.nonsmooth`, affine atoms or affine
+        cones). At least one smooth atom is required.
     """
 
     def __init__(self, *atoms, **keywords):
@@ -51,8 +61,24 @@ class container(composite):
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
+        Sum of the smooth objectives of the smooth atoms.
+
         The smooth_objective DOES NOT INCLUDE the identity
         quadratic of all the smooth atoms.
+
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        mode : str, optional
+            One of ``['func', 'grad', 'both']``.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible?
+
+        Returns
+        -------
+        value : float or ndarray or tuple
+            Function value, gradient, or both.
         """
         value, grad = 0, np.zeros(x.shape)
         if mode == 'func':
@@ -77,6 +103,9 @@ class container(composite):
             raise ValueError("Mode specified incorrectly")
 
     def nonsmooth_objective(self, x, check_feasibility=False):
+        """
+        Sum of the nonsmooth objectives of all atoms plus the quadratic.
+        """
         out = 0.
         for atom in self.nonsmooth_atoms + self.smooth_atoms:
             out += atom.nonsmooth_objective(x,
@@ -87,7 +116,21 @@ class container(composite):
     default_solver = FISTA
     def proximal(self, proxq, prox_control=None):
         """
-        The proximal function for the primal problem
+        The proximal function for the primal problem.
+
+        Parameters
+        ----------
+        proxq : `regreg.identity_quadratic.identity_quadratic`
+            Quadratic term of the proximal problem.
+        prox_control : dict, optional
+            Arguments for `FISTA.fit` when solving the dual problem.
+
+        Returns
+        -------
+        argmin : ndarray
+            Minimizer of the proximal problem. If the dual problem is
+            solved and ``prox_control['return_objective_hist']`` is True, a
+            tuple ``(argmin, objective_hist)`` is returned.
         """
 
         transform, atom = self.transform, self.atom
@@ -156,6 +199,25 @@ class container(composite):
                 return primal.proximal(proxq)
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
+        """
+        Solve the problem using `FISTA`.
+
+        Parameters
+        ----------
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic added to the objective.
+        return_optimum : bool, optional
+            Also return the optimal value?
+        fit_args : dict
+            Keyword arguments passed to `regreg.algorithms.FISTA.fit`.
+
+        Returns
+        -------
+        optimal_value : float
+            Only returned if `return_optimum` is True.
+        coefs : ndarray
+            The solution.
+        """
         if quadratic is not None:
             oldq, newq = self.quadratic, self.quadratic + quadratic
         else:

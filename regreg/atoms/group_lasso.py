@@ -25,8 +25,32 @@ from .mixed_lasso_cython import (mixed_lasso_bound_prox,
 @objective_doc_templater()
 class group_lasso(seminorm):
 
-    """
-    The group lasso seminorm.
+    r"""
+    The group LASSO seminorm.
+
+    .. math::
+
+        \beta \mapsto \sum_g w_g \|\beta[g]\|_2
+
+    Parameters
+    ----------
+    groups : array-like
+        Group labels for each coordinate of the argument.
+    weights : dict, optional
+        Weights :math:`w_g` keyed by group label. Groups without a weight
+        get a default weight of the square root of the group size.
+    offset : `np.ndarray`, optional
+        Offset subtracted from the argument before evaluating the seminorm.
+    lagrange : float, optional
+        Lagrange parameter. Exactly one of `lagrange` and `bound`
+        must be specified.
+    bound : float, optional
+        Bound parameter. Exactly one of `lagrange` and `bound`
+        must be specified.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term added to the atom.
+    initial : `np.ndarray`, optional
+        Initial value for the coefficients.
     """
 
     objective_template = r"""\sum_g w_g \|%(var)s[g]\|_2"""
@@ -83,6 +107,13 @@ class group_lasso(seminorm):
     def set_weight(self, group, weight):
         """
         Set a group's weight after initialization.
+
+        Parameters
+        ----------
+        group : hashable
+            Label of the group.
+        weight : float
+            New weight for the group.
         """
         idx = self._sorted_groupids.index(group)
         self._weight_array[idx] = weight
@@ -163,9 +194,22 @@ class group_lasso(seminorm):
 
     def terms(self, arg):
         """
-        Return the args that are summed
-        in computing the seminorm.
+        Return the terms that are summed in computing the seminorm.
 
+        Parameters
+        ----------
+        arg : `np.ndarray`
+            Argument of the seminorm.
+
+        Returns
+        -------
+        terms : `np.ndarray`
+            Weighted Euclidean norms of each group of `arg`, ordered
+            by sorted group label.
+
+        Examples
+        --------
+        >>> import numpy as np
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso(groups, lagrange=1.)
@@ -178,7 +222,6 @@ class group_lasso(seminorm):
         (6.3245..., 12.2474...)
         >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
         18.5720...
-        
         """
         arg = np.asarray(arg)
         norms = []
@@ -290,8 +333,14 @@ class group_lasso(seminorm):
 @objective_doc_templater()
 class group_lasso_dual(group_lasso):
 
-    """
-    The dual of the group lasso seminorm.
+    r"""
+    The dual of the group LASSO seminorm.
+
+    .. math::
+
+        \beta \mapsto \max_g \|\beta[g]\|_2 / w_g
+
+    Takes the same arguments as `group_lasso`.
     """
 
     objective_template = r"""\max_g \|%(var)s[g]\|_2 / w_g"""
@@ -303,13 +352,25 @@ class group_lasso_dual(group_lasso):
 
     def terms(self, arg, check_feasibility=True):
         """
-        Return the args that are maximized
-        in computing the seminorm.
+        Return the terms that are maximized in computing the seminorm.
 
-        If `check_feasibility` then return `np.inf`
-        for groups whose norms aren't 0 with a weight of 0.
-        Otherwise, return 0 for these entries
+        Parameters
+        ----------
+        arg : `np.ndarray`
+            Argument of the seminorm.
+        check_feasibility : bool, optional
+            If `True`, return `np.inf` for groups with a weight of 0
+            whose norms are not 0. Otherwise, return 0 for these entries.
 
+        Returns
+        -------
+        terms : `np.ndarray`
+            Euclidean norms of each group of `arg` divided by the
+            group weights, ordered by sorted group label.
+
+        Examples
+        --------
+        >>> import numpy as np
         >>> import regreg.api as rr
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
@@ -320,7 +381,6 @@ class group_lasso_dual(group_lasso):
         (3.1622..., 4.0824...)
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         4.0824...
-
         """
         arg = np.asarray(arg)
         norms = []
@@ -435,6 +495,23 @@ class group_lasso_cone(cone):
     
     """
     A superclass for the group LASSO and group LASSO dual epigraph cones.
+
+    The argument of the cone has one more coordinate than `groups`:
+    the last coordinate is the epigraph variable.
+
+    Parameters
+    ----------
+    groups : array-like
+        Group labels for each coordinate (excluding the last one)
+        of the argument.
+    weights : dict, optional
+        Weights keyed by group label. See `group_lasso`.
+    offset : `np.ndarray`, optional
+        Offset subtracted from the argument.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term added to the atom.
+    initial : `np.ndarray`, optional
+        Initial value for the coefficients.
     """
 
     seminorm_class = group_lasso
@@ -502,10 +579,16 @@ class group_lasso_cone(cone):
 
     @property
     def weights(self):
+        """
+        Weights of the groups, keyed by group label.
+        """
         return self.snorm.weights
 
     @property
     def groups(self):
+        """
+        Group labels of the coordinates (excluding the epigraph variable).
+        """
         return self.snorm.groups
 
     @doc_template_user
@@ -520,7 +603,7 @@ class group_lasso_cone(cone):
 class group_lasso_epigraph(group_lasso_cone):
 
     """
-    The epigraph of the group lasso seminorm.
+    The epigraph of the group LASSO seminorm.
     """
 
     objective_template = (r"""I^{\infty}\left(\sum_g \|%(var)s[g]\|_2 """
@@ -569,7 +652,7 @@ class group_lasso_epigraph(group_lasso_cone):
 class group_lasso_epigraph_polar(group_lasso_cone):
 
     """
-    The polar of the epigraph of the group lasso seminorm.
+    The polar of the epigraph of the group LASSO seminorm.
     """
 
     objective_template = (r"""I^{\infty}(\max_g \|%(var)s[g]\|_2 \leq """
@@ -755,9 +838,30 @@ def strong_set(glasso,
                slope_estimate=1):
 
     """
-    Guess at active groups at 
-    lagrange_new based on gradient
-    at lagrange_cur.
+    Guess the active groups at `lagrange_new` based on the gradient
+    at `lagrange_cur`.
+
+    This is the strong rule for discarding inactive groups when
+    computing a path of solutions.
+
+    Parameters
+    ----------
+    glasso : `group_lasso`
+        The group LASSO penalty.
+    lagrange_cur : float
+        Current value of the Lagrange parameter.
+    lagrange_new : float
+        Next value of the Lagrange parameter.
+    grad : `np.ndarray`
+        Gradient of the smooth loss at the solution for `lagrange_cur`.
+    slope_estimate : float, optional
+        Estimate of the slope of the gradient as a function of the
+        Lagrange parameter.
+
+    Returns
+    -------
+    groups : list
+        Labels of the candidate active groups.
     """
 
     dual = glasso.conjugate
@@ -773,11 +877,28 @@ def check_KKT(glasso,
               tol=1.e-2):
 
     """
-    Check whether (grad, solution) satisfy
-    KKT conditions at a given tolerance.
+    Check whether (`grad`, `solution`) satisfy the KKT conditions.
 
-    Assumes glasso is group_lasso in lagrange form
-    so that glasso.lagrange is not None
+    Assumes `glasso` is a `group_lasso` in Lagrange form,
+    so that `glasso.lagrange` is not None.
+
+    Parameters
+    ----------
+    glasso : `group_lasso`
+        The group LASSO penalty.
+    grad : `np.ndarray`
+        Gradient of the smooth loss at `solution`.
+    solution : `np.ndarray`
+        Candidate solution.
+    lagrange : float
+        Lagrange parameter (currently unused; `glasso.lagrange` is used).
+    tol : float, optional
+        Tolerance for the KKT conditions.
+
+    Returns
+    -------
+    failing : bool
+        `True` if the KKT conditions fail at tolerance `tol`.
     """
 
     failing = False

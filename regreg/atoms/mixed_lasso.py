@@ -1,3 +1,14 @@
+r"""
+Mixed LASSO penalties.
+
+A mixed LASSO penalty combines, on different coordinates of the same
+vector, a group LASSO penalty, an :math:`\ell_1` penalty, a positive
+part penalty, a nonnegativity constraint or no penalty at all. The
+treatment of each coordinate is specified by a `penalty_structure` array
+of labels: the reserved labels `UNPENALIZED`, `L1_PENALTY`,
+`POSITIVE_PART` and `NONNEGATIVE` (all negative integers) select the
+corresponding treatment, and any other label is the name of a group.
+"""
 from copy import copy
 import warnings
 
@@ -37,11 +48,45 @@ except ImportError:
 @objective_doc_templater()
 class mixed_lasso(atom):
 
+    r"""
+    Mixed LASSO penalty in Lagrange form.
+
+    The penalty is
+
+    .. math::
+
+       \lambda \left(\sum_g w_g \|\beta_g\|_2 + \sum_{j \in L} |\beta_j|
+       + \sum_{j \in P} \max(\beta_j, 0) \right)
+
+    where :math:`g` ranges over the groups, :math:`L` is the set of
+    coordinates labelled `L1_PENALTY` and :math:`P` the set of coordinates
+    labelled `POSITIVE_PART`. Coordinates labelled `UNPENALIZED` are not
+    penalized and coordinates labelled `NONNEGATIVE` are constrained to be
+    nonnegative. The proximal map also sets negative `POSITIVE_PART`
+    coordinates to zero.
+
+    Parameters
+    ----------
+    penalty_structure : np.ndarray
+        One label per coordinate. Labels in `reserved` select the
+        special treatments described above; every other label defines
+        a group.
+    lagrange : float
+        Lagrange parameter :math:`\lambda`.
+    weights : dict, optional
+        Maps group labels to weights :math:`w_g`. Groups not in
+        `weights` get weight :math:`\sqrt{|g|}`.
+    offset : np.ndarray, optional
+        Offset subtracted from the argument before the penalty is
+        evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
+
     objective_template = 'needs a template'
 
-    """
-    A class that defines the API for cone constraints.
-    """
     tol = 1.0e-05
 
     def __init__(self, 
@@ -141,14 +186,24 @@ class mixed_lasso(atom):
     
     @doc_template_provider
     def constraint(self, x, bound=None):
-        r"""
-        Verify :math:`\cdot %(objective)s \leq \lambda`, where :math:`\lambda`
-        is bound, :math:`\alpha` is self.offset (if any).
+        """
+        Check whether the seminorm of `x` is at most `bound`.
 
-        If True, returns 0, else returns np.inf.
+        The offset (if any) is subtracted from `x` before the seminorm
+        is evaluated.
 
-        The class atom's constraint just returns the appropriate bound
-        parameter for use by the subclasses.
+        Parameters
+        ----------
+        x : np.ndarray
+            Argument of the constraint.
+        bound : float
+            Bound on the seminorm. Must be supplied; a `ValueError`
+            is raised if it is None.
+
+        Returns
+        -------
+        feasible : bool
+            Whether the seminorm of `x` is at most `bound`.
         """
         if bound is None:
             raise ValueError('bound must be suppled')
@@ -156,12 +211,45 @@ class mixed_lasso(atom):
         return self.seminorm(x_offset) <= bound
 
     def nonsmooth_objective(self, x, check_feasibility=False):
+        """
+        The nonsmooth objective of the atom, including its quadratic term.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Argument of the objective.
+        check_feasibility : bool, optional
+            If True, return `np.inf` when `x` violates the
+            nonnegativity constraints.
+
+        Returns
+        -------
+        value : float
+            Value of the penalty plus `self.quadratic` at `x`.
+        """
         x_offset = self.apply_offset(x)
         v = self.seminorm(x_offset, check_feasibility=check_feasibility)
         v += self.quadratic.objective(x, 'func')
         return v
 
     def seminorm(self, x, check_feasibility=False):
+        """
+        The mixed LASSO penalty, multiplied by `self.lagrange`.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Argument of the penalty. The offset (if any) is subtracted
+            before the penalty is evaluated.
+        check_feasibility : bool, optional
+            If True, return `np.inf` when the `NONNEGATIVE` or
+            `POSITIVE_PART` coordinates are not (strictly) positive.
+
+        Returns
+        -------
+        value : float
+            Value of the penalty.
+        """
         x_offset = self.apply_offset(x)
         # flush buffers for computations
 
@@ -181,22 +269,31 @@ class mixed_lasso(atom):
 
     def proximal(self, proxq, prox_control=None):
         r"""
-        The proximal operator. If the atom is in
-        Lagrange mode, this has the form
+        The proximal operator.
+
+        The atom is always in Lagrange mode, so the proximal map is
 
         .. math::
 
            v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \lambda h(v+\alpha) + \langle v, \eta \rangle
+           \|x-v\|^2_2 + \lambda h(v-\alpha) + \langle v, \eta \rangle
 
-        where :math:`\alpha` is the offset of self.affine_transform and
-        :math:`\eta` is self.linear_term.
+        where :math:`h` is the mixed LASSO penalty, :math:`\alpha` is
+        `self.offset`, and :math:`L`, :math:`x` and :math:`\eta` are the
+        coefficient, center and linear term of the sum of `proxq` and
+        `self.quadratic`.
 
-        .. math::
+        Parameters
+        ----------
+        proxq : regreg.identity_quadratic.identity_quadratic
+            A quadratic added to the atom before minimizing.
+        prox_control : dict, optional
+            Ignored.
 
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \langle v, \eta \rangle \text{s.t.} \   h(v+\alpha) \leq \lambda
-
+        Returns
+        -------
+        Z : np.ndarray
+            The proximal map.
         """
 
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
@@ -233,15 +330,42 @@ class mixed_lasso(atom):
 @objective_doc_templater()
 class mixed_lasso_dual(mixed_lasso):
 
+    r"""
+    Conjugate of the mixed LASSO penalty, in bound form only.
+
+    This is the indicator of the set where the dual seminorm
+
+    .. math::
+
+       h^*(u) = \max\left(\max_g \frac{\|u_g\|_2}{w_g},
+       \max_{j \in L} |u_j|, \max_{j \in P} \max(u_j, 0)\right)
+
+    is at most `bound` (see `mixed_lasso` for notation).
+
+    Parameters
+    ----------
+    penalty_structure : np.ndarray
+        One label per coordinate, as in `mixed_lasso`.
+    bound : float
+        Bound on the dual seminorm.
+    weights : dict, optional
+        Maps group labels to weights :math:`w_g`. Groups not in
+        `weights` get weight :math:`\sqrt{|g|}`.
+    offset : np.ndarray, optional
+        Offset subtracted from the argument before the constraint is
+        evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
+
     _doc_dict = {'linear':r' + \langle \eta, x \rangle',
                  'constant':r' + \tau',
                  'objective': '',
                  'shape':'p',
                  'var':r'x'}
 
-    """
-    Conjugate of the group lasso seminorm (in bound form only for now).
-    """
     tol = 1.0e-05
 
     def __init__(self, 
@@ -330,6 +454,22 @@ class mixed_lasso_dual(mixed_lasso):
         return self.seminorm(x_offset) <= bound
 
     def nonsmooth_objective(self, x, check_feasibility=False):
+        """
+        The nonsmooth objective of the atom, including its quadratic term.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Argument of the objective.
+        check_feasibility : bool, optional
+            If True, include the result of `self.constraint`;
+            otherwise the constraint term is taken to be 0.
+
+        Returns
+        -------
+        value : float
+            Value of the objective at `x`.
+        """
         x_offset = self.apply_offset(x)
         if check_feasibility:
             v = self.constraint(x_offset, self.bound)
@@ -339,6 +479,24 @@ class mixed_lasso_dual(mixed_lasso):
         return v
 
     def seminorm(self, x, lagrange=1, check_feasibility=False):
+        """
+        The dual seminorm of the mixed LASSO penalty.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Argument of the dual seminorm. The offset (if any) is
+            subtracted before it is evaluated.
+        lagrange : float, optional
+            Ignored.
+        check_feasibility : bool, optional
+            Ignored.
+
+        Returns
+        -------
+        value : float
+            Value of the dual seminorm.
+        """
         x_offset = self.apply_offset(x)
 
         # flush buffers for computations
@@ -357,22 +515,32 @@ class mixed_lasso_dual(mixed_lasso):
 
     def proximal(self, proxq, prox_control=None):
         r"""
-        The proximal operator. If the atom is in
-        Bound mode, this has the form
+        The proximal operator.
+
+        The atom is always in bound mode, so the proximal map is
 
         .. math::
 
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \lambda h(v+\alpha) + \langle v, \eta \rangle
+           v^{\delta}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
+           \|x-v\|^2_2 + \langle v, \eta \rangle \ \text{s.t.} \
+           h^*(v-\alpha) \leq \delta
 
-        where :math:`\alpha` is the offset of self.affine_transform and
-        :math:`\eta` is self.linear_term.
+        where :math:`h^*` is the dual seminorm, :math:`\delta` is
+        `self.bound`, :math:`\alpha` is `self.offset`, and :math:`L`,
+        :math:`x` and :math:`\eta` are the coefficient, center and linear
+        term of the sum of `proxq` and `self.quadratic`.
 
-        .. math::
+        Parameters
+        ----------
+        proxq : regreg.identity_quadratic.identity_quadratic
+            A quadratic added to the atom before minimizing.
+        prox_control : dict, optional
+            Ignored.
 
-           v^{\lambda}(x) = \text{argmin}_{v \in \mathbb{R}^p} \frac{L}{2}
-           \|x-v\|^2_2 + \langle v, \eta \rangle \text{s.t.} \   h(v+\alpha) \leq \lambda
-
+        Returns
+        -------
+        Z : np.ndarray
+            The proximal map.
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
         if totalq.coef == 0:
@@ -410,9 +578,32 @@ def strong_set(glasso,
                slope_estimate=1):
 
     """
-    Guess at active variables at 
-    lagrange value lagrange_new based on gradient
-    at lagrange_cur.
+    Guess the active variables at a new value of the Lagrange parameter.
+
+    Uses the strong rules, based on the gradient at the current value of
+    the Lagrange parameter, to guess which variables are active at
+    `lagrange_new`.
+
+    Parameters
+    ----------
+    glasso : mixed_lasso
+        The penalty.
+    lagrange_cur : float
+        Current value of the Lagrange parameter.
+    lagrange_new : float
+        New value of the Lagrange parameter.
+    grad : np.ndarray
+        Gradient of the smooth part of the objective at the solution
+        for `lagrange_cur`.
+    slope_estimate : float, optional
+        Estimate of the slope used by the strong rules.
+
+    Returns
+    -------
+    value : np.ndarray
+        Boolean array, True for the variables guessed to be active.
+    selector : regreg.affine.selector
+        Selector of the guessed active variables.
     """
 
     p = grad.shape[0]
@@ -436,8 +627,26 @@ def check_KKT(glasso,
               tol=1.e-2):
 
     """
-    Check whether (grad, solution) satisfy
-    KKT conditions at a given tolerance.
+    Check whether (grad, solution) satisfy the KKT conditions.
+
+    Parameters
+    ----------
+    glasso : mixed_lasso
+        The penalty.
+    grad : np.ndarray
+        Gradient of the smooth part of the objective at `solution`.
+    solution : np.ndarray
+        Candidate solution.
+    lagrange : float
+        Lagrange parameter.
+    tol : float, optional
+        Relative tolerance for the checks.
+
+    Returns
+    -------
+    failing : np.ndarray
+        Boolean array, True for the coordinates where the KKT
+        conditions fail.
     """
 
     failing = check_KKT_mixed_lasso(grad, 

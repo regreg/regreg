@@ -1,8 +1,10 @@
 """
-This module contains the implementation operator and nuclear norms, used in 
-matrix completion problems and other low-rank factorization
-problems.
+Norms and cones defined in terms of singular values.
 
+This module contains the implementation of the operator and nuclear norms,
+as well as their epigraphs and the polars of these epigraphs. These are
+used in matrix completion problems and other low-rank factorization
+problems.
 """
 from copy import copy
 
@@ -23,6 +25,10 @@ from ..identity_quadratic import identity_quadratic
 @objective_doc_templater()
 class svd_atom(seminorm):
 
+    """
+    Base class for seminorms of a matrix defined through its singular values.
+    """
+
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['var'] = 'B'
     objective_vars['normklass'] = 'nuclear_norm'
@@ -34,8 +40,34 @@ class svd_atom(seminorm):
 @objective_doc_templater()
 class nuclear_norm(svd_atom):
 
-    """
-    The nuclear norm
+    r"""
+    The nuclear norm.
+
+    The nuclear (trace) norm of a matrix :math:`B` is the sum of its
+    singular values
+
+    .. math::
+
+       \|B\|_* = \sum_i \sigma_i(B).
+
+    Its dual norm is `operator_norm`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
     """
     prox_tol = 1.0e-10
 
@@ -111,8 +143,34 @@ class nuclear_norm(svd_atom):
 @objective_doc_templater()
 class operator_norm(svd_atom):
 
-    """
-    The operator norm
+    r"""
+    The operator norm.
+
+    The operator (spectral) norm of a matrix :math:`B` is its largest
+    singular value
+
+    .. math::
+
+       \|B\|_{\text{op}} = \max_i \sigma_i(B).
+
+    Its dual norm is `nuclear_norm`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape :math:`(n, p)` of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (penalty form). Exactly one of
+        `lagrange` and `bound` should be specified.
+    bound : float, optional
+        Bound parameter (constraint form).
+    offset : np.ndarray, optional
+        Offset :math:`\alpha` subtracted from the argument before
+        the norm is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
     """
     prox_tol = 1.0e-10
 
@@ -185,6 +243,26 @@ class operator_norm(svd_atom):
 @objective_doc_templater()
 class svd_cone(cone):
 
+    r"""
+    Base class for cones defined through the singular values of a matrix.
+
+    The argument of such a cone is a vector of length :math:`np+1`: the
+    first :math:`np` entries are a flattened :math:`n \times p` matrix
+    and the last entry is a scalar.
+
+    Parameters
+    ----------
+    input_shape : tuple
+        Shape :math:`(n, p)` of the matrix part of the argument.
+    offset : np.ndarray, optional
+        Offset subtracted from the argument before the constraint
+        is evaluated.
+    quadratic : regreg.identity_quadratic.identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : np.ndarray, optional
+        Initial value for the coefficients.
+    """
+
     objective_vars = svd_atom.objective_vars.copy()
     objective_vars['coneklass'] = 'nuclear_norm_epigraph'
     objective_vars['dualconeklass'] = 'nuclear_norm_epigraph_polar'
@@ -248,6 +326,18 @@ class svd_cone(cone):
 @objective_doc_templater()
 class nuclear_norm_epigraph(svd_cone):
 
+    r"""
+    The epigraph of the nuclear norm.
+
+    .. math::
+
+       \{(B, t) : \|B\|_* \leq t\}
+
+    Its polar cone is `nuclear_norm_epigraph_polar`.
+
+    See `svd_cone` for the constructor arguments.
+    """
+
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_* \leq %(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'nuclear_norm_epigraph'
@@ -293,7 +383,19 @@ class nuclear_norm_epigraph(svd_cone):
 
 @objective_doc_templater()
 class nuclear_norm_epigraph_polar(svd_cone):
-    
+
+    r"""
+    The polar of the epigraph of the nuclear norm.
+
+    .. math::
+
+       \{(B, t) : \|B\|_{\text{op}} \leq -t\}
+
+    Its polar cone is `nuclear_norm_epigraph`.
+
+    See `svd_cone` for the constructor arguments.
+    """
+
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{op} \leq -%(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'nuclear_norm_epigraph_polar'
@@ -340,7 +442,19 @@ class nuclear_norm_epigraph_polar(svd_cone):
 
 @objective_doc_templater()
 class operator_norm_epigraph(svd_cone):
-    
+
+    r"""
+    The epigraph of the operator norm.
+
+    .. math::
+
+       \{(B, t) : \|B\|_{\text{op}} \leq t\}
+
+    Its polar cone is `operator_norm_epigraph_polar`.
+
+    See `svd_cone` for the constructor arguments.
+    """
+
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{op} \leq %(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'operator_norm_epigraph'
@@ -387,7 +501,19 @@ class operator_norm_epigraph(svd_cone):
 
 @objective_doc_templater()
 class operator_norm_epigraph_polar(svd_cone):
-    
+
+    r"""
+    The polar of the epigraph of the operator norm.
+
+    .. math::
+
+       \{(B, t) : \|B\|_* \leq -t\}
+
+    Its polar cone is `operator_norm_epigraph`.
+
+    See `svd_cone` for the constructor arguments.
+    """
+
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_{*} \leq -%(var)s[-1])"""
     objective_vars = svd_cone.objective_vars.copy()
     objective_vars['coneklass'] = 'operator_norm_epigraph_polar'

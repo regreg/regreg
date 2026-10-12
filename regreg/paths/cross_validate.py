@@ -1,3 +1,7 @@
+"""
+Cross-validation of regularization paths.
+"""
+
 import numpy as np
 
 from joblib.parallel import Parallel, delayed
@@ -23,15 +27,43 @@ def cross_validate(path_obj,
                    inner_tol=1.e-5):
 
     '''
-    Cross validates a path fitter over a set of 
-    Lagrange parameters.
+    Cross-validate a path fitter over a set of Lagrange parameters.
 
-    Adjusts coefficient of subsampled loss by fraction ntrain / nsample.
+    The coefficient of each subsampled (training) loss is multiplied by
+    ``nsample / ntrain``.
 
     Parameters
     ----------
+    path_obj : `regreg.paths.grouped_path`
+        Path object describing the problem on the full data.
+    lagrange_seq : sequence of float
+        Decreasing sequence of Lagrange parameters.
+    path_fitter : callable, optional
+        Function that computes the path, with signature like
+        `regreg.paths.strong_rules`.
+    initial_data : tuple, optional
+        Pair ``(solution, grad_solution)`` to start each path. Defaults to
+        ``(path_obj.solution, path_obj.grad_solution)``.
+    cv : int, optional
+        Number of folds.
+    group_labels : ndarray, optional
+        Currently unused.
+    n_jobs : int, optional
+        Number of jobs passed to `joblib.Parallel`.
+    score : callable, optional
+        Function of ``(linear_predictor, response)`` returning the score on
+        a test fold. Defaults to mean squared error.
+    verbose : bool, optional
+        Verbosity passed to `joblib.Parallel`.
+    inner_tol : float, optional
+        Tolerance for each subproblem.
 
-    path_obj : group_path
+    Returns
+    -------
+    mean_score : ndarray
+        Mean score over folds, for each Lagrange parameter.
+    std_score : ndarray
+        Standard deviation of score over folds, for each Lagrange parameter.
     '''
 
     # assumes that full data of path_obj.saturated_loss
@@ -113,15 +145,47 @@ def cross_validate_alt(path_obj,
                        inner_tol=1.e-5):
 
     '''
-    Cross validates a path fitter over a set of 
-    Lagrange parameters.
+    Cross-validate a path fitter over a set of Lagrange parameters.
 
-    Adjusts coefficient of subsampled loss by fraction ntrain / nsample.
+    Like `cross_validate`, but with a user-supplied function to fit each
+    fold.
 
     Parameters
     ----------
+    path_obj : `regreg.paths.grouped_path`
+        Path object describing the problem on the full data.
+    fit_fold : callable
+        Called as ``fit_fold(lagrange_seq, test, train, path_fitter,
+        initial_data, *fit_args)``; must return a dict with key ``'beta'``.
+    fit_args : sequence
+        Extra positional arguments for `fit_fold`.
+    lagrange_seq : sequence of float
+        Decreasing sequence of Lagrange parameters.
+    path_fitter : callable, optional
+        Function that computes the path, passed to `fit_fold`.
+    initial_data : tuple, optional
+        Pair ``(solution, grad_solution)`` to start each path. Defaults to
+        ``(path_obj.solution, path_obj.grad_solution)``.
+    cv : int, optional
+        Number of folds.
+    group_labels : ndarray, optional
+        Currently unused.
+    n_jobs : int, optional
+        Number of jobs passed to `joblib.Parallel`.
+    score : callable, optional
+        Function of ``(linear_predictor, response)`` returning the score on
+        a test fold. Defaults to mean squared error.
+    verbose : bool, optional
+        Verbosity passed to `joblib.Parallel`.
+    inner_tol : float, optional
+        Currently unused.
 
-    path_obj : group_path
+    Returns
+    -------
+    mean_score : ndarray
+        Mean score over folds, for each Lagrange parameter.
+    std_score : ndarray
+        Standard deviation of score over folds, for each Lagrange parameter.
     '''
 
     # assumes that full data of path_obj.saturated_loss

@@ -1,3 +1,5 @@
+"""sklearn estimators for multinomial regression and classification."""
+
 import numpy as np
 
 have_sklearn = True
@@ -15,11 +17,12 @@ from ..smooth.mglm import (mglm,
 if have_sklearn:
     class sklearn_multinomial(sklearn_regression):
 
-        """
+        """Regularized multinomial regression for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
+        Any atom can be used as a regularizer.
 
+        The response passed to `fit` is an ``(n, J)`` array of counts for
+        each of the `J` categories.
         """
 
         def _loglike_factory(self, X, y):
@@ -65,15 +68,15 @@ if have_sklearn:
                 return np.nan
 
     class sklearn_multinomial_lagrange(sklearn_regression_lagrange, sklearn_multinomial):
+        """Lagrange-form multinomial regression for sklearn."""
+
         pass
 
     class sklearn_multinomial_classifier(sklearn_classifier):
 
-        """
+        """Regularized multinomial classifier for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
+        Any atom can be used as a regularizer.
         """
 
         def _loglike_factory(self, X, y):
@@ -100,46 +103,45 @@ if have_sklearn:
             return np.nan
 
         def predict(self, X):
-            """
-            Predict labels in classification setting.
+            """Predict labels in the classification setting.
 
             Parameters
             ----------
-
-            X : np.ndarray((n, p))
-                Feature matrix.
+            X : ndarray
+                Feature matrix of shape ``(n, p)``.
 
             Returns
             -------
-
-            probs : np.ndarray(n)
-                Predictions from classification model.
-
+            labels : ndarray
+                Index of the category with the largest linear predictor, of
+                shape ``(n,)``.
             """
             linpred = X.dot(self._coefs)
             return np.argmax(linpred, 1)
 
         def predict_proba(self, X):
-            """
-            Predict new probabilities in classification setting.
+            """Predict category probabilities in the classification setting.
 
             Parameters
             ----------
-
-            X : np.ndarray((n, p))
-                Feature matrix.
+            X : ndarray
+                Feature matrix of shape ``(n, p)``.
 
             Returns
             -------
-
-            probs : np.ndarray(n)
-                Predictions from classification model.
-
+            probs : ndarray
+                Predicted probabilities (softmax of the linear predictor), of
+                shape ``(n, J)``.
             """
             linpred = X.dot(self._coefs)
             exp_lin = np.exp(linpred)
             return exp_lin / exp_lin.sum(1)
 
     class sklearn_multinomial_classifier_lagrange(sklearn_multinomial_classifier):
+        """Multinomial classifier (intended Lagrange form).
+
+        Currently this is identical to `sklearn_multinomial_classifier`.
+        """
+
         pass
 

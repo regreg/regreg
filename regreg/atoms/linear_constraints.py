@@ -13,15 +13,31 @@ from ..doctemplates import doc_template_user
 @objective_doc_templater()
 class linear_constraint(cone):
 
-    """
-    This class allows specifications of linear constraints
+    r"""
+    Base class for linear (subspace) constraints.
+
+    This class allows specification of linear constraints
     of the form :math:`x \in \text{row}(L)` by specifying
     an orthonormal basis for the rowspace of :math:`L`.
 
     If the constraint is of the form :math:`Ax=0`, then
-    this linear constraint can be created using the
-    *linear* classmethod of the *zero* cone in *regreg.cones*.
-    
+    this linear constraint can also be created using the
+    `linear` classmethod of the `zero_constraint` cone in
+    `regreg.atoms.cones`.
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the argument of the constraint.
+    basis : np.ndarray
+        Matrix whose rows are an orthonormal basis for the subspace.
+    offset : np.ndarray, optional
+        Offset subtracted from the argument before the constraint is
+        evaluated.
+    initial : np.ndarray, optional
+        Initial value of the coefficients.
+    quadratic : identity_quadratic, optional
+        Quadratic term added to the constraint.
     """
     tol = 1.0e-05
 
@@ -101,22 +117,23 @@ class linear_constraint(cone):
 @objective_doc_templater()
 class projection(linear_constraint):
 
+    """
+    An atom representing a linear constraint.
+
+    The constraint restricts the argument to the span of the rows of
+    `basis`, a matrix that is assumed to be a set of row vectors
+    spanning the space.
+
+    Notes
+    -----
+    It is assumed (without checking) that the rows of `basis`
+    are orthonormal, so that projecting `x` onto their span
+    is simply ``np.dot(basis.T, np.dot(basis, x))``.
+    """
+
     objective_vars = linear_constraint.objective_vars.copy()
     objective_vars['coneklass'] = 'projection'
     objective_vars['dualconeklass'] = 'projection_complement'
-
-    """
-    An atom representing a linear constraint.
-    It is specified via a matrix that is assumed
-    to be an set of row vectors spanning the space.
-
-    Notes
-    =====
-
-    It is assumed (without checking) that the rows of basis
-    are orthonormal, so that projecting *x* onto their span
-    is simply np.dot(basis.T, np.dot(basis, x))
-    """
 
     @doc_template_user
     def constraint(self, x):
@@ -148,8 +165,10 @@ class projection_complement(linear_constraint):
 
     """
     An atom representing a linear constraint.
-    The orthogonal complement of projection, it is specified
-    with an orthonormal basis for the complement
+
+    The orthogonal complement of `projection`: the argument is
+    constrained to the orthogonal complement of the span of the rows of
+    `basis`, which are assumed to be orthonormal.
     """
 
     objective_vars = linear_constraint.objective_vars.copy()
