@@ -1435,8 +1435,9 @@ class stacked_loglike(smooth_atom):
             If True, return ``np.inf`` when the point is not feasible,
             i.e. when `natural_param` is not in the domain.
         case_weights : ndarray, optional
-            Non-negative case weights. Currently ignored: each stacked loss
-            uses its own case weights.
+            Non-negative case weights, of the same shape as `natural_param`.
+            These are combined with this loss's own case weights and passed
+            on to the stacked losses.
 
         Returns
         -------
@@ -1457,17 +1458,20 @@ class stacked_loglike(smooth_atom):
         linpred = self.apply_offset(linpred)
         if mode == 'grad':
             for d, slice in enumerate(self._slices):
-                self._gradient[slice] = self._losses[d].smooth_objective(linpred[slice], 'grad')
+                self._gradient[slice] = self._losses[d].smooth_objective(linpred[slice], 'grad',
+                                                                         case_weights=cw[slice])
             return self.scale(self._gradient)
         elif mode == 'func':
             value = 0
             for d, slice in enumerate(self._slices):
-                value += self._losses[d].smooth_objective(linpred[slice], 'func')
+                value += self._losses[d].smooth_objective(linpred[slice], 'func',
+                                                          case_weights=cw[slice])
             return self.scale(value)
         elif mode == 'both':
             value = 0
             for d, slice in enumerate(self._slices):
-                f, g = self._losses[d].smooth_objective(linpred[slice], 'both')
+                f, g = self._losses[d].smooth_objective(linpred[slice], 'both',
+                                                        case_weights=cw[slice])
                 self._gradient[slice] = g
                 value += f
             return self.scale(value), self.scale(self._gradient)
@@ -1579,7 +1583,7 @@ class stacked_loglike(smooth_atom):
         ----------
         successes : sequence of ndarray
             Numbers of successes, one array per stacked loss.
-        trials : sequence of ndarray
+        trials : sequence of ndarray, optional
             Numbers of trials, one array per stacked loss.
         case_weights : ndarray, optional
             Non-negative case weights.
@@ -1599,8 +1603,9 @@ class stacked_loglike(smooth_atom):
             Stacked saturated loss.
         """
 
-        losses = [logistic_loglike(successes[i],
-                                   trials[i],
+        losses = [logistic_loglike(successes[i].shape,
+                                   successes[i],
+                                   trials=None if trials is None else trials[i],
                                    coef=coef)
                   for i in range(len(successes))]
 
@@ -1625,7 +1630,7 @@ class stacked_loglike(smooth_atom):
         ----------
         successes : sequence of ndarray
             Numbers of successes, one array per stacked loss.
-        trials : sequence of ndarray
+        trials : sequence of ndarray, optional
             Numbers of trials, one array per stacked loss.
         case_weights : ndarray, optional
             Non-negative case weights.
@@ -1645,8 +1650,9 @@ class stacked_loglike(smooth_atom):
             Stacked saturated loss.
         """
 
-        losses = [probit_loglike(successes[i],
-                                 trials[i],
+        losses = [probit_loglike(successes[i].shape,
+                                 successes[i],
+                                 trials=None if trials is None else trials[i],
                                  coef=coef)
                   for i in range(len(successes))]
 
@@ -1671,7 +1677,7 @@ class stacked_loglike(smooth_atom):
         ----------
         successes : sequence of ndarray
             Numbers of successes, one array per stacked loss.
-        trials : sequence of ndarray
+        trials : sequence of ndarray, optional
             Numbers of trials, one array per stacked loss.
         case_weights : ndarray, optional
             Non-negative case weights.
@@ -1691,8 +1697,9 @@ class stacked_loglike(smooth_atom):
             Stacked saturated loss.
         """
 
-        losses = [cloglog_loglike(successes[i],
-                                  trials[i],
+        losses = [cloglog_loglike(successes[i].shape,
+                                  successes[i],
+                                  trials=None if trials is None else trials[i],
                                   coef=coef)
                   for i in range(len(successes))]
 
@@ -1734,10 +1741,10 @@ class stacked_loglike(smooth_atom):
             Stacked saturated loss.
         """
 
-        losses = [logistic_loglike(successes[i],
-                                   trials[i],
-                                   coef=coef)
-                  for i in range(len(successes))]
+        losses = [poisson_loglike(counts[i].shape,
+                                  counts[i],
+                                  coef=coef)
+                  for i in range(len(counts))]
 
         return klass(losses,
                      offset=offset,
@@ -1747,7 +1754,6 @@ class stacked_loglike(smooth_atom):
 
     @classmethod
     def huber(klass,
-              X, 
               responses,
               smoothing_parameter,
               case_weights=None,
@@ -1759,8 +1765,6 @@ class stacked_loglike(smooth_atom):
 
         Parameters
         ----------
-        X : object
-            Unused.
         responses : sequence of ndarray
             Response vectors, one per stacked loss.
         smoothing_parameter : float
@@ -1785,7 +1789,8 @@ class stacked_loglike(smooth_atom):
 
         losses = [huber_loss(response.shape,
                              response,
-                             smoothing_parameter) 
+                             smoothing_parameter,
+                             coef=coef)
                   for response in responses]
 
         return klass(losses,
@@ -1796,7 +1801,6 @@ class stacked_loglike(smooth_atom):
 
     @classmethod
     def huber_svm(klass,
-                  X, 
                   successes,
                   smoothing_parameter,
                   case_weights=None,
@@ -1808,8 +1812,6 @@ class stacked_loglike(smooth_atom):
 
         Parameters
         ----------
-        X : object
-            Unused.
         successes : sequence of ndarray
             Binary (0/1) responses, one array per stacked loss.
         smoothing_parameter : float
@@ -1834,7 +1836,8 @@ class stacked_loglike(smooth_atom):
 
         losses = [huber_svm(response.shape,
                             response,
-                            smoothing_parameter) 
+                            smoothing_parameter,
+                            coef=coef)
                   for response in successes]
 
         return klass(losses,
@@ -1845,7 +1848,6 @@ class stacked_loglike(smooth_atom):
 
     @classmethod
     def cox(klass, 
-            X, 
             event_times,
             censoring,
             coef=1., 
@@ -1857,8 +1859,6 @@ class stacked_loglike(smooth_atom):
 
         Parameters
         ----------
-        X : object
-            Unused.
         event_times : sequence of ndarray
             Observed times, one array per stacked loss.
         censoring : sequence of ndarray
