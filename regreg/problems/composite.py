@@ -452,7 +452,7 @@ class smooth_conjugate(smooth):
         # &=  \inf_x \sup_u u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma-a +  \frac{\kappa}{2} \|x\|^2_2  + \beta^Tx + c +f(x) - u^Tx \\
         # &=  \inf_x \sup_u \left(u^Tv - \frac{r}{2} \|u\|^2_2 - u^T\gamma- u^Tx\right)-a +  \frac{\kappa}{2} \|x\|^2_2 +   \beta^Tx + c +f(x)  \\
         # &=  \inf_x \frac{1}{2r} \|x+\gamma-v\|^2_2 -a +  \frac{\kappa}{2} \|x\|^2_2 + \beta^Tx + c +f(x)  \\
-        # &= c-a + \frac{1}{2r} \|\gamma-v\|^2_2 - \sup_x \left((v/r)^Tx - \left(\frac{1}{r} + \kappa\right) \|x\|^2_2 - x^T(\beta+\gamma/r) - f(x) \right) \\
+        # &= c-a + \frac{1}{2r} \|\gamma-v\|^2_2 - \sup_x \left((v/r)^Tx - \frac{1}{2}\left(\frac{1}{r} + \kappa\right) \|x\|^2_2 - x^T(\beta+\gamma/r) - f(x) \right) \\
         # \end{aligned}
         # $$
 
@@ -486,54 +486,35 @@ class smooth_conjugate(smooth):
                 atom.quadratic = atom.quadratic + self.smoothing_quadratic
                 return atom
         else:
+            # h is this smooth conjugate, the conjugate of F = atom plus
+            # the total quadratic (collapsed: kappa/2 |x|^2 + beta^T x + c),
+            # and q(u) = r/2 |u|^2 + gamma^T u + a is self.quadratic.
+            # We want the conjugate g of h + q.
             q = self.quadratic.collapsed()
-            if q.coef == 0:
-                newq = copy(atom.quadratic)
-                newq.constant_term -= q.constant_term
-                offset = -q.linear_term
-                if atom.offset is not None:
-                    offset -= atom.offset
-                atom = copy(atom)
-                atom.offset = offset
-                atom.quadratic = newq
+            r, gamma, a = q.coef, q.linear_term, q.constant_term
+            if r == 0:
+                # g(v) = F(v - gamma) - a: shift the atom by gamma and
+                # evaluate the total quadratic at v - gamma
+                total = (self.atom.quadratic + self.smoothing_quadratic).collapsed()
+                beta = total.linear_term
+                atom = copy(self.atom)
+                if atom.offset is None:
+                    atom.offset = gamma
+                else:
+                    atom.offset = atom.offset + gamma
+                atom.quadratic = sq(total.coef,
+                                    gamma,
+                                    beta,
+                                    total.constant_term - asarray(beta * gamma).sum() - a)
                 return atom
-            if q.coef != 0:
-                r = q.coef
-                sq_ = self.smoothing_quadratic
-                newq = sq_ + q.conjugate
-                new_smooth = smooth_conjugate(self.atom, quadratic=newq)
-                output = smooth(self.atom.shape,
-                                offset=None,
-                                quadratic=sq(1./r, q.linear_term, 0, 0),
-                                initial=None)
-                output.smoothed_atom = new_smooth
-
-                def smooth_objective(self, x, mode='func', check_feasibility=False):
-                    # what if self.quadratic is later changed? hmm..
-                    r = 1. / self.quadratic.coef
-                    if mode == 'func':
-                        v = self.smoothed_atom.smooth_objective(x/r, mode=mode, 
-                                                                check_feasibility=check_feasibility)
-                        return self.smoothing_quadratic.objective(x, 'func') - v
-                    elif mode == 'both':
-                        v1, g1 = self.smoothed_atom.smooth_objective(x/r, mode=mode, 
-                                                                     check_feasibility=check_feasibility)
-                        v2, g2 = self.smoothing_quadratic.objective(x, mode=mode, 
-                                                                    check_feasibility=check_feasibility)
-                        return v2-v1, g2-g1/r
-                    elif mode == 'grad':
-                        g1 = self.smoothed_atom.smooth_objective(x/r, mode='grad', 
-                                                                     check_feasibility=check_feasibility)
-                        g2 = self.smoothing_quadratic.objective(x, mode='grad', 
-                                                                    check_feasibility=check_feasibility)
-                        return g2-g1/r
-                    else:
-                        raise ValueError("mode incorrectly specified")
-                        
-                output.smooth_objective = type(output.smooth_objective)(smooth_objective,
-                                                                        output, 
-                                                                        smooth)
-                return output
+            else:
+                # g(v) = |v - gamma|^2 / (2r) - a - H(v / r), where H is the
+                # smooth conjugate with smoothing quadratic
+                # smoothing_quadratic + 1/(2r) |x|^2 + (gamma/r)^T x
+                H = smooth_conjugate(self.atom,
+                                     smoothing_quadratic=self.smoothing_quadratic +
+                                     sq(1. / r, 0, gamma / r, 0))
+                return _smooth_conjugate_conjugate(H, r, gamma, a)
     conjugate = property(get_conjugate)
 
     def latexify(self, var=None, idx=''):
@@ -617,3 +598,65 @@ class smooth_conjugate(smooth):
         Not defined for a smooth conjugate; raises ValueError.
         """
         raise ValueError('no proximal defined')
+
+class _smooth_conjugate_conjugate(smooth):
+
+    r"""
+    Conjugate of a `smooth_conjugate` plus a quadratic with positive
+    coefficient :math:`r`:
+
+    .. math::
+
+       g(v) = \frac{1}{2r} \|v - \gamma\|^2_2 - a - H(v / r)
+
+    where :math:`H` is a modified smooth conjugate (see
+    `smooth_conjugate.get_conjugate`).
+
+    Parameters
+    ----------
+    H : `smooth_conjugate`
+        The modified smooth conjugate.
+    r : float
+        Coefficient of the quadratic, must be positive.
+    gamma : ndarray or float
+        Linear term of the quadratic.
+    a : float
+        Constant term of the quadratic.
+    """
+
+    def __init__(self, H, r, gamma, a):
+        smooth.__init__(self, H.shape)
+        self.H, self.r, self.gamma, self.a = H, r, gamma, a
+        self.lipschitz = 1. / r
+
+    def smooth_objective(self, v, mode='both', check_feasibility=False):
+        """
+        Evaluate the objective, its gradient, or both.
+
+        Parameters
+        ----------
+        v : ndarray
+            Where to evaluate the objective.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the value ('func'), the gradient ('grad')
+            or both ('both').
+        check_feasibility : bool, optional
+            Ignored: the objective is finite everywhere.
+
+        Returns
+        -------
+        f : float
+            Value at `v`; returned when `mode` is 'func' or 'both'.
+        g : ndarray
+            Gradient at `v`; returned when `mode` is 'grad' or 'both'.
+        """
+        r, d = self.r, v - self.gamma
+        if mode == 'func':
+            return (d**2).sum() / (2 * r) - self.a - self.H.smooth_objective(v / r, 'func')
+        elif mode == 'grad':
+            return d / r - self.H.smooth_objective(v / r, 'grad') / r
+        elif mode == 'both':
+            Hv, Hg = self.H.smooth_objective(v / r, 'both')
+            return (d**2).sum() / (2 * r) - self.a - Hv, d / r - Hg / r
+        else:
+            raise ValueError("mode incorrectly specified")
