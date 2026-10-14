@@ -69,3 +69,40 @@ def test_stacked_common_case_weights():
     np.testing.assert_allclose(L.case_weights, w)
     for l in losses:
         np.testing.assert_allclose(l.case_weights, v)
+
+def test_offsets():
+    # gh-70: offset ignored in some objectives and in all Hessians
+
+    n = 5
+    eta = np.linspace(-1, 1, n)
+    off = np.full(n, 0.7)
+    for L_off, L in zip(_binary_losses(n, offset=off), _binary_losses(n)):
+        np.testing.assert_allclose(L_off.smooth_objective(eta, 'func'),
+                                   L.smooth_objective(eta - off, 'func'))
+        np.testing.assert_allclose(L_off.smooth_objective(eta, 'grad'),
+                                   L.smooth_objective(eta - off, 'grad'))
+        np.testing.assert_allclose(L_off.hessian(eta),
+                                   L.hessian(eta - off))
+
+    X = np.random.standard_normal((n, 2))
+    y = (np.arange(n) % 2).astype(float)
+    beta, o = np.array([.3, -.2]), np.array([.5, 1.])
+    np.testing.assert_allclose(glm.glm.logistic(X, y, offset=o).hessian(beta),
+                               glm.glm.logistic(X, y).hessian(beta - o))
+
+def test_huberized_svm_coef_offset():
+    # gh-70: huberized_svm ignored both coef and offset
+
+    X = np.random.standard_normal((6, 2))
+    labels = np.array([0, 1, 1, 0, 1, 0])
+    beta, o = np.array([.3, -.2]), np.array([10., 10.])
+    L = huberized_svm(X, labels, .5)
+    f, g = L.smooth_objective(beta, 'both')
+
+    f5, g5 = huberized_svm(X, labels, .5, coef=5.).smooth_objective(beta, 'both')
+    np.testing.assert_allclose(f5, 5 * f)
+    np.testing.assert_allclose(g5, 5 * g)
+
+    np.testing.assert_allclose(huberized_svm(X, labels, .5, offset=o).smooth_objective(beta, 'func'),
+                               L.smooth_objective(beta - o, 'func'))
+

@@ -225,7 +225,7 @@ class glm(smooth_atom):
 
         """
 
-        linpred = self.linear_predictor(beta)
+        linpred = self.linear_predictor(self.apply_offset(beta))
         X = self.data[0]
         if self._is_transform:
             raise ValueError('refusing to form Hessian for arbitrary affine_transform, use an ndarray or scipy.sparse')
@@ -1140,6 +1140,7 @@ class poisson_loglike(smooth_atom):
             evaluated at `natural_param`.
         """
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
         cw = combine_case_weights(case_weights,
                                   self.case_weights,

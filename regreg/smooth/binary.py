@@ -162,6 +162,7 @@ class logistic_loglike(smooth_atom):
         """
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
         cw = combine_case_weights(case_weights,
                                   self.case_weights,
@@ -347,6 +348,7 @@ class probit_loglike(smooth_atom):
                                   natural_param.shape)
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
 
         prob = normal_dbn.cdf(x)
@@ -406,6 +408,7 @@ class probit_loglike(smooth_atom):
         """
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
         cw = combine_case_weights(case_weights,
                                   self.case_weights,
@@ -583,6 +586,7 @@ class cloglog_loglike(smooth_atom):
                                   natural_param.shape)
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
         cutoff = 5
         x_ = np.clip(x, -cutoff, cutoff) # to prevent overflow
@@ -645,6 +649,7 @@ class cloglog_loglike(smooth_atom):
         """
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
         cw = combine_case_weights(case_weights,
                                   self.case_weights,
