@@ -6,6 +6,7 @@ This module uses an older path API than the other path modules.
 
 from __future__ import print_function, division, absolute_import
 
+from copy import copy
 from warnings import warn
 import gc
 
@@ -16,7 +17,7 @@ from .lasso import lasso_path
 
 import scipy.sparse
 
-from ..affine import power_L, normalize, selector, identity, adjoint
+from ..affine import power_L, normalize, selector, identity, add_intercept
 from ..atoms.seminorms import l1norm, constrained_positive_part
 from ..smooth import sum as smooth_sum, affine_smooth
 from ..smooth.glm import glm
@@ -30,6 +31,111 @@ UNPENALIZED = -1
 L1_PENALTY = -2
 POSITIVE_PART = -3
 NONNEGATIVE = -4
+
+def _column_scales(X, center, ddof=1):
+    """
+    Column scales used by `regreg.affine.normalize`.
+
+    With `center`, these are the sample standard deviations (with `ddof`);
+    otherwise the root mean squares of the columns.
+    """
+    n = X.shape[0]
+    if scipy.sparse.issparse(X):
+        sum_sq = np.asarray(X.multiply(X).sum(0)).reshape(-1)
+        means = np.asarray(X.mean(0)).reshape(-1)
+    else:
+        sum_sq = np.sum(X**2, 0)
+        means = X.mean(0)
+    if center:
+        return np.sqrt(np.maximum(sum_sq - n * means**2, 0) / (n - ddof))
+    return np.sqrt(sum_sq / (n - (ddof - 1)))
+
+class _mixed_lasso_design(object):
+    """
+    The design matrix used by `mixed_lasso_path`.
+
+    Its columns are an optional intercept column (never centered or
+    scaled) followed by the columns of `X`, centered and/or scaled as
+    requested. When centering or scaling, constant columns of `X` (zero
+    scale) are dropped; `keep` marks the columns of `X` that are kept.
+
+    Parameters
+    ----------
+    X : ndarray or sparse matrix
+        Design matrix.
+    intercept : bool
+        Prepend an intercept column?
+    center : bool
+        Center the columns of `X`?
+    scale : bool
+        Scale the columns of `X`?
+    """
+
+    def __init__(self, X, intercept, center, scale):
+        if scipy.sparse.issparse(X):
+            X = scipy.sparse.csc_matrix(X)
+        else:
+            X = np.asarray(X)
+        self.intercept, self.center, self.scale = intercept, center, scale
+
+        n, p = X.shape
+        if center or scale:
+            col_scales = _column_scales(X, center)
+            self.keep = col_scales > 0
+        else:
+            col_scales = np.ones(p)
+            self.keep = np.ones(p, bool)
+        self._X = X[:, self.keep]
+        self._col_scales = col_scales[self.keep]
+        self.shape = (n, int(self.keep.sum()) + int(intercept))
+
+    @property
+    def scalings(self):
+        """
+        Scale of each column of the design: dividing coefficients for
+        the normalized design by these gives coefficients for the
+        original columns.
+        """
+        scalings = self._col_scales if self.scale else np.ones(self._X.shape[1])
+        if self.intercept:
+            scalings = np.hstack([1, scalings])
+        return scalings
+
+    def columns(self, which=None):
+        """
+        The (normalized) design restricted to some of its columns.
+
+        Parameters
+        ----------
+        which : index, optional
+            Boolean mask or sorted indices of the columns of the design
+            to keep. Defaults to all columns.
+
+        Returns
+        -------
+        design : ndarray, sparse matrix or `regreg.affine.affine_transform`
+        """
+        idx = np.arange(self.shape[1])
+        if which is not None:
+            idx = idx[which]
+        has_intercept = self.intercept and np.any(idx == 0)
+        xcols = idx[idx >= int(self.intercept)] - int(self.intercept)
+
+        n = self.shape[0]
+        Xs = self._X[:, xcols]
+        normalizing = self.center or self.scale
+        if normalizing and xcols.shape[0] > 0:
+            Xs = normalize(Xs, center=self.center, scale=self.scale)
+
+        if not has_intercept:
+            return Xs
+        if xcols.shape[0] == 0:
+            return np.ones((n, 1))
+        if normalizing:
+            return add_intercept(Xs)
+        if scipy.sparse.issparse(Xs):
+            return scipy.sparse.hstack([np.ones((n, 1)), Xs]).tocsc()
+        return np.hstack([np.ones((n, 1)), Xs])
 
 class mixed_lasso_path(lasso_path):
 
@@ -96,49 +202,30 @@ class mixed_lasso_path(lasso_path):
         # for group lasso weights, if implied by penalty_structure
         self.group_weights = group_weights
 
-        # normalize X, adding intercept if needed
+        # penalty structure, with an unpenalized intercept if needed
         self.intercept = intercept
         p = X.shape[1]
         if self.intercept:
-            self.penalty_structure = np.ones(p+1) * L1_PENALTY
-            self.penalty_structure[0] = UNPENALIZED
+            penalty_structure_full = np.ones(p+1) * L1_PENALTY
+            penalty_structure_full[0] = UNPENALIZED
             if penalty_structure is not None:
-                self.penalty_structure[1:] = penalty_structure
-
-            if scipy.sparse.issparse(X):
-                self._X1 = scipy.sparse.hstack([np.ones((X.shape[0], 1)), X]).tocsc() 
-            else:
-                self._X1 = np.hstack([np.ones((X.shape[0], 1)), X])
-            if self.scale or self.center:
-                self._Xn = normalize(self._X1, center=self.center, scale=self.scale, intercept_column=0)
-                which_0 = self._Xn.col_stds == 0
-            else:
-                self._Xn = self._X1
-                which_0 = np.zeros(self._Xn.shape)
-
+                penalty_structure_full[1:] = penalty_structure
         else:
-            self.penalty_structure = np.ones(p) * L1_PENALTY
+            penalty_structure_full = np.ones(p) * L1_PENALTY
             if penalty_structure is not None:
-                self.penalty_structure[:] = penalty_structure
+                penalty_structure_full[:] = penalty_structure
 
-            if self.scale or self.center:
-                self._Xn = normalize(X, center=self.center, scale=self.scale)
-                which_0 = self._Xn.col_stds == 0
-            else:
-                self._Xn = X
-                which_0 = np.zeros(self._Xn.shape)
-
-        if np.any(which_0):
-            self._selector = selector(~which_0, self._Xn.input_shape)
-            if self.scale or self.center:
-                self._Xn = self._Xn.slice_columns(~which_0)
-            else:
-                self._Xn = self._Xn[:,~which_0]
+        # normalize X, dropping constant columns
+        self._design = _mixed_lasso_design(X, self.intercept, self.center, self.scale)
+        keep = self._design.keep
+        if self.intercept:
+            keep = np.hstack([True, keep])
+        if np.all(keep):
+            self._selector = identity((keep.shape[0],))
         else:
-            if self.scale or self.center:
-                self._selector = identity(self._Xn.input_shape)
-            else:
-                self._selector = identity(self._Xn.shape)
+            self._selector = selector(keep, (keep.shape[0],))
+        self.penalty_structure = penalty_structure_full[keep]
+        self._Xn = self._design.columns()
 
         # the penalty parameters
         self.alpha = alpha
@@ -155,10 +242,7 @@ class mixed_lasso_path(lasso_path):
         """
         Shape ``(n, p)`` of the normalized design.
         """
-        if self.scale or self.center:
-            return self.Xn.output_shape[0], self.Xn.input_shape[0]
-        else:
-            return self.Xn.shape
+        return self._design.shape
 
     @property
     def nonzero(self):
@@ -172,7 +256,7 @@ class mixed_lasso_path(lasso_path):
         """
         Elastic net quadratic scaled by the current Lagrange parameter.
         """
-        q = self._elastic_net
+        q = copy(self._elastic_net)
         q.coef *= self.lagrange
         q.linear_term *= self.lagrange
         return q
@@ -309,7 +393,7 @@ class mixed_lasso_path(lasso_path):
         '''
         if loss is None:
             loss = self.loss
-        gsmooth = self.loss.smooth_objective(self.solution, 'grad')
+        gsmooth = loss.smooth_objective(self.solution, 'grad')
         penalized = self.penalty_structure != UNPENALIZED
         # XXX the elastic net is probably not quite right here if the elastic net has a non-zero center
         gquad = self.elastic_net.objective(self.solution[penalized], 'grad')
@@ -349,11 +433,7 @@ class mixed_lasso_path(lasso_path):
         """
         Columns of the normalized design.
         """
-        if self.scale or self.center:
-            Xslice = self.Xn.slice_columns(columns)
-        else:
-            Xslice = self.Xn[:,columns]
-        return Xslice
+        return self._design.columns(columns)
 
     def construct_loss(self, candidate_set, lagrange):
         """
@@ -375,8 +455,6 @@ class mixed_lasso_path(lasso_path):
         """
         Xslice = self.slice_columns(candidate_set)
         loss = self.loss_factory(Xslice)
-        if self.intercept:
-            Xslice.intercept_column = 0
         return Xslice, loss
 
     def restricted_problem(self, candidate_set, lagrange):
@@ -468,11 +546,8 @@ class mixed_lasso_path(lasso_path):
         """
 
         # scaling will be needed to get coefficients on original scale   
-        if self.scale:
-            scalings = np.asarray(self.Xn.col_stds).reshape(-1)
-        else:
-            scalings = np.ones(self.shape[1])
-        scalings = self.nonzero.adjoint_map(scalings)
+        # (a copy: selector.adjoint_map reuses its output buffer)
+        scalings = self.nonzero.adjoint_map(self._design.scalings).copy()
 
         # take a guess at the inverse step size
         self.final_step = 1000. / self.lipschitz 
@@ -485,10 +560,8 @@ class mixed_lasso_path(lasso_path):
         grad_solution = self.grad().copy()
         strong, strong_selector = self.strong_set(lseq[0], lseq[1], grad=grad_solution)
 
-        p = self.shape[0]
-
-        rescaled_solutions = scipy.sparse.csr_matrix(self.nonzero.adjoint_map(self.solution) 
-                                                     / scalings)
+        # coefficients for the normalized design, like the later rows
+        rescaled_solutions = scipy.sparse.csr_matrix(self.nonzero.adjoint_map(self.solution))
 
         objective = [self.loss.smooth_objective(self.solution, 'func')]
         # not quite right -- should check tight constraints
@@ -519,9 +592,9 @@ class mixed_lasso_path(lasso_path):
 
                 p = self.shape[1]
 
-                self.solution[subproblem_set][:] = sub_soln
+                self.solution[subproblem_set] = sub_soln
                 # this only corrects the gradient on the subproblem_set
-                grad_solution[subproblem_set][:] = grad
+                grad_solution[subproblem_set] = grad
 
                 strong_problem = self.restricted_problem(strong, lagrange_new)[0]
                 strong_soln = self.solution[strong]
@@ -535,7 +608,7 @@ class mixed_lasso_path(lasso_path):
                     all_failing += (
                         strong_selector.adjoint_map(strong_failing) != 0)
                 else:
-                    self.solution[subproblem_set][:] = sub_soln
+                    self.solution[subproblem_set] = sub_soln
                     grad_solution = self.grad()
                     all_failing = check_KKT(self.penalty, grad_solution, self.solution, lagrange_new)
 
@@ -553,8 +626,8 @@ class mixed_lasso_path(lasso_path):
                 num_tries += 1
                 if num_tries % 5 == 0:
 
-                    self.solution[subproblem_set][:] = sub_soln
-                    self.solution[~subproblem_set][:] = 0
+                    self.solution[subproblem_set] = sub_soln
+                    self.solution[~subproblem_set] = 0
                     grad_solution = self.grad()
 
                     debug = True
@@ -566,7 +639,7 @@ class mixed_lasso_path(lasso_path):
             rescaled_solution = self.nonzero.adjoint_map(self.solution)
             rescaled_solutions = scipy.sparse.vstack([rescaled_solutions, rescaled_solution])
             objective.append(self.loss.smooth_objective(self.solution, mode='func'))
-            dfs.append(self.ever_active.shape[0])
+            dfs.append((self.solution != 0).sum())
             gc.collect()
 
             if verbose:
