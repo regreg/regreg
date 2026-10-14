@@ -280,7 +280,7 @@ def strong_set_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
 
     for j in range(weights.shape[0]):
         norms[j] = np.sqrt(norms[j])
-        mixed_value[j] = norms[j] < weights[j] * (slope_estimate+1) * lagrange_new - slope_estimate*lagrange_cur
+        mixed_value[j] = norms[j] < weights[j] * ((slope_estimate+1) * lagrange_new - slope_estimate*lagrange_cur)
 
     for i in range(p):
         if groups[i] >= 0:
@@ -349,7 +349,7 @@ def check_KKT_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] grad,
         soln_l1 = solution[l1_penalty]
         active_l1 = soln_l1 != 0
 
-        failing_l1 = np.zeros(g_l1.shape, np.int)
+        failing_l1 = np.zeros(g_l1.shape, np.intp)
         failing_l1[active_l1] = np.fabs(-g_l1[active_l1] / lagrange - np.sign(soln_l1[active_l1])) >= tol 
         failing[l1_penalty] += failing_l1
 
@@ -370,7 +370,7 @@ def check_KKT_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] grad,
         soln_pp = solution[positive_part]
         active_pp = soln_pp != 0
 
-        failing_pp = np.zeros(g_pp.shape, np.int)
+        failing_pp = np.zeros(g_pp.shape, np.intp)
         failing_pp[active_pp] += np.fabs(-g_pp[active_pp] / lagrange - 1) >= tol 
         if debug:
             print('positive part (dual) tightness:', -g_pp[active_pp] / lagrange - 1)
@@ -390,7 +390,7 @@ def check_KKT_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] grad,
         soln_nn = solution[nonnegative]
         active_nn = soln_nn != 0
 
-        failing_nn = np.zeros(g_nn.shape, np.int)
+        failing_nn = np.zeros(g_nn.shape, np.intp)
         failing_nn[active_nn] += -g_nn[active_nn] < -nntol
         if debug:
             print('nonnegative (dual) tightness:', -g_nn[active_nn] / lagrange - 1)

@@ -6,15 +6,6 @@ from regreg.tests.decorators import set_seed_for_test
 
 from regreg.paths import subsample_columns
 
-# regreg.affine.normalize became a function in f78a213 and no longer accepts
-# ``intercept_column`` / ``inplace`` (nor returns an object with
-# ``normalized_array``), but regreg/paths/mixed_lasso.py still calls
-# ``normalize(..., intercept_column=0)``.
-xfail_normalize_api = pytest.mark.xfail(
-    raises=TypeError, strict=False,
-    reason="library bug: regreg.paths.mixed_lasso calls normalize(..., "
-           "intercept_column=0), removed from the normalize() API in f78a213")
-
 def test_subsample_cols():
 
     X = np.random.standard_normal((50,20)); L = ra.affine_transform(X, None)
@@ -22,7 +13,6 @@ def test_subsample_cols():
     Xs - X[:,range(5)]
     np.testing.assert_allclose(Xs, X[:,range(5)])
 
-@xfail_normalize_api
 @set_seed_for_test()
 def test_path():
     '''
@@ -65,7 +55,6 @@ def test_path():
     np.testing.assert_allclose(beta1, beta2)
     np.testing.assert_allclose(beta2, beta3)
 
-@xfail_normalize_api
 @set_seed_for_test()
 def test_path_unpenalized():
     '''
@@ -112,7 +101,6 @@ def test_path_unpenalized():
     np.testing.assert_allclose(beta1, beta2)
     np.testing.assert_allclose(beta2, beta3)
 
-@xfail_normalize_api
 def test_path_lasso_as_group():
     '''
     this test looks at the paths of three different parameterizations
@@ -170,11 +158,6 @@ def test_path_lasso_as_group():
     np.testing.assert_allclose(beta2, beta3)
     np.testing.assert_allclose(beta4, beta3)
 
-@pytest.mark.xfail(raises=TypeError, strict=False,
-                   reason="test uses the pre-f78a213 normalize class API "
-                          "(inplace=, intercept_column=, .normalized_array()) "
-                          "and regreg.paths.mixed_lasso still calls "
-                          "normalize(..., intercept_column=0)")
 def test_path_group_lasso():
     '''
     this test looks at the paths of three different parameterizations
@@ -189,7 +172,8 @@ def test_path_group_lasso():
     betaU = np.array([10,-5])
     Y += (np.dot(X, betaX) + np.dot(U, betaU)) * 5
 
-    Xn = rr.normalize(np.hstack([np.ones((100,1)),X]), inplace=True, center=True, scale=True, intercept_column=0).normalized_array()
+    # intercept column followed by the centered and scaled columns of X
+    Xn = np.hstack([np.ones((n,1)), (X - X.mean(0)) / X.std(0, ddof=1)])
     lasso = mixed_lasso.mixed_lasso_path.gaussian(Xn[:,1:] ,Y, penalty_structure=[0]*7+[1]*3, nstep=10)
 
     sol = lasso.main(inner_tol=1.e-12, verbose=True)
@@ -214,7 +198,6 @@ def test_path_group_lasso():
     assert np.linalg.norm(beta - sols_sep) / (1 + np.linalg.norm(beta)) <= 1.e-4
 
 
-@xfail_normalize_api
 def test_path_nonnegative():
     '''
     this test looks at the paths of three different parameterizations
@@ -249,3 +232,65 @@ def test_path_nonnegative():
     assert np.linalg.norm(beta1-beta2) / np.linalg.norm(beta1) < 1.e-3
 
 
+
+@pytest.mark.parametrize('intercept', [True, False])
+@pytest.mark.parametrize('normalize', [True, False])
+def test_construct_and_run(intercept, normalize):
+    # gh-79: the path could not be built after the normalize() refactor,
+    # with or without normalization
+
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((50, 5))
+    Y = rng.standard_normal(50)
+    path = mixed_lasso.mixed_lasso_path.gaussian(X, Y, nstep=5, intercept=intercept,
+                                                 scale=normalize, center=normalize)
+    out = path.main(inner_tol=1.e-10)
+    p = 5 + intercept
+    assert path.shape == (50, p)
+    beta = out['beta'].toarray()
+    assert beta.shape == (p, 5)
+    # gh-80: df is the number of nonzero coefficients at each step
+    np.testing.assert_array_equal(out['df'][1:], (beta[:, 1:] != 0).sum(0))
+    if intercept:
+        np.testing.assert_allclose(path.null_solution[1:], 0)
+        # the null problem is solved iteratively, at the default tolerance
+        np.testing.assert_allclose(path.null_solution[0], Y.mean(), atol=1e-6)
+
+def test_constant_column():
+    # constant columns are dropped when normalizing; their scaling and
+    # coefficients are 0 (and the scalings are not overwritten)
+
+    rng = np.random.default_rng(1)
+    X = np.hstack([rng.standard_normal((50, 4)), 3 * np.ones((50, 1))])
+    Y = rng.standard_normal(50)
+    path = mixed_lasso.mixed_lasso_path.gaussian(X, Y, nstep=5)
+    out = path.main(inner_tol=1.e-10)
+    assert path.shape == (50, 5)
+    np.testing.assert_allclose(out['scalings'], np.hstack([1, X[:, :4].std(0, ddof=1), 0]))
+    np.testing.assert_allclose(out['beta'].toarray()[-1], 0)
+
+def test_elastic_net_not_compounded():
+    # gh-80: each access to elastic_net multiplied the stored quadratic
+
+    rng = np.random.default_rng(2)
+    X = rng.standard_normal((50, 5))
+    Y = rng.standard_normal(50)
+    path = mixed_lasso.mixed_lasso_path.gaussian(X, Y, intercept=False, scale=False,
+                                                 center=False, nstep=5,
+                                                 elastic_net=rr.identity_quadratic(1., 0, 0, 0))
+    path.problem
+    path.lagrange = 2.
+    assert [path.elastic_net.coef for _ in range(3)] == [2., 2., 2.]
+
+def test_grad_loss_argument():
+    # gh-80: grad() ignored its loss argument
+
+    rng = np.random.default_rng(3)
+    X = rng.standard_normal((50, 5))
+    Y = rng.standard_normal(50)
+    path = mixed_lasso.mixed_lasso_path.gaussian(X, Y, intercept=False, scale=False,
+                                                 center=False, nstep=5)
+    path.problem
+    path.solution[:] = rng.standard_normal(5)
+    other = rr.glm.gaussian(X, Y, coef=3.)
+    np.testing.assert_allclose(path.grad(loss=other), 3 * path.grad())
