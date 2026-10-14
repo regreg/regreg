@@ -1,0 +1,50 @@
+# Run all tests
+
+name: Run tests
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0 # setuptools_scm needs the tags
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install regreg
+      run: |
+        pip install --upgrade pip
+        pip install .[test]
+
+    - name: Debug Installation
+      run: |
+        cd /tmp
+        python -c "import regreg; print(f'Version: {regreg.__version__}'); print(f'Location: {regreg.__file__}'); import os; print(f'Contents: {os.listdir(os.path.dirname(regreg.__file__))}')"
+
+    # Test the installed package, not the source tree. The tests live inside
+    # the package, so the root conftest.py and pytest.ini (markers, --runslow,
+    # --seed) are copied into the empty directory they run from.
+    - name: Test regreg
+      run: |
+        mkdir empty_dir
+        cp conftest.py pytest.ini empty_dir/
+        cd empty_dir
+        python -m pytest --pyargs regreg

@@ -1,7 +1,5 @@
 project('regreg', 'c', 'cython',
-  version : run_command('python3', '-c',
-                        'import setuptools_scm; print(setuptools_scm.get_version())',
-                        check : true).stdout().strip(),
+  version : run_command('tools/get_version.py', check : true).stdout().strip(),
   license : 'BSD-2-Clause',
   meson_version : '>=1.1.0',
   default_options : ['warning_level=1', 'buildtype=release'])
