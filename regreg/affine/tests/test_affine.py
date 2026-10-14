@@ -337,3 +337,15 @@ def test_misc():
     reshapeA = adjoint(reshape((30,), (6,5)))
     with pytest.raises(NotImplementedError):
         todense(reshapeA)
+
+def test_aslinear_shapes():
+    # gh-85 / gh-68: aslinear swapped input_shape and output_shape
+
+    from regreg.affine import aslinear
+    D = np.diff(np.identity(5), axis=0)    # 4 x 5
+    L = aslinear(rr.astransform(D))
+    assert L.input_shape == (5,)
+    assert L.output_shape == (4,)
+    x, u = np.arange(5.), np.arange(4.)
+    np.testing.assert_allclose(L.linear_map(x), D @ x)
+    np.testing.assert_allclose(L.adjoint_map(u), D.T @ u)
