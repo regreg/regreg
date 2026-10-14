@@ -44,8 +44,8 @@ def test_lasso():
     print(f(solver2.composite.coefs), f(ans))
     print(f(solver1.composite.coefs), f(ans))
 
-    yield all_close, ans, solver2.composite.coefs, 'singleton solver', None
-    yield all_close, solver1.composite.coefs, solver2.composite.coefs, 'container solver', None
+    all_close(ans, solver2.composite.coefs, 'singleton solver', None)
+    all_close(solver1.composite.coefs, solver2.composite.coefs, 'container solver', None)
 
 @set_seed_for_test()
 def test_quadratic_for_smooth():
@@ -72,11 +72,11 @@ def test_quadratic_for_smooth():
 
     # specifying in this way should be the same as if we put 0.5*L below
     loss2 = rr.quadratic_loss.shift(Z, coef=L)
-    yield all_close, loss2.objective(ww), loss.objective(ww), 'checking objective', None
+    all_close(loss2.objective(ww), loss.objective(ww), 'checking objective', None)
 
-    yield all_close, lq.objective(ww, 'func'), loss.nonsmooth_objective(ww), 'checking nonsmooth objective', None
-    yield all_close, loss2.smooth_objective(ww, 'func'), 0.5 / 0.3 * loss.smooth_objective(ww, 'func'), 'checking smooth objective func', None
-    yield all_close, loss2.smooth_objective(ww, 'grad'), 0.5 / 0.3 * loss.smooth_objective(ww, 'grad'), 'checking smooth objective grad', None
+    all_close(lq.objective(ww, 'func'), loss.nonsmooth_objective(ww), 'checking nonsmooth objective', None)
+    all_close(loss2.smooth_objective(ww, 'func'), 0.5 / 0.3 * loss.smooth_objective(ww, 'func'), 'checking smooth objective func', None)
+    all_close(loss2.smooth_objective(ww, 'grad'), 0.5 / 0.3 * loss.smooth_objective(ww, 'grad'), 'checking smooth objective grad', None)
 
     problem = rr.container(loss, atom)
     solver = rr.FISTA(problem)
@@ -109,7 +109,7 @@ def test_quadratic_for_smooth():
 
     q = rr.identity_quadratic(L, Z, 0, 0)
 
-    yield all_close, problem.objective(ww), atom.nonsmooth_objective(ww) + q.objective(ww,'func'), '', None
+    all_close(problem.objective(ww), atom.nonsmooth_objective(ww) + q.objective(ww,'func'), '', None)
 
     atom = rr.l1norm(40, quadratic=atomq, lagrange=0.12)
     aq = atom.solve(q)
@@ -125,7 +125,7 @@ def test_quadratic_for_smooth():
                        'dual problem with loss having a quadratic',
                        'container with loss having a quadratic',
                        'simple_problem having a quadratic']):
-        yield all_close, aq, p, msg, None
+        all_close(aq, p, msg, None)
 
 @set_seed_for_test()
 def test_quadratic_for_smooth2():
@@ -189,7 +189,7 @@ def test_quadratic_for_smooth2():
 
     q = rr.identity_quadratic(L, Z, 0, 0)
 
-    yield all_close, problem.objective(ww), atom.nonsmooth_objective(ww) + q.objective(ww,'func'), '', None
+    all_close(problem.objective(ww), atom.nonsmooth_objective(ww) + q.objective(ww,'func'), '', None)
 
     aq = atom.solve(q)
     for p, msg in zip([solver3.composite.coefs,
@@ -204,4 +204,4 @@ def test_quadratic_for_smooth2():
                        'dual problem with loss having a quadratic',
                        'container with loss having a quadratic',
                        'simple_problem having a quadratic']):
-        yield all_close, aq, p, msg, None
+        all_close(aq, p, msg, None)

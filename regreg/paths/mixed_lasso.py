@@ -167,7 +167,7 @@ class mixed_lasso_path(lasso_path):
     def problem(self):
         p = self.shape[1]
         if not hasattr(self, "_problem"):
-            self._problem = self.restricted_problem(np.ones(self.shape[1], np.bool),
+            self._problem = self.restricted_problem(np.ones(self.shape[1], bool),
                                                     self.lagrange_max)[0]
         return self._problem
 
@@ -289,7 +289,7 @@ class mixed_lasso_path(lasso_path):
         dfs = [np.sum(self.initial_active)]
         retry_counter = 0
 
-        all_failing = np.zeros(grad_solution.shape, np.bool)
+        all_failing = np.zeros(grad_solution.shape, bool)
 
         for lagrange_new, lagrange_cur in zip(lseq[1:], lseq[:-1]):
             self.lagrange = lagrange_new

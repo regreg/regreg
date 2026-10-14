@@ -1,0 +1,84 @@
+[project]
+name = "regreg"
+dynamic = ["version"]
+authors = [
+  {name="Jonathan Taylor", email="jonathan.taylor@stanford.edu"},
+  {name="Brad Klingenberg"},
+]
+description = "A Python framework for regularized regression"
+readme = "README.rst"
+requires-python = ">=3.10"
+maintainers = [{name="Jonathan Taylor", email="jonathan.taylor@stanford.edu"},]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "joblib",
+]
+classifiers = ["Development Status :: 3 - Alpha",
+               "Environment :: Console",
+               "Intended Audience :: Science/Research",
+               "Operating System :: OS Independent",
+               "Programming Language :: Python",
+               "Programming Language :: Cython",
+               "Topic :: Scientific/Engineering"]
+license = "BSD-2-Clause"
+
+[project.urls]
+Homepage = "https://github.com/regreg/regreg"
+Issues = "https://github.com/regreg/regreg/issues"
+
+[project.optional-dependencies]
+sklearn = ["scikit-learn"]
+dev = [
+    "pytest",
+    "cython>=3.0",
+    "ninja",
+    "meson",
+    "meson-python",
+    "setuptools_scm",
+]
+doc = [
+    "sphinx",
+    "numpydoc",
+    "matplotlib",
+    "texext",
+    "nb2plots",
+    "scikit-learn",
+    "sphinx_rtd_theme",
+]
+test = [
+    "pytest",
+    "scikit-learn",
+]
+
+[build-system]
+requires = ["meson-python>=0.13.1", "cython>=3.0", "numpy>=2.0", "ninja", "setuptools_scm"]
+build-backend = "mesonpy"
+
+# Development dependency groups (PEP 735), used by `uv sync`.
+# The `dev` group is installed by default, so a plain `uv sync` gives an
+# editable install with everything needed to run `uv run pytest`.
+[dependency-groups]
+build = [
+    "meson-python>=0.13.1",
+    "meson",
+    "ninja",
+    "cython>=3.0",
+    "numpy>=2.0",
+    "setuptools_scm",
+]
+test = [
+    "pytest",
+    "scikit-learn",
+]
+dev = [
+    {include-group = "build"},
+    {include-group = "test"},
+]
+
+[tool.uv]
+# meson-python editable installs rebuild the Cython extensions on import, which
+# requires the build tools to live in the project environment rather than an
+# isolated build environment.
+no-build-isolation-package = ["regreg"]

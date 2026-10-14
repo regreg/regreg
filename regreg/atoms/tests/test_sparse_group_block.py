@@ -1,6 +1,6 @@
+import pytest
 import itertools
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from ..sparse_group_block import (sparse_group_block,
@@ -10,7 +10,7 @@ from ..sparse_group_block import (sparse_group_block,
 from ..sparse_group_lasso import sparse_group_lasso
 from regreg.tests.decorators import set_seed_for_test
 
-from .test_seminorms import Solver, SolverFactory, all_close
+from .test_seminorms import Solver, SolverFactory, all_close, run_checks
 
 def test_sparse_group_lasso_equivalent():
     """
@@ -21,7 +21,7 @@ def test_sparse_group_lasso_equivalent():
     l2_weight = 2.
     lagrange = 0.5
     pen = sparse_group_block((4, 5), l1_weight, l2_weight, lagrange=lagrange)
-    pen2 = sparse_group_lasso(np.multiply.outer(np.arange(4), np.ones(5)).reshape(-1).astype(np.int),
+    pen2 = sparse_group_lasso(np.multiply.outer(np.arange(4), np.ones(5)).reshape(-1).astype(int),
                               l1_weight,
                               weights=dict([(j, l2_weight) for j in range(4)]),
                               lagrange=lagrange)
@@ -109,15 +109,12 @@ class SparseBlockSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+@pytest.mark.slow
+@pytest.mark.parametrize('klass,mode', [(sparse_group_block, 'lagrange'),
+                                        (sparse_group_block_dual, 'bound')],
+                         ids=['sparse_group_block', 'sparse_group_block_dual'])
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass, mode in zip([sparse_group_block,
-                            sparse_group_block_dual], 
-                           ['lagrange', 'bound']):
-        factory = SparseBlockSolverFactory(klass, mode)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-
-
+def test_proximal_maps(klass, mode):
+    factory = SparseBlockSolverFactory(klass, mode)
+    for solver in factory:
+        run_checks(solver.all_tests())

@@ -10,7 +10,7 @@ Implements prox and dual of group LASSO, strong set, seminorm and dual seminorm.
 DTYPE_float = float
 ctypedef cnp.float_t DTYPE_float_t
 DTYPE_int = int
-ctypedef cnp.int_t DTYPE_int_t
+ctypedef cnp.intp_t DTYPE_int_t
 ctypedef cnp.intp_t DTYPE_intp_t
 
 def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center, 

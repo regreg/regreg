@@ -8,7 +8,6 @@ from regreg.doctemplates import (
     doc_template_provider,
     doc_template_user)
 
-from nose.tools import assert_equal, assert_raises
 
 
 def test_obj_doc_templater():
@@ -28,5 +27,5 @@ def test_obj_doc_templater():
             """B docstring %(b)s"""
 
     # Providing a template sets the docstring to None
-    assert_equal(C().fa.__doc__, 'A docstring f(p)')
-    assert_equal(C().fb.__doc__, "B docstring two")
+    assert C().fa.__doc__ == 'A docstring f(p)'
+    assert C().fb.__doc__ == "B docstring two"

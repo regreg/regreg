@@ -78,7 +78,7 @@ class sparse_group_common_path(group_lasso_path):
 
         self._unpenalized_vars = []
         self._unpenalized_idx = unpenalized_idx
-        self._penalized_vars = np.ones(self.shape, np.bool)
+        self._penalized_vars = np.ones(self.shape, bool)
 
         if np.any(unpenalized_idx):
             (self.final_step, 
@@ -125,7 +125,7 @@ class sparse_group_common_path(group_lasso_path):
         Xsub = astransform(group_lasso_path.subsample_columns(self,
                                                               self._X,
                                                               columns))
-        mask = np.zeros(self.penalty.shape[0], np.bool)
+        mask = np.zeros(self.penalty.shape[0], bool)
         mask[columns] = 1
         Xsub.input_shape = (mask.sum(),
                          self.penalty.shape[1])
@@ -259,7 +259,7 @@ class sparse_group_common_path(group_lasso_path):
                             index_obj,
                             group_ids=False): # ignored as result is the same):
         if not hasattr(self, '_ever_active'):
-            self._ever_active = np.zeros(self.group_shape, np.bool)
+            self._ever_active = np.zeros(self.group_shape, bool)
         _ever_active = self._ever_active.copy()
         _ever_active[index_obj] = True
         return list(np.nonzero(_ever_active)[0])
@@ -282,7 +282,7 @@ class sparse_group_common_path(group_lasso_path):
         return [], []
 
     def restricted_penalty(self, subset):
-        vars = np.zeros(self.penalty.shape[0], np.bool)
+        vars = np.zeros(self.penalty.shape[0], bool)
         if subset is not None:
             vars[subset] = True
         else:
@@ -454,7 +454,7 @@ def stacked_huber_svm(Xs, Ys, smoothing_parameter, *args, **keyword_args):
 
 def _candidate_bool(groups, candidate_groups):
 
-    candidate_bool = np.zeros(groups.shape, np.bool)
+    candidate_bool = np.zeros(groups.shape, bool)
     for g in candidate_groups:
         group = groups == g
         candidate_bool += group
@@ -484,7 +484,7 @@ def _restricted_problem(X,
                         subsample_columns):
 
     X_candidate = subsample_columns(X, candidate_groups)
-    candidate_bool = np.zeros(X.input_shape[0], np.bool)
+    candidate_bool = np.zeros(X.input_shape[0], bool)
     candidate_bool[candidate_groups] = True
     restricted_penalty = sparse_group_block(X_candidate.input_shape,
                                             l1_weight,

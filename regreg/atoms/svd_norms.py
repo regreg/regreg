@@ -64,7 +64,7 @@ class nuclear_norm(svd_atom):
     def lagrange_prox(self, X,  lipschitz=1, lagrange=None):
         lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
         U, D, V = np.linalg.svd(X, full_matrices=0)
-        l1atom = l1norm(np.product(self.shape), lagrange=lagrange)
+        l1atom = l1norm(np.prod(self.shape), lagrange=lagrange)
         D_soft_thresholded = l1atom.lagrange_prox(D, lipschitz=lipschitz, lagrange=lagrange)
         keepD = D_soft_thresholded > 0
         U_new, D_new, V_new = U[:,keepD], D_soft_thresholded[keepD], V[keepD]
@@ -74,7 +74,7 @@ class nuclear_norm(svd_atom):
     def bound_prox(self, X, bound=None):
         bound = svd_atom.bound_prox(self, X, bound)
         U, D, V = np.linalg.svd(X, full_matrices=0)
-        l1atom = l1norm(np.product(self.shape), bound=bound)
+        l1atom = l1norm(np.prod(self.shape), bound=bound)
         D_projected = l1atom.bound_prox(D)
         keepD = D_projected > 0
         U_new, D_new, V_new = U[:,keepD], D_projected[keepD], V[keepD]
@@ -142,7 +142,7 @@ class operator_norm(svd_atom):
     def lagrange_prox(self, X,  lipschitz=1, lagrange=None):
         lagrange = svd_atom.lagrange_prox(self, X, lipschitz, lagrange)
         U, D, V = np.linalg.svd(X, full_matrices=False)
-        supatom = supnorm(np.product(self.shape), lagrange=lagrange)
+        supatom = supnorm(np.prod(self.shape), lagrange=lagrange)
         D_new = supatom.lagrange_prox(D, lipschitz=lipschitz, lagrange=lagrange)
         return np.dot(U, D_new[:,np.newaxis] * V)
 
@@ -150,7 +150,7 @@ class operator_norm(svd_atom):
     def bound_prox(self, X, bound=None):
         bound = svd_atom.bound_prox(self, X, bound)
         U, D, V = np.linalg.svd(X, full_matrices=False)
-        supatom = supnorm(np.product(self.shape), bound=bound)
+        supatom = supnorm(np.prod(self.shape), bound=bound)
         D_new = supatom.bound_prox(D)
         return np.dot(U, D_new[:,np.newaxis] * V)
 
@@ -215,7 +215,7 @@ class svd_cone(cone):
                  quadratic=None,
                  initial=None):
 
-        shape = (np.product(input_shape)+1,)
+        shape = (np.prod(input_shape)+1,)
         cone.__init__(self, shape, offset=offset,
                       quadratic=quadratic,
                       initial=initial)

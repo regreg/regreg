@@ -4,7 +4,6 @@ Solving a LASSO with linear constraints using NESTA
 from __future__ import print_function, division, absolute_import
 
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
@@ -59,7 +58,7 @@ def test_nesta_lasso():
 
     problem = rr.simple_problem(loss, penalty)
     problem.solve()
-    nt.assert_true(np.linalg.norm(primal - problem.coefs) / np.linalg.norm(problem.coefs) < 1.e-3)
+    assert np.linalg.norm(primal - problem.coefs) / np.linalg.norm(problem.coefs) < 1.e-3
 
     # test None as smooth_atom
 
@@ -76,5 +75,5 @@ def test_nesta_lasso():
 
 
 def assert_almost_nonnegative(b, tol=1.e-6):
-    nt.assert_true(np.linalg.norm(b[b<0]) <= tol * np.linalg.norm(b))
+    assert np.linalg.norm(b[b<0]) <= tol * np.linalg.norm(b)
 

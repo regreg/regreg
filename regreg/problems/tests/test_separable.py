@@ -1,7 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
 from copy import copy
-import nose.tools as nt
 
 import numpy as np
 
@@ -166,7 +165,7 @@ def test_nonnegative_positive_part(debug=False):
     solver_s.fit(tol=1.0e-12, min_its=200)
     coefs_s = solver_s.composite.coefs
 
-    nt.assert_true(np.linalg.norm(coefs - coefs_s) / np.linalg.norm(coefs) < 1.0e-02)
+    assert np.linalg.norm(coefs - coefs_s) / np.linalg.norm(coefs) < 1.0e-02
 
 @set_seed_for_test()
 def test_different_dim():

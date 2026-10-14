@@ -1,12 +1,12 @@
 """ Test doc templater
 """
 
+import pytest
 from regreg.doctemplates import (
     doc_templater,
     doc_template_provider,
     doc_template_user)
 
-from nose.tools import assert_equal, assert_raises
 
 def test_basic():
     @doc_templater()
@@ -21,7 +21,7 @@ def test_basic():
         def f(self):
             pass
 
-    assert_equal(D().f.__doc__, 'A docstring something')
+    assert D().f.__doc__ == 'A docstring something'
 
 
 def test_more_fully():
@@ -36,7 +36,7 @@ def test_more_fully():
             """B docstring %(b)s"""
 
     # Providing a template sets the docstring to None
-    assert_equal(C().fa.__doc__, None)
+    assert C().fa.__doc__ == None
 
     @doc_templater(dict(a = 2, b='two'))
     class D(C):
@@ -49,8 +49,8 @@ def test_more_fully():
             pass
 
     # Using a template
-    assert_equal(D().fa.__doc__, "A docstring 2")
-    assert_equal(D().fb.__doc__, "B docstring two")
+    assert D().fa.__doc__ == "A docstring 2"
+    assert D().fb.__doc__ == "B docstring two"
 
     @doc_templater(dict(a = 3))
     class E(D):
@@ -63,8 +63,8 @@ def test_more_fully():
             pass
 
     # Overriding a parameter in the template
-    assert_equal(E().fa.__doc__, "A docstring 3")
-    assert_equal(E().fb.__doc__, "B docstring two")
+    assert E().fa.__doc__ == "A docstring 3"
+    assert E().fb.__doc__ == "B docstring two"
 
     def missing_param_error():
         @doc_templater(dict(a = 4))
@@ -74,7 +74,8 @@ def test_more_fully():
                 pass
 
     # Parameters inherited from subclass - missing - keyerror
-    assert_raises(KeyError, missing_param_error)
+    with pytest.raises(KeyError):
+        missing_param_error()
 
     @doc_templater(dict(a = 4))
     class E(D):
@@ -84,8 +85,8 @@ def test_more_fully():
             """Another docstring %(a)s"""
 
     # Can be both a user and a provider.
-    assert_equal(E().fa.__doc__, "Another docstring 4")
-    assert_equal(E().fb.__doc__, "B docstring two")
+    assert E().fa.__doc__ == "Another docstring 4"
+    assert E().fb.__doc__ == "B docstring two"
 
     @doc_templater(dict(a = 4))
     class F(D):
@@ -95,8 +96,8 @@ def test_more_fully():
             """Another docstring %(a)s"""
 
     # The decorators can be in either order
-    assert_equal(F().fa.__doc__, "Another docstring 4")
-    assert_equal(F().fb.__doc__, "B docstring two")
+    assert F().fa.__doc__ == "Another docstring 4"
+    assert F().fb.__doc__ == "B docstring two"
 
     def null_doc_error(err=True):
         @doc_templater(dict(a = 99), doc_error=err)
@@ -107,8 +108,9 @@ def test_more_fully():
         return Q
 
     # If docstring to be replaced is not empty, raise error by default
-    assert_raises(ValueError, null_doc_error, True)
-    assert_equal(null_doc_error(False)().fa.__doc__, "Another docstring 99")
+    with pytest.raises(ValueError):
+        null_doc_error(True)
+    assert null_doc_error(False)().fa.__doc__ == "Another docstring 99"
 
     @doc_templater(dict(a = 5))
     class G(F):
@@ -117,8 +119,8 @@ def test_more_fully():
             pass
 
     # Showing the provision from before
-    assert_equal(G().fa.__doc__, "Another docstring 5")
-    assert_equal(G().fb.__doc__, "B docstring two")
+    assert G().fa.__doc__ == "Another docstring 5"
+    assert G().fb.__doc__ == "B docstring two"
 
     @doc_templater(dict(a=6, b='three'))
     class H(F):
@@ -127,7 +129,7 @@ def test_more_fully():
             """Yet another docstring %(a)s"""
 
     # Providing without using, again
-    assert_equal(H().fa.__doc__, None)
+    assert H().fa.__doc__ == None
 
     @doc_templater()
     class I(H):
@@ -140,5 +142,5 @@ def test_more_fully():
             pass
 
     # Providing without using, again
-    assert_equal(I().fa.__doc__, "Yet another docstring 6")
-    assert_equal(I().fb.__doc__, "B docstring three")
+    assert I().fa.__doc__ == "Yet another docstring 6"
+    assert I().fb.__doc__ == "B docstring three"

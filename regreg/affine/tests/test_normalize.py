@@ -1,5 +1,4 @@
 from itertools import product
-import nose.tools as nt
 
 import numpy as np
 import scipy.sparse
@@ -185,7 +184,7 @@ def test_centering_fit(debug=False):
     np.testing.assert_almost_equal(composite_form.objective(coefs), composite_form.objective(coefs2))
     np.testing.assert_almost_equal(composite_form2.objective(coefs), composite_form2.objective(coefs2))
 
-    nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
+    assert np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04
 
 @set_seed_for_test()
 def test_scaling_fit(debug=False):
@@ -252,7 +251,7 @@ def test_scaling_fit(debug=False):
     np.testing.assert_almost_equal(composite_form.objective(coefs), composite_form.objective(coefs2))
     np.testing.assert_almost_equal(composite_form2.objective(coefs), composite_form2.objective(coefs2))
 
-    nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
+    assert np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04
 
 @set_seed_for_test()
 def test_scaling_and_centering_fit(debug=False):
@@ -318,7 +317,7 @@ def test_scaling_and_centering_fit(debug=False):
     np.testing.assert_almost_equal(composite_form.objective(coefs), composite_form.objective(coefs2))
     np.testing.assert_almost_equal(composite_form2.objective(coefs), composite_form2.objective(coefs2))
 
-    nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
+    assert np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04
 
 @set_seed_for_test()
 def test_scaling_and_centering_intercept_fit(debug=False):
@@ -385,5 +384,5 @@ def test_scaling_and_centering_intercept_fit(debug=False):
     np.testing.assert_almost_equal(composite_form.objective(coefs), composite_form.objective(coefs2))
     np.testing.assert_almost_equal(composite_form2.objective(coefs), composite_form2.objective(coefs2))
 
-    nt.assert_true(np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04)
+    assert np.linalg.norm(coefs - coefs2) / max(np.linalg.norm(coefs),1) < 1.0e-04
 

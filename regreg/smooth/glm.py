@@ -286,7 +286,7 @@ class glm(smooth_atom):
         subsample_loss = copy(self)
         n = subsample_loss.saturated_loss.shape[0]
 
-        idx_bool = np.zeros(n, np.bool)
+        idx_bool = np.zeros(n, bool)
         idx_bool[idx] = 1
 
         subsample_loss.case_weights *= idx_bool
@@ -1000,7 +1000,7 @@ class gaussian_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1195,7 +1195,7 @@ class poisson_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1359,7 +1359,7 @@ class huber_loss(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1539,7 +1539,7 @@ class stacked_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool

@@ -1,3 +1,4 @@
+import pytest
 import itertools
 
 import numpy as np
@@ -5,8 +6,8 @@ import numpy as np
 import regreg.api as rr
 import regreg.atoms.simplex as S
 from regreg.tests.decorators import set_seed_for_test
+from .test_seminorms import run_checks
 
-import nose.tools as nt
 
 from .test_cones import Solver, ConeSolverFactory
 
@@ -63,11 +64,10 @@ class SimplexSolver(Solver):
             for t in group():
                 yield t
 
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', sorted(S.conjugate_simplex_pairs.keys(), key=str), ids=lambda k: k.__name__)
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass in sorted(S.conjugate_simplex_pairs.keys(), key=str):
-        factory = SimplexSolverFactory(klass)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
+def test_proximal_maps(klass):
+    factory = SimplexSolverFactory(klass)
+    for solver in factory:
+        run_checks(solver.all_tests())

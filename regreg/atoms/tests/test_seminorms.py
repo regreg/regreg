@@ -1,8 +1,9 @@
 from __future__ import print_function, division, absolute_import
 
+import pytest
+
 import itertools
 from copy import copy
-import nose.tools as nt
 
 import numpy as np
 
@@ -36,75 +37,78 @@ x : %s
 y : %s
 """ % (msg, np.linalg.norm(x-y) / max([1, np.linalg.norm(x), np.linalg.norm(y)]), x, y))
     if not hasattr(solver, 'interactive') or not solver.interactive:
-        nt.assert_true(v)
+        assert v, msg
     else:
         print(msg.split('\n')[0])
 
+def run_checks(checks):
+    """
+    Run each check in an iterable of ``(check_func, *args)`` tuples
+    (as produced by ``Solver.all_tests``).
+    """
+    for check in checks:
+        check[0](*check[1:])
+
+def check_lagrange_bound_duality(solver, klass):
+    penalty = solver.atom
+    dual = penalty.conjugate
+    Z = solver.prox_center
+    L = solver.L
+
+    all_close(penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % klass, None)
+
+    # some arguments of the constructor
+
+    with pytest.raises(AttributeError):
+        setattr(penalty, 'bound', 4.)
+    with pytest.raises(AttributeError):
+        setattr(dual, 'lagrange', 4.)
+
+paired_seminorms = [S.l1norm,
+                    S.supnorm,
+                    S.l2norm,
+                    S.positive_part,
+                    S.constrained_max,
+                    S.constrained_positive_part,
+                    S.max_positive_part]
+
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', paired_seminorms, ids=lambda k: k.__name__)
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps(interactive=False):
-    for klass in [S.l1norm,
-                  S.supnorm,
-                  S.l2norm,
-                  S.positive_part,
-                  S.constrained_max,
-                  S.constrained_positive_part,
-                  S.max_positive_part]:
-        factory = SolverFactory(klass, 'lagrange')
-        for solver in factory:
-            penalty = solver.atom
-            dual = penalty.conjugate 
-            Z = solver.prox_center
-            L = solver.L
+def test_proximal_maps(klass):
+    factory = SolverFactory(klass, 'lagrange')
+    for solver in factory:
+        penalty = solver.atom
+        dual = penalty.conjugate 
+        Z = solver.prox_center
 
-            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % klass, None
+        check_lagrange_bound_duality(solver, klass)
 
-            # some arguments of the constructor
+        # call these to ensure coverage at least
 
-            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
-        
-            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
+        repr(penalty)
+        repr(dual)
 
-            # call these to ensure coverage at least
+        penalty.seminorm(Z, lagrange=1)
+        penalty.constraint(Z, bound=1)
 
-            repr(penalty)
-            repr(dual)
+        dual.seminorm(Z, lagrange=1)
+        dual.constraint(Z, bound=1)
 
-            penalty.seminorm(Z, lagrange=1)
-            penalty.constraint(Z, bound=1)
+        run_checks(solver.all_tests())
 
-            dual.seminorm(Z, lagrange=1)
-            dual.constraint(Z, bound=1)
+    factory = SolverFactory(klass, 'bound')
+    for solver in factory:
+        run_checks(solver.all_tests())
 
-            for t in solver.all_tests():
-                yield t
-
-        factory = SolverFactory(klass, 'bound')
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-
-    for klass in sorted(S.nonpaired_atoms):
-        factory = SolverFactory(klass, 'lagrange')
-        for solver in factory:
-
-            penalty = solver.atom
-            dual = penalty.conjugate 
-            Z = solver.prox_center
-            L = solver.L
-
-            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom %s\n ' % klass, None
-
-            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
-        
-            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
-
-            for t in solver.all_tests():
-                yield t
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', sorted(S.nonpaired_atoms, key=str), ids=lambda k: k.__name__)
+@set_seed_for_test()
+def test_proximal_maps_nonpaired(klass):
+    factory = SolverFactory(klass, 'lagrange')
+    for solver in factory:
+        check_lagrange_bound_duality(solver, klass)
+        run_checks(solver.all_tests())
 
 class SolverFactory(object):
 
