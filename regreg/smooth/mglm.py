@@ -258,7 +258,6 @@ class mglm(glm):
         """
 
         loss = stacked_common_loglike(losses,
-                                      successes,
                                       coef=coef,
                                       offset=saturated_offset)
 
@@ -496,7 +495,7 @@ class stacked_common_loglike(smooth_atom):
         ----------
         successes : sequence of ndarray
             Numbers of successes, one array per stacked loss.
-        trials : sequence of ndarray
+        trials : sequence of ndarray, optional
             Numbers of trials, one array per stacked loss.
         case_weights : ndarray, optional
             Non-negative case weights.
@@ -516,8 +515,9 @@ class stacked_common_loglike(smooth_atom):
             Stacked saturated loss.
         """
 
-        losses = [logistic_loglike(successes[i],
-                                   trials[i],
+        losses = [logistic_loglike(successes[i].shape,
+                                   successes[i],
+                                   trials=None if trials is None else trials[i],
                                    coef=coef)
                   for i in range(len(successes))]
 
@@ -559,10 +559,10 @@ class stacked_common_loglike(smooth_atom):
             Stacked saturated loss.
         """
 
-        losses = [logistic_loglike(successes[i],
-                                   trials[i],
-                                   coef=coef)
-                  for i in range(len(successes))]
+        losses = [poisson_loglike(counts[i].shape,
+                                  counts[i],
+                                  coef=coef)
+                  for i in range(len(counts))]
 
         return klass(losses,
                      offset=offset,
@@ -572,8 +572,7 @@ class stacked_common_loglike(smooth_atom):
 
     @classmethod
     def huber(klass,
-              X, 
-              response,
+              responses,
               smoothing_parameter,
               case_weights=None,
               coef=1., 
@@ -584,9 +583,7 @@ class stacked_common_loglike(smooth_atom):
 
         Parameters
         ----------
-        X : object
-            Unused.
-        response : sequence of ndarray
+        responses : sequence of ndarray
             Response vectors, one per stacked loss.
         smoothing_parameter : float
             Smoothing parameter for the Huber loss.
@@ -610,7 +607,8 @@ class stacked_common_loglike(smooth_atom):
 
         losses = [huber_loss(response.shape,
                              response,
-                             smoothing_parameter) 
+                             smoothing_parameter,
+                             coef=coef)
                   for response in responses]
 
         return klass(losses,
@@ -621,7 +619,6 @@ class stacked_common_loglike(smooth_atom):
 
     @classmethod
     def huber_svm(klass,
-                  X, 
                   successes,
                   smoothing_parameter,
                   case_weights=None,
@@ -633,8 +630,6 @@ class stacked_common_loglike(smooth_atom):
 
         Parameters
         ----------
-        X : object
-            Unused.
         successes : sequence of ndarray
             Binary (0/1) responses, one array per stacked loss.
         smoothing_parameter : float
@@ -659,7 +654,8 @@ class stacked_common_loglike(smooth_atom):
 
         losses = [huber_svm(response.shape,
                             response,
-                            smoothing_parameter) 
+                            smoothing_parameter,
+                            coef=coef)
                   for response in successes]
 
         return klass(losses,
@@ -670,7 +666,6 @@ class stacked_common_loglike(smooth_atom):
 
     @classmethod
     def cox(klass, 
-            X, 
             event_times,
             censoring,
             coef=1., 
@@ -682,8 +677,6 @@ class stacked_common_loglike(smooth_atom):
 
         Parameters
         ----------
-        X : object
-            Unused.
         event_times : sequence of ndarray
             Observed times, one array per stacked loss.
         censoring : sequence of ndarray
@@ -852,10 +845,9 @@ class multinomial_loglike(smooth_atom):
                       self.overflow_clip) # to prevent overflow
         exp_eta = np.exp(eta)
 
-        if case_weights is None:
-            cw = np.ones(natural_param.shape[0])
-        else:
-            cw = case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         if mode == 'both':
             ratio = ((self.trials/np.sum(exp_eta, axis=1)) * exp_eta.T).T
@@ -1041,10 +1033,9 @@ class multinomial_baseline_loglike(smooth_atom):
                       self.overflow_clip) # to prevent overflow
         exp_eta = np.exp(eta)
 
-        if case_weights is None:
-            cw = np.ones(eta.shape[0])
-        else:
-            cw = case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  eta.shape[:1])
 
         #TODO: Using transposes to scale the rows of a 2d array - should we use an affine_transform to do this?
         #JT: should be able to do this with np.newaxis

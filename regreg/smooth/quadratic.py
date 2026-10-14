@@ -242,7 +242,8 @@ class quadratic_loss(smooth_atom):
         ----------
         factor : bool, optional
             For a non-diagonal `Q`, whether to compute a Cholesky
-            factorization to represent the conjugate.
+            factorization to represent the conjugate. Requires `Q` to be
+            an ndarray.
 
         Returns
         -------
@@ -251,33 +252,43 @@ class quadratic_loss(smooth_atom):
         Raises
         ------
         ValueError
-            If `Q` is not diagonal and `factor` is False.
+            If `Q` is not diagonal and `factor` is False, or if `factor`
+            is True and `Q` is not an ndarray.
         """
 
         if self.Q is None:
             as_quad = (identity_quadratic(self.coef, self.offset, 0, 0) + self.quadratic).collapsed()
             return smooth_conjugate(zero(self.shape, quadratic=as_quad))
         else:
-            #XXX this needs to be tested
+            # Including its quadratic term, the loss is
+            #   f(x) = C/2 (x-a)^T Q (x-a) + kappa/2 ||x||^2 + l^T x + c
+            #        = 1/2 x^T M x - b^T x + k
+            # with M = C Q + kappa I, b = C Q a - l and k = C/2 a^T Q a + c,
+            # so its conjugate is f^*(u) = 1/2 (u + b)^T M^{-1} (u + b) - k.
             sq = self.quadratic.collapsed()
-            if self.offset is not None:
-                sq.linear_term -= self.scale(self.Q_transform.linear_map(self.offset))
-            if self.Q_transform.diagD:
-                return quadratic_loss(self.shape,
-                                      Q=1./(self.coef*self.Q_transform.linear_operator + sq.coef),
-                                      offset=offset,
-                                      quadratic=outq, 
-                                      coef=1.,
-                                      Qdiag=True)
+            if self.offset is None:
+                Qa = np.zeros(self.shape)
+                k = sq.constant_term
+            else:
+                Qa = self.Q_transform.linear_map(self.offset)
+                k = self.coef * np.sum(self.offset * Qa) / 2. + sq.constant_term
+            b = self.coef * Qa - sq.linear_term
+
+            if self.Qdiag:
+                Minv = 1. / (self.coef * np.asarray(self.Q) + sq.coef)
             elif factor:
-                return quadratic_loss(self.shape,
-                                      Q=cholesky(self.coef * self.Q + sq.coef * np.identity(self.shape)),
-                                      Qdiag=False,
-                                      offset=offset,
-                                      quadratic=outq,
-                                      coef=1.)
+                if not isinstance(self.Q, np.ndarray):
+                    raise ValueError('factor=True requires Q to be an ndarray')
+                Minv = cholesky(self.coef * self.Q + sq.coef * np.identity(self.shape[0]))
             else:
                 raise ValueError('factor is False, so no factorization was done')
+
+            return quadratic_loss(self.shape,
+                                  Q=Minv,
+                                  Qdiag=self.Qdiag,
+                                  offset=-b,
+                                  quadratic=identity_quadratic(0, 0, 0, -k),
+                                  coef=1.)
 
 class cholesky(object):
 
@@ -349,7 +360,7 @@ def squared_error(X, Y, coef=1):
     loss : `regreg.smooth.affine_smooth`
     """
     atom = quadratic_loss.affine(X, -Y, coef=coef)
-    atom.atom.objective_vars['offset'] = 'Y'
+    atom.atom.objective_vars = dict(atom.atom.objective_vars, offset='Y')
     atom.atom.objective_template = r"""\frac{%(coef)s}{2}\left\|%(var)s\right\|^2_2"""
     return atom
 
@@ -372,7 +383,7 @@ def signal_approximator(signal, coef=1):
     loss : `quadratic_loss`
     """
     atom = quadratic_loss.shift(signal, coef=coef)    
-    atom.objective_vars['offset'] = 'Y'
+    atom.objective_vars = dict(atom.objective_vars, offset='Y')
     atom.objective_template = r"""\frac{%(coef)s}{2}\left\|%(var)s\right\|^2_2"""
     return atom
 
