@@ -207,3 +207,27 @@ def test_different_dim():
     solver = rr.FISTA(problem)
     solver.fit(min_its=200, tol=1.0e-12)
     coefs = solver.composite.coefs
+
+def test_separable_selectors_initial_overlap():
+    # gh-84: selectors raised NameError; initial left coefs unset;
+    # has_overlap failed on list groups
+
+    from regreg.problems.separable import has_overlap
+    atoms = [rr.l1norm(10, lagrange=1.), rr.l2norm(10, lagrange=1.)]
+    groups = [slice(0, 10), slice(10, 20)]
+    sep = rr.separable((20,), atoms, groups)
+    x = np.arange(20.)
+    sels = sep.selectors
+    np.testing.assert_allclose(sels[0].linear_map(x), x[:10])
+    np.testing.assert_allclose(sels[1].linear_map(x), x[10:])
+
+    init = np.linspace(0, 1, 20)
+    sep = rr.separable((20,), atoms, groups, initial=init)
+    np.testing.assert_allclose(sep.coefs, init)
+
+    # the docstring examples: row 4 vs row 2, and column 4 vs row 2
+    assert not has_overlap((4, 5), [slice(2, 3), slice(4, 5)])
+    assert has_overlap((4, 5), [slice(2, 3), [Ellipsis, slice(4, 5)]])
+    assert not has_overlap((4, 5), [[slice(0, 2), Ellipsis], [slice(2, 4), Ellipsis]])
+    assert has_overlap((6,), [[0, 1, 2], [2, 3]])
+    assert not has_overlap((6,), [[0, 1, 2], [3, 4]])

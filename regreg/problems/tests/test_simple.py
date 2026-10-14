@@ -114,3 +114,38 @@ def test_gengrad_blocknorms():
     all_close(prox_coef, simple_nonsmooth_coef, 'prox to simple_nonsmooth', None)
 
 
+
+def test_gengrad_smooth_loss():
+    # gh-84: gengrad did a full solve per step, minimizing 2 * loss + penalty
+
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((100, 5))
+    Y = rng.standard_normal(100)
+    pen = rr.l1norm(5, lagrange=5.)
+    ref = rr.simple_problem(rr.squared_error(X, Y), pen).solve(tol=1e-14, min_its=500)
+    soln = rr.gengrad(rr.simple_problem(rr.squared_error(X, Y), pen),
+                      np.linalg.norm(X, 2)**2, tol=1e-14, max_its=10000)
+    np.testing.assert_allclose(soln, ref, atol=1e-8)
+
+def test_gengrad_negative_objective():
+    # gh-84: the relative tolerance used max(vnew, 1) rather than
+    # max(|vnew|, 1), so a large negative objective got an absolute
+    # tolerance instead of a (looser) relative one
+
+    rng = np.random.default_rng(1)
+    X = rng.standard_normal((100, 5))
+    Y = rng.standard_normal(100)
+
+    def iterations(constant):
+        problem = rr.simple_problem(rr.squared_error(X, Y), rr.l1norm(5, lagrange=5.))
+        problem.quadratic = rr.identity_quadratic(0, 0, 0, constant)
+        calls = []
+        smooth_objective = problem.smooth_objective
+        def counted(*args, **kwargs):
+            calls.append(1)
+            return smooth_objective(*args, **kwargs)
+        problem.smooth_objective = counted
+        rr.gengrad(problem, np.linalg.norm(X, 2)**2, tol=1e-6, max_its=5000)
+        return len(calls)
+
+    assert iterations(-1e6) <= iterations(0)

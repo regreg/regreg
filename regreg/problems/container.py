@@ -219,9 +219,9 @@ class container(composite):
             The solution.
         """
         if quadratic is not None:
-            oldq, newq = self.quadratic, self.quadratic + quadratic
+            oldq, self.quadratic = self.quadratic, self.quadratic + quadratic
         else:
-            oldq = newq = self.quadratic
+            oldq = self.quadratic
 
         solver = FISTA(self)
         solver.fit(**fit_args)

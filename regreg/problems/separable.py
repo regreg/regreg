@@ -16,6 +16,19 @@ from ..problems.simple import simple_problem
 from ..atoms.cones import zero
 from .composite import smooth_conjugate
 
+def _as_index(group):
+    """
+    Convert a group to something that can index an array.
+
+    A list that contains a slice, ``Ellipsis`` or ``None`` is a
+    multidimensional index and must be a tuple (NumPy no longer accepts
+    such lists); other groups, e.g. lists of integers, are used as is.
+    """
+    if isinstance(group, list) and any(g is Ellipsis or g is None or
+                                       isinstance(g, slice) for g in group):
+        return tuple(group)
+    return group
+
 def has_overlap(shape, groups):
     """
     Determine whether the groups, viewed as slices of an array
@@ -45,7 +58,7 @@ def has_overlap(shape, groups):
     indices = np.arange(np.prod(shape)).reshape(shape)
     subsets = []
     for group in groups:
-        subsets.append(set(list(indices[group].reshape(-1))))
+        subsets.append(set(list(indices[_as_index(group)].reshape(-1))))
     subsets = tuple(subsets)
     for i in range(len(subsets)):
         for j in range(i):
@@ -81,8 +94,7 @@ class separable(atom):
         Shapes to which each slice is reshaped before being passed to its
         atom; None means no reshaping.
     initial : ndarray, optional
-        Currently unused; ``coefs`` are initialized to zeros only if
-        `initial` is None.
+        Initial value of ``coefs``. Defaults to zeros.
     """
 
     def __init__(self,
@@ -95,17 +107,19 @@ class separable(atom):
         if test_for_overlap and has_overlap(shape, groups):
             raise ValueError('groups are not separable')
         self.shape = shape
-        self.groups = groups
+        self.groups = [_as_index(group) for group in groups]
         self.atoms = atoms
         if shapes == []:
             shapes = [None] * len(atoms)
         self.shapes = shapes
         test = np.empty(self.shape)
-        self.assign_shapes = [test[group].shape for group in groups]
+        self.assign_shapes = [test[group].shape for group in self.groups]
         self.zero_atom = zero(shape)
 
         if initial is None:
             self.coefs = np.zeros(shape)
+        else:
+            self.coefs = np.asarray(initial, float).copy()
 
     def latexify(self, var=None, idx=''):
         """
@@ -222,7 +236,7 @@ class separable(atom):
         """
         Selectors for each group.
         """
-        return [selector(group, self.shape, reshape)
+        return [selector(group, self.shape, reshape=shape)
                 for group, shape in zip(self.groups, self.shapes)]
 
 class separable_problem(simple_problem):

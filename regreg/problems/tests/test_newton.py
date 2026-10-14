@@ -51,3 +51,20 @@ def test_bound():
 
     assert(np.linalg.norm(soln_newton - soln_simple) / max(np.linalg.norm(soln_simple), 1) < 1.e-5)
     assert(np.fabs(problem.objective(soln_newton) - problem.objective(soln_simple)) < 1.e-6)
+
+def test_latexify_objective():
+    # gh-84: latexify used undefined objective_vars; objective passed
+    # 'func' as check_feasibility
+
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((50, 5))
+    Y = rng.standard_normal(50)
+    from ...smooth.quadratic import squared_error
+    loss = squared_error(X, Y)
+    penalty = l1norm(5, lagrange=1.)
+    qn = quasi_newton(loss, penalty, X.T.dot(X))
+    assert 'Quasi-Newton' in qn.latexify()
+    assert r'\gamma' in qn.latexify(var=r'\gamma')
+    b = rng.standard_normal(5)
+    np.testing.assert_allclose(qn.objective(b),
+                               loss.smooth_objective(b, 'func') + penalty.nonsmooth_objective(b))
