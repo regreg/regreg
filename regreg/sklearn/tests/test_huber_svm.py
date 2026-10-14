@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 try:
     from sklearn.model_selection import cross_validate
@@ -11,7 +12,7 @@ except ImportError:
 from ...api import l1norm
 from ...tests.decorators import set_seed_for_test
 
-@np.testing.dec.skipif(not have_sklearn)
+@pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
 @set_seed_for_test()
 def test_regression_huber_svm():
 

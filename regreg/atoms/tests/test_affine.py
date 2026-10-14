@@ -1,7 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
 from copy import copy
-import nose.tools as nt
 
 import numpy as np
 

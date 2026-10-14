@@ -15,7 +15,7 @@ import numpy as np
 from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform,
@@ -218,7 +218,7 @@ class glm(smooth_atom):
             Hessian of the loss at :math:`\beta`, i.e. :math:`X^T W X`.
         """
 
-        linpred = self.linear_predictor(beta)
+        linpred = self.linear_predictor(self.apply_offset(beta))
         X = self.data[0]
         if self._is_transform:
             raise ValueError('refusing to form Hessian for arbitrary affine_transform, use an ndarray or scipy.sparse')
@@ -288,7 +288,7 @@ class glm(smooth_atom):
         subsample_loss = copy(self)
         n = subsample_loss.saturated_loss.shape[0]
 
-        idx_bool = np.zeros(n, np.bool)
+        idx_bool = np.zeros(n, bool)
         idx_bool[idx] = 1
 
         subsample_loss.case_weights *= idx_bool
@@ -831,11 +831,9 @@ class gaussian_loglike(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         natural_param = self.apply_offset(natural_param)
         resid = natural_param - self.response 
@@ -870,11 +868,9 @@ class gaussian_loglike(smooth_atom):
             1D array holding the diagonal of the Hessian evaluated at
             `natural_param`.
         """
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
         return self.scale(np.ones_like(natural_param) * cw)
 
     def get_data(self):
@@ -919,7 +915,7 @@ class gaussian_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -990,9 +986,11 @@ class poisson_loglike(smooth_atom):
         if np.min(self.counts) < 0:
             raise ValueError("Counts vector is not non-negative")
 
-        saturated = counts
-        loss_terms = - coef * ((counts - 1) * np.log(counts))
-        loss_terms[counts == 0] = 0
+        # saturated log-likelihood is sum(y * log(y) - y), with 0 * log(0) = 0
+        _counts = np.asarray(self.counts, float)
+        _mask = _counts > 0
+        loss_terms = -_counts
+        loss_terms[_mask] += _counts[_mask] * np.log(_counts[_mask])
 
         loss_constant = - coef * loss_terms.sum()
 
@@ -1037,11 +1035,9 @@ class poisson_loglike(smooth_atom):
             or 'both'.
         """
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -1079,12 +1075,11 @@ class poisson_loglike(smooth_atom):
             `natural_param`.
         """
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         return self.scale(cw * np.exp(x))
             
@@ -1131,7 +1126,7 @@ class poisson_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1247,11 +1242,9 @@ class huber_loss(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  param.shape)
 
         param = self.apply_offset(param)
         resid = param - self.response 
@@ -1323,7 +1316,7 @@ class huber_loss(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1450,11 +1443,9 @@ class stacked_loglike(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones(natural_param.shape[:1])
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         linpred = natural_param # shorthand
 
@@ -1519,7 +1510,7 @@ class stacked_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool

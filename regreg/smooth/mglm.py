@@ -11,7 +11,7 @@ from copy import copy
 import numpy as np
 from scipy import sparse
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform)
@@ -102,7 +102,7 @@ class mglm(glm):
         subsample_loss = copy(self)
         n = subsample_loss.saturated_loss.shape[0]
 
-        idx_bool = np.zeros(n, np.bool)
+        idx_bool = np.zeros(n, bool)
         idx_bool[idx] = 1
 
         subsample_loss.case_weights *= idx_bool
@@ -359,11 +359,9 @@ class stacked_common_loglike(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones(natural_param.shape[:1])
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         x = natural_param # shorthand
 
@@ -434,7 +432,7 @@ class stacked_common_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -897,7 +895,7 @@ class multinomial_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1089,7 +1087,7 @@ class multinomial_baseline_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool

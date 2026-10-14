@@ -1,5 +1,4 @@
 from itertools import product
-import nose.tools as nt
 
 import numpy as np
 import scipy.sparse

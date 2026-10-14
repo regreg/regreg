@@ -1,5 +1,4 @@
 import numpy as np
-import nose.tools as nt
 
 from regreg.smooth.losses import huberized_svm
 

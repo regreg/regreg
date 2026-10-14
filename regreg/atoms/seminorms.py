@@ -834,7 +834,7 @@ class supnorm(seminorm):
     @doc_template_user
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
-        inbox = np.product(np.less_equal(np.fabs(arg), bound * (1+self.tol)))
+        inbox = np.prod(np.less_equal(np.fabs(arg), bound * (1+self.tol)))
         if inbox:
             return 0
         else:

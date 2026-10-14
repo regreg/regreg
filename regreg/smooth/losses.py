@@ -94,8 +94,11 @@ class huberized_svm(smooth_atom):
             Gradient at `beta`; returned when `mode` is 'grad'
             or 'both'.
         """
-        
-        return self.smoothed_atom.smooth_objective(beta,
-                                                   mode=mode,
-                                                   check_feasibility=check_feasibility)
+
+        value = self.smoothed_atom.smooth_objective(self.apply_offset(beta),
+                                                    mode=mode,
+                                                    check_feasibility=check_feasibility)
+        if mode == 'both':
+            return self.scale(value[0]), self.scale(value[1])
+        return self.scale(value)
 

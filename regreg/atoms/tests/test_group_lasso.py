@@ -1,14 +1,15 @@
 from __future__ import print_function, division, absolute_import
 
+import pytest
+
 import itertools
-import nose.tools as nt
 
 import numpy as np
 
 import regreg.atoms.group_lasso as GL
 import regreg.api as rr
 
-from .test_seminorms import Solver, all_close, SolverFactory
+from .test_seminorms import Solver, all_close, SolverFactory, run_checks, check_lagrange_bound_duality
 from .test_cones import ConeSolverFactory
 from regreg.tests.decorators import set_seed_for_test
 
@@ -89,38 +90,23 @@ class GroupConeSolverFactory(ConeSolverFactory):
             yield solver
 
 
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', list(GL.conjugate_seminorm_pairs.keys()), ids=lambda k: k.__name__)
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps(interactive=False):
-    for klass in GL.conjugate_seminorm_pairs.keys(): 
-        factory = GroupSolverFactory(klass, 'lagrange')
-        for solver in factory:
-            penalty = solver.atom
-            dual = penalty.conjugate 
-            Z = solver.prox_center
-            L = solver.L
+def test_proximal_maps(klass):
+    factory = GroupSolverFactory(klass, 'lagrange')
+    for solver in factory:
+        check_lagrange_bound_duality(solver, klass)
+        run_checks(solver.all_tests())
 
-            yield all_close, penalty.lagrange_prox(Z, lipschitz=L), Z-dual.bound_prox(Z*L)/L, 'testing lagrange_prox and bound_prox starting from atom\n %s ' % klass, None
+    factory = GroupSolverFactory(klass, 'bound')
+    for solver in factory:
+        run_checks(solver.all_tests())
 
-            # some arguments of the constructor
-
-            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
-        
-            nt.assert_raises(AttributeError, setattr, penalty, 'bound', 4.)
-            nt.assert_raises(AttributeError, setattr, dual, 'lagrange', 4.)
-
-            for t in solver.all_tests():
-                yield t
-
-        factory = GroupSolverFactory(klass, 'bound')
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-
-    for klass in GL.conjugate_cone_pairs.keys():
-        factory = GroupConeSolverFactory(klass)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', list(GL.conjugate_cone_pairs.keys()), ids=lambda k: k.__name__)
+@set_seed_for_test()
+def test_proximal_maps_cones(klass):
+    factory = GroupConeSolverFactory(klass)
+    for solver in factory:
+        run_checks(solver.all_tests())

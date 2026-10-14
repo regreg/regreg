@@ -2,10 +2,11 @@
 Test that GLM agrees with R's glm
 """
 
-from __future__ import print_function
+import pytest
 
 import numpy as np
-import nose.tools as nt
+
+pytestmark = pytest.mark.rpy2
 
 try:
     import rpy2.robjects as rpy
@@ -17,7 +18,7 @@ import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
+@pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_gaussian():
 
     rpy.r('set.seed(0)')
@@ -33,7 +34,7 @@ def test_gaussian():
     np.testing.assert_allclose(C, soln)
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
+@pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_logistic():
 
     rpy.r('set.seed(0)')
@@ -51,7 +52,7 @@ def test_logistic():
     np.testing.assert_allclose(C, soln, atol=1.e-5, rtol=1.e-5)
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
+@pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_poisson():
 
     rpy.r('set.seed(0)')
@@ -69,7 +70,7 @@ def test_poisson():
     np.testing.assert_allclose(C, soln, atol=1.e-5, rtol=1.e-5)
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(not rpy2_available, msg="rpy2 not available, skipping test")
+@pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_coxph():
 
     rpy.r('''

@@ -5,7 +5,7 @@ from copy import copy
 import numpy as np
 from scipy.stats import rankdata
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from .cox_utils import (cox_objective,
                         cox_gradient,
                         cox_hessian)
@@ -125,11 +125,9 @@ class cox_loglike(smooth_atom):
 
         eta = self.apply_offset(eta)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         censoring = self.censoring
 
@@ -191,11 +189,9 @@ class cox_loglike(smooth_atom):
             `right_vector`.
         """
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         eta = natural_param # shorthand
         eta = self.apply_offset(eta)
@@ -271,7 +267,7 @@ class cox_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool

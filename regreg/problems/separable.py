@@ -42,7 +42,7 @@ def has_overlap(shape, groups):
     >>> has_overlap((4,5), [slice(2,3), [Ellipsis, slice(4,5)]])
     True
     """
-    indices = np.arange(np.product(shape)).reshape(shape)
+    indices = np.arange(np.prod(shape)).reshape(shape)
     subsets = []
     for group in groups:
         subsets.append(set(list(indices[group].reshape(-1))))

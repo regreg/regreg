@@ -2,7 +2,6 @@
 Solving basis pursuit with TFOCS
 """
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
@@ -26,4 +25,4 @@ def test_tfocs():
     l1 = rr.l1norm(p, lagrange=1)
 
     primal, dual = rr.tfocs(l1, T, conjugate, coef_tol=1.e-4)
-    nt.assert_true(np.fabs(np.linalg.norm(Y - np.dot(X, primal)) - l2bound) <= l2bound * 1.e-3)
+    assert np.fabs(np.linalg.norm(Y - np.dot(X, primal)) - l2bound) <= l2bound * 1.e-3

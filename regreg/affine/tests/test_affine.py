@@ -1,6 +1,7 @@
 """ Testing D transform implementation
 """
 
+import pytest
 from operator import add
 import numpy as np
 
@@ -25,7 +26,6 @@ from numpy.testing import (assert_array_almost_equal,
                            assert_array_equal)
 
 import scipy.sparse
-from nose.tools import assert_true, assert_equal, assert_raises
 
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
@@ -36,14 +36,14 @@ def test_broad_first():
     b = np.arange(4).reshape(4,1)
     c = broadcast_first(a, b, add)
     res = a[:,None] + b
-    assert_equal(res.shape, c.shape)
+    assert res.shape == c.shape
     assert_array_almost_equal(c, res)
     res1d = res.ravel()
     c = broadcast_first(b, a, add)
-    assert_equal(res1d.shape, c.shape)
+    assert res1d.shape == c.shape
     assert_array_almost_equal(c, res1d)
     c = broadcast_first(a, b.ravel(), add)
-    assert_equal(res1d.shape, c.shape)
+    assert res1d.shape == c.shape
     assert_array_almost_equal(c, res1d)
 
 def test_dot():
@@ -53,11 +53,11 @@ def test_dot():
 
     C = rr.astransform(B).dot(rr.astransform(A))
 
-    assert_equal(C.shape, (10, 12))
+    assert C.shape == (10, 12)
     Z = np.random.standard_normal(12)
     assert_array_almost_equal(C.dot(Z), B.dot(A.dot(Z)))
 
-    assert_equal(C.ndim, 2)
+    assert C.ndim == 2
 
 def test_affine_transform():
     # Test affine transform
@@ -67,8 +67,10 @@ def test_affine_transform():
     x2d = x1d[:,None]
     x22d = np.c_[x2d, x2d]
     # Error if both of linear and affine components are None
-    assert_raises(AffineError, affine_transform, None, None)
-    assert_raises(AffineError, linear_transform, None)
+    with pytest.raises(AffineError):
+        affine_transform(None, None)
+    with pytest.raises(AffineError):
+        linear_transform(None)
     # With linear None and 0 affine offset - identity transform
     for x in (x1d, x2d, x22d):
         trans = affine_transform(None, np.zeros((m,1)))
@@ -165,17 +167,17 @@ def test_affine_sum():
     transform2 = rr.linear_transform(X2)
     sum_transform = rr.affine_sum([transform1, transform2])
 
-    yield assert_array_almost_equal, np.dot(X1,v) + np.dot(X2,v) + b, sum_transform.affine_map(v)
-    yield assert_array_almost_equal, np.dot(X1,v) + np.dot(X2,v), sum_transform.linear_map(v)
-    yield assert_array_almost_equal, np.dot(X1.T,b) + np.dot(X2.T,b), sum_transform.adjoint_map(b)
-    yield assert_array_almost_equal, b, sum_transform.affine_offset
+    assert_array_almost_equal(np.dot(X1,v) + np.dot(X2,v) + b, sum_transform.affine_map(v))
+    assert_array_almost_equal(np.dot(X1,v) + np.dot(X2,v), sum_transform.linear_map(v))
+    assert_array_almost_equal(np.dot(X1.T,b) + np.dot(X2.T,b), sum_transform.adjoint_map(b))
+    assert_array_almost_equal(b, sum_transform.affine_offset)
 
     sum_transform = rr.affine_sum([transform1, transform2], weights=[3,4])
 
-    yield assert_array_almost_equal, 3*(np.dot(X1,v) + b) + 4*(np.dot(X2,v)), sum_transform.affine_map(v)
-    yield assert_array_almost_equal, 3*np.dot(X1,v) + 4*np.dot(X2,v), sum_transform.linear_map(v)
-    yield assert_array_almost_equal, 3*np.dot(X1.T,b) + 4*np.dot(X2.T,b), sum_transform.adjoint_map(b)
-    yield assert_array_almost_equal, 3*b, sum_transform.affine_offset
+    assert_array_almost_equal(3*(np.dot(X1,v) + b) + 4*(np.dot(X2,v)), sum_transform.affine_map(v))
+    assert_array_almost_equal(3*np.dot(X1,v) + 4*np.dot(X2,v), sum_transform.linear_map(v))
+    assert_array_almost_equal(3*np.dot(X1.T,b) + 4*np.dot(X2.T,b), sum_transform.adjoint_map(b))
+    assert_array_almost_equal(3*b, sum_transform.affine_offset)
 
 @set_seed_for_test()
 def test_affine_sparse():
@@ -240,14 +242,14 @@ def test_coefs_matrix():
     Y = np.random.standard_normal((n, q))
 
     transform1 = rr.linear_transform(X, input_shape=(p,q))
-    assert_equal(transform1.linear_map(V).shape, (n,q))
-    assert_equal(transform1.affine_map(V).shape, (n,q))
-    assert_equal(transform1.adjoint_map(Y).shape, (p,q))
+    assert transform1.linear_map(V).shape == (n,q)
+    assert transform1.affine_map(V).shape == (n,q)
+    assert transform1.adjoint_map(Y).shape == (p,q)
 
     transform2 = rr.affine_transform(X, B, input_shape=(p,q))
-    assert_equal(transform2.linear_map(V).shape, (n,q))
-    assert_equal(transform2.affine_map(V).shape, (n,q))
-    assert_equal(transform2.adjoint_map(Y).shape, (p,q))
+    assert transform2.linear_map(V).shape == (n,q)
+    assert transform2.affine_map(V).shape == (n,q)
+    assert transform2.adjoint_map(Y).shape == (p,q)
 
 def test_selector():
     X = np.arange(30).reshape((6,5))
@@ -266,9 +268,9 @@ def test_selector():
 
 def test_reshape():
     reshape_ = reshape((30,), (6,5))
-    assert_equal(reshape_.linear_map(np.arange(30)).shape, (6,5))
-    assert_equal(reshape_.affine_map(np.arange(30)).shape, (6,5))
-    assert_equal(reshape_.adjoint_map(np.zeros((6,5))).shape, (30,))
+    assert reshape_.linear_map(np.arange(30)).shape == (6,5)
+    assert reshape_.affine_map(np.arange(30)).shape == (6,5)
+    assert reshape_.adjoint_map(np.zeros((6,5))).shape == (30,)
 
 @set_seed_for_test()
 def test_stack_product():
@@ -278,8 +280,10 @@ def test_stack_product():
     U = np.random.standard_normal((6, 30))
     stack = vstack([X, Y])
 
-    assert_raises(ValueError, vstack, [X, Z])
-    assert_raises(ValueError, hstack, [X, U])
+    with pytest.raises(ValueError):
+        vstack([X, Z])
+    with pytest.raises(ValueError):
+        hstack([X, U])
 
     np.testing.assert_allclose(stack.linear_map(np.arange(30))[:5], np.dot(X, np.arange(30)))
     np.testing.assert_allclose(stack.linear_map(np.arange(30))[5:], np.dot(Y, np.arange(30)))
@@ -331,4 +335,5 @@ def test_misc():
     np.testing.assert_allclose(todense(Xa), X)
 
     reshapeA = adjoint(reshape((30,), (6,5)))
-    assert_raises(NotImplementedError, todense, reshapeA)
+    with pytest.raises(NotImplementedError):
+        todense(reshapeA)

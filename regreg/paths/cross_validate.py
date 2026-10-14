@@ -80,7 +80,7 @@ def cross_validate(path_obj,
     else:
         if type(cv) != type(3):
             raise ValueError('without sklearn, cv should be an integer')
-        groups = np.floor(np.arange(nsample)  / nsample * cv).astype(np.int)
+        groups = np.floor(np.arange(nsample)  / nsample * cv).astype(int)
         np.random.shuffle(groups)
         folds = [(groups != g, groups == g)
                  for g in np.unique(groups)]
@@ -202,7 +202,7 @@ def cross_validate_alt(path_obj,
     else:
         if type(cv) != type(3):
             raise ValueError('without sklearn, cv should be an integer')
-        groups = np.floor(np.arange(nsample)  / nsample * cv).astype(np.int)
+        groups = np.floor(np.arange(nsample)  / nsample * cv).astype(int)
         np.random.shuffle(groups)
         folds = [(groups != g, groups == g)
                  for g in np.unique(groups)]

@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import pytest
+
 import itertools
 
 import numpy as np
@@ -10,7 +12,7 @@ from regreg.tests.decorators import set_seed_for_test
 
 from numpy import testing as npt
 
-from .test_seminorms import Solver, SolverFactory
+from .test_seminorms import Solver, SolverFactory, run_checks
 
 w1 = np.ones(20) * 0.5
 w2 = w1 * 0
@@ -63,15 +65,14 @@ class WeightedSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+@pytest.mark.slow
+@pytest.mark.parametrize('mode', ['lagrange', 'bound'])
+@pytest.mark.parametrize('klass', [WA.l1norm, WA.supnorm], ids=lambda k: k.__name__)
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass, mode in itertools.product([WA.l1norm, WA.supnorm],
-                                         ['lagrange', 'bound']):
-        factory = WeightedSolverFactory(klass, mode)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
+def test_proximal_maps(klass, mode):
+    factory = WeightedSolverFactory(klass, mode)
+    for solver in factory:
+        run_checks(solver.all_tests())
 
 @set_seed_for_test()
 def test_weighted_l1():

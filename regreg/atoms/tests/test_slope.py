@@ -1,12 +1,12 @@
+import pytest
 import itertools
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.atoms.slope import slope, slope_conjugate, have_sklearn_iso
 from regreg.tests.decorators import set_seed_for_test
 
-from .test_seminorms import Solver, SolverFactory, all_close
+from .test_seminorms import Solver, SolverFactory, all_close, run_checks
 
 def test_kkt():
 
@@ -105,17 +105,13 @@ class SlopeSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+@pytest.mark.slow
+@pytest.mark.parametrize('use_sklearn', [True, False], ids=['sklearn_iso', 'python_iso'])
+@pytest.mark.parametrize('klass,mode', [(slope, 'lagrange'),
+                                        (slope_conjugate, 'bound')],
+                         ids=['slope', 'slope_conjugate'])
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass, mode in zip([slope, slope_conjugate], ['lagrange', 'bound']):
-        factory = SlopeSolverFactory(klass, mode)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-        factory = SlopeSolverFactory(klass, mode, use_sklearn=False)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-
-
+def test_proximal_maps(klass, mode, use_sklearn):
+    factory = SlopeSolverFactory(klass, mode, use_sklearn=use_sklearn)
+    for solver in factory:
+        run_checks(solver.all_tests())

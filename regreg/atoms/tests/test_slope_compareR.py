@@ -2,10 +2,11 @@
 Solve a problem with SLOPE and compare to R
 """
 
-from __future__ import print_function
+import pytest
 
 import numpy as np
-import nose.tools as nt
+
+pytestmark = pytest.mark.rpy2
 
 try:
     import rpy2.robjects as rpy
@@ -55,7 +56,7 @@ def fit_slope_R(X, Y):
     return result[0], result[1], result[2], result[3], result[4]
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(True, msg="SLOPE parameterization in R has changed")
+@pytest.mark.skipif(True, reason="SLOPE parameterization in R has changed")
 def test_using_SLOPE_weights():
 
     n, p = 500, 50
@@ -82,12 +83,12 @@ def test_using_SLOPE_weights():
     soln = problem.solve(tol=1.e-14, min_its=500)
 
     # we get a better objective value
-    nt.assert_true(problem.objective(soln) < problem.objective(np.asarray(r_beta)))
-    nt.assert_true(np.linalg.norm(soln - r_beta) < 1.e-6 * np.linalg.norm(soln))
+    assert problem.objective(soln) < problem.objective(np.asarray(r_beta))
+    assert np.linalg.norm(soln - r_beta) < 1.e-6 * np.linalg.norm(soln)
 
 
 @set_seed_for_test(10)
-@np.testing.dec.skipif(True, msg="SLOPE parameterization in R has changed")
+@pytest.mark.skipif(True, reason="SLOPE parameterization in R has changed")
 def test_using_SLOPE_prox():
 
     n, p = 50, 50
@@ -109,6 +110,6 @@ def test_using_SLOPE_prox():
     soln = pen.lagrange_prox(Y)
 
     # test that the prox maps agree
-    nt.assert_true(np.linalg.norm(soln - r_beta) < 1.e-10 * np.linalg.norm(soln))
+    assert np.linalg.norm(soln - r_beta) < 1.e-10 * np.linalg.norm(soln)
 
 

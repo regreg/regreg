@@ -33,7 +33,7 @@ def formD_smaller(m, n):
     # (starting from bottom left)
 
     vertices = np.indices((m-1,n-1)).reshape((2, -1)).T
-    strides = np.empty((m,n), np.bool).strides
+    strides = np.empty((m,n), bool).strides
     # D = sparse.lil_matrix((2*(m-1)*(n-1)+(m-1)+(n-1),p))
     
     idx = 0
@@ -136,7 +136,7 @@ def formD(m, n):
     # (starting from bottom left)
 
     vertices = np.indices((m-1,n-1)).reshape((2, -1)).T
-    strides = np.empty((m,n), np.bool).strides
+    strides = np.empty((m,n), bool).strides
     nrow = 2*(m*n-1)
     
     idx = 0

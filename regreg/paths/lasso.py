@@ -75,7 +75,7 @@ class lasso_path(grouped_path):
         unpenalized = self.penalty.weights == 0
         penalized = self._penalized_vars = ~unpenalized
         self.solution = np.zeros(self.shape)
-        self.ever_active = np.zeros(self.X.input_shape, np.bool)
+        self.ever_active = np.zeros(self.X.input_shape, bool)
         self.ever_active = self.updated_ever_active(unpenalized)
 
         if np.any(self.elastic_net_param[unpenalized]):
@@ -300,7 +300,7 @@ class lasso_path(grouped_path):
         sub_soln = sub_problem.solve(**solve_args)
         sub_grad = sub_loss.smooth_objective(sub_soln, mode='grad') 
         sub_linear_pred = sub_X.dot(sub_soln)
-        candidate_bool = np.zeros(self.group_shape, np.bool)
+        candidate_bool = np.zeros(self.group_shape, bool)
         candidate_bool[candidate_set] = True
         return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_bool
 
@@ -359,7 +359,7 @@ class lasso_path(grouped_path):
             Sorted indices of ever-active variables.
         """
         if not hasattr(self, '_ever_active'):
-            self._ever_active = np.zeros(self.group_shape, np.bool)
+            self._ever_active = np.zeros(self.group_shape, bool)
         _ever_active = self._ever_active.copy()
         _ever_active[index_obj] = True
         return list(np.nonzero(_ever_active)[0])
@@ -531,7 +531,7 @@ def _check_KKT(lasso_weights,
     UNPENALIZED = 3
 
     active = (solution != 0) * lasso_weights > 0
-    active_failing = np.zeros(solution.shape, np.int)
+    active_failing = np.zeros(solution.shape, int)
     active_failing[active] = (np.fabs(grad[active] / (lagrange * lasso_weights[active]) + np.sign(solution[active])) > tol) * ACTIVE
 
     # inactive_failing = np.zeros(solution.shape, np.int) - 1

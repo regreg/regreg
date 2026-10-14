@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import pytest
+
 import itertools
 
 import numpy as np
@@ -7,8 +9,8 @@ import numpy as np
 import regreg.atoms.linear_constraints as LC
 import regreg.api as rr
 from regreg.tests.decorators import set_seed_for_test
+from .test_seminorms import run_checks
 
-import nose.tools as nt
 
 from .test_cones import Solver, ConeSolverFactory
 
@@ -47,11 +49,10 @@ class ConstraintSolverFactory(ConeSolverFactory):
                             L=L)
             yield solver
 
+@pytest.mark.slow
+@pytest.mark.parametrize('klass', sorted(LC.conjugate_cone_pairs.keys(), key=str), ids=lambda k: k.__name__)
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass in sorted(LC.conjugate_cone_pairs.keys(), key=str):
-        factory = ConstraintSolverFactory(klass)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
+def test_proximal_maps(klass):
+    factory = ConstraintSolverFactory(klass)
+    for solver in factory:
+        run_checks(solver.all_tests())

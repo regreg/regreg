@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 try:
     from sklearn.model_selection import cross_validate
@@ -11,7 +12,7 @@ except ImportError:
 from ...api import l1norm, group_lasso
 from ...tests.decorators import set_seed_for_test
 
-@np.testing.dec.skipif(not have_sklearn)
+@pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
 @set_seed_for_test()
 def test_regression_gaussian():
 
@@ -68,7 +69,7 @@ def test_regression_gaussian():
     y_both = np.array([y, np.ones_like(y), y_offset[:,1]]).T
     GridSearchCV(gaussian_lasso_enet, params, cv=3).fit(X, y_both)
 
-@np.testing.dec.skipif(not have_sklearn)
+@pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
 @set_seed_for_test()
 def test_regression_group_lasso():
 
@@ -125,7 +126,7 @@ def test_regression_group_lasso():
     y_both = np.array([y, np.ones_like(y), y_offset[:,1]]).T
     GridSearchCV(gaussian_lasso_enet, params, cv=3).fit(X, y_both)
 
-@np.testing.dec.skipif(not have_sklearn)
+@pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
 @set_seed_for_test()
 def test_regression_gaussian_bound():
 

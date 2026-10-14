@@ -1,6 +1,5 @@
 from copy import copy
 
-import nose.tools as nt
 import numpy as np
 
 from regreg.smooth import mglm, glm

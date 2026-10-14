@@ -87,7 +87,7 @@ class group_lasso_path(grouped_path):
 
         self._unpenalized_vars = _candidate_bool(self.penalty.groups, 
                                                  unpenalized_groups)
-        self._penalized_vars = np.ones(self.shape, np.bool)
+        self._penalized_vars = np.ones(self.shape, bool)
         self._penalized_vars[self._unpenalized_vars] = 0
 
         if np.any(unpenalized_idx):
@@ -356,7 +356,7 @@ class group_lasso_path(grouped_path):
             Ever-active groups.
         """
         if not hasattr(self, '_ever_active'):
-            self._ever_active = np.zeros(self.group_shape, np.bool)
+            self._ever_active = np.zeros(self.group_shape, bool)
             self._sorted_groupids = np.array(self.penalty._sorted_groupids)
         _ever_active = self._ever_active.copy()
         _ever_active[index_obj] = True
@@ -380,7 +380,7 @@ class group_lasso_path(grouped_path):
         """
         if not hasattr(self, "_unpen_groups"):
             self._unpen_groups = []
-            self._unpen_group_idx = np.zeros(self.group_shape, np.bool)
+            self._unpen_group_idx = np.zeros(self.group_shape, bool)
             for i, g in enumerate(self.penalty._sorted_groupids):
                 unpen_group = self.penalty.weights[g] == 0
                 self._unpen_group_idx[i] = unpen_group
@@ -496,7 +496,7 @@ def _candidate_bool(groups, candidate_groups):
     Boolean indicator of variables belonging to any of `candidate_groups`.
     """
 
-    candidate_bool = np.zeros(groups.shape, np.bool)
+    candidate_bool = np.zeros(groups.shape, bool)
     for g in candidate_groups:
         group = groups == g
         candidate_bool += group

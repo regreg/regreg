@@ -11,7 +11,7 @@ from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
 from ..identity_quadratic import identity_quadratic
-from . import smooth_atom
+from . import smooth_atom, combine_case_weights
 
 class logistic_loglike(smooth_atom):
 
@@ -127,11 +127,9 @@ class logistic_loglike(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -199,22 +197,14 @@ class logistic_loglike(smooth_atom):
         """
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
-        if np.max(x) > 1e2:
-            overflow = True
-            not_overflow_ind = np.where(x <= 1e2)[0]
-            exp_x = np.zeros_like(x)
-            exp_x[not_overflow_ind] = np.exp(x[not_overflow_ind])
-            exp_x[~not_overflow_ind] = np.exp(100)
-        else:
-            overflow = False
-            exp_x = np.exp(x)
+        # p * (1 - p) is symmetric in x, so use exp(-|x|) to avoid overflow
+        exp_x = np.exp(-np.fabs(x))
 
         return self.scale(exp_x / (1 + exp_x)**2 * self.trials * cw)
 
@@ -294,7 +284,7 @@ class logistic_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -436,13 +426,12 @@ class probit_loglike(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
 
         prob = normal_dbn.cdf(x)
@@ -504,12 +493,11 @@ class probit_loglike(smooth_atom):
         """
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         pi = self.mean_function(x)
         V = pi * (1 - pi)
@@ -592,7 +580,7 @@ class probit_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -733,13 +721,12 @@ class cloglog_loglike(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
         cutoff = 5
         x_ = np.clip(x, -cutoff, cutoff) # to prevent overflow
@@ -804,12 +791,11 @@ class cloglog_loglike(smooth_atom):
         """
 
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         pi = self.mean_function(x)
         V = pi * (1 - pi)
@@ -894,7 +880,7 @@ class cloglog_loglike(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1018,11 +1004,9 @@ class huber_svm(smooth_atom):
             or 'both'.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  param.shape)
 
         param = self.apply_offset(param)
         huber_arg = (2 * self.successes - 1) * param # first encode binary as \pm 1
@@ -1095,7 +1079,7 @@ class huber_svm(smooth_atom):
         else:
             case_weights = loss_cp.case_weights
 
-        idx_bool = np.zeros_like(case_weights, np.bool)
+        idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
 
         case_weights *= idx_bool
@@ -1117,5 +1101,5 @@ def _huber_svm(z, smoothing_parameter):
     eps = smoothing_parameter
     arg = (1 - z) / eps # function of (2 * y - 1) * eta when y is binary
     proj_arg = (0 < arg) * (arg < 1) * arg + (arg >= 1) 
-    return arg * proj_arg - eps * proj_arg**2 / 2, -proj_arg
+    return (1 - z) * proj_arg - eps * proj_arg**2 / 2, -proj_arg
 

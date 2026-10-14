@@ -158,7 +158,7 @@ class base_mixin(object):
                                     # in regreg
         if sample_weight is not None:
             if case_weights is not None:
-                case_weights *= sample_weight
+                case_weights = case_weights * sample_weight
         return self._saturated_score(predictions, response, case_weights=case_weights)
 
     def _construct_atom(self):

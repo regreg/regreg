@@ -263,7 +263,7 @@ class mixed_lasso(atom):
                                  self._groups,
                                  self._weight_array,
                                  self._norms_cython,
-                                 np.int(check_feasibility))
+                                 int(check_feasibility))
 
         return v * self.lagrange
 
@@ -617,7 +617,7 @@ def strong_set(glasso,
                                    glasso._nonnegative,
                                    glasso._groups,
                                    glasso._weight_array)
-    value = value.astype(np.bool)
+    value = value.astype(bool)
     return value, selector(value, (p,))
 
 def check_KKT(glasso, 

@@ -1,6 +1,6 @@
+import pytest
 import itertools
 import numpy as np
-import nose.tools as nt
 
 import regreg.api as rr
 from regreg.atoms.sparse_group_lasso import (sparse_group_lasso,
@@ -9,7 +9,7 @@ from regreg.atoms.sparse_group_lasso import (sparse_group_lasso,
                                              gauge_function_dual)
 from regreg.tests.decorators import set_seed_for_test
 
-from .test_seminorms import Solver, SolverFactory, all_close
+from .test_seminorms import Solver, SolverFactory, all_close, run_checks
 
 def test_l1norm_equivalent():
     """
@@ -155,19 +155,13 @@ class SparseGroupSolverFactory(SolverFactory):
                             L=L)
             yield solver
 
+@pytest.mark.slow
+@pytest.mark.parametrize('klass,mode', [(sparse_group_lasso, 'lagrange'),
+                                        (sparse_group_lasso_dual, 'bound')],
+                         ids=['sparse_group_lasso', 'sparse_group_lasso_dual'])
 @set_seed_for_test()
-@np.testing.dec.slow
-def test_proximal_maps():
-    for klass, mode in zip([sparse_group_lasso, 
-                            sparse_group_lasso_dual], 
-                           ['lagrange', 'bound']):
+def test_proximal_maps(klass, mode):
+    for _ in range(2):
         factory = SparseGroupSolverFactory(klass, mode)
         for solver in factory:
-            for t in solver.all_tests():
-                yield t
-        factory = SparseGroupSolverFactory(klass, mode)
-        for solver in factory:
-            for t in solver.all_tests():
-                yield t
-
-
+            run_checks(solver.all_tests())

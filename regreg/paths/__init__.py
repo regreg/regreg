@@ -340,7 +340,7 @@ def strong_rules(path_obj,
     solutions = [solution.T.copy()]
     dev_explained = [dev_solution]
 
-    all_failing = np.zeros(path_obj.group_shape, np.bool)
+    all_failing = np.zeros(path_obj.group_shape, bool)
     subproblem_set = path_obj.updated_ever_active([])
 
     for lagrange_new, lagrange_cur in zip(lagrange_seq[1:], 
@@ -399,7 +399,7 @@ def strong_rules(path_obj,
                 strong_failing = strong_I_ranks >= 0
 
             if np.any(strong_failing):
-                delta = np.zeros(path_obj.group_shape, np.bool)
+                delta = np.zeros(path_obj.group_shape, bool)
                 delta[strong_idx] = strong_failing
                 all_failing += delta 
             else:
@@ -511,7 +511,7 @@ def warm_start(path_obj,
     # basic setup
 
     loss = path_obj.full_loss()
-    all_vars = np.ones(path_obj.penalty.shape, np.bool)
+    all_vars = np.ones(path_obj.penalty.shape, bool)
     penalty = path_obj.restricted_penalty(None)
 
     # take a guess at the inverse step size

@@ -1,5 +1,6 @@
 # Requirements to ensure that all tests are run
-# rpy2 allows comparison with R's output
-# statsmodels enables Cox proportional hazards model regression and a check with R
+pytest>=7
+# scikit-learn is used by the sklearn wrapper tests and SLOPE's isotonic regression
+scikit-learn
+# rpy2 allows comparison with R's output (tests are skipped without rpy2 / R)
 rpy2
-

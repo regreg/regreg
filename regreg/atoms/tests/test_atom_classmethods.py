@@ -2,12 +2,10 @@ import numpy as np
 import regreg.api as rr
 import itertools
 from numpy import testing as npt
-from numpy.testing import dec
 
 from regreg.tests.decorators import set_seed_for_test
 
 @set_seed_for_test()
-@dec.setastest(True)
 def test_affine_linear_offset_l1norm():
 
     """

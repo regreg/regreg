@@ -230,7 +230,38 @@ class smooth_atom(smooth_composite):
     def conjugate(self):
         """The convex conjugate of the atom."""
         return self.get_conjugate()
- 
+
+
+def combine_case_weights(case_weights, loss_case_weights, shape):
+    """
+    Combine case weights passed to a loss with the loss's own case weights.
+
+    Parameters
+    ----------
+
+    case_weights : ndarray or None
+        Case weights passed in by the caller (e.g. a `glm`).
+        Treated as all ones if None. Never modified.
+
+    loss_case_weights : ndarray or None
+        Case weights stored on the loss itself. Ignored if None.
+
+    shape : tuple
+        Shape of the weights when `case_weights` is None.
+
+    Returns
+    -------
+
+    cw : ndarray
+        A new float array, the product of the two sets of weights.
+    """
+    if case_weights is None:
+        cw = np.ones(shape)
+    else:
+        cw = np.array(case_weights, float) # always a copy
+    if loss_case_weights is not None:
+        cw *= loss_case_weights
+    return cw
 
 def acceptable_init_args(cls, proposed_keywords):
     """Check that keywords are valid extra arguments to ``cls.__init__``.
@@ -249,7 +280,7 @@ def acceptable_init_args(cls, proposed_keywords):
         ``cls.__init__`` and is not one of ``self``, ``shape``, ``coef``,
         ``quadratic``, ``initial`` or ``offset``.
     """
-    args = inspect.getargspec(cls.__init__).args
+    args = inspect.getfullargspec(cls.__init__).args
     forbidden = ['self', 'shape', 'coef', 'quadratic', 'initial', 'offset']
     for kw in proposed_keywords.keys():
         if not kw in args:
