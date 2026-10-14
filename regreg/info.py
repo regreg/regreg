@@ -17,7 +17,7 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
 description  = 'A Python framework for regularized regression'
 
 # Minimum package versions
-# Check against requirements.txt and .travis.yml
+# Check against requirements.txt and pyproject.toml
 NUMPY_MIN_VERSION='1.7.1'
 SCIPY_MIN_VERSION = '0.9'
 CYTHON_MIN_VERSION = '0.18'
