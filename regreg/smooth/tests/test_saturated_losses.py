@@ -106,3 +106,32 @@ def test_huberized_svm_coef_offset():
     np.testing.assert_allclose(huberized_svm(X, labels, .5, offset=o).smooth_objective(beta, 'func'),
                                L.smooth_objective(beta - o, 'func'))
 
+    # agrees with the saturated huber_svm loss composed with X
+    np.testing.assert_allclose(huber_svm((6,), labels, .5).smooth_objective(X.dot(beta), 'func'), f)
+
+def test_poisson_saturated_constant():
+    # gh-71: loss at the saturated fit plus the constant should be 0
+
+    y = np.array([0., 1, 2, 5])
+    eta = np.log(np.where(y > 0, y, 1e-12))
+    for coef in [1., 3.]:
+        P = glm.poisson_loglike((4,), y, coef=coef)
+        np.testing.assert_allclose(P.smooth_objective(eta, 'func') + P.quadratic.constant_term,
+                                   0, atol=1e-10)
+
+def test_huber_svm_gradient():
+    # gh-71: value of _huber_svm did not match its gradient
+
+    z = np.array([-1., .2, .8, 1.5])
+    eps, d = .5, 1e-6
+    numerical = (_huber_svm(z + d, eps)[0] - _huber_svm(z - d, eps)[0]) / (2 * d)
+    np.testing.assert_allclose(_huber_svm(z, eps)[1], numerical, atol=1e-6)
+
+def test_logistic_hessian_overflow():
+    # gh-71: overflow branch clamped the wrong entries
+
+    L = logistic_loglike((3,), np.array([0., 1, 1]))
+    H = L.hessian(np.array([200., 0., 1.]))
+    p = 1 / (1 + np.exp(-1.))
+    np.testing.assert_allclose(H[1:], [0.25, p * (1 - p)])
+    assert 0 <= H[0] < 1e-80

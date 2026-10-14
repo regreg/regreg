@@ -168,15 +168,8 @@ class logistic_loglike(smooth_atom):
                                   self.case_weights,
                                   natural_param.shape)
 
-        if np.max(x) > 1e2:
-            overflow = True
-            not_overflow_ind = np.where(x <= 1e2)[0]
-            exp_x = np.zeros_like(x)
-            exp_x[not_overflow_ind] = np.exp(x[not_overflow_ind])
-            exp_x[~not_overflow_ind] = np.exp(100)
-        else:
-            overflow = False
-            exp_x = np.exp(x)
+        # p * (1 - p) is symmetric in x, so use exp(-|x|) to avoid overflow
+        exp_x = np.exp(-np.fabs(x))
 
         return self.scale(exp_x / (1 + exp_x)**2 * self.trials * cw)
 
@@ -917,5 +910,5 @@ def _huber_svm(z, smoothing_parameter):
     eps = smoothing_parameter
     arg = (1 - z) / eps # function of (2 * y - 1) * eta when y is binary
     proj_arg = (0 < arg) * (arg < 1) * arg + (arg >= 1) 
-    return arg * proj_arg - eps * proj_arg**2 / 2, -proj_arg
+    return (1 - z) * proj_arg - eps * proj_arg**2 / 2, -proj_arg
 

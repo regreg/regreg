@@ -1046,9 +1046,11 @@ class poisson_loglike(smooth_atom):
         if np.min(self.counts) < 0:
             raise ValueError("Counts vector is not non-negative")
 
-        saturated = counts
-        loss_terms = - coef * ((counts - 1) * np.log(counts))
-        loss_terms[counts == 0] = 0
+        # saturated log-likelihood is sum(y * log(y) - y), with 0 * log(0) = 0
+        _counts = np.asarray(self.counts, float)
+        _mask = _counts > 0
+        loss_terms = -_counts
+        loss_terms[_mask] += _counts[_mask] * np.log(_counts[_mask])
 
         loss_constant = - coef * loss_terms.sum()
 
