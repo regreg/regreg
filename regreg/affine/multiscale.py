@@ -11,7 +11,8 @@ class multiscale(affine_transform):
 
     This transform centers the input
     and then computes the average over
-    all intervals of a minimum size.
+    all intervals of a minimum size (or over a given
+    list of intervals).
     """
 
     dtype = np.dtype([('start', int),
@@ -22,22 +23,20 @@ class multiscale(affine_transform):
         """
         Parameters
         ----------
-
         p : int
             Length of signal.
-
-        minsize : int
+        minsize : int, optional
             Smallest interval to consider.
-            Defaults to p**(1/3.)
-
-        slices : []
-            A list of intervals to use in the transform.
-            Will be coerced to have dtype([('start', int), ('end', int)])
-
-        scaling : float((slices.shape))
-            An optional scaling to apply after computing
-            mean over each interval.
-
+            Defaults to ``p**(1/3.)``.
+        slices : sequence, optional
+            A list of ``(start, end)`` intervals to use in the transform.
+            Will be coerced to have
+            ``dtype([('start', int), ('end', int)])``.
+            If empty, all intervals of length at least `minsize`
+            are used.
+        scaling : ndarray, optional
+            An optional scaling, of shape ``slices.shape``, to apply after
+            computing mean over each interval.
         """
         self.p = p
         self.minsize = minsize or int(np.around(p**(1/3.)))
@@ -72,17 +71,18 @@ class multiscale(affine_transform):
 
     def update_slices(self, slices, scaling=None):
         """
-
         Change the intervals computed by the multiscale
         transform.
 
         Parameters
         ----------
-
-        slices : []
-            List of (i,j) intervals to compute.
-            Will be converted to have dtype([('start', int), ('end', int)])
-
+        slices : sequence
+            List of ``(i,j)`` intervals to compute.
+            Will be converted to have
+            ``dtype([('start', int), ('end', int)])``.
+        scaling : ndarray, optional
+            An optional scaling to apply after computing the
+            mean over each interval.
         """
         slices = np.asarray(slices)
         if slices.dtype != self.dtype:
@@ -99,20 +99,20 @@ class multiscale(affine_transform):
 
     def linear_map(self, x):
         """
-        Given a p-vector `x` compute the average of
-        `x - x.mean()` over each interval
-        of size greater than `self.minsize`.
+        Compute the (scaled) average of ``x - x.mean()`` over each interval.
+
+        If no intervals were specified, these are all intervals
+        of size at least ``self.minsize``.
 
         Parameters
         ----------
-
-        x : float(self.input_shape)
+        x : ndarray
+            Signal of shape ``self.input_shape``.
 
         Returns
         -------
-
-        v : float(self.output_shape)
-
+        v : ndarray
+            Interval averages, of shape ``self.output_shape``.
         """
         x_centered = x - x.mean()
         output = np.zeros(self.output_shape)
@@ -138,15 +138,17 @@ class multiscale(affine_transform):
 
     def adjoint_map(self, v):
         """
+        Apply the adjoint of the multiscale transform to `v`.
+
         Parameters
         ----------
-
-        v : float(self.output_shape)
+        v : ndarray
+            Array of shape ``self.output_shape``.
 
         Returns
         -------
-
-        v : float(self.input_shape)
+        output : ndarray
+            Array of shape ``self.input_shape``.
         """
 
         if v.ndim == 1:
@@ -173,6 +175,20 @@ class multiscale(affine_transform):
     def form_matrix(self, slices):
         """
         Form a matrix with given slices of multiscale transform.
+
+        Parameters
+        ----------
+        slices : sequence
+            List of ``(i,j)`` intervals.
+
+        Returns
+        -------
+        X : ndarray
+            Matrix of shape ``(p, len(slices))`` whose columns are the
+            centered indicators of each interval divided by the square
+            root of its length.
+        length : ndarray
+            Length of each interval.
         """
         p = self.input_shape[0]
         X_E = np.zeros((p, len(slices)))
@@ -187,27 +203,31 @@ class multiscale(affine_transform):
 
 def SMUCE_stat(M, Z, sigma=None):
     """
+    Compute multiscale test statistic of Chan and Walther.
 
-    Compute multiscale test statistic of Chan and Walther. Used
-    in the SMUCE algorithm and in the multiscale change point
+    Used in the SMUCE algorithm and in the multiscale change point
     algorithm in the square-root LASSO selective inference paper.
 
     Parameters
     ----------
-
-    M : instance of `multiscale`
-    
-    Z : np.ndarray
+    M : multiscale
+        Multiscale transform defining the intervals.
+    Z : ndarray
         Data on which to compute the statistic.
+    sigma : float, optional
+        Noise level. Defaults to ``np.std(Z)``.
 
-    sigma : float
-        Noise level. Defaults to np.std(Z).
+    Returns
+    -------
+    T : float
+        Value of the statistic.
+    slice : np.void
+        The ``(start, end)`` interval achieving the maximum.
 
     Notes
     -----
-
-    M's scaling is ignored, even if not None.
-
+    M's scaling is ignored, even if not None: it is replaced by
+    ``np.sqrt(M.sizes)``.
     """
 
     p = Z.shape[0]
@@ -221,30 +241,31 @@ def SMUCE_stat(M, Z, sigma=None):
 
 def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
     """
+    Choose tuning parameter by Monte Carlo.
 
-    Choose tuning parameter 
-    in the SMUCE algorithm and in the multiscale change point
+    Used in the SMUCE algorithm and in the multiscale change point
     algorithm in the square-root LASSO selective inference paper.
 
     Parameters
     ----------
-
-    M : instance of `multiscale`
-    
+    M : multiscale
+        Multiscale transform defining the intervals.
     ndraw : int
         How many Monte Carlo draws.
-
     quantile : float
         Which quantile of Monte Carlo draws to choose.
+    sigma : float, optional
+        Noise level (intended to be passed to `SMUCE_stat`).
 
-    sigma : float
-        Passed to `SMUCE_stat`
+    Returns
+    -------
+    value : float
+        The `quantile` of `SMUCE_stat` over `ndraw` draws of
+        standard normal noise.
 
     Notes
     -----
-
     M's scaling is ignored, even if not None.
-
     """
     V = []
     p = M.input_shape[0]

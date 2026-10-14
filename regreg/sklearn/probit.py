@@ -1,3 +1,5 @@
+"""sklearn estimators for probit regression and classification."""
+
 import numpy as np
 from scipy.stats import norm as normal_dbn
 
@@ -15,11 +17,12 @@ from ..smooth.glm import (glm,
 if have_sklearn:
     class sklearn_probit(sklearn_regression):
 
-        """
+        """Regularized probit regression for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
+        Any atom can be used as a regularizer.
 
+        The response passed to `fit` is either a vector of binary successes
+        or a 2-d array with columns ``(successes, trials)``.
         """
 
         def _loglike_factory(self, X, y):
@@ -77,15 +80,15 @@ if have_sklearn:
                 return np.nan
 
     class sklearn_probit_lagrange(sklearn_regression_lagrange, sklearn_probit):
+        """Lagrange-form probit regression for sklearn."""
+
         pass
 
     class sklearn_probit_classifier(sklearn_classifier):
 
-        """
+        """Regularized probit classifier for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
+        Any atom can be used as a regularizer.
         """
 
         def _loglike_factory(self, X, y):
@@ -122,25 +125,29 @@ if have_sklearn:
             return np.nan
 
         def predict_proba(self, X):
-            """
-            Predict new probabilities in classification setting.
+            """Predict success probabilities in the classification setting.
+
+            The probabilities are the standard normal CDF
+            applied to the linear predictor.
 
             Parameters
             ----------
-
-            X : np.ndarray((n, p))
-                Feature matrix.
+            X : ndarray
+                Feature matrix of shape ``(n, p)``.
 
             Returns
             -------
-
-            probs : np.ndarray(n)
-                Predictions from classification model.
-
+            probs : ndarray
+                Predicted probabilities, of shape ``(n,)``.
             """
             linpred = X.dot(self._coefs)
             return normal_dbn.cdf(linpred)
 
     class sklearn_probit_classifier_lagrange(sklearn_probit_classifier):
+        """Probit classifier (intended Lagrange form).
+
+        Currently this is identical to `sklearn_probit_classifier`.
+        """
+
         pass
 

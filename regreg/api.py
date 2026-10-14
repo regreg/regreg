@@ -1,5 +1,5 @@
 """
-A collection of commonly used RegReg functions and objects
+A collection of commonly used RegReg functions and objects.
 """
 from __future__ import print_function, division, absolute_import
 

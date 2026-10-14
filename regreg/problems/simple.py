@@ -1,6 +1,9 @@
 """
+Problems specified by a smooth function and a single penalty.
+
 This module has a class for specifying a problem from just
-a smooth function and a single penalty.
+a smooth function and a single penalty, as well as the
+`gengrad`, `nesta` and `tfocs` solvers.
 """
 from __future__ import print_function, division, absolute_import
 
@@ -15,6 +18,21 @@ from ..identity_quadratic import identity_quadratic
 from ..algorithms import FISTA
 
 class simple_problem(composite):
+
+    """
+    A problem with a smooth part and a single nonsmooth penalty.
+
+    The objective is ``smooth_atom`` plus ``proximal_atom``, each
+    including its quadratic part.
+
+    Parameters
+    ----------
+    smooth_atom : `regreg.smooth.smooth_atom`
+        The smooth part of the objective.
+    proximal_atom : `regreg.atoms.atom`
+        The nonsmooth part of the objective; it must have a proximal map.
+        It is assumed to have 0 for its smooth objective.
+    """
     
     def __init__(self, smooth_atom, proximal_atom):
         self.smooth_atom = smooth_atom
@@ -23,18 +41,41 @@ class simple_problem(composite):
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
         """
+        The smooth objective of ``smooth_atom``.
+
         This class explicitly assumes that
         the proximal_atom has 0 for smooth_objective.
+
+        Parameters
+        ----------
+        x : ndarray
+            Point at which to evaluate.
+        mode : str, optional
+            One of ``['func', 'grad', 'both']``.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible?
+
+        Returns
+        -------
+        value : float or ndarray or tuple
+            Function value, gradient, or both.
         """
         vs = self.smooth_atom.smooth_objective(x, mode, check_feasibility)
         return vs
 
     def nonsmooth_objective(self, x, check_feasibility=False):
+        """
+        Nonsmooth objective of ``proximal_atom`` plus the quadratics.
+        """
         vn = self.proximal_atom.nonsmooth_objective(x, check_feasibility=check_feasibility)
         vs = self.smooth_atom.nonsmooth_objective(x, check_feasibility=check_feasibility)
         return vn + vs + self.quadratic.objective(x, 'func')
 
     def proximal(self, proxq):
+        """
+        Proximal map of ``proximal_atom``, with the quadratic parts of
+        ``smooth_atom`` and the problem added to `proxq`.
+        """
         proxq = proxq + self.smooth_atom.quadratic + self.quadratic
         return self.proximal_atom.solve(proxq)
 
@@ -42,9 +83,19 @@ class simple_problem(composite):
     def smooth(smooth_atom):
         """
         A problem with no nonsmooth part except possibly
-        the quadratic of smooth_atom.
+        the quadratic of `smooth_atom`.
 
         The proximal function is (almost) a nullop.
+
+        Parameters
+        ----------
+        smooth_atom : `regreg.smooth.smooth_atom`
+            The smooth objective.
+
+        Returns
+        -------
+        problem : `simple_problem`
+            Problem with a zero penalty.
         """
         proximal_atom = zero_cone(smooth_atom.shape)
         return simple_problem(smooth_atom, proximal_atom)
@@ -52,15 +103,25 @@ class simple_problem(composite):
     @staticmethod
     def nonsmooth(proximal_atom):
         """
-        A problem with no nonsmooth part except possibly
-        the quadratic of smooth_atom.
+        A problem with no smooth part.
 
-        The proximal function is (almost) a nullop.
+        Parameters
+        ----------
+        proximal_atom : `regreg.atoms.atom`
+            The nonsmooth objective.
+
+        Returns
+        -------
+        problem : `simple_problem`
+            Problem with a zero smooth part.
         """
         smooth_atom = zero_smooth(proximal_atom.shape)
         return simple_problem(smooth_atom, proximal_atom)
 
     def latexify(self, var=None):
+        """
+        Return a LaTeX representation of the problem.
+        """
         template_dict = self.objective_vars.copy()
         template_dict['prox'] =  self.proximal_atom.latexify(var=var,idx='2')
         template_dict['smooth'] = self.smooth_atom.latexify(var=var,idx='1')
@@ -75,6 +136,27 @@ class simple_problem(composite):
         return result
 
     def solve(self, quadratic=None, return_optimum=False, **fit_args):
+        """
+        Solve the problem using `FISTA`.
+
+        The final step size is stored as ``self.final_step``.
+
+        Parameters
+        ----------
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic added to the objective.
+        return_optimum : bool, optional
+            Also return the optimal value?
+        fit_args : dict
+            Keyword arguments passed to `regreg.algorithms.FISTA.fit`.
+
+        Returns
+        -------
+        optimal_value : float
+            Only returned if `return_optimum` is True.
+        coefs : ndarray
+            The solution.
+        """
         if quadratic is not None:
             oldq, self.quadratic = self.quadratic, self.quadratic + quadratic
         else:
@@ -96,7 +178,28 @@ class simple_problem(composite):
 def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
             coef_stop=False):
     """
-    A simple generalized gradient solver
+    A simple generalized gradient solver.
+
+    Parameters
+    ----------
+    simple_problem : `simple_problem`
+        Problem to solve.
+    lipschitz : float
+        Lipschitz constant of the gradient; the step size is
+        ``1 / lipschitz``.
+    tol : float, optional
+        Convergence tolerance.
+    max_its : int, optional
+        Maximum number of iterations.
+    debug : bool, optional
+        Print progress information?
+    coef_stop : bool, optional
+        Stop based on coefficient changes instead of objective value.
+
+    Returns
+    -------
+    coef : ndarray
+        The solution.
     """
     itercount = 0
     coef = simple_problem.coefs
@@ -134,47 +237,52 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
           coef_stop=False,
           quadratic=None):
     '''
+    Solve a problem with the NESTA algorithm.
+
+    The objective is the sum of `smooth_atom`, `proximal_atom` and
+    `conjugate_atom`, where `conjugate_atom` is smoothed by adding a
+    quadratic to its conjugate, with decreasing smoothing parameters
+    `epsilon`.
+
     Parameters
     ----------
-
-    smooth_atom: smooth_composite
-        A smooth function, i.e. having a smooth_objective method.
-
-    proximal_atom: 
-        An atom with a proximal method.
-
-    conjugate_atom:
+    smooth_atom : `regreg.problems.composite.smooth`
+        A smooth function, i.e. having a smooth_objective method. May be
+        None.
+    proximal_atom : `regreg.atoms.atom`
+        An atom with a proximal method. May be None.
+    conjugate_atom : `regreg.atoms.atom`
         An atom that will be smoothed, by adding a quadratic to its
         conjugate.
-
-    epsilon: np.array
-        A decreasing array of positive constants for Moreau-Yosida smoothing.
-        
-    tol : float
-        Tolerance to which each problem is solved is max(tol, epsilon)
-    
-    max_iter s: int
+    epsilon : ndarray, optional
+        A decreasing array of positive constants for Moreau-Yosida
+        smoothing.
+    tol : float, optional
+        Tolerance to which each problem is solved is
+        ``max(tol, epsilon)``.
+    max_iters : int, optional
         Maximum number of iterations. If epsilon is not supplied,
-        it is taken to be [1]*max_iters
-
-    initial_primal, initial_dual : `np.ndarray(float)`
-        Initial conditions for both primal and dual variables.
-
-    coef_tol : float
-        Tolerance for assessing convergence of coefficients.
-
-    quadratic : `regreg.identity_quadratic`
+        it is taken to be ``[1]*max_iters``.
+    min_iters : int, optional
+        Minimum number of iterations.
+    coef_tol : float, optional
+        Tolerance for assessing convergence.
+    initial_primal : ndarray, optional
+        Initial condition for the primal variable.
+    initial_dual : ndarray, optional
+        Initial condition for the dual variable.
+    coef_stop : bool, optional
+        Stop based on changes in the dual coefficients instead of the
+        objective value.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
         A quadratic term that is added to the total objective.
 
     Returns
     -------
-
-    primal: np.array
+    primal : ndarray
         Primal coefficients.
-
-    dual: np.array
+    dual : ndarray
         Dual coefficients.
-
     '''
     if epsilon is None:
         epsilon = [1]*max_iters # 2.**(-np.arange(20))
@@ -230,20 +338,55 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
           max_iters=100,
           coef_tol=1.e-6,
           quadratic=None):
-    '''
+    r'''
+    Solve a problem with a TFOCS-style smoothed dual method.
 
     This function is based on the setup of problems
     described in `TFOCS <http://tfocs.stanford.edu/>`_.
     Generally speaking, these are the same type of problems
-    that nesta can handle, though without the additional smooth part.
+    that `nesta` can handle, though without the additional smooth part.
 
     This solver is suited to solving problems of the form
 
-    minimize_v f(v) + h(Dv+a)
+    .. math::
 
-    when both f and h (and hence f^* and h^*) 
-    have simple proximal operators.
+        \text{minimize}_v f(v) + h(Dv+a)
 
+    when both :math:`f` and :math:`h` (and hence :math:`f^*` and
+    :math:`h^*`) have simple proximal operators.
+
+    Parameters
+    ----------
+    primal_atom : `regreg.atoms.atom`
+        The atom :math:`f`, which will be smoothed,
+        then composed with the transform.
+    transform : `regreg.affine.affine_transform`
+        The affine transform :math:`v \mapsto Dv+a` for the composition.
+    dual_proximal_atom : `regreg.atoms.atom`
+        The atom :math:`h^*`, which must have a proximal method.
+    epsilon : ndarray, optional
+        A decreasing array of positive constants for Moreau-Yosida
+        smoothing.
+    tol : float, optional
+        Tolerance to which each problem is solved is
+        ``max(tol, epsilon)``.
+    max_iters : int, optional
+        Maximum number of iterations. If epsilon is not supplied,
+        it is taken to be ``[1]*max_iters``.
+    coef_tol : float, optional
+        Tolerance for assessing convergence of coefficients.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        A quadratic term that is added to the total objective.
+
+    Returns
+    -------
+    primal : ndarray
+        Primal coefficients.
+    dual : ndarray
+        Dual coefficients.
+
+    Examples
+    --------
     Here is an example for minimum :math:`\ell_1` norm reconstruction.
 
     >>> import numpy as np, regreg.api as rr
@@ -256,11 +399,12 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     >>> beta = np.zeros(p)
     >>> beta[:10] = np.arange(10)+1
     >>> Y = np.dot(X, beta)
-    >>> 
 
     The problem is formally,
 
-    minimize_v np.fabs(v).sum() subject to Y=np.dot(X,v)
+    .. math::
+
+        \text{minimize}_v \|v\|_1 \quad \text{subject to} \quad Y=Xv
 
     The :math:`\ell_1` norm is described as:
 
@@ -278,49 +422,6 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
 
     >>> np.linalg.norm(primal_tfocs[10:]) < 1.e-3 * np.linalg.norm(primal_tfocs)
     True
-
-    Parameters
-    ----------
-
-    primal_atom: atom
-        An atom that will be smoothed,
-        then composed with the transform.
-
-    transform : affine_transform
-        An affine transform for the composition.
-
-    dual_proximal_atom: atom
-        An atom with a proximal method.
-
-    epsilon: np.array
-        A decreasing array of positive constants for Moreau-Yosida smoothing.
-        
-    tol: float
-        Tolerance to which each problem is solved is max(tol, epsilon)
-    
-    max_iters: int
-        Maximum number of iterations. If epsilon is not supplied,
-        it is taken to be [1]*max_iters
-
-    initial_primal, initial_dual : `np.ndarray(float)`
-        Initial conditions for both primal and dual variables.
-
-    coef_tol : float
-        Tolerance for assessing convergence of coefficients.
-
-    quadratic : `regreg.identity_quadratic`
-        A quadratic term that is added to the total objective.
-
-    Returns
-    -------
-
-    primal: np.array
-        Primal coefficients.
-
-    dual: np.array
-        Dual coefficients.
-
-    
     '''
     transform = astransform(transform)
 

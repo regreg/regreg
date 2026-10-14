@@ -1,3 +1,10 @@
+r"""Multiresponse generalized linear models.
+
+Losses of the form :math:`B \mapsto \ell(XB)` where the coefficients
+:math:`B` form a matrix with one column per response (or category),
+e.g. multinomial regression.
+"""
+
 import warnings
 from copy import copy
 
@@ -22,14 +29,14 @@ from .glm import (glm,
 
 class mglm(glm):
 
-    """
-    A multiresponse general linear model, usually a log-likelihood
-    for response $Y$ whose mean is modelled through
-    $X\beta$. 
+    r"""A multiresponse general linear model.
 
-    Usual examples are multivariate Gaussian (least squares regression),
+    Usually a negative log-likelihood, the loss is
+    :math:`B \mapsto \ell(XB)` for a response :math:`Y` whose mean is
+    modelled through :math:`XB`, where :math:`B` has shape ``(p, q)``.
+
+    Usual examples are multivariate Gaussian (least squares regression)
     and multinomial regression.
-
     """
 
     def __init__(self, 
@@ -40,33 +47,25 @@ class mglm(glm):
                  offset=None,
                  case_weights=None):
 
-        """
+        r"""Initialize the multiresponse general linear model.
 
         Parameters
         ----------
-
-        X : ndarray((n,p))
-            The design matrix.
-
+        X : ndarray or `regreg.affine.affine_transform`
+            The design matrix, of shape ``(n, p)``.
         loss : `regreg.smooth.smooth_atom`
-            The loss function that takes arguments the same
-            size as `Y`. So, for Gaussian regression 
-            the loss is just the map $\mu \mapsto \|\mu - Y\|^2_F/2$
-            the Frobenius loss. Should have shape (p,q).
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic`
-            Optional quadratic part added to objective.
-
-        initial : ndarray
+            The saturated loss, of shape ``(n, q)``, taking arguments the same
+            size as `Y`. For Gaussian regression the loss is just the
+            Frobenius loss :math:`\mu \mapsto \|\mu - Y\|^2_F/2`.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term added to the objective.
+        initial : ndarray, optional
             An initial guess at the minimizer.
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        case_weights : ndarray
-            Non-negative case weights
-
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        case_weights : ndarray, optional
+            Non-negative case weights. Defaults to all ones.
         """
 
         self.saturated_loss = loss
@@ -83,25 +82,21 @@ class mglm(glm):
                              initial=initial)
 
     def subsample(self, idx):
-        """
-        Create a loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `idx`.
 
         Parameters
         ----------
-
         idx : index
-            Indices of np.arange(n) to keep.
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
         subsample_loss : `mglm`
-            Loss after discarding all
-            cases not in `idx.
-
+            Copy of the loss with zero case weight for all cases not in
+            `idx`.
         """
 
         subsample_loss = copy(self)
@@ -116,21 +111,36 @@ class mglm(glm):
         
       
     def hessian(self, beta):
-        """
+        r"""Compute the Hessian of the loss :math:`\nabla^2 \ell(XB)`.
 
-        Compute the Hessian of the loss $ \nabla \ell(X\beta)$.
-        NOT IMPLEMENTED.
+        Not implemented for multiresponse models.
 
         Parameters
         ----------
-
         beta : ndarray
             Parameters.
+
+        Raises
+        ------
+        NotImplementedError
         """
 
         raise NotImplementedError
 
     def latexify(self, var=None, idx=''):
+        """Return a LaTeX representation of the loss.
+
+        Parameters
+        ----------
+        var : str, optional
+            LaTeX name of the argument.
+        idx : str, optional
+            Index appended as a subscript.
+
+        Returns
+        -------
+        latex : str
+        """
         return self.affine_atom.latexify(var=var, idx=idx)
 
     def __copy__(self):
@@ -154,41 +164,39 @@ class mglm(glm):
                     quadratic=None, 
                     initial=None,
                     baseline=False):
-        """
-        Create a loss for a multinomial regression model.
+        """Create a loss for a multinomial regression model.
 
         Parameters
         ----------
-
-        X : [ndarray, `regreg.affine.affine_transform`]
-            Design matrix
-
+        X : ndarray or `regreg.affine.affine_transform`
+            Design matrix.
         successes : ndarray
-            Responses (should be non-negative integers).
+            Responses of shape ``(n, J)``: non-negative counts for each of the
+            `J` categories.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        saturated_offset : ndarray, optional
+            Offset to be subtracted in the saturated (natural) parameter
+            space before evaluating the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
+        baseline : bool, optional
+            If True, use the baseline-category parametrization
+            (`multinomial_baseline_loglike`) with coefficients for the first
+            ``J - 1`` categories only; otherwise use the overparametrized
+            `multinomial_loglike`.
 
-        case_weights : ndarray
-            Non-negative case weights
-
-        saturated_offset : ndarray (optional)
-            Offset to be applied in saturated parameter space before 
-            evaluating loss.
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        mglm_obj : `regreg.smooth.mglm.mglm`
+            Multiresponse general linear model loss.
         """
 
         if not baseline:
@@ -220,40 +228,33 @@ class mglm(glm):
                 saturated_offset=None,
                 quadratic=None, 
                 initial=None):
-        """
-        Create a stacked loss. 
+        """Create a multiresponse model from a stack of saturated losses.
 
         Parameters
         ----------
-
-        X : [ndarray, `regreg.affine.affine_transform`]
-            Design matrix
-
+        X : ndarray or `regreg.affine.affine_transform`
+            Design matrix.
         losses : sequence
-            Sequence of saturated losses.
+            Sequence of saturated losses with common shape.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        saturated_offset : ndarray, optional
+            Offset to be subtracted in the saturated (natural) parameter
+            space before evaluating the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
 
-        coef : float
-            Scaling to be put in front of loss.
-
-        case_weights : ndarray
-            Non-negative case weights
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        mglm_obj : `regreg.smooth.mglm.mglm`
+            Multiresponse general linear model loss.
         """
 
         loss = stacked_common_loglike(losses,
@@ -270,11 +271,28 @@ class mglm(glm):
 
 class stacked_common_loglike(smooth_atom):
 
-    """
-    A class for stacking `K=len(losses)` saturated losses with common
-    shapes (roughly speaking) summed over losses.
+    """Stack ``K = len(losses)`` saturated losses with common shapes.
 
-    Roughly speaking a model of `K` independent measurements per individual.
+    The natural parameter has one column per loss, and the objective is
+    the sum of the losses evaluated on the corresponding columns. Roughly
+    speaking, this is a model of `K` independent measurements per
+    individual.
+
+    Parameters
+    ----------
+    losses : sequence
+        Saturated losses, all with the same shape.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    case_weights : ndarray, optional
+        Non-negative case weights.
     """
 
     objective_template = r"""\ell^{\text{logit}}\left(%(var)s\right)"""
@@ -315,30 +333,30 @@ class stacked_common_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
+        """Evaluate the smooth objective, its gradient, or both.
 
         Parameters
         ----------
-
         natural_param : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `natural_param` is not
-            in the domain.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights, multiplied with any case weights
+            stored on the loss.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `natural_param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `natural_param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         
         cw = combine_case_weights(case_weights,
@@ -374,9 +392,11 @@ class stacked_common_loglike(smooth_atom):
             raise ValueError("mode incorrectly specified")
 
     def get_data(self):
+        """Return the stacked responses."""
         return self._data
 
     def set_data(self, data):
+        """Set the stacked responses."""
         self._data = data
 
     data = property(get_data, set_data)
@@ -390,25 +410,21 @@ class stacked_common_loglike(smooth_atom):
                                       case_weights=copy(self.case_weights))
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:
@@ -430,34 +446,28 @@ class stacked_common_loglike(smooth_atom):
                  offset=None,
                  quadratic=None, 
                  initial=None):
-        """
-        Create a loss for a Gaussian regression model.
+        """Create a stacked loss of Gaussian losses.
 
         Parameters
         ----------
+        responses : sequence of ndarray
+            Response vectors, one per stacked loss.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
 
-        responses : ndarray
-            Response vectors.
-
-        case_weights : ndarray
-            Non-negative case weights
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        stacked_loss : `stacked_common_loglike`
+            Stacked saturated loss.
         """
 
         losses = [gaussian_loglike(response.shape,
@@ -480,38 +490,30 @@ class stacked_common_loglike(smooth_atom):
                  offset=None,
                  quadratic=None, 
                  initial=None):
-        """
-        Create a loss for a logistic regression model.
+        """Create a stacked loss of logistic losses.
 
         Parameters
         ----------
+        successes : sequence of ndarray
+            Numbers of successes, one array per stacked loss.
+        trials : sequence of ndarray
+            Numbers of trials, one array per stacked loss.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
 
-        successes : ndarray
-            Responses (should be non-negative integers).
-
-        trials : ndarray (optional)
-            Number of trials for each success. If `None`,
-            defaults to `np.ones_like(successes)`.
-
-        case_weights : ndarray
-            Non-negative case weights
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        stacked_loss : `stacked_common_loglike`
+            Stacked saturated loss.
         """
 
         losses = [logistic_loglike(successes[i],
@@ -533,34 +535,28 @@ class stacked_common_loglike(smooth_atom):
                 offset=None,
                 quadratic=None, 
                 initial=None):
-        """
-        Create a loss for a Poisson regression model.
+        """Create a stacked loss of Poisson losses.
 
         Parameters
         ----------
+        counts : sequence of ndarray
+            Non-negative integer counts, one array per stacked loss.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
 
-        counts : ndarray
-            Response vector. Should be non-negative integers.
-
-        case_weights : ndarray
-            Non-negative case weights
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        stacked_loss : `stacked_common_loglike`
+            Stacked saturated loss.
         """
 
         losses = [logistic_loglike(successes[i],
@@ -584,38 +580,32 @@ class stacked_common_loglike(smooth_atom):
               offset=None,
               quadratic=None, 
               initial=None):
-        """
-        Create a loss for a regression model using
-        Huber loss.
+        """Create a stacked loss of Huber losses.
 
         Parameters
         ----------
-
-        response : ndarray
-            Response vector. 
-
+        X : object
+            Unused.
+        response : sequence of ndarray
+            Response vectors, one per stacked loss.
         smoothing_parameter : float
-            Smoothing parameter for Huber loss.
+            Smoothing parameter for the Huber loss.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
 
-        case_weights : ndarray
-            Non-negative case weights
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        stacked_loss : `stacked_common_loglike`
+            Stacked saturated loss.
         """
 
         losses = [huber_loss(response.shape,
@@ -639,38 +629,32 @@ class stacked_common_loglike(smooth_atom):
                   offset=None,
                   quadratic=None, 
                   initial=None):
-        """
-        Create a loss for a regression model using
-        Huber loss.
+        """Create a stacked loss of Huber SVM losses.
 
         Parameters
         ----------
-
-        successes : ndarray
-            Response vectors. 
-
+        X : object
+            Unused.
+        successes : sequence of ndarray
+            Binary (0/1) responses, one array per stacked loss.
         smoothing_parameter : float
-            Smoothing parameter for Huber loss.
+            Smoothing parameter for the Huberized hinge loss.
+        case_weights : ndarray, optional
+            Non-negative case weights.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
 
-        case_weights : ndarray
-            Non-negative case weights
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        stacked_loss : `stacked_common_loglike`
+            Stacked saturated loss.
         """
 
         losses = [huber_svm(response.shape,
@@ -694,38 +678,33 @@ class stacked_common_loglike(smooth_atom):
             quadratic=None, 
             initial=None,
             case_weights=None):
-        """
-        Create a loss for a logistic regression model.
+        """Create a stacked loss of Cox proportional hazards losses.
 
         Parameters
         ----------
+        X : object
+            Unused.
+        event_times : sequence of ndarray
+            Observed times, one array per stacked loss.
+        censoring : sequence of ndarray
+            Censoring indicators (1 for a failure, 0 for censored), one
+            array per stacked loss.
+        coef : float, optional
+            Nonnegative scaling to be put in front of the loss.
+        offset : ndarray, optional
+            Offset to be subtracted in parameter space before evaluating
+            the loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial guess at the coefficients.
+        case_weights : ndarray, optional
+            Non-negative case weights.
 
-        X : [ndarray, `regreg.affine.affine_transform`]
-            Design matrix
-
-        event_times : ndarray
-            Observed times for Cox proportional hazard model.
-
-        censoring : ndarray 
-            Censoring indicator for Cox proportional hazard model
-            - 1 indicates observation is a failure, 0 a censored observation.
-
-        offset : ndarray (optional)
-            Offset to be applied in parameter space before 
-            evaluating loss.
-
-        quadratic : `regreg.identity_quadratic.identity_quadratic` (optional)
-            Optional quadratic to be added to objective.
-
-        initial : ndarray
-            Initial guess at coefficients.
-           
         Returns
         -------
-
-        mglm_obj : `regreg.mglm.mglm`
-            General linear model loss.
-
+        stacked_loss : `stacked_common_loglike`
+            Stacked saturated loss.
         """
 
         losses = [cox_loglike(event_times[i].shape,
@@ -741,12 +720,41 @@ class stacked_common_loglike(smooth_atom):
                      case_weights=case_weights)
 
 class multinomial_loglike(smooth_atom):
+    r"""An overparametrized multinomial loss for nominal responses.
+
+    See e.g. Agresti, *Categorical Data Analysis*, p. 267. With natural
+    parameter :math:`\eta` of shape ``(n, J)``, the loss is
+
+    .. math::
+
+       \eta \mapsto -\sum_i w_i \left[\sum_j y_{ij} \eta_{ij} -
+           n_i \log \sum_j e^{\eta_{ij}}\right]
+
+    where :math:`y_{ij}` are the counts, :math:`n_i = \sum_j y_{ij}` and
+    :math:`w_i` the case weights. The counts need not be integers. The
+    log-likelihood of the saturated model is stored as a constant term in
+    `quadratic`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape ``(n, J)`` of the natural parameter.
+    counts : ndarray
+        Non-negative counts of shape ``(n, J)``.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    case_weights : ndarray, optional
+        Non-negative case weights.
+    """
 
     overflow_clip = 50
-
-    """
-    An overparametrized multinomial regression for nominal responses (e.g. Agresti, pg 267)
-    """
 
     objective_template = r"""\ell^{M}\left(%(var)s\right)"""
 
@@ -799,9 +807,11 @@ class multinomial_loglike(smooth_atom):
             self.case_weights = None
 
     def get_data(self):
+        """Return the data ``(counts, trials)``."""
         return self._data
 
     def set_data(self, data):
+        """Set the data ``(counts, trials)``."""
         self._data = data
 
     data = property(get_data, set_data)
@@ -811,12 +821,30 @@ class multinomial_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-        Evaluate a smooth function and/or its gradient
+        """Evaluate the smooth objective, its gradient, or both.
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Parameters
+        ----------
+        natural_param : ndarray
+            The current parameter values.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights. If None, unit weights are used (case
+            weights stored on the loss are not applied).
+
+        Returns
+        -------
+        f : float
+            Objective value at `natural_param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         eta = self.apply_offset(natural_param)  # shorthand
         eta = np.clip(eta, 
@@ -845,25 +873,21 @@ class multinomial_loglike(smooth_atom):
             raise ValueError("mode incorrectly specified")
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:
@@ -878,12 +902,41 @@ class multinomial_loglike(smooth_atom):
         return loss_cp
 
 class multinomial_baseline_loglike(smooth_atom):
+    r"""Baseline-category logistic loss for nominal responses.
+
+    See e.g. Agresti, *Categorical Data Analysis*, p. 267. The last of the
+    `J` categories is the baseline, so the natural parameter :math:`\eta`
+    has shape ``(n, J - 1)`` and the loss is
+
+    .. math::
+
+       \eta \mapsto -\sum_i w_i \left[\sum_{j < J} y_{ij} \eta_{ij} -
+           n_i \log \left(1 + \sum_{j < J} e^{\eta_{ij}}\right)\right]
+
+    where :math:`y_{ij}` are the (integer) counts, :math:`n_i = \sum_j
+    y_{ij}` and :math:`w_i` the case weights. The log-likelihood of the
+    saturated model is stored as a constant term in `quadratic`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape ``(n, J - 1)`` of the natural parameter.
+    counts : ndarray
+        Non-negative integer counts of shape ``(n, J)``.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    case_weights : ndarray, optional
+        Non-negative case weights.
+    """
 
     overflow_clip = 50
-
-    """
-    A class for baseline-category logistic regression for nominal responses (e.g. Agresti, pg 267)
-    """
 
     objective_template = r"""\ell^{M}\left(%(var)s\right)"""
 
@@ -943,9 +996,11 @@ class multinomial_baseline_loglike(smooth_atom):
             self.case_weights = None
 
     def get_data(self):
+        """Return the data ``(counts, trials)``."""
         return self._data
 
     def set_data(self, data):
+        """Set the data ``(counts, trials)``."""
         self._data = data
 
     data = property(get_data, set_data)
@@ -955,12 +1010,30 @@ class multinomial_baseline_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-        Evaluate a smooth function and/or its gradient
+        """Evaluate the smooth objective, its gradient, or both.
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Parameters
+        ----------
+        natural_parameter : ndarray
+            The current parameter values.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_parameter` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights. If None, unit weights are used (case
+            weights stored on the loss are not applied).
+
+        Returns
+        -------
+        f : float
+            Objective value at `natural_parameter`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_parameter`; returned when `mode` is 'grad'
+            or 'both'.
         """
         eta = self.apply_offset(natural_parameter) # shorthand
         eta = np.clip(eta, 
@@ -992,25 +1065,21 @@ class multinomial_baseline_loglike(smooth_atom):
             raise ValueError("mode incorrectly specified")
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:

@@ -1,3 +1,5 @@
+"""sklearn estimators for binary responses with the Huberized SVM loss."""
+
 import numpy as np
 
 have_sklearn = True
@@ -12,6 +14,10 @@ from ..smooth.glm import (glm,
 
 if have_sklearn:
     class sklearn_huber_svm(sklearn_regression):
+        """Regularized Huberized SVM for sklearn.
+
+        Any atom can be used as a regularizer.
+        """
 
         def __init__(self, 
                      smoothing_parameter,
@@ -22,49 +28,39 @@ if have_sklearn:
                      coef=1., 
                      score_method='deviance'):
 
-            """
+            """Initialize the estimator.
 
             Parameters
             ----------
-
             smoothing_parameter : float
-                Smoothing parameter for Huber SVM loss.
-
+                Smoothing parameter for the Huber SVM loss.
             atom_constructor : callable
-                Atom constructor that is to to be used as a regularizer.
-                Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+                Atom constructor that is to be used as a regularizer. The
+                final atom will be constructed as
+                ``atom_constructor(**atom_params)``.
             atom_params : dict
-                Dictionary of arguments to construct atom.
-
-            offset : bool
-                While `y` include an offset column when fitting?
-
-            case_weights : bool
+                Dictionary of arguments to construct the atom.
+            case_weights : bool, optional
                 Will `y` include a case weight column when fitting?
-
-            coef : float
-                Scaling to be put in front of loss.
-
-            score_method : str
-                Which score to use as default `score`?
-                One of ['deviance', 'mean_deviance', 'R2']
+            offset : bool, optional
+                Will `y` include an offset column when fitting?
+            coef : float, optional
+                Scaling to be put in front of the loss.
+            score_method : str, optional
+                Which score to use as default `score`. One of
+                ``['deviance', 'mean_deviance', 'R2']``.
 
             Notes
             -----
+            If `case_weights` or `offset` is True, then the `fit` method
+            should pass a 2-d array for `y` rather than just a response. If
+            only one of these is True, then the quantity is assumed to be the
+            last column. If both are True, then the second to last column
+            holds the case weights and the last column holds the offset.
 
-            If `case_weights` or `offset` is True, then the `fit`
-            method should pass a 2-d array for `y` rather than just a
-            response. If only one of these is not None, then the
-            quantity is assumed to be the last column.  If both are
-            not None, then the 2nd to last are to be the case weights
-            and the last is to be the offset.
-
-            The `offset` argument, if not None
-            is *subtracted* from the linear predictor
-            before evaluating the loss -- this sign is different
-            than behavior in e.g. `R` where it is *added* instead.
-
+            The offset, if present, is *subtracted* from the linear predictor
+            before evaluating the loss -- this sign is different than the
+            behavior in e.g. `R` where it is *added* instead.
             """
 
             self.smoothing_parameter = smoothing_parameter
@@ -109,6 +105,7 @@ if have_sklearn:
                 return np.nan
 
     class sklearn_huber_svm_lagrange(sklearn_regression_lagrange, sklearn_huber_svm):
+        """Lagrange-form Huberized SVM for sklearn."""
 
         def __init__(self, 
                      smoothing_parameter,
@@ -120,52 +117,45 @@ if have_sklearn:
                      coef=1., 
                      score_method='deviance'):
 
-            """
+            """Initialize the estimator.
 
             Parameters
             ----------
-
             smoothing_parameter : float
-                Smoothing parameter for Huber SVM loss.
-
+                Smoothing parameter for the Huber SVM loss.
             atom_constructor : callable
-                Atom constructor that is to to be used as a regularizer.
-                Final atom will be constructed as `atom_constructor(**atom_params)`.
-
+                Atom constructor that is to be used as a regularizer. The final
+                atom will be constructed as
+                ``atom_constructor(score, **atom_params)`` where `score` is the
+                gradient of the loss at the null solution.
             atom_params : dict
-                Dictionary of arguments to construct atom.
-
-            offset : bool
-                While `y` include an offset column when fitting?
-
-            case_weights : bool
+                Dictionary of arguments to construct the atom.
+            case_weights : bool, optional
                 Will `y` include a case weight column when fitting?
-
-            enet_alpha : float
-                Weighting in [0, 1] between ridge and regularizer.
-
-            coef : float
-                Scaling to be put in front of loss.
-
-            score_method : str
-                Which score to use as default `score`?
-                One of ['deviance', 'mean_deviance', 'R2']
+            offset : bool, optional
+                Will `y` include an offset column when fitting?
+            enet_alpha : float, optional
+                Weighting in [0, 1] between the ridge term and the regularizer:
+                the atom's Lagrange parameter is multiplied by
+                ``1 - enet_alpha`` and a ridge term with coefficient
+                ``enet_alpha * lagrange`` is added.
+            coef : float, optional
+                Scaling to be put in front of the loss.
+            score_method : str, optional
+                Which score to use as default `score`. One of
+                ``['deviance', 'mean_deviance', 'R2']``.
 
             Notes
             -----
+            If `case_weights` or `offset` is True, then the `fit` method
+            should pass a 2-d array for `y` rather than just a response. If
+            only one of these is True, then the quantity is assumed to be the
+            last column. If both are True, then the second to last column
+            holds the case weights and the last column holds the offset.
 
-            If `case_weights` or `offset` is True, then the `fit`
-            method should pass a 2-d array for `y` rather than just a
-            response. If only one of these is not None, then the
-            quantity is assumed to be the last column.  If both are
-            not None, then the 2nd to last are to be the case weights
-            and the last is to be the offset.
-
-            The `offset` argument, if not None
-            is *subtracted* from the linear predictor
-            before evaluating the loss -- this sign is different
-            than behavior in e.g. `R` where it is *added* instead.
-
+            The offset, if present, is *subtracted* from the linear predictor
+            before evaluating the loss -- this sign is different than the
+            behavior in e.g. `R` where it is *added* instead.
             """
 
             self.smoothing_parameter = smoothing_parameter

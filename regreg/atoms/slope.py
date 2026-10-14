@@ -1,8 +1,9 @@
 """
-Implementation of the SLOPE proximal operator of
+Implementation of the SLOPE penalty and its proximal operator.
 
+See Bogdan, van den Berg, Sabatti, Su and Candes, "SLOPE -- adaptive
+variable selection via convex optimization",
 https://statweb.stanford.edu/~candes/papers/SLOPE.pdf
-
 """
 from warnings import warn
 from copy import copy
@@ -26,8 +27,35 @@ from ..doctemplates import (doc_template_user, doc_template_provider)
 @objective_doc_templater()
 class slope(seminorm):
 
-    """
-    The SLOPE penalty
+    r"""
+    The SLOPE penalty.
+
+    The sorted :math:`\ell_1` norm :math:`\sum_j w_j |\beta|_{(j)}`,
+    where :math:`|\beta|_{(1)} \geq |\beta|_{(2)} \geq \dots` are the
+    sorted absolute values of :math:`\beta`.
+
+    Parameters
+    ----------
+    weights : np.ndarray
+        Positive, non-increasing weights :math:`w_j`. The shape of the
+        atom is the shape of `weights`.
+    lagrange : float, optional
+        Lagrange parameter (exactly one of `lagrange` and `bound` must be
+        specified).
+    bound : float, optional
+        Bound parameter.
+    offset : np.ndarray, optional
+        Offset subtracted from the argument before the penalty is
+        evaluated.
+    quadratic : identity_quadratic, optional
+        Quadratic term added to the penalty.
+    initial : np.ndarray, optional
+        Initial value of the coefficients.
+
+    Notes
+    -----
+    Only the Lagrange form has a proximal map implemented: `bound_prox`
+    raises ``NotImplementedError``.
     """
 
     use_sklearn = have_sklearn_iso
@@ -156,7 +184,17 @@ class slope(seminorm):
 class slope_conjugate(slope):
 
      r"""
-     The dual of the slope penalty:math:`\ell_{\infty}` norm
+     The dual norm of the SLOPE penalty.
+
+     For weights :math:`w`, this is
+     :math:`\max_k \left(\sum_{j \leq k} |\beta|_{(j)}\right) /
+     \left(\sum_{j \leq k} w_j\right)`.
+
+     Notes
+     -----
+     Only the bound form has a proximal map implemented, computed from
+     the SLOPE proximal map via the Moreau decomposition:
+     `lagrange_prox` raises ``NotImplementedError``.
      """
 
      objective_template = r"""{\cal D}^{SLOPE}(%(var)s)"""
@@ -199,8 +237,26 @@ class slope_conjugate(slope):
 
 def _basic_proximal_map(center, weights, use_sklearn=have_sklearn_iso):
      """
-     Proximal algorithm described (2.3) of SLOPE
-     though sklearn isotonic has ordering reversed.
+     Compute the SLOPE proximal map.
+
+     Uses the algorithm described in (2.3) of the SLOPE paper, though
+     sklearn's isotonic regression has the ordering reversed.
+
+     Parameters
+     ----------
+     center : np.ndarray
+         Center of the proximal map.
+     weights : np.ndarray
+         Non-increasing, nonnegative weights (already scaled by the
+         Lagrange parameter and Lipschitz constant).
+     use_sklearn : bool, optional
+         If True, use `sklearn.isotonic.isotonic_regression`; otherwise
+         use the pure Python implementation in `_isotonic_py`.
+
+     Returns
+     -------
+     prox : np.ndarray
+         The proximal map of `center`.
      """
      
      # the proximal map sorts the absolute values,

@@ -1,5 +1,7 @@
 """
-https://gist.github.com/fabianp/3081831
+Pure Python isotonic regression by the pool adjacent violators algorithm.
+
+Based on https://gist.github.com/fabianp/3081831
 """
 import numpy as np
 
@@ -8,10 +10,31 @@ import numpy as np
 
 def pav(y):
     """
-    PAV uses the pair adjacent violators method to produce a monotonic
-    smoothing of y
+    Isotonic (non-decreasing) regression of `y`.
 
-    translated from matlab by Sean Collins (2006) as part of the EMAP toolbox
+    Uses the pool adjacent violators method to produce a monotonic
+    smoothing of `y`.
+
+    Parameters
+    ----------
+    y : array-like
+        One-dimensional array of values.
+
+    Returns
+    -------
+    v : np.ndarray
+        The non-decreasing sequence closest to `y` in least squares.
+
+    Notes
+    -----
+    Translated from Matlab by Sean Collins (2006) as part of the EMAP
+    toolbox.
+
+    Examples
+    --------
+    >>> from regreg.atoms._isotonic_py import pav
+    >>> pav([1., 3., 2., 4.])
+    array([1. , 2.5, 2.5, 4. ])
     """
     y = np.asarray(y)
     assert y.ndim == 1

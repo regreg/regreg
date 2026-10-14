@@ -7,23 +7,25 @@ import numpy as np
 from scipy import sparse
 
 def broadcast_first(a, b, op):
-    """ apply binary operation `op`, broadcast `a` over axis 1 if necessary
+    """
+    Apply binary operation `op`, broadcasting `a` over axis 1 if necessary.
 
     Parameters
     ----------
     a : ndarray
-        If a is 1D shape (N,), convert to shape (N,1) before appling `op`.  This
-        has the effect of making broadcasting happen over axis 1 rather than the
-        default of axis 0.
+        If `a` is 1D with shape ``(N,)``, convert to shape ``(N,1)`` before
+        applying `op`.  This has the effect of making broadcasting happen
+        over axis 1 rather than the default of axis 0.
     b : ndarray
-        If a is 1D shape (P,), convert to shape (N,1) before appling `op`
+        If `b` is 1D with shape ``(N,)``, convert to shape ``(N,1)`` before
+        applying `op`.
     op : callable
-        binary operation to apply to `a`, `b`
+        Binary operation to apply to `a`, `b`.
 
     Returns
     -------
-    res : object
-        shape equal to ``b.shape``
+    res : ndarray
+        Result of ``op(a, b)``, with shape equal to ``b.shape``.
     """
     shape = b.shape
     if a.ndim == 1:
@@ -34,27 +36,43 @@ def broadcast_first(a, b, op):
 
 
 class AffineError(Exception):
+    """
+    Error raised for an invalid specification of an affine transform.
+    """
     pass
 
 
 class affine_transform(object):
+    r"""
+    An affine transform :math:`x \mapsto Dx + \alpha`.
+
+    The linear part :math:`D` may be a dense array, a sparse matrix,
+    the main diagonal of a diagonal matrix or another object supporting
+    the affine transform API (``linear_map``, ``affine_map``,
+    ``adjoint_map``, ``affine_offset``, ``input_shape``, ``output_shape``).
+    """
     
     def __init__(self, linear_operator, affine_offset, diag=False, input_shape=None):
-        """ Create affine transform
+        """
+        Create affine transform.
 
         Parameters
         ----------
-        linear_operator : None or ndarray or sparse array or affine_transform
+        linear_operator : None or ndarray or sparse matrix or affine_transform
             Linear part of affine transform implemented as array or as
             affine_transform.  None results in no linear component.
         affine_offset : None or ndarray
-            offset component of affine.  Only one of `linear_operator` and
-            `affine_offset` can be None, because we need an input array to
-            define the shape of the transform.
+            Offset component of affine transform.  Only one of
+            `linear_operator` and `affine_offset` can be None, because we need
+            an input array to define the shape of the transform.
         diag : {False, True}, optional
-            If True, interpret 1D `linear_operator` as the main diagonal of the
+            If True, interpret 1D `linear_operator` as the main diagonal of
             a diagonal array, so that ``linear_operator =
-            np.diag(linear_operator)``
+            np.diag(linear_operator)``.
+        input_shape : None or tuple, optional
+            If a 2-tuple, the input to the transform is a matrix of this
+            shape, and the output has shape
+            ``(linear_operator.shape[0], input_shape[1])``.
         """
         # noneD - linear_operator is None
         # sparseD - linear_operator is sparse
@@ -124,14 +142,15 @@ class affine_transform(object):
                 self.affineD = False
 
     def linear_map(self, x):
-        r"""Apply linear part of transform to `x`
+        r"""
+        Apply linear part of transform to `x`.
 
-        Return :math:`Dx`
+        Return :math:`Dx`.
 
         Parameters
         ----------
         x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
+            Array to which to apply transform.  Can be 1D or 2D.
 
         Returns
         -------
@@ -140,8 +159,8 @@ class affine_transform(object):
 
         Notes
         -----
-        This routine is subclassed in affine_atom as a matrix multiplications,
-        but could also call FFTs if D is a DFT matrix, in a subclass.
+        This routine is currently a matrix multiplication, but could
+        also call FFTs if D is a DFT matrix, in a subclass.
         """
         if self.noneD:
             return x
@@ -155,20 +174,22 @@ class affine_transform(object):
         return self.linear_operator.dot(x)
 
     def dot(self, x):
-        r"""Apply linear part of transform to `x`.
-        Returns `self.linear_map(x)` unless `x`
-        is a transform, in which case it returns the composition.
+        r"""
+        Apply linear part of transform to `x`.
+
+        Returns ``self.linear_map(x)`` unless `x` is an `affine_transform`,
+        in which case it returns the composition of `self` and `x`.
         
         Parameters
         ----------
-        x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
+        x : ndarray or affine_transform
+            Array to which to apply transform.  Can be 1D or 2D.
 
         Returns
         -------
-        Dx : ndarray
-            `x` transformed with linear component
-
+        Dx : ndarray or composition
+            `x` transformed with linear component, or the composition
+            of `self` with `x`.
         """
         if not isinstance(x, affine_transform):
             return self.linear_map(x)
@@ -177,42 +198,52 @@ class affine_transform(object):
     
     @property
     def T(self, doc="Return the adjoint."):
+        """
+        The adjoint of the linear part of the transform.
+        """
         return adjoint(self)
 
     @property
     def ndim(self, doc="Dimension of array."):
+        """
+        Total number of dimensions of input and output shapes.
+        """
         return len(self.input_shape) + len(self.output_shape)
 
     @property
     def shape(self, doc="Shape of linear map. " + 
               "Usual 2-tuple if transform can be represented by 2-dim array."):
+        """
+        Shape of linear map.
+
+        The usual 2-tuple ``(output_dim, input_dim)`` if transform can be
+        represented by a 2-dim array, else ``(output_shape, input_shape)``.
+        """
         if len(self.input_shape) == 1 and len(self.output_shape) == 1:
             return (self.output_shape[0], self.input_shape[0])
         else:
             return (self.output_shape, self.input_shape)
 
     def affine_map(self, x):
-        r"""Apply linear and affine offset to `x`
+        r"""
+        Apply linear and affine offset to `x`.
 
-        Return :math:`Dx+\alpha`
+        Return :math:`Dx+\alpha`.
 
         Parameters
         ----------
         x : ndarray
-            array to which to apply transform.  Can be 1D or 2D
-        copy : {True, False}, optional
-            If True, in situations where return is identical to `x`, ensure
-            returned value is a copy.
+            Array to which to apply transform.  Can be 1D or 2D.
 
         Returns
         -------
         Dx_a : ndarray
-            `x` transformed with linear and offset components
+            `x` transformed with linear and offset components.
 
         Notes
         -----
-        This routine is subclassed in affine_atom as a matrix multiplications,
-        but could also call FFTs if D is a DFT matrix, in a subclass.
+        This routine is currently a matrix multiplication, but could
+        also call FFTs if D is a DFT matrix, in a subclass.
         """
         if self.affineD:
             v = self.linear_operator.affine_map(x)
@@ -224,23 +255,21 @@ class affine_transform(object):
         return v
 
     def adjoint_map(self, u):
-        r"""Apply transpose of linear component to `u`
+        r"""
+        Apply transpose of linear component to `u`.
 
-        Return :math:`D^Tu`
+        Return :math:`D^Tu`.
 
         Parameters
         ----------
         u : ndarray
-            array to which to apply transposed linear part of transform. Can be
-            1D or 2D array
-        copy : {True, False}, optional
-            If True, in situations where return is identical to `u`, ensure
-            returned value is a copy.
+            Array to which to apply transposed linear part of transform. Can be
+            1D or 2D array.
 
         Returns
         -------
         DTu : ndarray
-            `u` transformed with transpose of linear component
+            `u` transformed with transpose of linear component.
 
         Notes
         -----
@@ -262,7 +291,18 @@ class affine_transform(object):
 
 
 class linear_transform(affine_transform):
-    """ A linear transform is an affine transform with no affine offset
+    """
+    A linear transform is an affine transform with no affine offset.
+
+    Parameters
+    ----------
+    linear_operator : ndarray or sparse matrix or affine_transform
+        Linear operator; cannot be None.
+    diag : {False, True}, optional
+        If True, interpret 1D `linear_operator` as the main diagonal of
+        a diagonal array.
+    input_shape : None or tuple, optional
+        Shape of input, if the input is a matrix.
     """
     def __init__(self, linear_operator, diag=False, input_shape=None):
         if linear_operator is None:
@@ -276,6 +316,20 @@ class selector(linear_transform):
     Apply an affine transform after applying an
     indexing operation to the array.
 
+    Parameters
+    ----------
+    index_obj : slice, ndarray or tuple
+        Index applied to the input, i.e. the input is ``x[index_obj]``.
+    initial_shape : tuple
+        Shape of the input array.
+    affine_transform : affine_transform, optional
+        Transform applied after indexing. Defaults to the identity.
+    reshape : tuple, optional
+        If not None, the indexed array is reshaped to this shape before
+        applying `affine_transform`.
+
+    Examples
+    --------
     >>> from regreg.affine import selector, affine_transform
     >>> X = np.arange(30).reshape((6,5))
     >>> offset = np.arange(6)
@@ -337,6 +391,14 @@ class selector(linear_transform):
         return self._output
 
 class scaler(linear_transform):
+    r"""
+    Elementwise scaling transform :math:`x \mapsto s \odot x`.
+
+    Parameters
+    ----------
+    scalings : ndarray
+        Scalings applied elementwise to the input.
+    """
 
     def __init__(self, scalings):
         self.scalings = np.asarray(scalings)
@@ -354,8 +416,14 @@ class scaler(linear_transform):
 class reshape(linear_transform):
 
     """
-    Reshape the output of an affine transform.
+    Linear transform that reshapes its input.
 
+    Parameters
+    ----------
+    input_shape : tuple
+        Shape of input.
+    output_shape : tuple
+        Shape of output.
     """
 
     def __init__(self, input_shape, output_shape):
@@ -388,34 +456,32 @@ def normalize(transform,
               ddof=1,
               value=1):
     """
+    Return a transform that centers and/or scales the columns of a matrix.
+
+    The matrix itself is not modified: the result is a composition of
+    transforms that has the effect of normalizing the columns.
+
     Parameters
     ----------
-    M : ndarray or scipy.sparse
-        The matrix to be normalized. If an ndarray and inplace=True,
-        then the values of M are modified in place. Sparse matrices
-        are not modified in place.
-
+    transform : ndarray or scipy.sparse
+        The matrix to be normalized.
     center : bool
         Center the columns?
-
     scale : bool
         Scale the columns?
-
     intercept : bool
         Include an intercept column?
-
     ddof : float
         Used to correct degrees of freedom in standard
         deviation calculation.
-
     value : float
         Set the std of the columns to be value.
 
     Returns
     -------
-
-    final_map : linear_transform
-
+    final_map : affine_transform
+        Composition of transforms implementing the normalized matrix
+        (with an added intercept if `intercept` is True).
     """
 
     M = transform # should be a matrix
@@ -459,6 +525,17 @@ def normalize(transform,
     return final_map
 
 class add_intercept(affine_transform):
+    """
+    Prepend an intercept column to a transform.
+
+    The first coordinate of the input is the intercept, so
+    ``linear_map(x) = transform.linear_map(x[1:]) + x[0]``.
+
+    Parameters
+    ----------
+    transform : affine_transform or ndarray
+        Transform to which an intercept is added. Assumes a vector input.
+    """
 
     def __init__(self, transform):
         self._transform = astransform(transform)
@@ -476,6 +553,15 @@ class add_intercept(affine_transform):
         return np.hstack([u.sum(), self._transform.adjoint_map(u)])
 
 class centering(affine_transform):
+    """
+    Linear transform that subtracts the mean along axis 0, i.e.
+    ``x - x.mean(0)``. This map is self-adjoint.
+
+    Parameters
+    ----------
+    input_shape : tuple
+        Shape of input (and output).
+    """
 
     def __init__(self, input_shape):
         self.input_shape = self.output_shape = input_shape
@@ -494,7 +580,12 @@ class centering(affine_transform):
 class identity(affine_transform):
 
     """
-    Identity transform
+    Identity transform.
+
+    Parameters
+    ----------
+    input_shape : tuple
+        Shape of input (and output).
     """
 
     def __init__(self, input_shape):
@@ -515,6 +606,13 @@ class vstack(affine_transform):
     """
     Stack several affine transforms vertically together though
     not necessarily as a big matrix.
+
+    Parameters
+    ----------
+    transforms : sequence
+        Transforms (or arrays) to stack. All must have the same
+        input shape. The output is the concatenation of the
+        (flattened) outputs.
     """
 
     def __init__(self, transforms):
@@ -575,7 +673,13 @@ class hstack(affine_transform):
     """
     Stack several affine transforms horizontally together though
     not necessarily as a big matrix.
-   
+
+    Parameters
+    ----------
+    transforms : sequence
+        Transforms (or arrays) to stack. All must have the same
+        output shape. The input is the concatenation of the
+        (flattened) inputs, and the output is the sum of the outputs.
     """
 
     def __init__(self, transforms):
@@ -640,8 +744,12 @@ class hstack(affine_transform):
 class product(affine_transform):
     """
     Create a transform that maps the product of the inputs
-    to the product of the outputs.
-   
+    to the product of the outputs (i.e. a block diagonal transform).
+
+    Parameters
+    ----------
+    transforms : sequence
+        Transforms (or arrays) applied to consecutive blocks of the input.
     """
 
     def __init__(self, transforms):
@@ -715,9 +823,29 @@ class product(affine_transform):
 
 def power_L(transform, max_its=500,tol=1e-8, debug=False):
     """
-    Approximate the largest singular value (squared) of the linear part of
-    a transform using power iterations
-    
+    Approximate the largest singular value (squared) of a transform.
+
+    Uses power iterations on ``transform.adjoint_map(transform.linear_map(v))``
+    applied to the linear part of `transform`.
+
+    Parameters
+    ----------
+    transform : affine_transform or ndarray
+        Transform whose largest squared singular value is sought.
+    max_its : int, optional
+        Maximum number of power iterations.
+    tol : float, optional
+        Relative tolerance for convergence.
+    debug : bool, optional
+        If True, print the estimate at each iteration.
+
+    Returns
+    -------
+    norm : float
+        Estimate of the largest squared singular value.
+
+    Notes
+    -----
     TODO: should this be the largest singular value instead (i.e. not squared?)
     """
 
@@ -738,8 +866,19 @@ def power_L(transform, max_its=500,tol=1e-8, debug=False):
 
 def astransform(X):
     """
-    If X is an affine_transform, return X,
-    else try to cast it as an affine_transform
+    Cast `X` as an affine transform.
+
+    If `X` is an `affine_transform`, return `X`,
+    else try to cast it as a `linear_transform`.
+
+    Parameters
+    ----------
+    X : affine_transform or ndarray or sparse matrix
+        Object to cast.
+
+    Returns
+    -------
+    T : affine_transform
     """
     if isinstance(X, affine_transform):
         return X
@@ -748,7 +887,12 @@ def astransform(X):
 
 class aslinear(linear_transform):
     """
-    Return only linear part of affine transform
+    Linear part of an affine transform.
+
+    Parameters
+    ----------
+    transform : affine_transform or ndarray
+        Transform whose linear part is taken.
     """
     def __init__(self, transform):
         self._transform = astransform(transform)
@@ -770,6 +914,11 @@ class adjoint(linear_transform):
     """
     Given an affine_transform, return a linear_transform
     that is the adjoint of its linear part.
+
+    Parameters
+    ----------
+    transform : affine_transform or ndarray
+        Transform whose adjoint is taken.
     """
     def __init__(self, transform):
         self.transform = astransform(transform)
@@ -789,12 +938,18 @@ class adjoint(linear_transform):
 class tensorize(affine_transform):
 
     """
-    Given an affine_transform, return a linear_transform
-    that expects q copies of something with transform's input_shape.
+    Given an affine_transform, return a transform
+    that expects `q` copies of something with transform's input_shape.
 
     This class effectively makes explicit that a transform
     may expect a matrix rather than a single vector.
 
+    Parameters
+    ----------
+    transform : affine_transform or ndarray
+        Transform applied to each of the `q` columns.
+    q : int
+        Number of copies (columns).
     """
     def __init__(self, transform, q):
         self.transform = astransform(transform)
@@ -816,8 +971,14 @@ class tensorize(affine_transform):
 
 class residual(affine_transform):
 
-    """
-    Compute the residual from an affine transform.
+    r"""
+    Compute the residual from an affine transform, i.e.
+    :math:`x \mapsto x - (Dx + \alpha)`.
+
+    Parameters
+    ----------
+    transform : affine_transform or ndarray
+        Transform with equal input and output shapes.
     """
 
     def __init__(self, transform):
@@ -840,7 +1001,13 @@ class residual(affine_transform):
 class composition(affine_transform):
 
     """
-    Composes a list of affine transforms, executing right to left
+    Composes a list of affine transforms, executing right to left.
+
+    Parameters
+    ----------
+    transforms : affine_transform or ndarray
+        Transforms to compose, passed as positional arguments. The last
+        one is applied first.
     """
 
     def __init__(self, *transforms):
@@ -876,7 +1043,15 @@ class composition(affine_transform):
 class affine_sum(affine_transform):
 
     """
-    Creates the (weighted) sum of a list of affine_transforms
+    Creates the (weighted) sum of a list of affine_transforms.
+
+    Parameters
+    ----------
+    transforms : sequence
+        Transforms (or arrays) to sum. All should have the same input
+        and output shapes.
+    weights : ndarray, optional
+        Weight for each transform. Defaults to all ones.
     """
 
     def __init__(self, transforms, weights=None):
@@ -917,6 +1092,16 @@ class affine_sum(affine_transform):
 
 
 class scalar_multiply(affine_transform):
+    """
+    Multiply the output of a transform by a scalar.
+
+    Parameters
+    ----------
+    atransform : affine_transform
+        Transform to be scaled.
+    scalar : float
+        Multiplier.
+    """
 
     def __init__(self, atransform, scalar):
         self.input_shape, self.output_shape = (atransform.input_shape, atransform.output_shape)
@@ -944,6 +1129,16 @@ class scalar_multiply(affine_transform):
             return self._atransform.adjoint_map(x)
 
 class posneg(affine_transform):
+    """
+    Transform taking a pair :math:`(x_+, x_-)` to :math:`D x_+ - D x_-`.
+
+    The input has shape ``(2,) + linear_transform.input_shape``.
+
+    Parameters
+    ----------
+    linear_transform : affine_transform or ndarray
+        The linear transform :math:`D`.
+    """
 
     def __init__(self, linear_transform):
         self.linear_transform = astransform(linear_transform)
@@ -968,8 +1163,19 @@ class posneg(affine_transform):
 
 def todense(transform):
     """
-    Return a dense array representation of a transform -- use
-    carefully -- it could be large.
+    Return a dense array representation of a transform.
+
+    Use carefully -- it could be large.
+
+    Parameters
+    ----------
+    transform : affine_transform
+        Transform with a 1D input shape.
+
+    Returns
+    -------
+    D : ndarray
+        Result of applying ``transform.linear_map`` to the identity matrix.
     """
     if len(transform.input_shape) == 1:
         I = np.identity(np.prod(transform.input_shape))

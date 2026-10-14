@@ -1,3 +1,11 @@
+"""
+Generic machinery for computing regularization paths.
+
+This module defines the `grouped_path` base class, which specific path
+classes (LASSO, group LASSO, etc.) subclass, as well as the path algorithms
+`strong_rules` and `warm_start` that operate on such objects.
+"""
+
 import gc
 from warnings import warn
 import numpy as np
@@ -7,6 +15,22 @@ from ..smooth import affine_smooth, sum as smooth_sum
 from ..problems.simple import simple_problem
 
 def subsample_columns(X, columns):
+    """
+    Extract columns of a (possibly implicit) design matrix.
+
+    Parameters
+    ----------
+    X : ndarray or `regreg.affine.affine_transform`
+        Design matrix with one-dimensional input shape.
+    columns : sequence of int
+        Columns to extract.
+
+    Returns
+    -------
+    cols : ndarray
+        Array of shape ``X.output_shape + (len(columns),)`` holding the
+        selected columns.
+    """
 
     X = astransform(X)
     cols = np.zeros((len(columns),) + X.output_shape)
@@ -18,6 +42,13 @@ def subsample_columns(X, columns):
     return cols.T
 
 class grouped_path(object):
+
+    """
+    Base class for regularization paths over groups of variables.
+
+    Subclasses implement the methods used by `strong_rules` and
+    `warm_start` (e.g. `check_KKT`, `strong_set`, `solve_subproblem`).
+    """
 
     BIG = 1e12 # lagrange parameter for finding null solution
 
@@ -33,6 +64,9 @@ class grouped_path(object):
     # used for warm start path
 
     def full_loss(self):
+        """
+        Saturated loss composed with the design matrix ``self.X``.
+        """
         loss = affine_smooth(self.saturated_loss,
                              self.X)
         loss.shape = self.X.input_shape
@@ -49,8 +83,19 @@ class grouped_path(object):
                           X, 
                           columns):
         """
-        Extract columns of X into ndarray or
-        regreg transform
+        Extract columns of X into ndarray or regreg transform.
+
+        Parameters
+        ----------
+        X : object
+            Representation of design matrix.
+        columns : sequence of int
+            Columns to extract.
+
+        Returns
+        -------
+        cols : ndarray or `regreg.affine.affine_transform`
+            The selected columns.
         """
         return subsample_columns(X, 
                                  columns)
@@ -59,7 +104,19 @@ class grouped_path(object):
                       saturated_loss, 
                       linear_predictor):
         """
-        Gradient of saturated loss composed with self.X
+        Gradient of saturated loss composed with ``self.X``.
+
+        Parameters
+        ----------
+        saturated_loss : `regreg.smooth.smooth_atom`
+            Loss as a function of the linear predictor.
+        linear_predictor : ndarray
+            Linear predictor at which to evaluate the gradient.
+
+        Returns
+        -------
+        gradient : ndarray
+            Gradient with respect to the coefficients.
         """
         saturated_grad = saturated_loss.smooth_objective(linear_predictor, 'grad')
         return self.X.T.dot(saturated_grad)
@@ -71,30 +128,26 @@ class grouped_path(object):
         """
         Form linear predictor for given set of coefficients.
 
-        Typical use case will have coef of shape `(l,p)` for
-        univariate response regressions and `(l,q,p)` for
+        Typical use case will have coef of shape ``(l,p)`` for
+        univariate response regressions and ``(l,q,p)`` for
         multiple response regressions (e.g. multinomial with
-        `q` classes) where `l` is the number of Lagrange
+        ``q`` classes) where ``l`` is the number of Lagrange
         parameters.
 
         Parameters
         ----------
-
         coef : ndarray
-            A set of coefficients. 
-
+            A set of coefficients.
         X : object
-            Representation of design matrix, usually `self.X` -- subclasses
+            Representation of design matrix, usually ``self.X`` -- subclasses
             may not assume this is actually an array.
-
         test : index
-            Indices of X.dot(coef.T) to return.
+            Indices of ``X.dot(coef.T)`` to return.
 
         Returns
         -------
-
-        linpred : Matrix of linear predictors.
-
+        linpred : ndarray
+            Matrix of linear predictors.
         """
         coef = np.asarray(coef)
         if coef.ndim > 1:
@@ -111,28 +164,21 @@ class grouped_path(object):
     def subsample(self,
                   case_idx):
         '''
+        Create a new path, by subsampling cases of ``self.saturated_loss``.
 
-        Create a new path, by subsampling
-        cases of `self.saturated_loss`.
-
-        Case weights are computed
-        with `self.saturated_loss.subsample`.
+        Case weights are computed with ``self.saturated_loss.subsample``.
 
         Parameters
         ----------
-
         case_idx : index
-            An index-like object used 
-            to specify which cases to include
+            An index-like object used to specify which cases to include
             in the subsample.
 
         Returns
         -------
-
         subsample_path : path object
-            A path object with a modified smooth part
-            reflecting the subsampling.
-
+            A path object with a modified smooth part reflecting the
+            subsampling.
         '''
         raise NotImplementedError
 
@@ -143,32 +189,31 @@ class grouped_path(object):
                   penalty=None):
 
         '''
+        Check KKT conditions over the groups in the path.
 
-        Check KKT conditions over
-        the groups in the path.
-        Returns boolean indicating
-        which groups are failing the KKT conditions
-        (these could be `active` groups or
-        `inactive` groups).
+        Determines which groups are failing the KKT conditions
+        (these could be active groups or inactive groups).
 
         Parameters
         ----------
-
         grad_solution : ndarray
-             Candidate for gradient of smooth loss at 
-             Lagrange value `lagrange`.
-
+            Candidate for gradient of smooth loss at
+            Lagrange value `lagrange`.
         solution : ndarray
-             Candidate for solution to problem 
-             Lagrange value `lagrange`.
-
+            Candidate for solution to problem at
+            Lagrange value `lagrange`.
         lagrange : float
-             Lagrange value for penalty
+            Lagrange value for penalty.
+        penalty : object, optional
+            A penalty. If None, defaults to ``self.penalty``.
 
-        penalty : object (optional)
-             A weighted L1 penalty. If None, defaults
-             to `self.penalty`.
-
+        Returns
+        -------
+        failing_A : ndarray
+            Boolean indicator of active groups failing the KKT conditions.
+        failing_I_ranks : ndarray
+            For inactive groups, the rank of each failing group (by the
+            size of its violation), with -1 for groups that do not fail.
         '''
         raise NotImplementedError
 
@@ -208,6 +253,28 @@ def default_lagrange_sequence(penalty,
                               lagrange_proportion=0.05,
                               nstep=100,
                               alpha=1):
+    """
+    Default decreasing, log-spaced sequence of Lagrange parameters.
+
+    Parameters
+    ----------
+    penalty : `regreg.atoms.atom`
+        Penalty for the path.
+    null_solution : ndarray
+        Gradient of the loss at the null solution. The largest Lagrange
+        parameter is the dual seminorm of this value.
+    lagrange_proportion : float, optional
+        Ratio of the smallest to the largest Lagrange parameter.
+    nstep : int, optional
+        Number of Lagrange parameters.
+    alpha : float, optional
+        Elastic net mixing parameter; the sequence is divided by `alpha`.
+
+    Returns
+    -------
+    lagrange_seq : ndarray
+        Decreasing sequence of Lagrange parameters.
+    """
     dual = penalty.conjugate
     lagrange_max = dual.seminorm(null_solution, lagrange=1)
     return (lagrange_max * np.exp(np.linspace(np.log(lagrange_proportion), 
@@ -222,6 +289,35 @@ def strong_rules(path_obj,
                  initial_step=None,
                  check_active=False,
                  max_tries=20):
+    """
+    Compute a regularization path using strong rules screening.
+
+    Parameters
+    ----------
+    path_obj : `grouped_path`
+        Path object describing the problem.
+    lagrange_seq : sequence of float
+        Decreasing sequence of Lagrange parameters.
+    initial_data : tuple
+        Pair ``(solution, grad_solution)`` at ``lagrange_seq[0]``.
+    inner_tol : float, optional
+        Tolerance for each subproblem.
+    verbose : bool, optional
+        Print progress information?
+    initial_step : float, optional
+        Initial step size for the solver. If None, it is estimated from the
+        Lipschitz constant of ``path_obj.X``.
+    check_active : bool, optional
+        Also check KKT conditions for active groups?
+    max_tries : int, optional
+        Maximum number of attempts at each Lagrange parameter.
+
+    Returns
+    -------
+    output : dict
+        Dictionary with keys ``'dev explained'``, ``'lagrange'`` and
+        ``'beta'`` (the solutions along the path).
+    """
 
     # take a guess at the inverse step size
     if initial_step is None:
@@ -378,7 +474,38 @@ def warm_start(path_obj,
                verbose=False,
                initial_step=None,
                solve_args={}):
-    
+    """
+    Compute a regularization path using warm starts.
+
+    Each problem along the path is solved with all variables, starting
+    from the solution at the previous Lagrange parameter.
+
+    Parameters
+    ----------
+    path_obj : `grouped_path`
+        Path object describing the problem.
+    lagrange_seq : sequence of float
+        Sequence of Lagrange parameters.
+    initial_data : tuple
+        Pair ``(solution, grad_solution)``; only `solution` is used, as the
+        initial warm start.
+    inner_tol : float, optional
+        Tolerance for each problem.
+    verbose : bool, optional
+        Print progress information?
+    initial_step : float, optional
+        Initial step size for the solver. If None, it is estimated from the
+        Lipschitz constant of ``path_obj.X``.
+    solve_args : dict, optional
+        Extra arguments passed to ``simple_problem.solve``.
+
+    Returns
+    -------
+    output : dict
+        Dictionary with keys ``'devratio'``, ``'lagrange'`` and ``'beta'``
+        (the solutions along the path).
+    """
+
     solution, _ = initial_data
 
     # basic setup

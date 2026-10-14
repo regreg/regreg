@@ -16,7 +16,11 @@ from ..doctemplates import (doc_template_user, doc_template_provider)
 class atom(nonsmooth):
 
     """
-    A class that defines the API for support functions.
+    Base class for atoms: simple nonsmooth functions with a known prox.
+
+    An atom is a support function (or, more generally, a simple convex
+    function) with an inexpensive proximal map. Subclasses implement
+    `nonsmooth_objective`, `proximal` and `get_conjugate`.
     """
 
     objective_vars = nonsmooth.objective_vars.copy()
@@ -28,7 +32,8 @@ class atom(nonsmooth):
     @doc_template_provider
     def get_conjugate(self):
         """
-        Return the conjugate of an given atom.
+        Return the conjugate of a given atom.
+
         Abstract method: subclasses must implement.
         """
         return None
@@ -37,8 +42,14 @@ class atom(nonsmooth):
     @doc_template_provider
     def get_dual(self):
         """
-        Get the dual of the atom. 
-        Abstract method.
+        Return the dual of the atom.
+
+        Returns
+        -------
+        linear_transform : `regreg.affine.linear_transform`
+            The linear transform of the atom.
+        conjugate : `atom`
+            The conjugate of the atom.
         """
         return self.linear_transform, self.conjugate
     dual = property(get_dual)
@@ -46,8 +57,12 @@ class atom(nonsmooth):
     @property
     def linear_transform(self):
         """
-        The linear transform applied before a penalty is computed. Defaults to regreg.affine.identity
+        The linear transform applied before a penalty is computed.
 
+        Defaults to `regreg.affine.identity`.
+
+        Examples
+        --------
         >>> from regreg.api import l1norm
         >>> penalty = l1norm(30, lagrange=3.4)
         >>> type(penalty.linear_transform)
@@ -62,15 +77,38 @@ class atom(nonsmooth):
     def nonsmooth_objective(self, arg, check_feasibility=False):
         """
         The nonsmooth objective function of the atom.
+
         Includes the quadratic term of the atom.
 
         Abstract method: subclasses must implement.
+
+        Parameters
+        ----------
+        arg : `np.ndarray`
+            Argument of the objective.
+        check_feasibility : bool, optional
+            If `True`, return `np.inf` when `arg` is infeasible.
         """
         raise NotImplementedError
 
     def smoothed(self, smoothing_quadratic):
         '''
-        Add quadratic smoothing term
+        Return a smoothed version of the atom.
+
+        The smoothing is achieved by adding `smoothing_quadratic`
+        to the conjugate of the atom and taking the conjugate again
+        (Nesterov smoothing).
+
+        Parameters
+        ----------
+        smoothing_quadratic : `regreg.identity_quadratic.identity_quadratic`
+            Quadratic term added to the conjugate. Its coefficient
+            must be nonzero.
+
+        Returns
+        -------
+        smoothed_atom : `regreg.problems.composite.smooth_conjugate`
+            A smooth approximation of the atom.
         '''
         conjugate_atom = copy(self.conjugate)
         sq = smoothing_quadratic
@@ -88,16 +126,26 @@ class atom(nonsmooth):
     @doc_template_provider
     def proximal(self, proxq, prox_control=None):
         r"""
-        The proximal operator. 
-        Abstract method -- subclasses must implement.
+        The proximal operator.
+
+        Abstract method: subclasses must implement.
+
+        Parameters
+        ----------
+        proxq : `regreg.identity_quadratic.identity_quadratic`
+            A quadratic added to the atom before minimizing.
+        prox_control : dict, optional
+            Optional parameters for the proximal procedure.
         """
         raise NotImplementedError
 
 class affine_atom(object):
     r"""
-    Given a seminorm on :math:`\mathbb{R}^p`, i.e.  :math:`\beta \mapsto
-    h_K(\beta)` this class creates a new seminorm that evaluates
-    :math:`h_K(D\beta+\alpha)`
+    An atom composed with an affine transform.
+
+    Given a seminorm on :math:`\mathbb{R}^p`, i.e. :math:`\beta \mapsto
+    h_K(\beta)`, this class creates a new seminorm that evaluates
+    :math:`h_K(D\beta+\alpha)`.
 
     This class does not have a prox, but its dual does. The prox of the dual is
 
@@ -106,6 +154,13 @@ class affine_atom(object):
        \text{minimize} \frac{1}{2} \|y-x\|^2_2 + x^T\alpha
        \ \text{s.t.} \ x \in \lambda K
 
+    Parameters
+    ----------
+    atom_obj : `atom`
+        The atom to compose with the affine transform. A copy is stored.
+    atransform : `regreg.affine.affine_transform`
+        The affine transform. Any affine offset is moved into the
+        offset of the atom, so that the stored transform is linear.
     """
 
     objective_vars = {'linear':'X'}
@@ -135,26 +190,24 @@ class affine_atom(object):
         r'''
         Return a LaTeX representation of an object.
 
-        >>> from regreg.api import l1norm
-        >>> penalty = l1norm(10, lagrange=0.9)
-        >>> penalty.latexify(var=r'\gamma') 
-        '\\lambda_{} \\|\\gamma\\|_1'
-
         Parameters
         ----------
-
-        var : `string`
-            Argument of the functions
-
-        idx : `string`
+        var : str, optional
+            Argument of the function.
+        idx : str, optional
             Optional subscript index.
 
         Returns
         -------
-
-        L : `string`
+        L : str
             A LaTeX representation of the atom.
 
+        Examples
+        --------
+        >>> from regreg.api import l1norm
+        >>> penalty = l1norm(10, lagrange=0.9)
+        >>> penalty.latexify(var=r'\gamma') 
+        '\\lambda_{} \\|\\gamma\\|_1'
         '''
         template_dict = self.atom.objective_vars.copy()
         template_dict['linear'] = self.objective_vars['linear']
@@ -169,13 +222,26 @@ class affine_atom(object):
 
     @property
     def dual(self):
+        """
+        The dual of the affine atom: a pair of the linear transform and the
+        conjugate of the underlying atom.
+        """
         tmpatom = copy(self.atom)
         tmpatom.shape = self.output_shape
         return self.linear_transform, tmpatom.conjugate
 
     def nonsmooth_objective(self, arg, check_feasibility=False):
         """
-        Return self.atom.seminorm(self.linear_transform.linear_map(x))
+        Evaluate the atom at the linear transform of `arg`.
+
+        Returns ``self.atom.nonsmooth_objective(self.linear_transform.linear_map(arg))``.
+
+        Parameters
+        ----------
+        arg : `np.ndarray`
+            Argument of the objective.
+        check_feasibility : bool, optional
+            Passed to the underlying atom.
         """
         return self.atom.nonsmooth_objective( \
             self.linear_transform.linear_map(arg),
@@ -183,7 +249,18 @@ class affine_atom(object):
 
     def smoothed(self, smoothing_quadratic):
         '''
-        Add quadratic smoothing term
+        Return a smoothed version of the affine atom.
+
+        Parameters
+        ----------
+        smoothing_quadratic : `regreg.identity_quadratic.identity_quadratic`
+            Quadratic term added to the conjugate of the atom. Its
+            coefficient must be nonzero.
+
+        Returns
+        -------
+        smoothed : `regreg.smooth.affine_smooth`
+            The smoothed atom composed with the linear transform.
         '''
         ltransform, conjugate_atom = self.dual
         if conjugate_atom.quadratic is not None:
@@ -202,10 +279,11 @@ class affine_atom(object):
 
 def _work_out_conjugate(offset, quadratic):
     """
-    Compute the linear term in the conjugate as well as the offset
-    based on having a given offset and the constant and linear
-    terms in quadratic.
+    Compute the offset and quadratic term of a conjugate.
 
+    Based on a given offset and the constant and linear terms in
+    `quadratic`, compute the offset and the linear term of the
+    conjugate.
     """
     if offset is None:
         offset = 0

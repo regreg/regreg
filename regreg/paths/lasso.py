@@ -1,3 +1,7 @@
+"""
+Regularization paths for the (weighted) LASSO and elastic net.
+"""
+
 from __future__ import print_function, division, absolute_import
 
 from warnings import warn
@@ -15,6 +19,34 @@ from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.weighted_atoms import l1norm as weighted_l1norm
 
 class lasso_path(grouped_path):
+
+    r"""
+    Regularization path for the weighted LASSO / elastic net.
+
+    The problem at Lagrange parameter :math:`\lambda` is
+
+    .. math::
+
+        \ell(X\beta) + \lambda \alpha \sum_j w_j |\beta_j| +
+        \frac{1 - \alpha}{2} \sum_j \lambda_j c_j \beta_j^2
+
+    where :math:`\ell` is `saturated_loss`, :math:`w` is `lasso_weights`,
+    :math:`c` is `elastic_net_param`, and :math:`\lambda_j=\lambda` for
+    penalized variables, :math:`\lambda_j=1` for unpenalized ones.
+
+    Parameters
+    ----------
+    saturated_loss : `regreg.smooth.glm.glm`
+        Loss as a function of the linear predictor.
+    X : ndarray or `regreg.affine.affine_transform`
+        Design matrix.
+    lasso_weights : ndarray
+        Weights for the L1 penalty; variables with weight 0 are unpenalized.
+    elastic_net_param : ndarray, optional
+        Ridge weights for each variable. Defaults to all ones.
+    alpha : float, optional
+        Elastic net mixing parameter; 1 is the LASSO.
+    """
 
     BIG = 1e12 # lagrange parameter for finding null solution
 
@@ -74,6 +106,21 @@ class lasso_path(grouped_path):
     def enet_loss(self, 
                   lagrange,
                   candidate_set=None):
+        """
+        Ridge (elastic net) part of the objective.
+
+        Parameters
+        ----------
+        lagrange : float
+            Lagrange parameter.
+        candidate_set : index, optional
+            Restrict the ridge term to these variables.
+
+        Returns
+        -------
+        loss : `regreg.smooth.quadratic.quadratic_loss`
+            Diagonal quadratic loss.
+        """
 
         return _restricted_elastic_net(self.elastic_net_param, 
                                        self.penalty.weights,
@@ -84,28 +131,21 @@ class lasso_path(grouped_path):
     def subsample(self,
                   case_idx):
         '''
+        Create a new path, by subsampling cases of ``self.saturated_loss``.
 
-        Create a new path, by subsampling
-        cases of `self.saturated_loss`.
-
-        Case weights are computed
-        with `self.saturated_loss.subsample`.
+        Case weights are computed with ``self.saturated_loss.subsample``.
 
         Parameters
         ----------
-
         case_idx : index
-            An index-like object used 
-            to specify which cases to include
+            An index-like object used to specify which cases to include
             in the subsample.
 
         Returns
         -------
-
         subsample_path : path object
-            A path object with a modified smooth part
-            reflecting the subsampling.
-
+            A path object with a modified smooth part reflecting the
+            subsampling.
         '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
@@ -121,32 +161,32 @@ class lasso_path(grouped_path):
                   penalty=None):
 
         '''
+        Check KKT conditions over the groups in the path.
 
-        Check KKT conditions over
-        the groups in the path.
-        Returns boolean indicating
-        which groups are failing the KKT conditions
-        (these could be `active` groups or
-        `inactive` groups).
+        Determines which groups are failing the KKT conditions
+        (these could be active groups or inactive groups).
 
         Parameters
         ----------
-
         grad_solution : ndarray
-             Candidate for gradient of smooth loss at 
-             Lagrange value `lagrange`.
-
+            Candidate for gradient of smooth loss at
+            Lagrange value `lagrange`.
         solution : ndarray
-             Candidate for solution to problem 
-             Lagrange value `lagrange`.
-
+            Candidate for solution to problem at
+            Lagrange value `lagrange`.
         lagrange : float
-             Lagrange value for penalty
+            Lagrange value for penalty.
+        penalty : object, optional
+            A weighted L1 penalty. If None, defaults to ``self.penalty``.
 
-        penalty : object (optional)
-             A weighted L1 penalty. If None, defaults
-             to `self.penalty`.
-
+        Returns
+        -------
+        failing_active : ndarray
+            Boolean indicator of active (or unpenalized) groups failing
+            the KKT conditions.
+        inactive_ranks : ndarray
+            For inactive groups failing the KKT conditions, the rank of
+            the size of the violation; -1 for all other groups.
         '''
 
         if penalty is None:
@@ -162,6 +202,27 @@ class lasso_path(grouped_path):
                    lagrange_cur,
                    lagrange_new,
                    grad_solution):
+        """
+        Compute the strong set at `lagrange_new`.
+
+        Parameters
+        ----------
+        lagrange_cur : float
+            Current Lagrange parameter.
+        lagrange_new : float
+            Next Lagrange parameter.
+        grad_solution : ndarray
+            Gradient at the solution for `lagrange_cur`.
+
+        Returns
+        -------
+        strong : ndarray
+            Indices of variables in the strong set.
+        strong_bool : ndarray
+            Boolean indicator of the strong set.
+        strong_vars : ndarray
+            Indices of variables in the strong set (same as `strong`).
+        """
 
         bool = _strong_set(self.penalty.weights,
                           lagrange_cur,
@@ -171,9 +232,15 @@ class lasso_path(grouped_path):
         return cols, bool, cols
 
     def active_set(self, solution):
+        """
+        Boolean indicator of nonzero coefficients in `solution`.
+        """
         return solution != 0
 
     def restricted_penalty(self, subset):
+        """
+        Weighted L1 penalty restricted to `subset` (all variables if None).
+        """
         if subset is not None:
             weights = self.penalty.weights[subset]
         else:
@@ -186,6 +253,33 @@ class lasso_path(grouped_path):
                          candidate_set, 
                          lagrange_new, 
                          **solve_args):
+        """
+        Solve the problem restricted to a candidate set of variables.
+
+        Parameters
+        ----------
+        solution : ndarray
+            Current solution, used as a warm start.
+        candidate_set : index
+            Variables to include in the subproblem.
+        lagrange_new : float
+            Lagrange parameter.
+        solve_args : dict
+            Keyword arguments passed to ``simple_problem.solve``.
+
+        Returns
+        -------
+        final_step : float
+            Final step size of the solver.
+        sub_grad : ndarray
+            Gradient of the restricted smooth loss at `sub_soln`.
+        sub_soln : ndarray
+            Solution of the subproblem.
+        sub_linear_pred : ndarray
+            Linear predictor at `sub_soln`.
+        candidate_bool : ndarray
+            Boolean indicator of the candidate set.
+        """
     
         # solve a problem with a candidate set
 
@@ -215,6 +309,26 @@ class lasso_path(grouped_path):
                   penalized, # boolean
                   lagrange_new,
                   subset=None):
+        """
+        Gradient of the ridge (elastic net) part of the objective.
+
+        Parameters
+        ----------
+        solution : ndarray
+            Coefficients.
+        penalized : ndarray
+            Boolean indicator of penalized variables; for these the ridge
+            term is multiplied by `lagrange_new`.
+        lagrange_new : float
+            Lagrange parameter.
+        subset : index, optional
+            Restrict to these variables.
+
+        Returns
+        -------
+        G : ndarray
+            Gradient of the ridge term.
+        """
 
         weights = self.penalty.weights
         elastic_net_param = self.elastic_net_param
@@ -229,6 +343,21 @@ class lasso_path(grouped_path):
     def updated_ever_active(self,
                             index_obj,
                             group_ids=False): # ignored as result is the same
+        """
+        Indices of variables that are ever active, with `index_obj` added.
+
+        Parameters
+        ----------
+        index_obj : index
+            Variables to add to the ever-active set.
+        group_ids : bool, optional
+            Ignored.
+
+        Returns
+        -------
+        ever_active : list
+            Sorted indices of ever-active variables.
+        """
         if not hasattr(self, '_ever_active'):
             self._ever_active = np.zeros(self.group_shape, bool)
         _ever_active = self._ever_active.copy()
@@ -238,17 +367,14 @@ class lasso_path(grouped_path):
     @property
     def unpenalized(self):
         """
-        Unpenalized groups and variables.
+        Unpenalized variables.
 
         Returns
         -------
-
-        groups : sequence
-            Groups with weights equal to 0.
-
+        groups : ndarray
+            Indices of variables with weights equal to 0.
         variables : ndarray
             Boolean indicator that is True if no penalty on that variable.
-
         """
         unpen = self.penalty.weights == 0
         return np.nonzero(unpen)[0], unpen
@@ -256,34 +382,83 @@ class lasso_path(grouped_path):
 # Some common loss factories
 
 def logistic(X, Y, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the logistic regression loss with
+    binary response `Y`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def probit(X, Y, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the probit regression loss with binary
+    response `Y`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.probit_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def cloglog(X, Y, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the complementary log-log regression
+    loss with binary response `Y`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.cloglog_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def gaussian(X, Y, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the Gaussian (squared error) loss with
+    response `Y`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def cox(X, T, S, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the Cox partial likelihood with event
+    times `T` and status `S`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     T, S = np.asarray(T), np.asarray(S)
     return lasso_path(glm.cox_loglike(T.shape, T, S), X, *args, **keyword_args)
 
 def poisson(X, Y, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the Poisson regression loss with count
+    response `Y`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.poisson_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def huber(X, Y, smoothing_parameter, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the Huber loss with response `Y` and
+    smoothing parameter `smoothing_parameter`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.huber_loss(Y.shape, Y, smoothing_parameter), X, *args, **keyword_args)
 
 def huber_svm(X, Y, smoothing_parameter, *args, **keyword_args):
+    """
+    Construct a `lasso_path` for the smoothed (Huberized) hinge loss
+    with binary response `Y` and smoothing parameter
+    `smoothing_parameter`.
+
+    Remaining arguments are passed to `lasso_path`.
+    """
     Y = np.asarray(Y)
     return lasso_path(glm.huber_svm(Y.shape, Y, smoothing_parameter), X, *args, **keyword_args)
 
@@ -291,6 +466,9 @@ def huber_svm(X, Y, smoothing_parameter, *args, **keyword_args):
 
 def _get_lagrange_max(penalty,
                      grad_solution):
+    """
+    Smallest Lagrange parameter for which penalized coefficients are zero.
+    """
     penalized = penalty.weights > 0
     return np.fabs(grad_solution[penalized] / penalty.weights[penalized]).max()
 
@@ -301,8 +479,8 @@ def _strong_set(lasso_weights,
                 gradient,
                 slope_estimate=1):
     """
-    Return a Boolean indicator for each group
-    indicating whether in the strong set or not.
+    Return a Boolean indicator for each group of whether it is in the
+    strong set or not.
     """
     thresh = 2 * lagrange_new - lagrange_cur
     scaled_grad = np.fabs(gradient)
@@ -344,8 +522,8 @@ def _check_KKT(lasso_weights,
                tol=1.e-2):
 
     """
-    Check whether (grad, solution) satisfy
-    KKT conditions at a given tolerance.
+    Check whether ``(grad, solution)`` satisfy KKT conditions at a given
+    tolerance.
     """
 
     ACTIVE = 1

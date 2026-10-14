@@ -1,3 +1,9 @@
+"""
+Regularization paths for the mixed LASSO penalty.
+
+This module uses an older path API than the other path modules.
+"""
+
 from __future__ import print_function, division, absolute_import
 
 from warnings import warn
@@ -26,6 +32,46 @@ POSITIVE_PART = -3
 NONNEGATIVE = -4
 
 class mixed_lasso_path(lasso_path):
+
+    """
+    Regularization path for the mixed LASSO penalty.
+
+    The penalty, `regreg.atoms.mixed_lasso.mixed_lasso`, allows each feature
+    to be unpenalized, L1 penalized, positive part penalized, constrained to
+    be nonnegative, or to belong to a group penalized by its L2 norm.
+
+    Parameters
+    ----------
+    loss_factory : callable
+        Function that takes a (normalized) design and returns the smooth
+        loss.
+    X : ndarray or sparse matrix
+        Design matrix.
+    penalty_structure : ndarray, optional
+        Penalty type for each feature: one of the module constants
+        `UNPENALIZED`, `L1_PENALTY`, `POSITIVE_PART`, `NONNEGATIVE`, or a
+        nonnegative group label. Defaults to `L1_PENALTY` for all features.
+    group_weights : dict, optional
+        Weights for the groups implied by `penalty_structure`.
+    elastic_net : `regreg.identity_quadratic.identity_quadratic`, optional
+        Elastic net quadratic.
+    alpha : float, optional
+        Elastic net mixing parameter.
+    intercept : bool, optional
+        Add an unpenalized intercept column?
+    positive_part : optional
+        Unused.
+    unpenalized : optional
+        Unused.
+    lagrange_proportion : float, optional
+        Ratio of the smallest to the largest Lagrange parameter.
+    nstep : int, optional
+        Number of Lagrange parameters.
+    scale : bool, optional
+        Scale the columns of `X`?
+    center : bool, optional
+        Center the columns of `X`?
+    """
 
     def __init__(self, 
                  loss_factory, 
@@ -106,6 +152,9 @@ class mixed_lasso_path(lasso_path):
 
     @property
     def shape(self):
+        """
+        Shape ``(n, p)`` of the normalized design.
+        """
         if self.scale or self.center:
             return self.Xn.output_shape[0], self.Xn.input_shape[0]
         else:
@@ -113,10 +162,16 @@ class mixed_lasso_path(lasso_path):
 
     @property
     def nonzero(self):
+        """
+        Selector for the columns with nonzero standard deviation.
+        """
         return self._selector
 
     @property
     def elastic_net(self):
+        """
+        Elastic net quadratic scaled by the current Lagrange parameter.
+        """
         q = self._elastic_net
         q.coef *= self.lagrange
         q.linear_term *= self.lagrange
@@ -124,16 +179,26 @@ class mixed_lasso_path(lasso_path):
 
     @property
     def Xn(self):
+        """
+        The normalized design.
+        """
         return self._Xn
 
     @property
     def loss(self):
+        """
+        Smooth loss for the normalized design.
+        """
         if not hasattr(self, '_loss'):
             self._loss = self.loss_factory(self._Xn)
         return self._loss
 
     @property
     def null_solution(self):
+        """
+        Solution with only the initially active (unpenalized or
+        nonnegative) features.
+        """
         if not hasattr(self, "_null_soln"):
             n, p = self.shape
             self._null_soln = np.zeros(p)
@@ -143,6 +208,10 @@ class mixed_lasso_path(lasso_path):
 
     @property
     def lagrange_max(self):
+        """
+        Smallest Lagrange parameter for which the solution is the null
+        solution.
+        """
         if not hasattr(self, "_lagrange_max"):
             null_soln = self.null_solution
             null_grad = self.loss.smooth_objective(null_soln, 'grad')
@@ -153,18 +222,27 @@ class mixed_lasso_path(lasso_path):
         return self._lagrange_max
 
     def get_lagrange_sequence(self):
+        """
+        Decreasing, log-spaced sequence of Lagrange parameters.
+        """
         if not hasattr(self, "_lagrange_sequence"):
             self._lagrange_sequence = self.lagrange_max * np.exp(np.linspace(np.log(self.lagrange_proportion), 0, 
                                                                              self.nstep))[::-1]
         return self._lagrange_sequence
 
     def set_lagrange_sequence(self, lagrange_sequence):
+        """
+        Set the sequence of Lagrange parameters.
+        """
         self._lagrange_sequence = lagrange_sequence
     
     lagrange_sequence = property(get_lagrange_sequence, set_lagrange_sequence)
 
     @property
     def problem(self):
+        """
+        The full problem, with all features.
+        """
         p = self.shape[1]
         if not hasattr(self, "_problem"):
             self._problem = self.restricted_problem(np.ones(self.shape[1], bool),
@@ -172,9 +250,15 @@ class mixed_lasso_path(lasso_path):
         return self._problem
 
     def get_lagrange(self):
+        """
+        Current Lagrange parameter of the full problem.
+        """
         return self._problem.proximal_atom.lagrange
 
     def set_lagrange(self, lagrange):
+        """
+        Set the Lagrange parameter of the full problem and the penalty.
+        """
         proximal_atom = self._problem.proximal_atom
         proximal_atom.lagrange = lagrange
         self.penalty.lagrange = lagrange
@@ -182,24 +266,46 @@ class mixed_lasso_path(lasso_path):
 
     @property
     def solution(self):
+        """
+        Current coefficients of the full problem.
+        """
         return self.problem.coefs
 
     @property
     def active(self):
+        """
+        Boolean indicator of nonzero coefficients.
+        """
         return self.solution != 0
 
     @property
     def lipschitz(self):
+        """
+        Estimate of the largest squared singular value of the normalized
+        design.
+        """
         if not hasattr(self, "_lipschitz"):
             self._lipschitz = power_L(self.Xn)
         return self._lipschitz
 
     def grad(self, loss=None):
         '''
-        Gradient at current value. This includes the gradient
-        of the smooth loss as well as the gradient of the elastic net part.
-        This is used for determining whether the KKT conditions are met
-        and which coefficients are in the strong set.
+        Gradient at current value.
+
+        This includes the gradient of the smooth loss as well as the
+        gradient of the elastic net part. This is used for determining
+        whether the KKT conditions are met and which coefficients are in
+        the strong set.
+
+        Parameters
+        ----------
+        loss : `regreg.smooth.smooth_atom`, optional
+            Smooth loss. Defaults to ``self.loss``.
+
+        Returns
+        -------
+        grad : ndarray
+            Gradient at ``self.solution``.
         '''
         if loss is None:
             loss = self.loss
@@ -213,12 +319,36 @@ class mixed_lasso_path(lasso_path):
 
     def strong_set(self, lagrange_cur, lagrange_new, grad=None,
                    slope_estimate=1):
+        """
+        Compute the strong set at `lagrange_new`.
+
+        Parameters
+        ----------
+        lagrange_cur : float
+            Current Lagrange parameter.
+        lagrange_new : float
+            Next Lagrange parameter.
+        grad : ndarray, optional
+            Gradient at the current solution. Defaults to ``self.grad()``.
+        slope_estimate : float, optional
+            Estimate of the slope used in the strong rule.
+
+        Returns
+        -------
+        strong : ndarray
+            Boolean indicator of the strong set.
+        strong_selector : `regreg.affine.selector`
+            Selector for the strong set.
+        """
         if grad is None:
             grad = self.grad()
 
         return strong_set_ml(self.penalty, lagrange_cur, lagrange_new, grad, slope_estimate)
 
     def slice_columns(self, columns):
+        """
+        Columns of the normalized design.
+        """
         if self.scale or self.center:
             Xslice = self.Xn.slice_columns(columns)
         else:
@@ -226,6 +356,23 @@ class mixed_lasso_path(lasso_path):
         return Xslice
 
     def construct_loss(self, candidate_set, lagrange):
+        """
+        Construct the loss restricted to `candidate_set`.
+
+        Parameters
+        ----------
+        candidate_set : index
+            Columns to include.
+        lagrange : float
+            Lagrange parameter (unused).
+
+        Returns
+        -------
+        Xslice : object
+            Restricted design.
+        loss : `regreg.smooth.smooth_atom`
+            Restricted loss.
+        """
         Xslice = self.slice_columns(candidate_set)
         loss = self.loss_factory(Xslice)
         if self.intercept:
@@ -234,7 +381,25 @@ class mixed_lasso_path(lasso_path):
 
     def restricted_problem(self, candidate_set, lagrange):
         '''
+        Construct the problem restricted to `candidate_set`.
+
         Assumes the candidate set includes intercept as first column.
+
+        Parameters
+        ----------
+        candidate_set : index
+            Columns to include.
+        lagrange : float
+            Lagrange parameter.
+
+        Returns
+        -------
+        problem : `regreg.problems.simple.simple_problem`
+            Restricted problem.
+        candidate_selector : `regreg.affine.selector`
+            Selector for `candidate_set`.
+        penalty_structure : ndarray
+            Penalty structure restricted to `candidate_set`.
         '''
 
         Xslice, loss = self.construct_loss(candidate_set, lagrange)
@@ -248,6 +413,31 @@ class mixed_lasso_path(lasso_path):
         return problem_sliced, candidate_selector, restricted_penalty_structure
 
     def solve_subproblem(self, candidate_set, lagrange_new, **solve_args):
+        """
+        Solve the problem restricted to `candidate_set`.
+
+        The solution is stored in ``self.solution``.
+
+        Parameters
+        ----------
+        candidate_set : index
+            Columns to include.
+        lagrange_new : float
+            Lagrange parameter.
+        solve_args : dict
+            Keyword arguments passed to ``simple_problem.solve``.
+
+        Returns
+        -------
+        final_step : float
+            Final step size of the solver.
+        grad : ndarray
+            Gradient of the restricted smooth loss at the solution.
+        sub_soln : ndarray
+            Solution of the subproblem.
+        penalty_structure : ndarray
+            Penalty structure restricted to `candidate_set`.
+        """
     
         # try to solve the problem with the active set
         subproblem, selector, penalty_structure = self.restricted_problem(candidate_set, lagrange_new)
@@ -260,6 +450,22 @@ class mixed_lasso_path(lasso_path):
         return self.final_step, grad, sub_soln, penalty_structure
 
     def main(self, inner_tol=1.e-5, verbose=False):
+        """
+        Compute the path over ``self.lagrange_sequence``.
+
+        Parameters
+        ----------
+        inner_tol : float, optional
+            Tolerance for each subproblem.
+        verbose : bool, optional
+            Print progress information?
+
+        Returns
+        -------
+        output : dict
+            Dictionary with keys ``'devratio'``, ``'df'``, ``'lagrange'``,
+            ``'scalings'`` and ``'beta'``.
+        """
 
         # scaling will be needed to get coefficients on original scale   
         if self.scale:
@@ -384,9 +590,15 @@ class mixed_lasso_path(lasso_path):
 
     @classmethod
     def logistic(cls, X, Y, *args, **keyword_args):
+        """
+        Construct a path for the logistic loss with binary response `Y`.
+        """
         return cls(lambda Xs: glm.logistic(Xs, Y), X, *args, **keyword_args)
 
     @classmethod
     def gaussian(cls, X, Y, *args, **keyword_args):
+        """
+        Construct a path for the Gaussian loss with response `Y`.
+        """
         return cls(lambda Xs: glm.gaussian(Xs, Y), X, *args, **keyword_args)
 

@@ -1,3 +1,5 @@
+"""sklearn estimators for logistic regression and classification."""
+
 import numpy as np
 
 have_sklearn = True
@@ -14,11 +16,12 @@ from ..smooth.glm import (glm,
 if have_sklearn:
     class sklearn_logistic(sklearn_regression):
 
-        """
+        """Regularized logistic regression for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
+        Any atom can be used as a regularizer.
 
+        The response passed to `fit` is either a vector of binary successes
+        or a 2-d array with columns ``(successes, trials)``.
         """
 
         def _loglike_factory(self, X, y):
@@ -76,15 +79,15 @@ if have_sklearn:
                 return np.nan
 
     class sklearn_logistic_lagrange(sklearn_regression_lagrange, sklearn_logistic):
+        """Lagrange-form logistic regression for sklearn."""
+
         pass
 
     class sklearn_logistic_classifier(sklearn_classifier):
 
-        """
+        """Regularized logistic classifier for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
+        Any atom can be used as a regularizer.
         """
 
         def _loglike_factory(self, X, y):
@@ -121,26 +124,30 @@ if have_sklearn:
             return np.nan
 
         def predict_proba(self, X):
-            """
-            Predict new probabilities in classification setting.
+            """Predict success probabilities in the classification setting.
+
+            The probabilities are the inverse logit
+            applied to the linear predictor.
 
             Parameters
             ----------
-
-            X : np.ndarray((n, p))
-                Feature matrix.
+            X : ndarray
+                Feature matrix of shape ``(n, p)``.
 
             Returns
             -------
-
-            probs : np.ndarray(n)
-                Predictions from classification model.
-
+            probs : ndarray
+                Predicted probabilities, of shape ``(n,)``.
             """
             linpred = X.dot(self._coefs)
             exp_lin = np.exp(linpred)
             return exp_lin / (1 + exp_lin)
 
     class sklearn_logistic_classifier_lagrange(sklearn_logistic_classifier):
+        """Logistic classifier (intended Lagrange form).
+
+        Currently this is identical to `sklearn_logistic_classifier`.
+        """
+
         pass
 

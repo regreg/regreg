@@ -1,9 +1,12 @@
-""" Decorators for making and using docstring templates on methods
+"""
+Decorators for making and using docstring templates on methods.
 
-The doctest code uses class decorators and therefore needs at least Python 2.6.
+A class decorated with ``doc_templater`` fills the docstrings of methods
+marked with ``doc_template_user`` from templates stored by methods marked
+with ``doc_template_provider``, using ``%``-style string formatting.  Any
+literal ``%`` in a template docstring must therefore be written as ``%%``.
 
-If you have Python 2.5 you can decorate the class without using class
-decorators::
+The class decorator can also be applied without the decorator syntax::
 
     class C(object):
         @doc_template_provider
@@ -75,22 +78,45 @@ The same method docstring can be a template and template user:
 """
 
 def doc_template_user(m):
-    """ Decorator to mark method `m` as using docstring template
+    """
+    Decorator to mark method `m` as using a docstring template.
 
     If ``klass`` is the enclosing class of `m`, and ``klass`` is decorated with
-    ``doc_templater``, then the docstring for `m` will be givem by
-    ``klass._doc_templates[m.__name__] % klass._doc_dict``
+    ``doc_templater``, then the docstring for `m` will be given by
+    ``klass._doc_templates[m.__name__] % klass._doc_dict``.
+
+    Parameters
+    ----------
+    m : callable
+        Method to mark.
+
+    Returns
+    -------
+    m : callable
+        The same method, marked with attribute ``_uses_doc_template``.
     """
     m._uses_doc_template = True
     return m
 
 
 def doc_template_provider(m):
-    """ Decorator to mark docstring from method `m` as being a doc template
+    """
+    Decorator to mark the docstring of method `m` as being a doc template.
 
     We label the docstring of `m` (``m.__doc__``) to be put into the
-    ``_doc_templates`` attribute of the enclosing class, when the klass is
-    decorated with the ``doc_templater`` decorator.
+    ``_doc_templates`` attribute of the enclosing class, when the class is
+    decorated with the ``doc_templater`` decorator.  The docstring of `m`
+    itself is set to None.
+
+    Parameters
+    ----------
+    m : callable
+        Method whose docstring is a template.
+
+    Returns
+    -------
+    m : callable
+        The same method, with its docstring moved to ``m._doc_template``.
     """
     m._doc_template = m.__doc__
     m.__doc__ = None
@@ -98,15 +124,16 @@ def doc_template_provider(m):
 
 
 def doc_templater(doc_dict=None, doc_error=True):
-    """ Return class decorator to record and provide doc templates
+    """
+    Return class decorator to record and provide doc templates.
 
     Parameters
     ----------
-    doc_dict : dict
+    doc_dict : dict, optional
         Extra key / value pairs for this class to fill template docstrings.
         Parameters in this input dict override parameters from inherited
         classes.
-    doc_error : {True, False}, optional
+    doc_error : bool, optional
         Whether to raise error in case of non-empty docstring that will be
         thrown away by using docstring template, where the docstring has not
         itself been marked for use as a template.

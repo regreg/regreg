@@ -1,3 +1,5 @@
+"""Cox proportional hazards partial likelihood loss."""
+
 from copy import copy
 
 import numpy as np
@@ -10,8 +12,41 @@ from .cox_utils import (cox_objective,
 
 class cox_loglike(smooth_atom):
 
-    """
-    A class for combining the logistic log-likelihood with a general seminorm
+    r"""Negative log partial likelihood of the Cox proportional hazards model.
+
+    A saturated loss in the natural parameter (linear predictor)
+    :math:`\eta`, with ties handled by Breslow's method:
+
+    .. math::
+
+       \ell(\eta) = -\sum_{i: \delta_i = 1} w_i \left[\eta_i -
+           \log \left(\sum_{j: T_j \geq T_i} w_j e^{\eta_j}\right)\right]
+
+    where :math:`T_i` are the event times, :math:`\delta_i` the censoring
+    indicators and :math:`w_i` the case weights. The computations are done
+    in C (see `regreg.smooth.cox_utils`).
+
+    Parameters
+    ----------
+    shape : int or tuple
+        Shape of the natural parameter.
+    event_times : ndarray
+        Observed times for the Cox proportional hazards model.
+    censoring : ndarray
+        Censoring indicator for the Cox proportional hazards model:
+        1 indicates the observation is a failure, 0 a censored
+        observation.
+    coef : float, optional
+        Nonnegative scaling to be put in front of the loss.
+    offset : ndarray, optional
+        Offset to be subtracted from the natural parameter before
+        evaluating the loss.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the objective.
+    initial : ndarray, optional
+        Initial guess at the coefficients.
+    case_weights : ndarray, optional
+        Non-negative case weights. Defaults to all ones.
     """
 
     objective_template = r"""\ell^{\text{Cox}}\left(%(var)s\right)"""
@@ -60,33 +95,30 @@ class cox_loglike(smooth_atom):
                          mode='both', 
                          check_feasibility=False,
                          case_weights=None):
-        """
-
-        Evaluate the smooth objective, computing its value, gradient or both.
+        """Evaluate the smooth objective, its gradient, or both.
 
         Parameters
         ----------
-
         natural_param : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `natural_param` is not
-            in the domain.
-
-        case_weights : ndarray
-            Non-negative case weights
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `natural_param` is not in the domain.
+        case_weights : ndarray, optional
+            Non-negative case weights, multiplied with any case weights
+            stored on the loss.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `natural_param`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `natural_param`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `natural_param`; returned when `mode` is 'grad'
+            or 'both'.
         """
         
         eta = natural_param # shorthand
@@ -139,29 +171,22 @@ class cox_loglike(smooth_atom):
                      natural_param, 
                      right_vector,
                      case_weights=None):
-        """
-        Evaluate Hessian of the loss at a pair of vectors.
+        """Multiply the Hessian of the loss by a vector.
 
         Parameters
         ----------
-
         natural_param : ndarray
-            Parameters where Hessian will be evaluated.
-
-        left_vec : ndarray
-            Vector on the left in Hessian evaluation.
-
-        right_vec : ndarray
-            Vector on the left in Hessian evaluation.
-
-        case_weights : ndarray
-            Non-negative case weights
+            Parameters at which the Hessian is evaluated.
+        right_vector : ndarray
+            Vector multiplied on the right of the Hessian.
+        case_weights : ndarray, optional
+            Non-negative case weights.
 
         Returns
         -------
-
-        value : float
-            Hessian evaluated at this pair of left and right vectors
+        hess_mult : ndarray
+            The product of the Hessian at `natural_param` with
+            `right_vector`.
         """
 
         cw = combine_case_weights(case_weights,
@@ -190,9 +215,18 @@ class cox_loglike(smooth_atom):
                            eta.shape[0])
 
     def get_data(self):
+        """Return the data, with columns ``(event_times, censoring)``."""
         return np.array([self.event_times, self.censoring]).T
 
     def set_data(self, data):
+        """Set the data.
+
+        Parameters
+        ----------
+        data : ndarray
+            Array of shape ``(n, 2)`` with columns
+            ``(event_times, censoring)``.
+        """
         event_times, censoring = np.asarray(data).T
         self.event_times, self.censoring = (np.asarray(event_times),
                                             np.asarray(censoring).astype(np.intp))
@@ -211,25 +245,21 @@ class cox_loglike(smooth_atom):
                            case_weights=copy(self.case_weights))
 
     def subsample(self, case_idx):
-        """
-        Create a saturated loss using a subsample of the data.
-        Makes a copy of the loss and 
-        multiplies case_weights by the indicator for
-        `idx`.
+        """Create a saturated loss using a subsample of the data.
+
+        Makes a copy of the loss and multiplies its case weights by the
+        indicator of `case_idx`.
 
         Parameters
         ----------
-
-        idx : index
-            Indices of np.arange(n) to keep.
+        case_idx : index
+            Indices of ``np.arange(n)`` to keep.
 
         Returns
         -------
-
-        subsample_loss : `smooth_atom`
-            Loss after discarding all
-            cases not in `idx.
-
+        subsample_loss : `regreg.smooth.smooth_atom`
+            Copy of the loss with zero case weight for all cases not in
+            `case_idx`.
         """
         loss_cp = copy(self)
         if loss_cp.case_weights is None:
@@ -247,4 +277,17 @@ class cox_loglike(smooth_atom):
         # a trick to get latex representation looking right
         # coxph should be written similar to logistic
         # composed with a linear transform (TODO)
+        """Return a LaTeX representation of the loss.
+
+        Parameters
+        ----------
+        var : str, optional
+            LaTeX name of the argument.
+        idx : str, optional
+            Index appended as a subscript.
+
+        Returns
+        -------
+        latex : str
+        """
         return smooth_atom.latexify(self, var=var, idx=idx)

@@ -1,3 +1,5 @@
+"""sklearn estimators for complementary log-log regression models."""
+
 import numpy as np
 from scipy.stats import gumbel_r
 
@@ -16,11 +18,12 @@ from ..smooth.glm import (glm,
 if have_sklearn:
     class sklearn_cloglog(sklearn_regression):
 
-        """
+        """Regularized complementary log-log regression for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
+        Any atom can be used as a regularizer.
 
+        The response passed to `fit` is either a vector of binary successes
+        or a 2-d array with columns ``(successes, trials)``.
         """
 
         def _loglike_factory(self, X, y):
@@ -78,15 +81,15 @@ if have_sklearn:
                 return np.nan
 
     class sklearn_cloglog_lagrange(sklearn_regression_lagrange, sklearn_cloglog):
+        """Lagrange-form complementary log-log regression for sklearn."""
+
         pass
 
     class sklearn_cloglog_classifier(sklearn_classifier):
 
-        """
+        """Regularized complementary log-log classifier for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
+        Any atom can be used as a regularizer.
         """
 
         def _loglike_factory(self, X, y):
@@ -123,25 +126,29 @@ if have_sklearn:
             return np.nan
 
         def predict_proba(self, X):
-            """
-            Predict new probabilities in classification setting.
+            r"""Predict success probabilities in the classification setting.
+
+            The probabilities are :math:`1 - \exp(-e^{\eta})`
+            applied to the linear predictor.
 
             Parameters
             ----------
-
-            X : np.ndarray((n, p))
-                Feature matrix.
+            X : ndarray
+                Feature matrix of shape ``(n, p)``.
 
             Returns
             -------
-
-            probs : np.ndarray(n)
-                Predictions from classification model.
-
+            probs : ndarray
+                Predicted probabilities, of shape ``(n,)``.
             """
             linpred = X.dot(self._coefs)
             return 1 - np.exp(-np.exp(linpred))
 
     class sklearn_cloglog_classifier_lagrange(sklearn_cloglog_classifier):
+        """Complementary log-log classifier (intended Lagrange form).
+
+        Currently this is identical to `sklearn_cloglog_classifier`.
+        """
+
         pass
 

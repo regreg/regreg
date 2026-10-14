@@ -1,7 +1,15 @@
-"""
-This module contains the implementation of block norms, i.e.
-l1/l*, linf/l* norms. These are used in multiresponse LASSOs.
+r"""
+Implementation of the sparse group block norm and its dual.
 
+The sparse group block norm of a matrix :math:`B` is
+
+.. math::
+
+    B \mapsto w_1 \sum_{i,j} |B_{ij}| + w_2 \sum_i \|B[i]\|_2
+
+where :math:`B[i]` is the :math:`i`-th row of :math:`B`. It is
+a sparse group LASSO in which the groups are the rows of :math:`B`,
+used in multiresponse problems.
 """
 from __future__ import print_function, division, absolute_import
 
@@ -24,6 +32,36 @@ l1norm = seminorms.l1norm
 
 @objective_doc_templater()
 class sparse_group_block(l1_l2):
+
+    r"""
+    The sparse group block norm.
+
+    .. math::
+
+        B \mapsto w_1 \sum_{i,j} |B_{ij}| + w_2 \sum_i \|B[i]\|_2
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the matrix argument.
+    l1_weight : float
+        Weight :math:`w_1` of the elementwise :math:`\ell_1` norm.
+    l2_weight : float
+        Weight :math:`w_2` of the sum of the :math:`\ell_2` norms
+        of the rows.
+    lagrange : float, optional
+        Lagrange parameter. Exactly one of `lagrange` and `bound`
+        must be specified.
+    bound : float, optional
+        Bound parameter. Exactly one of `lagrange` and `bound`
+        must be specified.
+    offset : `np.ndarray`, optional
+        Offset subtracted from the argument before evaluating the seminorm.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term added to the atom.
+    initial : `np.ndarray`, optional
+        Initial value for the coefficients.
+    """
 
     objective_template = r"""w_1\|%(var)s\|_{1,1} + w_1\|%(var)s\|_{1,2}"""
     objective_vars = l1_l2.objective_vars.copy()
@@ -122,28 +160,41 @@ class sparse_group_block(l1_l2):
 
     def terms(self, arg):
         """
-        Return the args that are summed
-        in computing the seminorm.
+        Return the terms that are summed in computing the seminorm.
 
+        Parameters
+        ----------
+        arg : `np.ndarray`
+            Matrix argument of the seminorm.
+
+        Returns
+        -------
+        terms : `np.ndarray`
+            The contribution of each row of `arg` to the seminorm.
+
+        Examples
+        --------
+        >>> import numpy as np
         >>> import regreg.api as rr
-        >>> groups = [1,1,2,2,2]
-        >>> penalty = rr.group_lasso(groups, lagrange=1.)
-        >>> arg = [2,4,5,3,4]
-        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
-        [6.3245..., 12.2474...]
-        >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
-        18.5720...
-        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-        (6.3245..., 12.2474...)
-        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
-        18.5720...
-        
+        >>> penalty = rr.sparse_group_block((2, 3), 1, 1, lagrange=1.)
+        >>> arg = np.array([[1., 2, 2], [0, 3, 4]])
+        >>> penalty.terms(arg)
+        array([ 8., 12.])
+        >>> print(penalty.seminorm(arg))
+        20.0
         """
         terms = (np.fabs(arg).sum(1) * self.l1_weight + 
                  np.sqrt((arg**2).sum(1)) * self.l1_weight)
         return terms
 
 class sparse_group_block_dual(sparse_group_block):
+
+    """
+    The dual of the sparse group block norm.
+
+    Takes the same arguments as `sparse_group_block`. The dual norm
+    is computed by a binary search.
+    """
 
     objective_template = r"""\|%(var)s\|_{w_1,w_2,\text{block}}"""
     objective_vars = l1_l2.objective_vars.copy()
@@ -232,20 +283,28 @@ class sparse_group_block_dual(sparse_group_block):
 
     def terms(self, arg):
          """
-         Return the args that are maximized
-         in computing the seminorm.
-         
-         >>> import regreg.api as rr
-         >>> groups = [1,1,2,2,2]
-         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
-         >>> arg = [2,4,5,3,4]
-         >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
-         [3.1622..., 4.0824...]
-         >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
-         (3.1622..., 4.0824...)
-         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
-         4.0824...
+         Return the terms that are maximized in computing the seminorm.
 
+         Parameters
+         ----------
+         arg : `np.ndarray`
+             Matrix argument of the seminorm.
+
+         Returns
+         -------
+         terms : `np.ndarray`
+             The dual norm of each row of `arg`.
+
+         Examples
+         --------
+         >>> import numpy as np
+         >>> import regreg.api as rr
+         >>> penalty = rr.sparse_group_block_dual((2, 3), 1, 1, bound=1.)
+         >>> arg = np.array([[1., 2, 2], [0, 3, 4]])
+         >>> np.round(penalty.terms(arg), 3)
+         array([1.172, 2.101])
+         >>> print(np.round(penalty.seminorm(arg, lagrange=1), 3))
+         2.101
          """
          return np.array([_gauge_function_dual_strong(arg[i],
                                                       self.l1_weight,
@@ -254,6 +313,11 @@ class sparse_group_block_dual(sparse_group_block):
 # fast Lagrange prox
 
 def _lagrange_prox(arg, l1_weight, l2_weight):
+    """
+    Lagrange form prox of the sparse group block norm: soft-threshold
+    elementwise by `l1_weight`, then group soft-threshold each row by
+    `l2_weight`.
+    """
     soft_thresh = np.sign(arg) * np.maximum(np.fabs(arg) - l1_weight, 0)
     norms = np.sqrt(np.sum(soft_thresh**2, 1))
     norm_factors = np.maximum(norms - l2_weight, 0) / (norms + (norms == 0))
@@ -276,10 +340,31 @@ def _gauge_function_dual(point,
                          tol=1.e-6,
                          max_iter=50): 
 
-     """
-     Work out dual norm of sparse group LASSO by binary search.
+     r"""
+     Compute the dual norm of the sparse group block norm by binary search.
 
-     NOTE: will have problems if the atom has infinite feature weights
+     Parameters
+     ----------
+     point : `np.ndarray`
+         Matrix at which to evaluate the dual norm.
+     l1_weight : float
+         Weight of the elementwise :math:`\ell_1` norm.
+     l2_weight : float
+         Weight of the sum of row :math:`\ell_2` norms.
+     tol : float, optional
+         Relative tolerance for the binary search.
+     max_iter : int, optional
+         Maximum number of halvings / doublings used to bracket the
+         dual norm.
+
+     Returns
+     -------
+     value : float
+         The dual norm of `point`.
+
+     Notes
+     -----
+     This will have problems if the weights are infinite.
      """
 
      point = np.asarray(point)

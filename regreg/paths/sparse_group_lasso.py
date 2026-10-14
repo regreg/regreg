@@ -1,3 +1,7 @@
+"""
+Regularization paths for the sparse group LASSO.
+"""
+
 from __future__ import print_function, division, absolute_import
 
 from warnings import warn
@@ -21,6 +25,40 @@ from ..atoms.sparse_group_lasso import (sparse_group_lasso,
 from .group_lasso import group_lasso_path, default_lagrange_sequence
 
 class sparse_group_lasso_path(group_lasso_path):
+
+    r"""
+    Regularization path for the sparse group LASSO.
+
+    The penalty at Lagrange parameter :math:`\lambda` is
+
+    .. math::
+
+        \lambda \alpha \sum_g \left(\alpha_1 \sum_{j \in g} v_j |\beta_j| +
+        (1 - \alpha_1) w_g \|\beta_g\|_2 \right)
+
+    with :math:`v` the `lasso_weights`, :math:`w` the group `weights` and
+    :math:`\alpha_1` given by `l1_alpha`, plus an elastic net term as in
+    `group_lasso_path`.
+
+    Parameters
+    ----------
+    saturated_loss : `regreg.smooth.glm.glm`
+        Loss as a function of the linear predictor.
+    X : ndarray or `regreg.affine.affine_transform`
+        Design matrix.
+    groups : ndarray
+        Group label for each variable.
+    lasso_weights : ndarray
+        Weights for the L1 part of the penalty.
+    weights : dict, optional
+        Weight for each group in the L2 part of the penalty.
+    elastic_net_param : ndarray, optional
+        Ridge weights for each variable. Defaults to all ones.
+    alpha : float, optional
+        Elastic net mixing parameter; 1 is no ridge term.
+    l1_alpha : float, optional
+        Mixing between the L1 and L2 parts of the penalty.
+    """
 
     BIG = 1e12 # lagrange parameter for finding null solution
 
@@ -95,17 +133,15 @@ class sparse_group_lasso_path(group_lasso_path):
     @property
     def unpenalized(self):
         """
-        Unpenalized groups and variables.
+        Unpenalized groups.
 
         Returns
         -------
-
-        groups : sequence
-            Groups with weights equal to 0.
-
-        variables : ndarray
-            Boolean indicator that is True if no penalty on that variable.
-
+        groups : list
+            Ids of unpenalized groups.
+        group_idx : ndarray
+            Boolean indicator (over sorted groups) that is True if no
+            penalty on that group.
         """
         if not hasattr(self, "_unpen_groups"):
             self._unpen_groups = []
@@ -124,28 +160,21 @@ class sparse_group_lasso_path(group_lasso_path):
     def subsample(self,
                   case_idx):
         '''
+        Create a new path, by subsampling cases of ``self.saturated_loss``.
 
-        Create a new path, by subsampling
-        cases of `self.saturated_loss`.
-
-        Case weights are computed
-        with `self.saturated_loss.subsample`.
+        Case weights are computed with ``self.saturated_loss.subsample``.
 
         Parameters
         ----------
-
         case_idx : index
-            An index-like object used 
-            to specify which cases to include
+            An index-like object used to specify which cases to include
             in the subsample.
 
         Returns
         -------
-
         subsample_path : path object
-            A path object with a modified smooth part
-            reflecting the subsampling.
-
+            A path object with a modified smooth part reflecting the
+            subsampling.
         '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
@@ -164,32 +193,33 @@ class sparse_group_lasso_path(group_lasso_path):
                   penalty=None):
 
         '''
+        Check KKT conditions over the groups in the path.
 
-        Check KKT conditions over
-        the groups in the path.
-        Returns boolean indicating
-        which groups are failing the KKT conditions
-        (these could be `active` groups or
-        `inactive` groups).
+        Determines which groups are failing the KKT conditions
+        (these could be active groups or inactive groups).
 
         Parameters
         ----------
-
         grad_solution : ndarray
-             Candidate for gradient of smooth loss at 
-             Lagrange value `lagrange`.
-
+            Candidate for gradient of smooth loss at
+            Lagrange value `lagrange`.
         solution : ndarray
-             Candidate for solution to problem 
-             Lagrange value `lagrange`.
-
+            Candidate for solution to problem at
+            Lagrange value `lagrange`.
         lagrange : float
-             Lagrange value for penalty
+            Lagrange value for penalty.
+        penalty : object, optional
+            A sparse group LASSO penalty. If None, defaults to
+            ``self.penalty``.
 
-        penalty : object (optional)
-             A sparse group LASSO penalty. If None, defaults
-             to `self.penalty`.
-
+        Returns
+        -------
+        failing_active : ndarray
+            Boolean indicator of active (or unpenalized) groups failing
+            the KKT conditions.
+        inactive_ranks : ndarray
+            For inactive groups failing the KKT conditions, the rank of
+            the size of the violation; -1 for all other groups.
         '''
         if penalty is None:
             penalty = self.penalty
@@ -205,6 +235,27 @@ class sparse_group_lasso_path(group_lasso_path):
                    lagrange_cur,
                    lagrange_new,
                    grad_solution):
+        """
+        Compute the strong set of groups at `lagrange_new`.
+
+        Parameters
+        ----------
+        lagrange_cur : float
+            Current Lagrange parameter.
+        lagrange_new : float
+            Next Lagrange parameter.
+        grad_solution : ndarray
+            Gradient at the solution for `lagrange_cur`.
+
+        Returns
+        -------
+        strong : ndarray
+            Group ids in the strong set.
+        strong_bool : ndarray
+            Boolean indicator (over groups) of the strong set.
+        strong_vars : ndarray
+            Indices of variables in groups in the strong set.
+        """
 
         _strong_bool = _strong_set(self.penalty,
                                    self._unpen_group_idx,
@@ -221,6 +272,33 @@ class sparse_group_lasso_path(group_lasso_path):
                          candidate_groups, 
                          lagrange_new, 
                          **solve_args):
+        """
+        Solve the problem restricted to a candidate set of groups.
+
+        Parameters
+        ----------
+        solution : ndarray
+            Current solution, used as a warm start.
+        candidate_groups : sequence
+            Groups to include in the subproblem.
+        lagrange_new : float
+            Lagrange parameter.
+        solve_args : dict
+            Keyword arguments passed to ``simple_problem.solve``.
+
+        Returns
+        -------
+        final_step : float
+            Final step size of the solver.
+        sub_grad : ndarray
+            Gradient of the restricted smooth loss at `sub_soln`.
+        sub_soln : ndarray
+            Solution of the subproblem.
+        sub_linear_pred : ndarray
+            Linear predictor at `sub_soln`.
+        candidate_bool : ndarray
+            Boolean indicator of variables in the candidate groups.
+        """
     
         # solve a problem with a candidate set
 
@@ -246,6 +324,10 @@ class sparse_group_lasso_path(group_lasso_path):
         return sub_problem.final_step, sub_grad, sub_soln, sub_linear_pred, candidate_bool
 
     def restricted_penalty(self, subset):
+        """
+        Sparse group LASSO penalty restricted to `subset` (all variables if
+        None).
+        """
         if subset is not None:
             groups = self.penalty.groups[subset]
             lasso_weights = self.penalty.lasso_weights[subset]
@@ -259,40 +341,92 @@ class sparse_group_lasso_path(group_lasso_path):
 # Some common loss factories
 
 def logistic(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the logistic regression
+    loss with binary response `Y`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.logistic_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def probit(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the probit regression loss
+    with binary response `Y`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.probit_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def cloglog(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the complementary log-log
+    regression loss with binary response `Y`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.cloglog_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def gaussian(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the Gaussian (squared
+    error) loss with response `Y`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.gaussian_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def cox(X, T, S, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the Cox partial likelihood
+    with event times `T` and status `S`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     T, S = np.asarray(T), np.asarray(S)
     return sparse_group_lasso_path(glm.cox_loglike(T.shape, T, S), X, *args, **keyword_args)
 
 def poisson(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the Poisson regression
+    loss with count response `Y`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.poisson_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def huber(X, Y, smoothing_parameter, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the Huber loss with
+    response `Y` and smoothing parameter `smoothing_parameter`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.huber_loss(Y.shape, Y, smoothing_parameter), X, *args, **keyword_args)
 
 def huber_svm(X, Y, smoothing_parameter, *args, **keyword_args):
+    """
+    Construct a `sparse_group_lasso_path` for the smoothed (Huberized)
+    hinge loss with binary response `Y` and smoothing parameter
+    `smoothing_parameter`.
+
+    Remaining arguments are passed to `sparse_group_lasso_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_lasso_path(glm.huber_svm(Y.shape, Y, smoothing_parameter), X, *args, **keyword_args)
 
 # private functions
 
 def _candidate_bool(groups, candidate_groups):
+    """
+    Boolean indicator of variables belonging to any of `candidate_groups`.
+    """
 
     candidate_bool = np.zeros(groups.shape, bool)
     for g in candidate_groups:
@@ -309,8 +443,8 @@ def _strong_set(penalty,
                 slope_estimate=1):
 
     """
-    Return a Boolean indicator for each group
-    indicating whether in the strong set or not.
+    Return a Boolean indicator for each group of whether it is in the
+    strong set or not.
     """
 
     thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
@@ -368,11 +502,10 @@ def _check_KKT(sglasso,
                tol=1.e-2):
 
     """
-    Check whether (grad, solution) satisfy
-    KKT conditions at a given tolerance.
+    Check whether ``(grad, solution)`` satisfy KKT conditions at a given
+    tolerance.
 
-    Assumes glasso is group_lasso in lagrange form
-    so that glasso.lagrange is not None
+    Assumes `sglasso` is a sparse group LASSO penalty in Lagrange form.
     """
 
     terms = sglasso.terms(solution)

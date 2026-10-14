@@ -1,12 +1,11 @@
 """
+Isotonic regression by the pool adjacent violators algorithm (PAVA).
 
-PAVA implementation Isotonic regression. 
-Closely based on from 
+Closely based on
 
 https://gist.github.com/ajtulloch/9447957#file-_isotonic-pyx
 
-which has been merged into sklearn. 
-
+which has been merged into sklearn.
 """
 
 import numpy as np, sys
@@ -18,6 +17,24 @@ ctypedef np.float_t DTYPE_float_t
 def _isotonic_regression(np.ndarray[DTYPE_float_t, ndim=1] y,
                          np.ndarray[DTYPE_float_t, ndim=1] weight,
                          np.ndarray[DTYPE_float_t, ndim=1] solution):
+    """
+    Weighted isotonic (non-decreasing) regression of `y`.
+
+    Parameters
+    ----------
+    y : np.ndarray
+        One-dimensional array of values.
+    weight : np.ndarray
+        Positive weights, same shape as `y`.
+    solution : np.ndarray
+        Output array, same shape as `y`; overwritten in place.
+
+    Returns
+    -------
+    solution : np.ndarray
+        The fitted non-decreasing values (the same object as the
+        `solution` argument).
+    """
 
     cdef int i, pooled, n, k
     cdef double numerator, denominator

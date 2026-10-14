@@ -1,6 +1,6 @@
 """
-This module has a class for specifying a problem from just
-a smooth function and a single penalty.
+A proximal quasi-Newton solver for problems specified by a smooth function
+and a single penalty.
 """
 from __future__ import print_function, division, absolute_import
 
@@ -21,11 +21,25 @@ from ..algorithms import FISTA
 class quasi_newton(object):
     
     """
-    Minimize an objective using proximal Newton algorithm
-    as described [here](https://arxiv.org/pdf/1206.1623.pdf).
+    Minimize an objective using a proximal quasi-Newton algorithm.
 
-    Uses BFGS updates.
+    The algorithm is described in `Lee, Sun and Saunders
+    <https://arxiv.org/pdf/1206.1623.pdf>`_. Uses BFGS updates.
 
+    Parameters
+    ----------
+    smooth_atom : `regreg.smooth.smooth_atom`
+        Smooth objective function.
+    proximal_atom : `regreg.atoms.atom`
+        Nonsmooth part -- its proximal map is used in solving
+        inner loop.
+    initial_hessian : ndarray
+        Guess at initial Hessian.
+    initial_step : float, optional
+        Guess at initial stepsize.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term optionally added to overall objective (e.g. for a
+        ridge penalty).
     """
 
     damping_term = 1.
@@ -37,28 +51,6 @@ class quasi_newton(object):
                  initial_step=1.,
                  quadratic=None, # e.g. for ridge 
                  ):
-        '''
-        Parameters
-        ----------
-
-        smooth_objective : `smooth_atom`
-            Smooth objective function.
-
-        proximal_map : `atom`
-            Nonsmooth part -- its proximal map is used in solving
-            inner loop.
-
-        initial_hessian : ndarray
-            Guess at initial Hessian.
-
-        initial_step : float
-            Guess at initial stepsize.
-
-        quadratic : `identity_quadratic`
-            Quadratic term optionally
-            added to overall objective.
-
-        '''
         self.smooth_atom = smooth_atom
         self.proximal_atom = proximal_atom
         self.coefs = self.smooth_atom.coefs = self.proximal_atom.coefs
@@ -79,14 +71,17 @@ class quasi_newton(object):
     def objective(self,
                   coefs):
         """
-        Total objective
+        Total objective.
 
         Parameters
         ----------
+        coefs : ndarray
+            Where to evaluate the objective.
 
-        coefs : np.ndarray
-            Where to evaluate the objective
-
+        Returns
+        -------
+        value : float
+            Value of the objective.
         """
         return (self.smooth_objective(coefs, 'func') +
                 self.nonsmooth_objective(coefs, 'func'))
@@ -97,25 +92,22 @@ class quasi_newton(object):
                        old_grad,
                        new_grad):
         """
-        Update current Hessian using 
-        [BFGS](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm)
-        updating rule.
+        Update current Hessian using the BFGS updating rule.
+
+        See `BFGS
+        <https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm>`_.
+        The update is done in place.
 
         Parameters
         ----------
-
         old_soln : ndarray
             Current position.
-
         new_soln : ndarray
             Next position.
-
         old_grad : ndarray
             Current gradient.
-
         new_grad : ndarray
             Next gradient.
-
         """
         # update the hessian, 
         # updates self.quadratic_loss in place
@@ -142,49 +134,55 @@ class quasi_newton(object):
 
         Parameters
         ----------
-
         x : ndarray
             Argument to smooth objective.
+        mode : str, optional
+            One of ``['func', 'grad', 'both']``.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible?
 
         Returns
         -------
-
-        f : float (optional)
+        f : float, optional
             Value of smooth objective at `x`.
-
-        g : ndarray (optional)
+        g : ndarray, optional
             Gradient of smooth objective at `x`.
-
         '''
         vs = self.smooth_atom.smooth_objective(x, mode, check_feasibility)
         return vs
 
     def nonsmooth_objective(self, x, check_feasibility=False):
         '''
-        Compute value and / or gradient of nonsmooth part.
+        Compute value of nonsmooth part, including the quadratic terms.
 
         Parameters
         ----------
-
         x : ndarray
             Argument to nonsmooth objective.
+        check_feasibility : bool, optional
+            Check whether `x` is feasible?
 
         Returns
         -------
-
-        f : float (optional)
+        f : float
             Value of nonsmooth objective at `x`.
-
         '''
         vn = self.proximal_atom.nonsmooth_objective(x, check_feasibility=check_feasibility)
         vs = self.smooth_atom.nonsmooth_objective(x, check_feasibility=check_feasibility)
         return vn + vs + self.quadratic.objective(x, 'func')
 
     def proximal(self, proxq):
+        """
+        Proximal map of ``proximal_atom``, with the quadratic parts added
+        to `proxq`.
+        """
         proxq = proxq + self.smooth_atom.quadratic + self.quadratic
         return self.proximal_atom.solve(proxq)
 
     def latexify(self, var=None):
+        """
+        Return a LaTeX representation of the problem.
+        """
         template_dict = self.objective_vars.copy()
         template_dict['prox'] =  self.proximal_atom.latexify(var=var,idx='2')
         template_dict['smooth'] = self.smooth_atom.latexify(var=var,idx='1')
@@ -204,11 +202,12 @@ class quasi_newton(object):
                          initial_step=None,
                          **fit_args):
         
-        '''
+        r'''
         Inner loop of quasi-Newton.
-        Given `x, G, H` our current position, gradient and
-        Hessian of the smooth part we minimize
-        (quasi) 2nd order Taylor approximation of
+
+        Given :math:`x, G, H` our current position, gradient and
+        Hessian of the smooth part we minimize the
+        (quasi) 2nd order Taylor approximation of the
         smooth part plus the nonsmooth atom.
 
         .. math::
@@ -217,16 +216,21 @@ class quasi_newton(object):
 
         Parameters
         ----------
-
-        niter : int
-            Number of quasi-Newton steps to take.
+        return_optimum : bool, optional
+            Unused.
+        initial_step : float, optional
+            Unused.
+        fit_args : dict
+            Keyword arguments for the solver of the quadratic subproblem.
 
         Returns
         -------
-
-        coefs : ndarray
-            Optimal solution.
-          
+        direction : ndarray
+            Search direction :math:`\Delta`.
+        grad : ndarray
+            Gradient :math:`G` of the smooth part at the current position.
+        quad_soln : ndarray
+            Solution :math:`x + \Delta` of the quadratic subproblem.
         '''
 
         # return search direction 
@@ -257,26 +261,23 @@ class quasi_newton(object):
               ):
         
         '''
-        Run quasi-Newton for `niter` steps.
+        Run quasi-Newton for at most `niter` steps.
 
         Parameters
         ----------
-
-        niter : int
+        niter : int, optional
             Number of quasi-Newton steps to take.
-
-        maxfun : int
-            Maximum function evaluations passed to `fmin_powell`
-
-        maxiter : int
-            Maximum iterations passed to `fmin_powell`
+        maxfun : int, optional
+            Maximum function evaluations passed to `fmin_powell`.
+        maxiter : int, optional
+            Maximum iterations passed to `fmin_powell`.
+        fit_args : dict
+            Keyword arguments for the inner loop solver.
 
         Returns
         -------
-
         coefs : ndarray
             Optimal solution.
-          
         '''
 
         self.solver_results = [np.inf]
@@ -319,26 +320,28 @@ class quasi_newton(object):
                   old_grad,
                   new_grad):
         """
+        Check convergence based on the change in position.
+
         Parameters
         ----------
-
-        old_soln : ndarray
-            Current value.
-
-        new_soln : ndarray
-            Next value.
-
+        old_value : float
+            Current value (unused).
+        new_value : float
+            Next value (unused).
         old_soln : ndarray
             Current position.
-
         new_soln : ndarray
             Next position.
-
         old_grad : ndarray
-            Current gradient.
-
+            Current gradient (unused).
         new_grad : ndarray
-            Next gradient.
+            Next gradient (unused).
+
+        Returns
+        -------
+        converged : bool
+            True if the maximum absolute change in position is small
+            relative to the norm of `new_soln`.
         """
         return (np.fabs(old_soln - new_soln).max()
                 < 1.e-6 * np.linalg.norm(new_soln))
@@ -348,26 +351,26 @@ class quasi_newton(object):
                   maxiter=10,
                   maxfun=6):
         '''
-        Run a simple backtracking using `scipy.optimize.fmin_powell`
+        Run a simple line search using `scipy.optimize.fmin_powell`
         to determine optimal stepsize.
 
         Parameters
         ----------
-
         direction : ndarray
-            Direction for backtracking search.
+            Direction for line search.
             Found by solving inner optimization problem
             in quasi-Newton algorithm.
-
-        maxiter : int
-            Maximum number of iterations in `fmin_powell`
+        maxiter : int, optional
+            Maximum number of iterations in `fmin_powell`.
+        maxfun : int, optional
+            Maximum number of function evaluations in `fmin_powell`.
 
         Returns
         -------
-
         stepsize : float
             Optimal stepsize.
-          
+        value : float
+            Objective value at the new position.
         '''
 
         BIG = 1e16

@@ -1,11 +1,16 @@
+"""
+Cython implementations for the mixed LASSO penalty.
+
+Implements the proximal maps of the mixed LASSO penalty and of its dual,
+the seminorm and dual seminorm, the strong set rule, KKT checks and the
+projection onto the epigraph of the penalty.
+"""
+
 import numpy as np, sys
 cimport numpy as cnp
 
 from .piecewise_linear import find_solution_piecewise_linear
 
-"""
-Implements prox and dual of group LASSO, strong set, seminorm and dual seminorm. The 
-"""
 
 DTYPE_float = float
 ctypedef cnp.float_t DTYPE_float_t
@@ -26,6 +31,36 @@ def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                               cnp.ndarray[DTYPE_float_t, ndim=1] factors,
                               cnp.ndarray[DTYPE_float_t, ndim=1] projection
                               ):
+    r"""
+    Proximal map of the mixed LASSO penalty in Lagrange form.
+
+    Parameters
+    ----------
+    prox_center : np.ndarray
+        Center of the proximal map.
+    lagrange : float
+        Lagrange parameter.
+    lipschitz : float
+        Coefficient of the quadratic term.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    norms, factors, projection : np.ndarray
+        Work buffers, assumed to be zero on entry; `norms` and `factors`
+        have one entry per group and `projection` one per coordinate.
+
+    Returns
+    -------
+    prox : np.ndarray
+        Minimizer of :math:`\frac{L}{2}\|x - c\|^2_2 + \lambda h(x)`
+        where :math:`c` is `prox_center`, :math:`L` is `lipschitz` and
+        :math:`h` is the mixed LASSO penalty.
+    """
     
     cdef int i, j
     cdef int p = groups.shape[0]
@@ -68,6 +103,32 @@ def mixed_lasso_dual_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                                 cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                                 cnp.ndarray[DTYPE_float_t, ndim=1] factors,
                                 cnp.ndarray[DTYPE_float_t, ndim=1] projection):
+    r"""
+    Projection onto the set where the dual mixed LASSO seminorm is at most `bound`.
+
+    Parameters
+    ----------
+    prox_center : np.ndarray
+        Point to project.
+    bound : float
+        Bound on the dual seminorm.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    norms, factors, projection : np.ndarray
+        Work buffers, assumed to be zero on entry; `norms` and `factors`
+        have one entry per group and `projection` one per coordinate.
+
+    Returns
+    -------
+    projection : np.ndarray
+        The projection of `prox_center`.
+    """
     
     cdef int i, j
     cdef int p = groups.shape[0]
@@ -104,6 +165,34 @@ def seminorm_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                          cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                          DTYPE_int_t check_feasibility,
 			 DTYPE_float_t nntol=1.e-5):
+    r"""
+    Evaluate the mixed LASSO seminorm (with Lagrange parameter 1).
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Argument of the seminorm.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    norms : np.ndarray
+        Work buffer with one entry per group, assumed to be zero on entry.
+    check_feasibility : int
+        If nonzero, return `np.inf` if a positive part or nonnegative
+        coordinate is less than a small tolerance.
+    nntol : float, optional
+        Tolerance for the nonnegativity check.
+
+    Returns
+    -------
+    value : float
+        Value of the seminorm.
+    """
     
     cdef int i, j
     cdef DTYPE_float_t value
@@ -145,6 +234,35 @@ def strong_set_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                            cnp.ndarray[DTYPE_intp_t, ndim=1] nonnegative, 
                            cnp.ndarray[DTYPE_intp_t, ndim=1] groups,
                            cnp.ndarray[DTYPE_float_t, ndim=1] weights):
+    r"""
+    Strong set rule for the mixed LASSO penalty.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Gradient of the smooth part of the objective at the solution
+        for `lagrange_cur`.
+    lagrange_new : float
+        New value of the Lagrange parameter.
+    lagrange_cur : float
+        Current value of the Lagrange parameter.
+    slope_estimate : float
+        Estimate of the slope used by the strong rule.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+
+    Returns
+    -------
+    value : np.ndarray
+        Array that is 1 for the coordinates guessed to be active at
+        `lagrange_new` and 0 otherwise.
+    """
     
     cdef cnp.ndarray value = np.zeros_like(x)
     cdef cnp.ndarray norms = np.zeros_like(weights)
@@ -181,6 +299,35 @@ def check_KKT_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] grad,
                           cnp.ndarray[DTYPE_float_t, ndim=1] weights,
 			  DTYPE_float_t tol=1.e-2,
 			  DTYPE_float_t nntol=1.e-2):
+    r"""
+    Check the KKT conditions of a mixed LASSO problem.
+
+    Parameters
+    ----------
+    grad : np.ndarray
+        Gradient of the smooth part of the objective at `solution`.
+    solution : np.ndarray
+        Candidate solution.
+    lagrange : float
+        Lagrange parameter.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    tol : float, optional
+        Relative tolerance for the checks.
+    nntol : float, optional
+        Tolerance for the checks of nonnegative coordinates.
+
+    Returns
+    -------
+    failing : np.ndarray
+        Number of failed checks for each coordinate.
+    """
     
     cdef cnp.ndarray failing = np.zeros_like(grad)
     cdef cnp.ndarray norms = np.zeros_like(weights)
@@ -282,6 +429,34 @@ def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                               cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                               DTYPE_float_t nntol=1.e-5,
                               DTYPE_int_t check_feasibility=0):
+    r"""
+    Evaluate the dual of the mixed LASSO seminorm.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Argument of the dual seminorm.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    norms : np.ndarray
+        Work buffer with one entry per group, assumed to be zero on entry.
+    nntol : float, optional
+        Tolerance for the feasibility checks.
+    check_feasibility : int, optional
+        If nonzero, return `np.inf` if a group with weight 0 has a
+        nonzero norm or a nonnegative coordinate is negative.
+
+    Returns
+    -------
+    value : float
+        Value of the dual seminorm.
+    """
     
     cdef int i
     cdef DTYPE_float_t value
@@ -328,6 +503,35 @@ def mixed_lasso_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                            cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                            cnp.ndarray[DTYPE_float_t, ndim=1] factors,
                            cnp.ndarray[DTYPE_float_t, ndim=1] projection):
+    r"""
+    Proximal map of the mixed LASSO penalty in bound form.
+
+    Computes the projection of `prox_center` onto the set where the mixed
+    LASSO seminorm is at most `bound`.
+
+    Parameters
+    ----------
+    prox_center : np.ndarray
+        Point to project.
+    bound : float
+        Bound on the seminorm.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    norms, factors, projection : np.ndarray
+        Work buffers, assumed to be zero on entry; `norms` and `factors`
+        have one entry per group and `projection` one per coordinate.
+
+    Returns
+    -------
+    projection : np.ndarray
+        The projection of `prox_center`.
+    """
 
     cdef int p = groups.shape[0]
     cdef int stop, i, j
@@ -389,6 +593,32 @@ def mixed_lasso_epigraph(cnp.ndarray[DTYPE_float_t, ndim=1] center,
                          cnp.ndarray[DTYPE_float_t, ndim=1] norms,
                          cnp.ndarray[DTYPE_float_t, ndim=1] factors,
                          cnp.ndarray[DTYPE_float_t, ndim=1] projection):
+    r"""
+    Projection onto the epigraph of the mixed LASSO seminorm.
+
+    Parameters
+    ----------
+    center : np.ndarray
+        Point to project: all entries but the last are the
+        coefficients, the last entry is the value of the epigraph
+        variable.
+    l1_penalty, unpenalized, positive_part, nonnegative : np.ndarray
+        Indices of the coordinates with an :math:`\ell_1` penalty, no
+        penalty, a positive part penalty and a nonnegativity constraint.
+    groups : np.ndarray
+        Group index of each coordinate, or a negative value for
+        coordinates that are not in a group.
+    weights : np.ndarray
+        Weight of each group.
+    norms, factors, projection : np.ndarray
+        Work buffers, assumed to be zero on entry; `norms` and `factors`
+        have one entry per group and `projection` one per coefficient.
+
+    Returns
+    -------
+    result : np.ndarray
+        The projection of `center` onto the epigraph.
+    """
 
     cdef cnp.ndarray[DTYPE_float_t, ndim=1] x = center[:-1]
     cdef DTYPE_float_t norm = center[-1]

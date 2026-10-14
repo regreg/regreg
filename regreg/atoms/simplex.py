@@ -1,5 +1,5 @@
 """
-Projection onto simplex (and its conjugate)
+The simplex constraint and its conjugate, the maximum function.
 """
 import numpy as np
 from copy import copy
@@ -11,6 +11,14 @@ from ..doctemplates import doc_template_user
 from .piecewise_linear import find_solution_piecewise_linear_uncon
 
 class simplex_constraint(atom):
+
+    r"""
+    The simplex constraint.
+
+    The indicator of the probability simplex
+    :math:`\{\beta : \beta_i \geq 0, \sum_i \beta_i = 1\}`. Its
+    conjugate is the `maximum` function.
+    """
 
     tol = 1.0e-05
 
@@ -73,6 +81,21 @@ class simplex_constraint(atom):
         r"""
         Projection onto the simplex.
 
+        Computes the proximal map of the simplex constraint, i.e. the
+        Euclidean projection onto the simplex of the center implied by
+        `proxq` (combined with `self.quadratic` and `self.offset`).
+
+        Parameters
+        ----------
+        proxq : identity_quadratic
+            A quadratic added to the atom before minimizing.
+        prox_control : None or dict, optional
+            Ignored.
+
+        Returns
+        -------
+        Z : np.ndarray
+            The proximal map of the implied center of `proxq`.
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
         if totalq.coef == 0:
@@ -105,23 +128,21 @@ class simplex_constraint(atom):
         """
         Value of the simplex constraint.
 
-        Always 0 unless `check_feasibility` is True.
+        Always 0 (plus the value of `self.quadratic`) unless
+        `check_feasibility` is True.
 
         Parameters
         ----------
-
-        arg : `np.ndarray(float)`
-            Argument of the seminorm.
-
-        check_feasibility : `bool`
-            If `True`, then return `np.inf` if appropriate.
+        arg : np.ndarray
+            Argument of the constraint.
+        check_feasibility : bool, optional
+            If True, then return ``np.inf`` if `arg` is not in the
+            simplex.
 
         Returns
         -------
-
-        value : `float`
-            The seminorm of `arg`.
-
+        value : float
+            The value of the constraint at `arg`.
         """
         arg = np.asarray(arg)
         x_offset = self.apply_offset(arg)
@@ -134,15 +155,14 @@ class simplex_constraint(atom):
 
 class maximum(atom):
 
+    """
+    The conjugate of the simplex constraint: ``x.max()``.
+    """
+
     objective_vars = atom.objective_vars.copy()
     objective_vars['klass'] = 'maximum'
     objective_vars['dualklass'] = 'simplex_constraint'
     objective_vars['initargs'] = '(4,)'
-
-    """
-    The conjugate of the simplex constraint: `x.max()`.
-
-    """
 
     tol = 1.0e-05
 
@@ -203,8 +223,24 @@ class maximum(atom):
     @doc_template_user
     def proximal(self, proxq, prox_control=None):
         r"""
-        Projection onto the simplex.
+        Proximal map of the maximum function.
 
+        By the Moreau decomposition, this is the residual after
+        projecting the implied center of `proxq` onto the simplex
+        scaled by ``1 / L``, where :math:`L` is the coefficient of the
+        combined quadratic.
+
+        Parameters
+        ----------
+        proxq : identity_quadratic
+            A quadratic added to the atom before minimizing.
+        prox_control : None or dict, optional
+            Ignored.
+
+        Returns
+        -------
+        Z : np.ndarray
+            The proximal map of the implied center of `proxq`.
         """
         offset, totalq = (self.quadratic + proxq).recenter(self.offset)
         if totalq.coef == 0:
@@ -229,25 +265,22 @@ class maximum(atom):
     @doc_template_user
     def nonsmooth_objective(self, arg, check_feasibility=False):
         """
-        Value of the simplex constraint.
+        Value of the maximum function.
 
-        Always 0 unless `check_feasibility` is True.
+        Returns the maximum entry of `arg` (after applying the offset)
+        plus the value of `self.quadratic`.
 
         Parameters
         ----------
-
-        arg : `np.ndarray(float)`
-            Argument of the seminorm.
-
-        check_feasibility : `bool`
-            If `True`, then return `np.inf` if appropriate.
+        arg : np.ndarray
+            Argument of the maximum function.
+        check_feasibility : bool, optional
+            Ignored: the maximum function is finite everywhere.
 
         Returns
         -------
-
-        value : `float`
-            The seminorm of `arg`.
-
+        value : float
+            The value of the maximum function at `arg`.
         """
 
         arg = np.asarray(arg)

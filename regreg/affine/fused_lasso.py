@@ -7,31 +7,26 @@ from ..affine import astransform, affine_transform
 def difference_transform(X, order=1, sorted=False,
                          transform=False):
     """
-    Compute the divided difference matrix for X
-    after sorting X.
+    Compute the divided difference matrix for `X`
+    after sorting `X`.
 
     Parameters
     ----------
-
-    X: np.array, float, ndim=1
-        X coordinates where discrete derivative is computed.
-
-    order: int
+    X : ndarray
+        1D array of coordinates where discrete derivative is computed.
+    order : int
         What order of difference should we compute?
-
-    sorted: bool
-        Is X sorted?
-
-    transform: bool
+    sorted : bool
+        Is `X` sorted?
+    transform : bool
         If True, return a linear_transform rather
         than a sparse matrix.
 
     Returns
     -------
-
-    D: np.array, ndim=2, shape=(n-order,order)
-        Matrix of divided differences of sorted X.
-
+    D : scipy.sparse.csr_matrix or linear_transform
+        Matrix of divided differences of sorted `X`, of
+        shape ``(n-order, n)``.
     """
     if not sorted:
         X = np.sort(X)
@@ -50,6 +45,19 @@ def difference_transform(X, order=1, sorted=False,
     return astransform(Dfinal)
 
 class trend_filter(affine_transform):
+    """
+    Linear transform computing divided differences of a given order
+    on a set of knots, as used in trend filtering.
+
+    Parameters
+    ----------
+    knots : ndarray
+        1D array of knot locations.
+    order : int, optional
+        Order of the divided differences.
+    sorted : bool, optional
+        Are the knots sorted?
+    """
 
     def __init__(self, knots, order=1, sorted=False):
         self.order = order
@@ -64,6 +72,9 @@ class trend_filter(affine_transform):
 
     @classmethod
     def grid(cls, m, order=1, sorted=False):
+        """
+        Trend filter transform on the equally spaced knots ``np.arange(m)``.
+        """
         return cls(np.arange(m), order=order, sorted=sorted)
 
     def linear_map(self, x):
@@ -77,6 +88,21 @@ class trend_filter(affine_transform):
 
 
 class trend_filter_inverse(affine_transform):
+    """
+    Pseudo-inverse of a first order `trend_filter` transform.
+
+    Maps divided differences back to a mean-centered sequence
+    on the knots (via cumulative sums).
+
+    Parameters
+    ----------
+    knots : ndarray
+        1D array of knot locations.
+    order : int, optional
+        Order of the divided differences. Only ``order=1`` is implemented.
+    sorted : bool, optional
+        Are the knots sorted?
+    """
 
     def __init__(self, knots, order=1, sorted=False):
         self.order = order
@@ -94,6 +120,10 @@ class trend_filter_inverse(affine_transform):
 
     @classmethod
     def grid(cls, m, order=1, sorted=False):
+        """
+        Inverse trend filter transform on the equally spaced
+        knots ``np.arange(m)``.
+        """
         return cls(np.arange(m), order=order, sorted=sorted)
 
     def linear_map(self, x):

@@ -1,3 +1,6 @@
+r"""
+Weighted versions of the :math:`\ell_1` and :math:`\ell_{\infty}` norms.
+"""
 import numpy as np
 from scipy import sparse
 from copy import copy
@@ -17,7 +20,25 @@ from .piecewise_linear import find_solution_piecewise_linear
 class seminorm(unweighted_seminorm):
 
     """
-    A class that defines the API for support functions.
+    Base class for weighted seminorms.
+
+    Parameters
+    ----------
+    weights : np.ndarray
+        Nonnegative weights, one per coordinate. The shape of the atom
+        is the shape of `weights`.
+    lagrange : float, optional
+        Lagrange parameter (exactly one of `lagrange` and `bound` must be
+        specified).
+    bound : float, optional
+        Bound parameter.
+    offset : np.ndarray, optional
+        Offset subtracted from the argument before the seminorm is
+        evaluated.
+    quadratic : identity_quadratic, optional
+        Quadratic term added to the seminorm.
+    initial : np.ndarray, optional
+        Initial value of the coefficients.
     """
     tol = 1.0e-05
 
@@ -118,7 +139,21 @@ class seminorm(unweighted_seminorm):
     
     def form_transform(self, subsample=False):
         '''
+        Form the linear transform applied before the seminorm.
+
         By subsampling we can get rid of some variables that have 0 weights.
+
+        Parameters
+        ----------
+        subsample : bool, optional
+            If True and some weights are 0, the transform is a `selector`
+            keeping only the coordinates with nonzero weights. Otherwise
+            it is the identity.
+
+        Returns
+        -------
+        transform : affine_transform
+            The (cached) linear transform.
         '''
         if not hasattr(self, '_linear_transform'):
             if self.weights is not None:
@@ -136,8 +171,13 @@ class seminorm(unweighted_seminorm):
 @objective_doc_templater()
 class l1norm(seminorm):
 
-    """
-    The l1 norm
+    r"""
+    The weighted :math:`\ell_1` norm.
+
+    This is :math:`\|W\beta\|_1 = \sum_i w_i |\beta_i|` where
+    :math:`W` is the diagonal matrix of `weights`. Coordinates with weight
+    0 are unpenalized; coordinates with infinite weight are constrained
+    to be 0.
     """
     prox_tol = 1.0e-10
 
@@ -193,9 +233,17 @@ class l1norm(seminorm):
     
     def terms(self, arg):
         """
-        Return the args that are summed
-        in computing the seminorm.
+        Return the terms that are summed in computing the seminorm.
 
+        Parameters
+        ----------
+        arg : np.ndarray
+            Argument of the seminorm.
+
+        Returns
+        -------
+        terms : np.ndarray
+            The values ``np.fabs(arg) * self.weights``.
         """
         arg = np.asarray(arg)
         return np.fabs(arg) * self.weights
@@ -204,7 +252,11 @@ class l1norm(seminorm):
 class supnorm(seminorm):
 
     r"""
-    The :math:`\ell_{\infty}` norm
+    The weighted :math:`\ell_{\infty}` norm.
+
+    This is :math:`\|W\beta\|_{\infty} = \max_i w_i |\beta_i|` where
+    :math:`W` is the diagonal matrix of `weights`. It is the dual of the
+    weighted `l1norm` with weights :math:`1/w_i`.
     """
 
     objective_template = r"""\|W%(var)s\|_{\infty}"""
@@ -257,9 +309,20 @@ class supnorm(seminorm):
 
     def terms(self, arg, check_feasibility=True):
         """
-        Return the args that are maximized
-        in computing the seminorm.
+        Return the terms that are maximized in computing the seminorm.
 
+        Parameters
+        ----------
+        arg : np.ndarray
+            Argument of the seminorm.
+        check_feasibility : bool, optional
+            If True, entries with weight 0 are set to ``np.inf`` where
+            `arg` is nonzero (and 0 otherwise).
+
+        Returns
+        -------
+        terms : np.ndarray
+            The values ``np.fabs(arg) / self.weights``.
         """
         arg = np.asarray(arg)
         v = np.fabs(arg) / self.weights

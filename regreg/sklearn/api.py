@@ -1,3 +1,9 @@
+"""Convenience imports of the sklearn-compatible estimators.
+
+The estimators are only defined if `sklearn` is importable, in which
+case `have_sklearn` is True.
+"""
+
 have_sklearn = True
 try:
     from sklearn.base import (BaseEstimator, 

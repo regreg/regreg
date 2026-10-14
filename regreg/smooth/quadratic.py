@@ -1,3 +1,5 @@
+"""Quadratic losses, such as squared error and the signal approximator."""
+
 import numpy as np
 import warnings
 try:
@@ -13,36 +15,34 @@ from ..atoms import _work_out_conjugate
 from ..identity_quadratic import identity_quadratic
 
 class quadratic_loss(smooth_atom):
-    """
-    Half of the square of the l2 norm
+    r"""Half of a (possibly weighted) squared :math:`\ell_2` norm.
+
+    Represents
+
+    .. math::
+
+       \beta \mapsto \frac{C}{2} \beta^T Q \beta
+
+    with :math:`Q = I` if `Q` is None.
 
     Parameters
     ----------
-
-    shape : tuple
-       Shape of argument to `smooth_objective`
-
-    Q: ndarray 
-       positive definite matrix (optional),
-       defaults to identity. If `Qdiag` then
-       `Q` is one-dimensional.
-
-    Qdiag : bool
-       Is the quadratic form diagonal?
-
-    coef : float (optional)
-       Scalar multiple to be applied (must be nonnegative)
-
-    offset : ndarray (optional)
-       Vector to be subtracted before evaluating `smooth_objective`. 
-
-    quadratic : `identity_quadratic` (optional)
-       Instance of `identity_quadratic` to be added to overall
-       objective.
-
-    initial : ndarray (optional)
-       Initial value for coefficients.
-
+    shape : int or tuple
+        Shape of the argument to `smooth_objective`.
+    Q : ndarray or `regreg.affine.affine_transform`, optional
+        Positive definite matrix, defaults to the identity. If `Qdiag`
+        then `Q` is one-dimensional and holds the diagonal.
+    Qdiag : bool, optional
+        Is the quadratic form diagonal?
+    coef : float, optional
+        Scalar multiple :math:`C` to be applied (must be nonnegative).
+    offset : ndarray, optional
+        Vector to be subtracted from the argument before evaluating
+        `smooth_objective`.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the overall objective.
+    initial : ndarray, optional
+        Initial value for the coefficients.
     """
 
     objective_vars = smooth_atom.objective_vars.copy()
@@ -76,6 +76,24 @@ class quadratic_loss(smooth_atom):
                   offset=None,
                   quadratic=None,
                   initial=None):
+        """Create a quadratic loss from a (dense) matrix.
+
+        Parameters
+        ----------
+        Q : ndarray
+            Positive definite matrix of shape ``(p, p)``.
+        offset : ndarray, optional
+            Vector to be subtracted from the argument before evaluating the
+            loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial value for the coefficients.
+
+        Returns
+        -------
+        loss : `quadratic_loss`
+        """
         return quadratic_loss((Q.shape[0],), 
                               Q=Q,
                               offset=offset,
@@ -87,6 +105,27 @@ class quadratic_loss(smooth_atom):
                           offset=None,
                           quadratic=None,
                           initial=None):
+        r"""Create the quadratic loss of a linear transform.
+
+        The loss is :math:`\beta \mapsto \frac{1}{2}\|X\beta\|^2_2`, with
+        :math:`Q = X^T X` represented as a composition of transforms.
+
+        Parameters
+        ----------
+        transform : ndarray or `regreg.affine.affine_transform`
+            The linear transform :math:`X`.
+        offset : ndarray, optional
+            Vector to be subtracted from the argument before evaluating the
+            loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial value for the coefficients.
+
+        Returns
+        -------
+        loss : `quadratic_loss`
+        """
         transform = astransform(transform)
         Q = composition(transform.T, transform)
         return quadratic_loss(Q.input_shape, 
@@ -100,6 +139,24 @@ class quadratic_loss(smooth_atom):
                  offset=None,
                  quadratic=None,
                  initial=None):
+        """Create a quadratic loss with diagonal quadratic form.
+
+        Parameters
+        ----------
+        D : ndarray
+            Diagonal of the (positive definite) quadratic form.
+        offset : ndarray, optional
+            Vector to be subtracted from the argument before evaluating the
+            loss.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        initial : ndarray, optional
+            Initial value for the coefficients.
+
+        Returns
+        -------
+        loss : `quadratic_loss`
+        """
         D = np.asarray(D)
         return quadratic_loss((D.shape[0],), 
                               Q=D,
@@ -129,12 +186,27 @@ class quadratic_loss(smooth_atom):
                  self.quadratic)
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
-        """
-        Evaluate a smooth function and/or its gradient
+        """Evaluate the smooth objective, its gradient, or both.
 
-        if mode == 'both', return both function value and gradient
-        if mode == 'grad', return only the gradient
-        if mode == 'func', return only the function value
+        Parameters
+        ----------
+        x : ndarray
+            The current parameter values.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `x` is not in the domain.
+
+        Returns
+        -------
+        f : float
+            Objective value at `x`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `x`; returned when `mode` is 'grad'
+            or 'both'.
         """
 
         x = self.apply_offset(x)
@@ -164,6 +236,23 @@ class quadratic_loss(smooth_atom):
                 raise ValueError("mode incorrectly specified")
 
     def get_conjugate(self, factor=False):
+        """Return the convex conjugate of the loss.
+
+        Parameters
+        ----------
+        factor : bool, optional
+            For a non-diagonal `Q`, whether to compute a Cholesky
+            factorization to represent the conjugate.
+
+        Returns
+        -------
+        conjugate : `regreg.smooth.smooth_atom`
+
+        Raises
+        ------
+        ValueError
+            If `Q` is not diagonal and `factor` is False.
+        """
 
         if self.Q is None:
             as_quad = (identity_quadratic(self.coef, self.offset, 0, 0) + self.quadratic).collapsed()
@@ -192,19 +281,23 @@ class quadratic_loss(smooth_atom):
 
 class cholesky(object):
 
-    '''
+    """Linear transform given by multiplication by :math:`Q^{-1}`.
 
-    Given :math:`Q > 0`, returns a linear transform
-    that is multiplication by :math:`Q^{-1}` by
-    first computing the Cholesky decomposition of :math:`Q`.
+    Given :math:`Q > 0`, represents multiplication by :math:`Q^{-1}` by
+    first computing the Cholesky decomposition of :math:`Q`. The
+    transform is symmetric, so `adjoint_map` equals `linear_map`.
 
     Parameters
     ----------
-
-    Q: array
-       positive definite matrix 
-
-    '''
+    Q : ndarray
+        Positive definite matrix (in banded storage if `banded`).
+    cholesky : optional
+        A precomputed Cholesky factorization, as returned by
+        `scipy.linalg.cho_factor` (or `scipy.linalg.cholesky_banded` if
+        `banded`).
+    banded : bool, optional
+        Whether `Q` is stored in banded form.
+    """
 
     def __init__(self, Q, cholesky=None, banded=False):
         self.input_shape = Q.shape[0]
@@ -221,33 +314,39 @@ class cholesky(object):
             self._cholesky = cholesky
 
     def linear_map(self, x):
+        """Return :math:`Q^{-1}x`."""
         if not self.banded:
             return cho_solve(self._cholesky, x)
         else:
             return cho_solve_banded(self._cholesky, x)
 
     def affine_map(self, x):
+        """Return :math:`Q^{-1}x` (the transform has no offset)."""
         return self.linear_map(x)
 
     def adjoint_map(self, x):
+        """Return :math:`Q^{-1}x` (the transform is symmetric)."""
         return self.linear_map(x)
 
 def squared_error(X, Y, coef=1):
-    r"""
-    Least squares with design $X$
+    r"""Least squares loss with design :math:`X`.
 
     .. math::
 
-       \frac{C}{2} \|X\beta-Y\|^2_2
+       \beta \mapsto \frac{C}{2} \|X\beta - Y\|^2_2
 
     Parameters
     ----------
+    X : ndarray or `regreg.affine.affine_transform`
+        Design matrix.
+    Y : ndarray
+        Response vector.
+    coef : float, optional
+        Scalar multiple :math:`C` (must be nonnegative).
 
-    X : affine_transform
-        Design matrix
-
-    Y : np.array
-
+    Returns
+    -------
+    loss : `regreg.smooth.affine_smooth`
     """
     atom = quadratic_loss.affine(X, -Y, coef=coef)
     atom.atom.objective_vars['offset'] = 'Y'
@@ -255,13 +354,22 @@ def squared_error(X, Y, coef=1):
     return atom
 
 def signal_approximator(signal, coef=1):
-    """
-    Least squares with design $I$
+    r"""Least squares loss with identity design.
 
     .. math::
 
-       \frac{C}{2} \|\beta-Y\|^2_2
+       \beta \mapsto \frac{C}{2} \|\beta - Y\|^2_2
 
+    Parameters
+    ----------
+    signal : ndarray
+        The signal :math:`Y` to be approximated.
+    coef : float, optional
+        Scalar multiple :math:`C` (must be nonnegative).
+
+    Returns
+    -------
+    loss : `quadratic_loss`
     """
     atom = quadratic_loss.shift(signal, coef=coef)    
     atom.objective_vars['offset'] = 'Y'

@@ -1,3 +1,5 @@
+"""sklearn estimators for Cox proportional hazards regression."""
+
 import numpy as np
 
 have_sklearn = True
@@ -12,11 +14,11 @@ from ..smooth.glm import (glm,
 if have_sklearn:
     class sklearn_cox(sklearn_regression):
 
-        """
+        """Regularized Cox proportional hazards regression for sklearn.
 
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
+        Any atom can be used as a regularizer.
 
+        The response passed to `fit` has columns ``(event_times, censoring)``.
         """
 
         def _loglike_factory(self, X, y):
@@ -63,11 +65,6 @@ if have_sklearn:
 
     class sklearn_cox_lagrange(sklearn_regression_lagrange, sklearn_cox):
 
-        """
-
-        A simple regression mixin for sklearn
-        that allows any atom to be used as a regularizer.
-
-        """
+        """Lagrange-form Cox proportional hazards regression for sklearn."""
         pass
 

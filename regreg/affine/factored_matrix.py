@@ -1,8 +1,10 @@
 """
-This module contains the implementation operator and nuclear norms, used in 
-matrix completion problems and other low-rank factorization
-problems.
+Low-rank (factored) matrices and the operator and nuclear norms.
 
+This module contains an implementation of the operator and nuclear norms
+whose proximal maps use an iterative partial SVD and return the result as a
+`factored_matrix`. These are used in matrix completion problems and other
+low-rank factorization problems.
 """
 from __future__ import print_function, division, absolute_import
 
@@ -21,8 +23,27 @@ from ..doctemplates import doc_template_user
 class factored_matrix(object):
 
     """
-    A class for storing the SVD of a linear_tranform. 
+    A class for storing the SVD of a linear_transform. 
     Has affine_transform attributes like linear_map.
+
+    Parameters
+    ----------
+    linear_operator : sequence or ndarray or affine_transform
+        Either a 3-sequence ``(U, D, VT)`` of SVD factors, or a
+        transform whose (partial) SVD is computed with
+        `compute_iterative_svd`.
+    min_singular : float, optional
+        Smallest singular value to keep; must be non-negative.
+    tol : float, optional
+        Tolerance passed to `compute_iterative_svd`.
+    initial_rank : None or int, optional
+        Initial rank guess passed to `compute_iterative_svd`.
+    initial : None or ndarray, optional
+        Warm start passed to `compute_iterative_svd`.
+    affine_offset : None or ndarray, optional
+        Offset added in `affine_map`.
+    debug : bool, optional
+        Print debugging statements.
     """
 
     def __init__(self,
@@ -52,6 +73,9 @@ class factored_matrix(object):
             self.X = astransform(linear_operator)
 
     def copy(self):
+        """
+        Return a `factored_matrix` with copies of the SVD factors.
+        """
         return factored_matrix([self.factors[0].copy(), self.factors[1].copy(), self.factors[2].copy()])
 
     def _setX(self,transform):
@@ -125,11 +149,12 @@ def compute_iterative_svd(transform,
                           max_rank=None):
 
     """
-    Compute the SVD of a matrix using partial_svd.
+    Compute the SVD of a matrix using `partial_svd`.
 
-    If no initial rank is given, it assumes a rank of size min(n,p) / 10.
+    If no initial rank is given, it assumes a rank of size
+    ``min(n,p) / 10 + 1``.
 
-    Iteratively calls :func:`partial_svd` until the `singular_values` are small
+    Iteratively calls :func:`partial_svd` until the singular values are small
     enough.
 
     Parameters
@@ -139,16 +164,18 @@ def compute_iterative_svd(transform,
         ndarray, it is first cast with :func:`astransform()`
     initial_rank : None or int, optional
         A guess at the rank of the matrix.
-    warm_start : np.ndarray(float), optional
-        A guess at the left singular vectors of the matrix.
+    warm_start : ndarray, optional
+        A guess at the singular vectors of the matrix.
         For fat matrices, these should be right singular vectors,
         while for tall matrices these should be left singular vectors.
     min_singular : float, optional
-        Stop when the singular value has this relative tolerance.
-    tol: float, optional
+        Stop when the smallest singular value found is below `min_singular`
+        times the largest; only singular values at least `min_singular`
+        are returned.
+    tol : float, optional
         Tolerance at which the norm of the singular values are deemed
         to have converged.
-    debug: bool, optional
+    debug : bool, optional
         Print debugging statements.
     stopping_rule : None or callable, optional
         Function of the singular values ``D``, returning True | False,  used to
@@ -159,19 +186,17 @@ def compute_iterative_svd(transform,
     update_rank : callable, optional
         A rule to update rank, defaults to doubling the rank.
     max_rank : None or int, optional
-        Largest rank considered. Defaults to 2 * min(transform.output_shape[0], 
-        transform.input_shape[0]). An exception is raised if algorithm exceeds
-        given value.
+        Largest rank considered. Defaults to
+        ``2 * min(transform.output_shape[0], transform.input_shape[0])``.
+        An exception is raised if algorithm exceeds given value.
 
     Returns
     -------
-    U, D, VT, Ufull : np.ndarray(float)
-        An SVD of the transform. Ufull is the full set of left singular vectors
-        found.
+    U, D, VT : ndarray
+        An SVD of the transform.
 
     Examples
     --------
-
     >>> import regreg.api as rr
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
@@ -255,53 +280,45 @@ def partial_svd(transform,
                 stopping_rule=None):
 
     """
-    Compute partial SVD of the linear transform `transform`
+    Compute partial SVD of the linear transform `transform`.
 
-    Uses the Mazumder/Hastie algorithm in (TODO: CITE)
+    Uses the Mazumder/Hastie algorithm in (TODO: CITE), i.e. block
+    power (subspace) iterations with QR decompositions.
 
     Parameters
     ----------
-    transform : [linear_transform, ndarray]
+    transform : linear_transform or ndarray
         Linear_transform whose SVD is computed. If an
-        ndarray, it is first cast with :func:`astransform()`
-
+        ndarray, it is first cast with :func:`astransform()`.
     rank : int, optional
         What rank of SVD to compute.
-
     padding : int, optional
         Compute a few further singular values / vectors. This results
         in a better estimator of the rank of interest.
-
     max_its : int, optional
         How many iterations of the full cycle to complete.
-
     tol : float, optional
         Tolerance at which the norm of the singular values are deemed
         to have converged.
-
-    warm_start : np.ndarray(float), optional
-        A guess at the singular vectors of the matrix. 
-        For fat matrices, these should be right singular vectors,
-        while for tall matrices these should be left singular vectors.
-
-    return_full: bool, optional
-        Return a singular values / vectors from padding?
-
-    debug: bool, optional
+    warm_start : ndarray, optional
+        A guess at the left singular vectors of the matrix, of shape
+        ``(n,)``, ``(n, k)`` or ``(n, rank + padding)``; it is padded
+        with random columns if necessary.
+    return_full : bool, optional
+        Also return the singular values / vectors from padding?
+    debug : bool, optional
         Print debugging statements.
-
-    stopping_rule : callable
+    stopping_rule : None or callable, optional
         Function of the singular values used to determine whether to stop.
 
     Returns
     -------
-    U, D, VT, Ufull : np.ndarray(float)
-        An SVD up to `rank` of the transform.
-        Ufull is the full set of left singular vectors found.
+    U, D, VT : ndarray
+        An SVD up to `rank` (or ``rank + padding`` if `return_full`) of the
+        transform.
 
     Examples
     --------
-
     >>> from regreg.affine.factored_matrix import partial_svd
     >>> np.random.seed(0)
     >>> X = np.random.standard_normal((100, 200))
@@ -370,7 +387,28 @@ def partial_svd(transform,
 class nuclear_norm(nuclear_norm_atom):
 
     """
-    The nuclear norm
+    The nuclear norm, with proximal maps computed by an iterative
+    partial SVD and returned as a `factored_matrix`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (Lagrange form).
+    bound : float, optional
+        Bound parameter (bound form).
+    offset : ndarray, optional
+        Offset applied before evaluating the norm.
+    quadratic : identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : ndarray, optional
+        Ignored.
+    initial_rank : int, optional
+        Initial rank guess for the iterative SVD.
+    warm_start : ndarray, optional
+        Warm start for the singular vectors, of shape
+        ``(max(shape), initial_rank)``.
     """
     prox_tol = 1.0e-5
     svd_tol = 1.e-5
@@ -494,6 +532,30 @@ class nuclear_norm(nuclear_norm_atom):
 
 @objective_doc_templater()
 class operator_norm(operator_norm_atom):
+    """
+    The operator norm, with proximal maps computed via the
+    proximal maps of the dual `nuclear_norm`.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the matrix argument.
+    lagrange : float, optional
+        Lagrange parameter (Lagrange form).
+    bound : float, optional
+        Bound parameter (bound form).
+    offset : ndarray, optional
+        Offset applied before evaluating the norm.
+    quadratic : identity_quadratic, optional
+        Quadratic term added to the atom.
+    initial : ndarray, optional
+        Passed to the dual `nuclear_norm` (where it is ignored).
+    initial_rank : int, optional
+        Initial rank guess for the iterative SVD.
+    warm_start : ndarray, optional
+        Warm start for the singular vectors, of shape
+        ``(shape[0], initial_rank)``.
+    """
     prox_tol = 1.0e-5
     svd_tol = 1.e-4
     objective_vars = operator_norm_atom.objective_vars.copy()

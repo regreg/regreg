@@ -1,3 +1,8 @@
+"""
+Regularization paths for sparse group block penalties on multiresponse
+problems.
+"""
+
 from __future__ import print_function, division, absolute_import
 
 from warnings import warn
@@ -27,11 +32,36 @@ from .group_lasso import group_lasso_path, default_lagrange_sequence
 
 class sparse_group_common_path(group_lasso_path):
 
-    BIG = 1e12 # lagrange parameter for finding null solution
+    r"""
+    Sparse group block path for responses sharing a common design.
 
+    Responses here share a common X, e.g. multinomial regression. The
+    coefficients form a matrix with one row per feature and one column per
+    response; each row is a group penalized by
+    `regreg.atoms.sparse_group_block.sparse_group_block`.
+
+    Parameters
+    ----------
+    saturated_loss : `regreg.smooth.smooth_atom`
+        Multiresponse loss of shape ``(n,q)``, as a function of the linear
+        predictor.
+    X : ndarray
+        Design matrix of shape ``(n,p)``.
+    l1_penalty : float
+        Weight of the L1 part of the penalty.
+    l2_penalty : float
+        Weight of the L2 (row norm) part of the penalty.
+    elastic_net_param : ndarray, optional
+        Ridge weights for each coefficient. Defaults to all ones.
+    alpha : float, optional
+        Elastic net mixing parameter; 1 is no ridge term.
+    l1_alpha : float, optional
+        The :math:`\alpha` of the sparse group LASSO paper. If not None,
+        the L1 and L2 weights are multiplied by `l1_alpha` and
+        ``1 - l1_alpha`` respectively.
     """
-    Responses here share a common X, e.g. multinomial regression.
-    """
+
+    BIG = 1e12 # lagrange parameter for finding null solution
 
     def __init__(self, 
                  saturated_loss, # shape (n,q) -- multiresponse
@@ -107,6 +137,21 @@ class sparse_group_common_path(group_lasso_path):
     def enet_loss(self,
                   lagrange,
                   candidate_groups=None):
+        """
+        Ridge (elastic net) part of the objective.
+
+        Parameters
+        ----------
+        lagrange : float
+            Lagrange parameter.
+        candidate_groups : index, optional
+            Restrict the ridge term to these rows (features).
+
+        Returns
+        -------
+        loss : `regreg.smooth.quadratic.quadratic_loss`
+            Diagonal quadratic loss.
+        """
         return _restricted_elastic_net(self.elastic_net_param, 
                                        self._penalized_vars,
                                        lagrange,
@@ -117,8 +162,21 @@ class sparse_group_common_path(group_lasso_path):
                           X,  # ignored
                           columns):
         """
-        Extract columns of self.Xs into ndarray or
-        Argument `X` is ignored here.
+        Extract columns of the common design into a regreg transform.
+
+        Argument `X` is ignored here; columns are taken from ``self._X``.
+
+        Parameters
+        ----------
+        X : object
+            Ignored.
+        columns : sequence of int
+            Columns (features) to extract.
+
+        Returns
+        -------
+        Xsub : `regreg.affine.affine_transform`
+            Transform with input shape ``(len(columns), q)``.
         """
         old_shape = self.X.output_shape
         # because it is common we know that self._X is its matrix representation
@@ -135,28 +193,21 @@ class sparse_group_common_path(group_lasso_path):
     def subsample(self,
                   case_idx):
         '''
+        Create a new path, by subsampling cases of ``self.saturated_loss``.
 
-        Create a new path, by subsampling
-        cases of `self.saturated_loss`.
-
-        Case weights are computed
-        with `self.saturated_loss.subsample`.
+        Case weights are computed with ``self.saturated_loss.subsample``.
 
         Parameters
         ----------
-
         case_idx : index
-            An index-like object used 
-            to specify which cases to include
+            An index-like object used to specify which cases to include
             in the subsample.
 
         Returns
         -------
-
         subsample_path : path object
-            A path object with a modified smooth part
-            reflecting the subsampling.
-
+            A path object with a modified smooth part reflecting the
+            subsampling.
         '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
@@ -174,32 +225,33 @@ class sparse_group_common_path(group_lasso_path):
                   penalty=None):
 
         '''
+        Check KKT conditions over the groups in the path.
 
-        Check KKT conditions over
-        the groups in the path.
-        Returns boolean indicating
-        which groups are failing the KKT conditions
-        (these could be `active` groups or
-        `inactive` groups).
+        Determines which groups are failing the KKT conditions
+        (these could be active groups or inactive groups).
 
         Parameters
         ----------
-
         grad_solution : ndarray
-             Candidate for gradient of smooth loss at 
-             Lagrange value `lagrange`.
-
+            Candidate for gradient of smooth loss at
+            Lagrange value `lagrange`.
         solution : ndarray
-             Candidate for solution to problem 
-             Lagrange value `lagrange`.
-
+            Candidate for solution to problem at
+            Lagrange value `lagrange`.
         lagrange : float
-             Lagrange value for penalty
+            Lagrange value for penalty.
+        penalty : object, optional
+            A sparse group block penalty. Currently ignored: the weights
+            of ``self.penalty`` are always used.
 
-        penalty : object (optional)
-             A sparse group block penalty. If None, defaults
-             to `self.penalty`.
-
+        Returns
+        -------
+        failing_active : ndarray
+            Boolean indicator of active (or unpenalized) groups failing
+            the KKT conditions.
+        inactive_ranks : ndarray
+            For inactive groups failing the KKT conditions, the rank of
+            the size of the violation; -1 for all other groups.
         '''
         if penalty is None:
             penalty = self.penalty
@@ -215,6 +267,27 @@ class sparse_group_common_path(group_lasso_path):
                    lagrange_cur,
                    lagrange_new,
                    grad_solution):
+        """
+        Compute the strong set of groups (rows) at `lagrange_new`.
+
+        Parameters
+        ----------
+        lagrange_cur : float
+            Current Lagrange parameter.
+        lagrange_new : float
+            Next Lagrange parameter.
+        grad_solution : ndarray
+            Gradient at the solution for `lagrange_cur`.
+
+        Returns
+        -------
+        strong : ndarray
+            Indices of rows in the strong set.
+        strong_bool : ndarray
+            Boolean indicator of the strong set.
+        strong_vars : ndarray
+            Indices of rows in the strong set (same as `strong`).
+        """
 
         _strong_bool = _strong_set(self.penalty.l1_weight,
                                    self.penalty.l2_weight,
@@ -231,6 +304,33 @@ class sparse_group_common_path(group_lasso_path):
                          candidate_groups, 
                          lagrange_new, 
                          **solve_args):
+        """
+        Solve the problem restricted to a candidate set of rows (features).
+
+        Parameters
+        ----------
+        solution : ndarray
+            Current solution, used as a warm start.
+        candidate_groups : index
+            Rows to include in the subproblem.
+        lagrange_new : float
+            Lagrange parameter.
+        solve_args : dict
+            Keyword arguments passed to ``simple_problem.solve``.
+
+        Returns
+        -------
+        final_step : float
+            Final step size of the solver.
+        sub_grad : ndarray
+            Gradient of the restricted smooth loss at `sub_soln`.
+        sub_soln : ndarray
+            Solution of the subproblem.
+        sub_linear_pred : ndarray
+            Linear predictor at `sub_soln`.
+        candidate_bool : ndarray
+            Boolean indicator of the candidate rows.
+        """
     
         # solve a problem with a candidate set
 
@@ -258,6 +358,21 @@ class sparse_group_common_path(group_lasso_path):
     def updated_ever_active(self,
                             index_obj,
                             group_ids=False): # ignored as result is the same):
+        """
+        Indices of rows that are ever active, with `index_obj` added.
+
+        Parameters
+        ----------
+        index_obj : index
+            Rows to add to the ever-active set.
+        group_ids : bool, optional
+            Ignored.
+
+        Returns
+        -------
+        ever_active : list
+            Sorted indices of ever-active rows.
+        """
         if not hasattr(self, '_ever_active'):
             self._ever_active = np.zeros(self.group_shape, bool)
         _ever_active = self._ever_active.copy()
@@ -269,19 +384,22 @@ class sparse_group_common_path(group_lasso_path):
         """
         Unpenalized groups and variables.
 
+        There are no unpenalized groups for this penalty.
+
         Returns
         -------
-
-        groups : sequence
-            Groups with weights equal to 0.
-
-        variables : ndarray
-            Boolean indicator that is True if no penalty on that variable.
-
+        groups : list
+            Empty list.
+        variables : list
+            Empty list.
         """
         return [], []
 
     def restricted_penalty(self, subset):
+        """
+        Sparse group block penalty restricted to rows `subset` (all rows if
+        None).
+        """
         vars = np.zeros(self.penalty.shape[0], bool)
         if subset is not None:
             vars[subset] = True
@@ -295,23 +413,54 @@ class sparse_group_common_path(group_lasso_path):
 # Some loss factories with common X
 
 def multinomial(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_common_path` for the multinomial loss with
+    response `Y`.
+
+    Remaining arguments are passed to `sparse_group_common_path`.
+    """
     Y = np.asarray(Y)
     return sparse_group_common_path(mglm.multinomial_loglike(Y.shape, Y), X, *args, **keyword_args)
 
 def multiresponse_gaussian(X, Y, *args, **keyword_args):
+    """
+    Construct a `sparse_group_common_path` for a Gaussian loss on each
+    column of `Y`.
+
+    Remaining arguments are passed to `sparse_group_common_path`.
+    """
     Y = np.asarray(Y)
     loss = mglm.stacked_common_loglike.gaussian(Y.T)
     return sparse_group_common_path(loss, X, *args, **keyword_args)
 
 class sparse_group_block_path(sparse_group_common_path):
 
+    r"""
+    Sparse group block path for responses with different designs.
+
+    Responses here have different Xs but a common set of columns. Design is
+    transpose of "seemingly unrelated regressions".
+
+    Parameters
+    ----------
+    saturated_loss : `regreg.smooth.smooth_atom`
+        Multiresponse loss of shape ``(n,q)``, as a function of the linear
+        predictor.
+    Xs : sequence of ndarray
+        One design matrix for each response, all with the same columns.
+    l1_penalty : float
+        Weight of the L1 part of the penalty.
+    l2_penalty : float
+        Weight of the L2 (row norm) part of the penalty.
+    elastic_net_param : ndarray, optional
+        Ridge weights for each coefficient. Defaults to all ones.
+    alpha : float, optional
+        Elastic net mixing parameter; 1 is no ridge term.
+    l1_alpha : float, optional
+        The :math:`\alpha` of the sparse group LASSO paper.
+    """
+
     BIG = 1e12 # lagrange parameter for finding null solution
-
-    """
-    Responses here have different Xs but common
-    set of columns. Design is transpose of "seemingly unrelated regressions".
-
-    """
 
     def __init__(self, 
                  saturated_loss, # shape (n,q) -- multiresponse
@@ -342,30 +491,26 @@ class sparse_group_block_path(sparse_group_common_path):
         """
         Form linear predictor for given set of coefficients.
 
-        Typical use case will have coef of shape `(l,p)` for
-        univariate response regressions and `(l,q,p)` for
+        Typical use case will have coef of shape ``(l,p)`` for
+        univariate response regressions and ``(l,q,p)`` for
         multiple response regressions (e.g. multinomial with
-        `q` classes) where `l` is the number of Lagrange
+        ``q`` classes) where ``l`` is the number of Lagrange
         parameters.
 
         Parameters
         ----------
-
         coef : ndarray
-            A set of coefficients. 
-
+            A set of coefficients.
         X : object
-            Representation of design matrix, usually `self.X` -- subclasses
+            Representation of design matrix, usually ``self.X`` -- subclasses
             may not assume this is actually an array.
-
         test : index
-            Indices of X.dot(coef.T) to return.
+            Indices of ``X.dot(coef.T)`` to return.
 
         Returns
         -------
-
-        linpred : Matrix of linear predictors.
-
+        linpred : ndarray
+            Matrix of linear predictors.
         """
         coef = np.asarray(coef)
         result = np.array([X.dot(c.T) for c in coef]).T[test]
@@ -375,8 +520,21 @@ class sparse_group_block_path(sparse_group_common_path):
                           X, 
                           columns):
         """
-        Extract columns of self.Xs into ndarray or
+        Extract columns of each design in ``self._Xs`` into a block transform.
+
         Argument `X` is ignored here.
+
+        Parameters
+        ----------
+        X : object
+            Ignored.
+        columns : sequence of int
+            Columns (features) to extract.
+
+        Returns
+        -------
+        Xsub : `regreg.affine.block_maps.block_columns`
+            Block transform of the extracted columns.
         """
         return block_columns([subsample_columns(Xblock, 
                                                 columns)
@@ -385,28 +543,21 @@ class sparse_group_block_path(sparse_group_common_path):
     def subsample(self,
                   case_idx):
         '''
+        Create a new path, by subsampling cases of ``self.saturated_loss``.
 
-        Create a new path, by subsampling
-        cases of `self.saturated_loss`.
-
-        Case weights are computed
-        with `self.saturated_loss.subsample`.
+        Case weights are computed with ``self.saturated_loss.subsample``.
 
         Parameters
         ----------
-
         case_idx : index
-            An index-like object used 
-            to specify which cases to include
+            An index-like object used to specify which cases to include
             in the subsample.
 
         Returns
         -------
-
         subsample_path : path object
-            A path object with a modified smooth part
-            reflecting the subsampling.
-
+            A path object with a modified smooth part reflecting the
+            subsampling.
         '''
         subsample_loss = self.saturated_loss.subsample(case_idx)
         return self.__class__(subsample_loss,
@@ -418,41 +569,93 @@ class sparse_group_block_path(sparse_group_common_path):
                               l1_alpha=None)
 
 def stacked_gaussian(Xs, Ys, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a Gaussian loss on each
+    response in `Ys` (one per design in `Xs`).
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.gaussian(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_cox(Xs, Ts, Cs, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a Cox partial likelihood for
+    each pair of event times in `Ts` and censoring indicators in `Cs`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.cox(Ts, Cs) # Ts a sequence of event times,
                                            # Cs a sequence of censor indicators
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_logistic(Xs, Ys, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a logistic loss on each
+    response in `Ys`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.logistic(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_probit(Xs, Ys, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a probit loss on each
+    response in `Ys`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.probit(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_cloglog(Xs, Ys, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a complementary log-log loss
+    on each response in `Ys`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.cloglog(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_poisson(Xs, Ys, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a Poisson loss on each
+    response in `Ys`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.poisson(Ys) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_huber(Xs, Ys, smoothing_parameter, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a Huber loss on each
+    response in `Ys`, with smoothing parameter `smoothing_parameter`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.huber(Ys, smoothing_parameter) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 def stacked_huber_svm(Xs, Ys, smoothing_parameter, *args, **keyword_args):
+    """
+    Construct a `sparse_group_block_path` for a smoothed (Huberized) hinge
+    loss on each response in `Ys`, with smoothing parameter
+    `smoothing_parameter`.
+
+    Remaining arguments are passed to `sparse_group_block_path`.
+    """
     loss = glm.stacked_loglike.huber_svm(Ys, smoothing_parameter) # Ys a sequence of response vectors
     return sparse_group_block_path(loss, Xs, *args, **keyword_args)
 
 # private functions
 
 def _candidate_bool(groups, candidate_groups):
+    """
+    Boolean indicator of variables belonging to any of `candidate_groups`.
+    """
 
     candidate_bool = np.zeros(groups.shape, bool)
     for g in candidate_groups:
@@ -506,11 +709,10 @@ def _strong_set(l1_weight,
                 slope_estimate=1):
 
     """
-    Guess at active groups at 
-    lagrange_new based on gradient
-    at lagrange_cur.
+    Guess at active groups at `lagrange_new` based on gradient at
+    `lagrange_cur`.
 
-    Return a boolean indicator array.
+    Returns a boolean indicator array.
     """
 
     thresh = (slope_estimate + 1) * lagrange_new - slope_estimate * lagrange_cur
@@ -528,11 +730,10 @@ def _check_KKT(grad,
                tol=1.e-2):
 
     """
-    Check whether (grad, solution) satisfy
-    KKT conditions at a given tolerance.
+    Check whether ``(grad, solution)`` satisfy KKT conditions at a given
+    tolerance.
 
-    Assumes lagrange form of penalty.
-
+    Assumes Lagrange form of penalty.
     """
 
     ACTIVE_L1 = 10

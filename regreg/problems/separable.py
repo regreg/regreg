@@ -1,4 +1,6 @@
 """
+Separable penalties built from several atoms acting on disjoint slices.
+
 This module implements the notion of a separable support function / constraint
 regularizer or penalty.
 
@@ -29,12 +31,11 @@ def has_overlap(shape, groups):
 
     Returns
     -------
-    res : boolean
+    res : bool
         True if the slices overlap, else False.
 
     Examples
     --------
-
     >>> from regreg.problems.separable import has_overlap
     >>> has_overlap((4,5), [slice(2,3), slice(4,5)])
     False
@@ -55,6 +56,34 @@ def has_overlap(shape, groups):
     return False
 
 class separable(atom):
+
+    r"""
+    A separable penalty: a sum of atoms, each applied to a slice of the
+    argument.
+
+    .. math::
+
+        x \mapsto \sum_i {\cal P}_i(x[g_i])
+
+    Coordinates not covered by any group are unpenalized.
+
+    Parameters
+    ----------
+    shape : tuple
+        Shape of the argument.
+    atoms : sequence of `regreg.atoms.atom`
+        The atoms :math:`{\cal P}_i`.
+    groups : sequence
+        Slicing objects :math:`g_i`, one for each atom.
+    test_for_overlap : bool, optional
+        If True, raise ValueError if the groups overlap.
+    shapes : sequence, optional
+        Shapes to which each slice is reshaped before being passed to its
+        atom; None means no reshaping.
+    initial : ndarray, optional
+        Currently unused; ``coefs`` are initialized to zeros only if
+        `initial` is None.
+    """
 
     def __init__(self,
                  shape,
@@ -79,6 +108,9 @@ class separable(atom):
             self.coefs = np.zeros(shape)
 
     def latexify(self, var=None, idx=''):
+        """
+        Return a LaTeX representation of the separable penalty.
+        """
         # BUG idx is unused
         strs = []
         for i, atom in enumerate(self.atoms):
@@ -96,6 +128,9 @@ class separable(atom):
         return ' + '.join(strs)
 
     def seminorm(self, x, lagrange=None, check_feasibility=False):
+        """
+        Sum of the seminorms of each atom on its slice of `x`.
+        """
         value = 0.
         for atom, group, shape in zip(self.atoms,
                                       self.groups,
@@ -109,6 +144,9 @@ class separable(atom):
         return value
 
     def constraint(self, x, bound=None):
+        """
+        Sum of the constraints of each atom on its slice of `x`.
+        """
         value = 0.
         for atom, group, shape in zip(self.atoms,
                                       self.groups,
@@ -120,6 +158,9 @@ class separable(atom):
         return value
 
     def nonsmooth_objective(self, x, check_feasibility=False):
+        """
+        Sum of the nonsmooth objectives of each atom on its slice of `x`.
+        """
         value = 0
         for atom, group, shape in zip(self.atoms,
                                       self.groups,
@@ -132,6 +173,12 @@ class separable(atom):
         return value
 
     def proximal(self, proxq, prox_control=None):
+        """
+        Proximal map, computed separately for each atom on its slice.
+
+        Coordinates not in any group are mapped by the proximal map of
+        the zero penalty.
+        """
         # This allows separable to not have every
         # coefficient penalized in a natural way
         # because this instantiates it at the prox map of the zero penalty
@@ -148,6 +195,10 @@ class separable(atom):
 
     @property
     def conjugate(self):
+        """
+        The conjugate: separable in the conjugates of the atoms if there is
+        no quadratic, otherwise a `smooth_conjugate`.
+        """
         if self.quadratic.coef == 0:
             conjugate_atom = separable(self.shape,
                                        [atom.conjugate 
@@ -168,10 +219,32 @@ class separable(atom):
 
     @property
     def selectors(self):
+        """
+        Selectors for each group.
+        """
         return [selector(group, self.shape, reshape)
                 for group, shape in zip(self.groups, self.shapes)]
 
 class separable_problem(simple_problem):
+
+    """
+    A `simple_problem` whose nonsmooth part is a `separable` penalty.
+
+    Parameters
+    ----------
+    smooth_atom : `regreg.smooth.smooth_atom`
+        The smooth part of the objective.
+    shape : tuple
+        Shape of the argument.
+    atoms : sequence of `regreg.atoms.atom`
+        Atoms making up the separable penalty.
+    groups : sequence
+        Slicing objects, one for each atom.
+    test_for_overlap : bool, optional
+        If True, raise ValueError if the groups overlap.
+    shapes : sequence, optional
+        Shapes to which each slice is reshaped; see `separable`.
+    """
     
     def __init__(self,
                  smooth_atom,
@@ -190,6 +263,9 @@ class separable_problem(simple_problem):
         
     @staticmethod
     def singleton(atom, smooth_f):
+        """
+        A separable problem with a single atom applied to all coordinates.
+        """
         return separable_problem(smooth_f,
                                  atom.shape,
                                  [atom],
@@ -198,6 +274,9 @@ class separable_problem(simple_problem):
 
     @staticmethod
     def fromatom(separable_atom, smooth_f):
+        """
+        A separable problem from a `separable` atom and a smooth function.
+        """
         return separable_problem(smooth_f, separable_atom.shape, 
                                  separable_atom.atoms,
                                  separable_atom.groups,
@@ -205,4 +284,7 @@ class separable_problem(simple_problem):
                                  shapes=separable_atom.shapes)
     @property
     def selectors(self):
+        """
+        Selectors for each group of the separable penalty.
+        """
         return self.proximal_atom.selectors

@@ -1,3 +1,10 @@
+"""Smooth atoms: smooth functions together with their gradients.
+
+This module defines the base class `smooth_atom` for smooth (differentiable)
+objectives, the composition `affine_smooth` of a smooth atom with an affine
+map, and a few simple smooth atoms (`zero`, `sum`).
+"""
+
 import numpy as np
 from scipy import sparse
 import warnings
@@ -10,28 +17,21 @@ from ..identity_quadratic import identity_quadratic
 #TODO: create proximal methods for known smooth things
 class smooth_atom(smooth_composite):
 
-    """
-    A class for representing a smooth function and its gradient
+    """A class for representing a smooth function and its gradient.
 
     Parameters
     ----------
-
-    shape : tuple
-       Shape of argument to `smooth_objective`
-
-    coef : float (optional)
-       Scalar multiple to be applied (must be nonnegative)
-
-    offset : ndarray (optional)
-       Vector to be subtracted before evaluating `smooth_objective`. 
-
-    quadratic : `identity_quadratic` (optional)
-       Instance of `identity_quadratic` to be added to overall
-       objective.
-
-    initial : ndarray (optional)
-       Initial value for coefficients.
-
+    shape : int or tuple
+        Shape of the argument to `smooth_objective`.
+    coef : float, optional
+        Scalar multiple to be applied (must be nonnegative).
+    offset : ndarray, optional
+        Vector to be subtracted from the argument before evaluating
+        `smooth_objective`.
+    quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+        Quadratic term to be added to the overall objective.
+    initial : ndarray, optional
+        Initial value for the coefficients.
     """
 
     objective_template = r'''f(%(var)s)'''
@@ -52,36 +52,63 @@ class smooth_atom(smooth_composite):
         self.coefs = np.zeros(self.shape)
 
     def smooth_objective(self, arg, mode='both', check_feasibility=False):
-        """
+        """Evaluate the smooth objective, its gradient, or both.
+
+        Abstract method: subclasses must implement it.
 
         Parameters
         ----------
-
         arg : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `beta` is not
-            in the domain.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `arg` is not in the domain.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `beta`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `arg`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `arg`; returned when `mode` is 'grad'
+            or 'both'.
         """
         raise NotImplementedError("Abstract method.")
     
     @classmethod
     def affine(cls, linear_operator, offset, coef=1, diag=False,
                quadratic=None, **kws):
-        """
-        Keywords given in kws are passed to cls constructor along with other arguments
+        r"""Compose the atom with an affine map.
+
+        The returned smooth function is :math:`\beta \mapsto f(X\beta + b)`
+        where :math:`X` is `linear_operator`, :math:`b` is `offset` and
+        :math:`f` is an instance of `cls`.
+
+        Parameters
+        ----------
+        linear_operator : ndarray or `regreg.affine.affine_transform`
+            Linear part of the affine map.
+        offset : ndarray
+            Offset added to the output of `linear_operator`.
+        coef : float, optional
+            Scalar multiple to be applied (must be nonnegative).
+        diag : bool, optional
+            Whether `linear_operator` acts diagonally, i.e. is a rescaling.
+            Passed to `regreg.affine.linear_transform`.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        **kws
+            Further keyword arguments passed to the constructor of `cls`.
+            They must be arguments of ``cls.__init__`` other than ``shape``,
+            ``coef``, ``quadratic``, ``initial`` and ``offset``.
+
+        Returns
+        -------
+        atom : `affine_smooth`
+            The composition of the atom with the affine map.
         """
         if not isinstance(linear_operator, affine_transform):
             l = linear_transform(linear_operator, diag=diag)
@@ -102,8 +129,33 @@ class smooth_atom(smooth_composite):
     def linear(cls, linear_operator, coef=1, diag=False,
                offset=None, 
                quadratic=None, **kws):
-        """
-        Keywords given in kws are passed to cls constructor along with other arguments
+        r"""Compose the atom with a linear map.
+
+        The returned smooth function is :math:`\beta \mapsto f(X\beta)` where
+        :math:`X` is `linear_operator` and :math:`f` is an instance of `cls`.
+
+        Parameters
+        ----------
+        linear_operator : ndarray or `regreg.affine.affine_transform`
+            The linear map.
+        coef : float, optional
+            Scalar multiple to be applied (must be nonnegative).
+        diag : bool, optional
+            Whether `linear_operator` acts diagonally, i.e. is a rescaling.
+        offset : ndarray, optional
+            Offset passed to the constructor of `cls`, i.e. subtracted from
+            the output of `linear_operator` before evaluating the atom.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        **kws
+            Further keyword arguments passed to the constructor of `cls`.
+            They must be arguments of ``cls.__init__`` other than ``shape``,
+            ``coef``, ``quadratic``, ``initial`` and ``offset``.
+
+        Returns
+        -------
+        atom : `affine_smooth`
+            The composition of the atom with the linear map.
         """
         if not acceptable_init_args(cls, kws):
             raise ValueError("Invalid arguments being passed to initialize " + cls.__name__)
@@ -115,8 +167,28 @@ class smooth_atom(smooth_composite):
 
     @classmethod
     def shift(cls, offset, coef=1, quadratic=None, **kws):
-        """
-        Keywords given in kws are passed to cls constructor along with other arguments
+        r"""Create an atom whose argument is shifted by `offset`.
+
+        The returned smooth function is :math:`\beta \mapsto f(\beta - \alpha)`
+        where :math:`\alpha` is `offset` and :math:`f` is an instance of `cls`.
+
+        Parameters
+        ----------
+        offset : ndarray
+            Vector subtracted from the argument; also determines the shape.
+        coef : float, optional
+            Scalar multiple to be applied (must be nonnegative).
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the objective.
+        **kws
+            Further keyword arguments passed to the constructor of `cls`.
+            They must be arguments of ``cls.__init__`` other than ``shape``,
+            ``coef``, ``quadratic``, ``initial`` and ``offset``.
+
+        Returns
+        -------
+        atom : `cls`
+            The shifted atom.
         """
         if not acceptable_init_args(cls, kws):
             raise ValueError("Invalid arguments being passed to initialize " + cls.__name__)
@@ -126,6 +198,21 @@ class smooth_atom(smooth_composite):
         return atom
 
     def scale(self, obj, copy=False):
+        """Multiply `obj` by the atom's `coef`.
+
+        Parameters
+        ----------
+        obj : float or ndarray
+            Quantity to be scaled.
+        copy : bool, optional
+            If True and `coef` is 1, return a copy of `obj` rather than `obj`
+            itself.
+
+        Returns
+        -------
+        scaled : float or ndarray
+            ``obj * self.coef``.
+        """
         if self.coef != 1:
             return obj * self.coef
         if copy:
@@ -133,10 +220,15 @@ class smooth_atom(smooth_composite):
         return obj
 
     def get_conjugate(self):
+        """Return the convex conjugate of the atom.
+
+        To be implemented by subclasses.
+        """
         raise NotImplementedError('each smooth loss should implement its own get_conjugate')
 
     @property
     def conjugate(self):
+        """The convex conjugate of the atom."""
         return self.get_conjugate()
 
 
@@ -172,10 +264,21 @@ def combine_case_weights(case_weights, loss_case_weights, shape):
     return cw
 
 def acceptable_init_args(cls, proposed_keywords):
-    """
-    Check that the keywords in the dictionary proposed_keywords are arguments to __init__ of class cls
+    """Check that keywords are valid extra arguments to ``cls.__init__``.
 
-    Returns True/False
+    Parameters
+    ----------
+    cls : type
+        Class whose constructor will receive the keywords.
+    proposed_keywords : dict
+        Proposed keyword arguments.
+
+    Returns
+    -------
+    acceptable : bool
+        True if every key of `proposed_keywords` is an argument of
+        ``cls.__init__`` and is not one of ``self``, ``shape``, ``coef``,
+        ``quadratic``, ``initial`` or ``offset``.
     """
     args = inspect.getfullargspec(cls.__init__).args
     forbidden = ['self', 'shape', 'coef', 'quadratic', 'initial', 'offset']
@@ -188,10 +291,10 @@ def acceptable_init_args(cls, proposed_keywords):
 
 class affine_smooth(smooth_atom):
 
-    """
+    r"""Composition of a smooth objective with an affine transform.
 
-    Composition of a smooth objective with an affine transform.
-
+    Represents :math:`\beta \mapsto f(X\beta + b)` where :math:`f` is a
+    smooth atom and :math:`\beta \mapsto X\beta + b` an affine transform.
     """
 
     force_reshape = True
@@ -199,28 +302,21 @@ class affine_smooth(smooth_atom):
     objective_vars = {'linear':'X'}
 
     def __init__(self, smooth_atom, atransform, store_grad=True, diag=False):
-        """
+        """Initialize the composition.
 
         Parameters
         ----------
-
         smooth_atom : `regreg.smooth.smooth_atom`
-             A smooth atom.
-
-        atransform : `regreg.affine.affine_transform`
-             An affine transformation, or cast to one
-             using `regreg.affine.linear_transform`
-
-        store_grad : bool
-             If True, when computing the gradient,
-             store a reference to the gradient of `smooth_atom`
-             in the attribute `grad`.
-
-        diag : bool
-             Indicates if `atransform` acts diagonally,
-             i.e. a rescaling.
-             Passed to `regreg.affine.linear_transform`.
-
+            A smooth atom.
+        atransform : `regreg.affine.affine_transform` or ndarray
+            An affine transformation, or an object cast to one using
+            `regreg.affine.linear_transform`.
+        store_grad : bool, optional
+            If True, when computing the gradient, store a reference to the
+            gradient of `smooth_atom` in the attribute `grad`.
+        diag : bool, optional
+            Indicates whether `atransform` acts diagonally, i.e. is a
+            rescaling. Passed to `regreg.affine.linear_transform`.
         """
         self.store_grad = store_grad
         self.atom = smooth_atom
@@ -238,29 +334,30 @@ class affine_smooth(smooth_atom):
     coef = property(_get_coef, _set_coef)
 
     def smooth_objective(self, arg, mode='both', check_feasibility=False):
-        """
-        Compute the smooth objective at the point `self.transform.affine_map(arg)`.
+        """Evaluate the composed objective, its gradient, or both.
+
+        The atom is evaluated at ``self.affine_transform.affine_map(arg)``
+        and its gradient is pulled back by the adjoint of the transform.
 
         Parameters
         ----------
-
         arg : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `beta` is not
-            in the domain.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `arg` is not in the domain.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `self.transform(arg)`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `arg`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `arg`; returned when `mode` is 'grad'
+            or 'both'.
         """
 
         eta = self.affine_transform.affine_map(arg)
@@ -286,6 +383,10 @@ class affine_smooth(smooth_atom):
 
     @property
     def dual(self):
+        """The ``(affine_transform, conjugate)`` pair for the dual problem.
+
+        None if the conjugate of the underlying atom is not available.
+        """
         try: 
             conj = self.atom.conjugate
             return self.affine_transform, conj
@@ -299,6 +400,19 @@ class affine_smooth(smooth_atom):
                 self.store_grad))
 
     def latexify(self, var=None, idx=''):
+        """Return a LaTeX representation of the composed objective.
+
+        Parameters
+        ----------
+        var : str, optional
+            LaTeX name of the argument.
+        idx : str, optional
+            Index appended as a subscript.
+
+        Returns
+        -------
+        latex : str
+        """
         template_dict = self.atom.objective_vars.copy()
         template_dict['linear'] = self.objective_vars['linear']
         if var is not None:
@@ -313,11 +427,31 @@ class affine_smooth(smooth_atom):
 
 class zero(smooth_atom):
 
-    """
-    The zero function.
-    """
+    """The zero function."""
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
+        """Evaluate the zero function, its (zero) gradient, or both.
+
+        Parameters
+        ----------
+        x : ndarray
+            The current parameter values.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `x` is not in the domain.
+
+        Returns
+        -------
+        f : float
+            Objective value at `x`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `x`; returned when `mode` is 'grad'
+            or 'both'.
+        """
         if mode == 'both':
             return 0., np.zeros(x.shape)
         elif mode == 'func':
@@ -327,22 +461,18 @@ class zero(smooth_atom):
         raise ValueError("Mode not specified correctly")
 
 class sum(smooth_atom):
-    """
-    A simple way to combine smooth objectives
-    """
+    """A weighted sum of smooth atoms."""
     def __init__(self, atoms, weights=None):
-        """
+        """Initialize the weighted sum.
+
         Parameters
         ----------
-
         atoms : sequence
-            A sequence of `regreg.smooth.smooth_atom` that will be summed
-            to make a new atom.
-
-        weights : ndarray (optional)
-            If provided, these weights will appear as coefficients
-            in front of each atom.
-
+            A sequence of `regreg.smooth.smooth_atom` instances that will be
+            summed to make a new atom.
+        weights : ndarray, optional
+            Non-negative weights appearing as coefficients in front of each
+            atom. Defaults to all ones.
         """
         self.offset = None
         self.atoms = atoms
@@ -358,30 +488,27 @@ class sum(smooth_atom):
 
     def smooth_objective(self, x, mode='both', check_feasibility=False):
 
-        """
-        Compute the smooth objective at the point `self.transform.affine_map(arg)`,
-        which is the sum of each `atom`'s objective with its respective weight.
+        """Evaluate the weighted sum of the atoms, its gradient, or both.
 
         Parameters
         ----------
-
-        arg : ndarray
+        x : ndarray
             The current parameter values.
-
-        mode : str
-            One of ['func', 'grad', 'both']. 
-
-        check_feasibility : bool
-            If True, return `np.inf` when
-            point is not feasible, i.e. when `beta` is not
-            in the domain.
+        mode : {'both', 'func', 'grad'}, optional
+            Whether to return the objective value ('func'), its gradient
+            ('grad') or both ('both').
+        check_feasibility : bool, optional
+            If True, return ``np.inf`` when the point is not feasible,
+            i.e. when `x` is not in the domain.
 
         Returns
         -------
-
-        If `mode` is 'func' returns just the objective value 
-        at `self.transform(arg)`, else if `mode` is 'grad' returns the gradient
-        else returns both.
+        f : float
+            Objective value at `x`; returned when `mode` is
+            'func' or 'both'.
+        g : ndarray
+            Gradient at `x`; returned when `mode` is 'grad'
+            or 'both'.
         """
 
         x = self.apply_offset(x)
