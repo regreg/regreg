@@ -3,7 +3,7 @@ from copy import copy
 import numpy as np
 from scipy.stats import rankdata
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from .cox_utils import (cox_objective,
                         cox_gradient,
                         cox_hessian)
@@ -93,11 +93,9 @@ class cox_loglike(smooth_atom):
 
         eta = self.apply_offset(eta)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         censoring = self.censoring
 
@@ -166,11 +164,9 @@ class cox_loglike(smooth_atom):
             Hessian evaluated at this pair of left and right vectors
         """
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         eta = natural_param # shorthand
         eta = self.apply_offset(eta)

@@ -5,7 +5,7 @@ import numpy as np
 from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform,
@@ -225,7 +225,7 @@ class glm(smooth_atom):
 
         """
 
-        linpred = self.linear_predictor(beta)
+        linpred = self.linear_predictor(self.apply_offset(beta))
         X = self.data[0]
         if self._is_transform:
             raise ValueError('refusing to form Hessian for arbitrary affine_transform, use an ndarray or scipy.sparse')
@@ -909,11 +909,9 @@ class gaussian_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         natural_param = self.apply_offset(natural_param)
         resid = natural_param - self.response 
@@ -953,11 +951,9 @@ class gaussian_loglike(smooth_atom):
             Non-negative case weights
 
         """
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
         return self.scale(np.ones_like(natural_param) * cw)
 
     def get_data(self):
@@ -1050,9 +1046,11 @@ class poisson_loglike(smooth_atom):
         if np.min(self.counts) < 0:
             raise ValueError("Counts vector is not non-negative")
 
-        saturated = counts
-        loss_terms = - coef * ((counts - 1) * np.log(counts))
-        loss_terms[counts == 0] = 0
+        # saturated log-likelihood is sum(y * log(y) - y), with 0 * log(0) = 0
+        _counts = np.asarray(self.counts, float)
+        _mask = _counts > 0
+        loss_terms = -_counts
+        loss_terms[_mask] += _counts[_mask] * np.log(_counts[_mask])
 
         loss_constant = - coef * loss_terms.sum()
 
@@ -1100,11 +1098,9 @@ class poisson_loglike(smooth_atom):
         else returns both.
         """
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -1146,12 +1142,11 @@ class poisson_loglike(smooth_atom):
             evaluated at `natural_param`.
         """
         x = natural_param # shorthand
+        x = self.apply_offset(x)
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         return self.scale(cw * np.exp(x))
             
@@ -1285,11 +1280,9 @@ class huber_loss(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  param.shape)
 
         param = self.apply_offset(param)
         resid = param - self.response 
@@ -1477,11 +1470,9 @@ class stacked_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones(natural_param.shape[:1])
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         linpred = natural_param # shorthand
 
