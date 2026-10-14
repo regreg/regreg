@@ -189,8 +189,8 @@ class mixed_lasso(atom):
         """
         Check whether the seminorm of `x` is at most `bound`.
 
-        The offset (if any) is subtracted from `x` before the seminorm
-        is evaluated.
+        As with `seminorm`, the offset is not applied here:
+        `nonsmooth_objective` subtracts it before calling this method.
 
         Parameters
         ----------
@@ -202,13 +202,15 @@ class mixed_lasso(atom):
 
         Returns
         -------
-        feasible : bool
-            Whether the seminorm of `x` is at most `bound`.
+        value : float
+            0 if the seminorm of `x` is at most `bound`, `np.inf`
+            otherwise.
         """
         if bound is None:
             raise ValueError('bound must be suppled')
-        x_offset = self.apply_offset(x)
-        return self.seminorm(x_offset) <= bound
+        if self.seminorm(x) <= bound:
+            return 0
+        return np.inf
 
     def nonsmooth_objective(self, x, check_feasibility=False):
         """
@@ -239,8 +241,8 @@ class mixed_lasso(atom):
         Parameters
         ----------
         x : np.ndarray
-            Argument of the penalty. The offset (if any) is subtracted
-            before the penalty is evaluated.
+            Argument of the penalty. The offset is not applied here:
+            `nonsmooth_objective` subtracts it before calling this method.
         check_feasibility : bool, optional
             If True, return `np.inf` when the `NONNEGATIVE` or
             `POSITIVE_PART` coordinates are not (strictly) positive.
@@ -250,12 +252,11 @@ class mixed_lasso(atom):
         value : float
             Value of the penalty.
         """
-        x_offset = self.apply_offset(x)
         # flush buffers for computations
 
         self._norms_cython[:] = 0
 
-        v = seminorm_mixed_lasso(x_offset,
+        v = seminorm_mixed_lasso(x,
                                  self._l1_penalty,
                                  self._unpenalized,
                                  self._positive_part,
@@ -450,8 +451,9 @@ class mixed_lasso_dual(mixed_lasso):
     def constraint(self, x, bound=None):
         if bound is None:
             raise ValueError('bound must be suppled')
-        x_offset = self.apply_offset(x)
-        return self.seminorm(x_offset) <= bound
+        if self.seminorm(x) <= bound:
+            return 0
+        return np.inf
 
     def nonsmooth_objective(self, x, check_feasibility=False):
         """
@@ -462,8 +464,9 @@ class mixed_lasso_dual(mixed_lasso):
         x : np.ndarray
             Argument of the objective.
         check_feasibility : bool, optional
-            If True, include the result of `self.constraint`;
-            otherwise the constraint term is taken to be 0.
+            If True, include the result of `self.constraint` (0 if
+            feasible, `np.inf` otherwise); otherwise the constraint term
+            is taken to be 0.
 
         Returns
         -------
@@ -485,8 +488,9 @@ class mixed_lasso_dual(mixed_lasso):
         Parameters
         ----------
         x : np.ndarray
-            Argument of the dual seminorm. The offset (if any) is
-            subtracted before it is evaluated.
+            Argument of the dual seminorm. The offset is not applied
+            here: `nonsmooth_objective` subtracts it before calling
+            `constraint`.
         lagrange : float, optional
             Ignored.
         check_feasibility : bool, optional
@@ -497,13 +501,11 @@ class mixed_lasso_dual(mixed_lasso):
         value : float
             Value of the dual seminorm.
         """
-        x_offset = self.apply_offset(x)
-
         # flush buffers for computations
 
         self._norms_cython[:] = 0
 
-        v = seminorm_mixed_lasso_dual(x_offset, 
+        v = seminorm_mixed_lasso_dual(x, 
                                       self._l1_penalty,
                                       self._unpenalized,
                                       self._positive_part,

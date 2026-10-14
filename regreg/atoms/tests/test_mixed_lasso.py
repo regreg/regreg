@@ -292,3 +292,38 @@ def test_proximal_maps(klass, mode):
         factory = MixedSolverFactory(klass, mode)
         for solver in factory:
             run_checks(solver.all_tests())
+
+def test_offset_applied_once():
+    # gh-65: the offset was applied twice (three times in the dual)
+
+    x, off = np.array([1., -2., 3.]), np.array([1., .5, -1.])
+    pen = ml.mixed_lasso(np.array([ml.L1_PENALTY]*3), lagrange=2., offset=off)
+    np.testing.assert_allclose(pen.nonsmooth_objective(x), 2 * np.fabs(x - off).sum())
+
+    # dual ball of radius 1 (l_inf for L1_PENALTY), centered at the offset
+    dual = ml.mixed_lasso_dual(np.array([ml.L1_PENALTY]*3), bound=1., offset=np.full(3, 4.5))
+    assert dual.nonsmooth_objective(np.full(3, 5.), check_feasibility=True) == 0
+    assert dual.nonsmooth_objective(np.full(3, 6.), check_feasibility=True) == np.inf
+
+def test_constraint_values():
+    # gh-65: constraint returned a bool, added to the objective as 0 / 1
+
+    structure = np.array([ml.L1_PENALTY]*3)
+    dual = ml.mixed_lasso_dual(structure, bound=1.)
+    assert dual.nonsmooth_objective(0.5 * np.ones(3), check_feasibility=True) == 0
+    assert dual.nonsmooth_objective(5.0 * np.ones(3), check_feasibility=True) == np.inf
+    assert dual.nonsmooth_objective(5.0 * np.ones(3)) == 0
+
+    pen = ml.mixed_lasso(structure, lagrange=1.)
+    assert pen.constraint(np.array([.2, -.3, .1]), bound=1.) == 0
+    assert pen.constraint(np.array([2., -.3, .1]), bound=1.) == np.inf
+
+def test_group_strong_rule_weight():
+    # gh-65: the group weight multiplied only the first term of the threshold
+
+    pen = ml.mixed_lasso(np.zeros(4, np.intp), lagrange=1.) # one group, weight 2
+    # threshold w * ((s+1) * lam_new - s * lam_cur) = 2 * (2 - 1) = 2
+    keep = ml.strong_set(pen, 1., 1., np.full(4, 1.25), slope_estimate=1)[0]   # norm 2.5
+    assert np.all(keep)
+    drop = ml.strong_set(pen, 1., 1., np.full(4, 0.75), slope_estimate=1)[0]   # norm 1.5
+    assert not np.any(drop)
