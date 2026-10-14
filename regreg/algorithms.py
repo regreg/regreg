@@ -68,7 +68,7 @@ class FISTA(algorithm):
             return_objective_hist = True,
             monotonicity_restart = True,
             debug = None,
-            prox_control={}):
+            prox_control=None):
 
         """
         Use the FISTA (or ISTA) algorithm to fit the problem.
@@ -113,13 +113,18 @@ class FISTA(algorithm):
             `return_objective_hist` is True.
         """
 
-        tol = tol or self.default_tol
-        min_its = min_its or self.min_its
-        max_its = max_its or self.max_its
+        # 0 is a valid value for each of these, so only None means default
+        if tol is None:
+            tol = self.default_tol
+        if min_its is None:
+            min_its = self.min_its
+        if max_its is None:
+            max_its = self.max_its
 
         if debug is not None:
             self.debug = debug
-        self.prox_control = {}
+        self.prox_control = {} if prox_control is None else prox_control
+        self.use_nesterov = FISTA
 
         objective_hist = np.zeros(max_its)
         
@@ -150,7 +155,7 @@ class FISTA(algorithm):
                 if self.debug:
                     print("\tRestarting weights")
                 self.working_coefs = self.composite.coefs
-                t_old = 1.
+                self.weight_old = 1.
 
             objective_hist[itercount] = working_obj
 
@@ -164,7 +169,7 @@ class FISTA(algorithm):
                 lipschitz = self.composite.lipschitz
                 self.step = 1. / lipschitz
                 if self.prox_control != {}:
-                    proposed_coefs = self.composite.proximal_step(sq(lipschitz, self.working_coefs, working_grad, 0), prox_control=prox_control)
+                    proposed_coefs = self.composite.proximal_step(sq(lipschitz, self.working_coefs, working_grad, 0), prox_control=self.prox_control)
                 else:
                     proposed_coefs = self.composite.proximal_step(sq(lipschitz, self.working_coefs, working_grad, 0))
                 proposed_smooth = self.composite.smooth_objective(proposed_coefs, mode='func')
@@ -251,7 +256,7 @@ class FISTA(algorithm):
         proposed_coefs : ndarray
             Coefficients produced by the latest proximal gradient step.
         """
-        if FISTA:
+        if getattr(self, 'use_nesterov', True):
             #Use Nesterov weights
             self.weight_new = 0.5 * (1 + np.sqrt(1+4*(self.weight_old**2)))
             #XXX should that be self.working_coefs or self.composite.coefs at the end of this line?
@@ -291,7 +296,7 @@ class FISTA(algorithm):
                                                                  self.working_coefs, 
                                                                  working_grad, 
                                                                  0), 
-                                                              prox_control=prox_control)
+                                                              prox_control=self.prox_control)
             else:
                 proposed_coefs = self.composite.proximal_step(sq(1. / self.step, 
                                                                  self.working_coefs, 
@@ -302,7 +307,7 @@ class FISTA(algorithm):
 
             if not np.isfinite(proposed_smooth):
                 stop = False
-            elif np.fabs(proposed_smooth - working_smooth)/np.max([1., proposed_smooth]) > 1e-10:
+            elif np.fabs(proposed_smooth - working_smooth)/np.max([1., np.fabs(proposed_smooth)]) > 1e-10:
                 stop = (proposed_smooth <= (working_smooth + 
                                             np.dot((proposed_coefs - self.working_coefs).reshape(-1),
                                                    working_grad.reshape(-1)) + \
