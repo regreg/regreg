@@ -135,3 +135,41 @@ def test_logistic_hessian_overflow():
     p = 1 / (1 + np.exp(-1.))
     np.testing.assert_allclose(H[1:], [0.25, p * (1 - p)])
     assert 0 <= H[0] < 1e-80
+
+def test_huber_copy_subsample_case_weights():
+    # gh-73: __copy__ dropped case_weights, so subsample replaced them
+
+    from copy import copy
+    w = np.array([1., 0, 2, 3])
+    for L in [glm.huber_loss((4,), np.arange(4.), .5, case_weights=w),
+              huber_svm((4,), np.array([0, 1, 1, 0]), .5, case_weights=w)]:
+        np.testing.assert_allclose(copy(L).case_weights, w)
+        S = L.subsample([0, 2, 3])
+        np.testing.assert_allclose(S.case_weights, [1., 0, 2, 3])
+        S = L.subsample([0, 1])
+        np.testing.assert_allclose(S.case_weights, [1., 0, 0, 0])
+        np.testing.assert_allclose(L.case_weights, w)
+
+def test_multinomial_case_weights():
+    # gh-73: multinomial losses ignored their stored case weights
+
+    C = np.eye(3)[[0, 1, 2, 0, 1]]
+    w = np.array([1., 0, 2, .5, 3])
+    eta3 = np.random.standard_normal((5, 3))
+    eta2 = eta3[:, :2]
+    for klass, eta in [(mglm.multinomial_loglike, eta3),
+                       (mglm.multinomial_baseline_loglike, eta2)]:
+        zero = klass(eta.shape, C, case_weights=np.zeros(5))
+        np.testing.assert_allclose(zero.smooth_objective(eta, 'func'), 0, atol=1e-12)
+
+        stored = klass(eta.shape, C, case_weights=w)
+        passed = klass(eta.shape, C)
+        f1, g1 = stored.smooth_objective(eta, 'both')
+        f2, g2 = passed.smooth_objective(eta, 'both', case_weights=w)
+        np.testing.assert_allclose(f1, f2)
+        np.testing.assert_allclose(g1, g2)
+
+        S = passed.subsample([0, 2])
+        keep = np.array([1., 0, 1, 0, 0])
+        np.testing.assert_allclose(S.smooth_objective(eta, 'func'),
+                                   passed.smooth_objective(eta, 'func', case_weights=keep))

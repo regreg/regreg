@@ -852,10 +852,9 @@ class multinomial_loglike(smooth_atom):
                       self.overflow_clip) # to prevent overflow
         exp_eta = np.exp(eta)
 
-        if case_weights is None:
-            cw = np.ones(natural_param.shape[0])
-        else:
-            cw = case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         if mode == 'both':
             ratio = ((self.trials/np.sum(exp_eta, axis=1)) * exp_eta.T).T
@@ -1041,10 +1040,9 @@ class multinomial_baseline_loglike(smooth_atom):
                       self.overflow_clip) # to prevent overflow
         exp_eta = np.exp(eta)
 
-        if case_weights is None:
-            cw = np.ones(eta.shape[0])
-        else:
-            cw = case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  eta.shape[:1])
 
         #TODO: Using transposes to scale the rows of a 2d array - should we use an affine_transform to do this?
         #JT: should be able to do this with np.newaxis

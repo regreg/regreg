@@ -1334,7 +1334,8 @@ class huber_loss(smooth_atom):
                           coef=self.coef,
                           offset=copy(self.offset),
                           quadratic=copy(self.quadratic),
-                          initial=copy(self.coefs))
+                          initial=copy(self.coefs),
+                          case_weights=copy(self.case_weights))
 
     # End loss API
 
