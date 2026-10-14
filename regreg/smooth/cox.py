@@ -3,19 +3,16 @@
 from copy import copy
 
 import numpy as np
-from scipy.stats import rankdata
+from coxdev import CoxDeviance
 
 from . import smooth_atom, combine_case_weights, affine_smooth
-from .cox_utils import (cox_objective,
-                        cox_gradient,
-                        cox_hessian)
 
 class cox_loglike(smooth_atom):
 
     r"""Negative log partial likelihood of the Cox proportional hazards model.
 
     A saturated loss in the natural parameter (linear predictor)
-    :math:`\eta`, with ties handled by Breslow's method:
+    :math:`\eta`. With Breslow's method for ties it is
 
     .. math::
 
@@ -23,8 +20,8 @@ class cox_loglike(smooth_atom):
            \log \left(\sum_{j: T_j \geq T_i} w_j e^{\eta_j}\right)\right]
 
     where :math:`T_i` are the event times, :math:`\delta_i` the censoring
-    indicators and :math:`w_i` the case weights. The computations are done
-    in C (see `regreg.smooth.cox_utils`).
+    indicators and :math:`w_i` the case weights. The objective, gradient
+    and Hessian are computed by `coxdev`.
 
     Parameters
     ----------
@@ -47,19 +44,22 @@ class cox_loglike(smooth_atom):
         Initial guess at the coefficients.
     case_weights : ndarray, optional
         Non-negative case weights. Defaults to all ones.
+    tie_breaking : {'breslow', 'efron'}, optional
+        Method for handling tied event times.
     """
 
     objective_template = r"""\ell^{\text{Cox}}\left(%(var)s\right)"""
 
-    def __init__(self, 
-                 shape, 
+    def __init__(self,
+                 shape,
                  event_times,
                  censoring,
-                 coef=1., 
+                 coef=1.,
                  offset=None,
                  quadratic=None,
                  initial=None,
-                 case_weights=None):
+                 case_weights=None,
+                 tie_breaking='breslow'):
 
         smooth_atom.__init__(self,
                              shape,
@@ -68,11 +68,8 @@ class cox_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
+        self.tie_breaking = tie_breaking
         self.data = np.asarray([event_times, censoring]).T
-
-        self._ordering = np.argsort(self.event_times).astype(np.intp)
-        self._rankmax = (rankdata(self.event_times, method='max') - 1).astype(np.intp)
-        self._rankmin = (rankdata(self.event_times, method='min') - 1).astype(np.intp)
 
         if case_weights is not None:
             case_weights = np.asarray(case_weights).astype(float)
@@ -82,17 +79,9 @@ class cox_loglike(smooth_atom):
         else:
             self.case_weights = np.ones(self.event_times.shape, float)
 
-        # buffers to store results used by C code
-        self._G = np.zeros(self.event_times.shape, float) # gradient 
-        self._exp_buffer = np.zeros(self.event_times.shape, float) # exp(eta)
-        self._exp_accum = np.zeros(self.event_times.shape, float) # accum of exp(eta)
-        self._expZ_accum = np.zeros(self.event_times.shape, float) # accum of Z*exp(eta)
-        self._outer_1st = np.zeros(self.event_times.shape, float) # for log(W)
-        self._outer_2nd = np.zeros(self.event_times.shape, float) # used in Hessian
-
-    def smooth_objective(self, 
-                         natural_param, 
-                         mode='both', 
+    def smooth_objective(self,
+                         natural_param,
+                         mode='both',
                          check_feasibility=False,
                          case_weights=None):
         """Evaluate the smooth objective, its gradient, or both.
@@ -120,55 +109,32 @@ class cox_loglike(smooth_atom):
             Gradient at `natural_param`; returned when `mode` is 'grad'
             or 'both'.
         """
-        
-        eta = natural_param # shorthand
 
-        eta = self.apply_offset(eta)
+        eta = self.apply_offset(natural_param)
 
         cw = combine_case_weights(case_weights,
                                   self.case_weights,
                                   natural_param.shape)
 
-        censoring = self.censoring
-
-        if mode in ['both', 'grad']:
-            G = cox_gradient(self._G,
-                             eta,
-                             self._exp_buffer,
-                             self._exp_accum,
-                             self._outer_1st,
-                             cw,
-                             censoring,
-                             self._ordering,
-                             self._rankmin,
-                             self._rankmax,
-                             eta.shape[0])
-
-        if mode in ['both', 'func']:
-            F = cox_objective(eta,
-                              self._exp_buffer,
-                              self._exp_accum,
-                              self._outer_1st,
-                              cw,
-                              censoring,
-                              self._ordering,
-                              self._rankmin,
-                              self._rankmax,
-                              eta.shape[0])
+        # coxdev returns the deviance 2 * (loglik_sat - loglik) and its
+        # gradient, so the negative log partial likelihood is
+        # deviance / 2 - loglik_sat, with gradient gradient / 2
+        result = self._coxdev(eta, cw)
 
         if mode == 'both':
-            return self.scale(F), self.scale(G)
+            return (self.scale(result.deviance / 2 - result.loglik_sat),
+                    self.scale(result.gradient / 2))
         elif mode == 'grad':
-            return self.scale(G)
+            return self.scale(result.gradient / 2)
         elif mode == 'func':
-            return self.scale(F)
+            return self.scale(result.deviance / 2 - result.loglik_sat)
         else:
             raise ValueError("mode incorrectly specified")
 
     # Begin loss API
 
-    def hessian_mult(self, 
-                     natural_param, 
+    def hessian_mult(self,
+                     natural_param,
                      right_vector,
                      case_weights=None):
         """Multiply the Hessian of the loss by a vector.
@@ -189,30 +155,16 @@ class cox_loglike(smooth_atom):
             `right_vector`.
         """
 
+        eta = self.apply_offset(natural_param)
+
         cw = combine_case_weights(case_weights,
                                   self.case_weights,
                                   natural_param.shape)
 
-        eta = natural_param # shorthand
-        eta = self.apply_offset(eta)
-        censoring = self.censoring
-
-        H = np.zeros(eta.shape, float)
-
-        return cox_hessian(H,
-                           eta,
-                           right_vector,
-                           self._exp_buffer,
-                           self._exp_accum,
-                           self._expZ_accum,
-                           self._outer_1st,
-                           self._outer_2nd,
-                           cw,
-                           censoring,
-                           self._ordering,
-                           self._rankmin,
-                           self._rankmax,
-                           eta.shape[0])
+        # the information matrix of coxdev is the Hessian of the
+        # negative log partial likelihood (no factor of 2)
+        info = self._coxdev.information(eta, cw)
+        return self.scale(info @ right_vector)
 
     def get_data(self):
         """Return the data, with columns ``(event_times, censoring)``."""
@@ -228,8 +180,11 @@ class cox_loglike(smooth_atom):
             ``(event_times, censoring)``.
         """
         event_times, censoring = np.asarray(data).T
-        self.event_times, self.censoring = (np.asarray(event_times),
+        self.event_times, self.censoring = (np.asarray(event_times, float),
                                             np.asarray(censoring).astype(np.intp))
+        self._coxdev = CoxDeviance(event=self.event_times,
+                                   status=self.censoring,
+                                   tie_breaking=self.tie_breaking)
 
     data = property(get_data, set_data)
 
@@ -242,7 +197,8 @@ class cox_loglike(smooth_atom):
                            offset=copy(self.offset),
                            quadratic=copy(self.quadratic),
                            initial=copy(self.coefs),
-                           case_weights=copy(self.case_weights))
+                           case_weights=copy(self.case_weights),
+                           tie_breaking=self.tie_breaking)
 
     def subsample(self, case_idx):
         """Create a saturated loss using a subsample of the data.

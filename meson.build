@@ -29,16 +29,6 @@ foreach ext : [['projl1_cython', 'regreg/atoms'],
   )
 endforeach
 
-py.extension_module(
-  'cox_utils',
-  ['regreg/smooth/cox_utils.pyx', 'regreg/smooth/cox_fns.c'],
-  cython_args : cython_args,
-  include_directories : include_directories('regreg/smooth'),
-  dependencies : [py_dep, np_dep],
-  install : true,
-  subdir : 'regreg/smooth'
-)
-
 # Version file, generated from the git tag at build time
 configure_file(
   input : 'regreg/_version.py.in',

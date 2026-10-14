@@ -87,7 +87,6 @@ regreg/atoms/projl1_cython.c
 
 # Cython / meson build products
 ###############################
-regreg/smooth/cox_utils.c
 regreg/atoms/_isotonic.c
 regreg/_version.py
 .mesonpy-*/
