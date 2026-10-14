@@ -690,7 +690,8 @@ class glm(smooth_atom):
             saturated_offset=None,
             offset=None,
             quadratic=None, 
-            initial=None):
+            initial=None,
+            tie_breaking='breslow'):
         """Create a loss for a Cox proportional hazards regression model.
 
         Parameters
@@ -717,6 +718,8 @@ class glm(smooth_atom):
             Quadratic term to be added to the objective.
         initial : ndarray, optional
             Initial guess at the coefficients.
+        tie_breaking : {'breslow', 'efron'}, optional
+            Method for handling tied event times.
 
         Returns
         -------
@@ -728,7 +731,8 @@ class glm(smooth_atom):
                            event_times,
                            censoring,
                            offset=saturated_offset,
-                           coef=coef)
+                           coef=coef,
+                           tie_breaking=tie_breaking)
 
         return klass(X, 
                      np.array([event_times, censoring]).T,
