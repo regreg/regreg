@@ -5,7 +5,7 @@ import numpy as np
 from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform,
@@ -909,11 +909,9 @@ class gaussian_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         natural_param = self.apply_offset(natural_param)
         resid = natural_param - self.response 
@@ -953,11 +951,9 @@ class gaussian_loglike(smooth_atom):
             Non-negative case weights
 
         """
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
         return self.scale(np.ones_like(natural_param) * cw)
 
     def get_data(self):
@@ -1100,11 +1096,9 @@ class poisson_loglike(smooth_atom):
         else returns both.
         """
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -1147,11 +1141,9 @@ class poisson_loglike(smooth_atom):
         """
         x = natural_param # shorthand
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         return self.scale(cw * np.exp(x))
             
@@ -1285,11 +1277,9 @@ class huber_loss(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  param.shape)
 
         param = self.apply_offset(param)
         resid = param - self.response 
@@ -1477,11 +1467,9 @@ class stacked_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones(natural_param.shape[:1])
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         linpred = natural_param # shorthand
 

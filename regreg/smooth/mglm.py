@@ -4,7 +4,7 @@ from copy import copy
 import numpy as np
 from scipy import sparse
 
-from . import smooth_atom, affine_smooth
+from . import smooth_atom, combine_case_weights, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform)
@@ -341,11 +341,9 @@ class stacked_common_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones(natural_param.shape[:1])
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape[:1])
 
         x = natural_param # shorthand
 

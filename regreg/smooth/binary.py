@@ -5,7 +5,7 @@ from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
 from ..identity_quadratic import identity_quadratic
-from . import smooth_atom
+from . import smooth_atom, combine_case_weights
 
 class logistic_loglike(smooth_atom):
 
@@ -88,11 +88,9 @@ class logistic_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -165,11 +163,9 @@ class logistic_loglike(smooth_atom):
 
         x = natural_param # shorthand
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         if np.max(x) > 1e2:
             overflow = True
@@ -346,11 +342,9 @@ class probit_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -413,11 +407,9 @@ class probit_loglike(smooth_atom):
 
         x = natural_param # shorthand
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         pi = self.mean_function(x)
         V = pi * (1 - pi)
@@ -586,11 +578,9 @@ class cloglog_loglike(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         x = natural_param # shorthand
 
@@ -656,11 +646,9 @@ class cloglog_loglike(smooth_atom):
 
         x = natural_param # shorthand
 
-        if case_weights is None:
-            case_weights = np.ones_like(natural_param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  natural_param.shape)
 
         pi = self.mean_function(x)
         V = pi * (1 - pi)
@@ -822,11 +810,9 @@ class huber_svm(smooth_atom):
         else returns both.
         """
         
-        if case_weights is None:
-            case_weights = np.ones_like(param)
-        cw = case_weights
-        if self.case_weights is not None:
-            cw *= self.case_weights
+        cw = combine_case_weights(case_weights,
+                                  self.case_weights,
+                                  param.shape)
 
         param = self.apply_offset(param)
         huber_arg = (2 * self.successes - 1) * param # first encode binary as \pm 1

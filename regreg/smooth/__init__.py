@@ -138,7 +138,38 @@ class smooth_atom(smooth_composite):
     @property
     def conjugate(self):
         return self.get_conjugate()
- 
+
+
+def combine_case_weights(case_weights, loss_case_weights, shape):
+    """
+    Combine case weights passed to a loss with the loss's own case weights.
+
+    Parameters
+    ----------
+
+    case_weights : ndarray or None
+        Case weights passed in by the caller (e.g. a `glm`).
+        Treated as all ones if None. Never modified.
+
+    loss_case_weights : ndarray or None
+        Case weights stored on the loss itself. Ignored if None.
+
+    shape : tuple
+        Shape of the weights when `case_weights` is None.
+
+    Returns
+    -------
+
+    cw : ndarray
+        A new float array, the product of the two sets of weights.
+    """
+    if case_weights is None:
+        cw = np.ones(shape)
+    else:
+        cw = np.array(case_weights, float) # always a copy
+    if loss_case_weights is not None:
+        cw *= loss_case_weights
+    return cw
 
 def acceptable_init_args(cls, proposed_keywords):
     """
