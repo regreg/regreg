@@ -424,10 +424,10 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     >>> transform, zero = constraint.dual
     >>> epsilon = [0.01]*50 + [0.001]*20
     >>> primal_tfocs, dual_tfocs = rr.tfocs(l1, transform, zero, epsilon=epsilon)
-    >>> np.linalg.norm(primal_tfocs - beta) < 1.e-2 * np.linalg.norm(beta)
+    >>> bool(np.linalg.norm(primal_tfocs - beta) < 1.e-2 * np.linalg.norm(beta))
     True
 
-    >>> np.linalg.norm(primal_tfocs[10:]) < 1.e-3 * np.linalg.norm(primal_tfocs)
+    >>> bool(np.linalg.norm(primal_tfocs[10:]) < 1.e-3 * np.linalg.norm(primal_tfocs))
     True
     '''
     transform = astransform(transform)

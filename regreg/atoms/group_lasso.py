@@ -213,13 +213,13 @@ class group_lasso(seminorm):
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        >>> [float(t) for t in penalty.terms(arg)] # doctest: +ELLIPSIS
         [6.3245..., 12.2474...]
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         18.5720...
-        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        >>> float(np.sqrt((2**2 + 4**2)*2)), float(np.sqrt((5**2 + 3**2 + 4**2) * 3.)) # doctest: +ELLIPSIS
         (6.3245..., 12.2474...)
-        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        >>> float(np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.)) # doctest: +ELLIPSIS
         18.5720...
         """
         arg = np.asarray(arg)
@@ -374,9 +374,9 @@ class group_lasso_dual(group_lasso):
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        >>> [float(t) for t in penalty.terms(arg)] # doctest: +ELLIPSIS
         [3.1622..., 4.0824...]
-        >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
+        >>> float(np.sqrt((2**2 + 4**2)/2)), float(np.sqrt((5**2 + 3**2 + 4**2) / 3.)) # doctest: +ELLIPSIS
         (3.1622..., 4.0824...)
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         4.0824...

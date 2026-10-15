@@ -206,10 +206,10 @@ def compute_iterative_svd(transform,
     >>> rng = np.random.default_rng(0)
     >>> X = rng.standard_normal((100, 200))
     >>> U, D, VT = rr.compute_iterative_svd(X)[:3]
-    >>> np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
+    >>> bool(np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6)
     True
 
-    >>> np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
+    >>> bool(np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6)
     True
     """
 

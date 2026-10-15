@@ -196,7 +196,7 @@ class cone(atom):
         --------
         >>> import regreg.api as rr
         >>> cone = rr.nonnegative(4)
-        >>> cone.nonsmooth_objective([3, 4, 5, 9])
+        >>> print(cone.nonsmooth_objective([3, 4, 5, 9]))
         0.0
         '''
         arg = np.asarray(x)
