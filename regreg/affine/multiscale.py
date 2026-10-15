@@ -226,16 +226,21 @@ def SMUCE_stat(M, Z, sigma=None):
 
     Notes
     -----
-    M's scaling is ignored, even if not None: it is replaced by
-    ``np.sqrt(M.sizes)``.
+    M's scaling is ignored, even if not None: ``np.sqrt(M.sizes)`` is used
+    instead, and M's scaling is restored afterwards.
     """
 
     p = Z.shape[0]
     M.scaling, old = np.sqrt(M.sizes), M.scaling
-    Z0 = Z - Z.mean()
-    if sigma is None:
-        sigma_hat = np.std(Z)
-    T = np.fabs(M.linear_map(Z0) / sigma_hat) - np.sqrt(2 * np.log(p / M.sizes))
+    try:
+        Z0 = Z - Z.mean()
+        if sigma is None:
+            sigma_hat = np.std(Z)
+        else:
+            sigma_hat = sigma
+        T = np.fabs(M.linear_map(Z0) / sigma_hat) - np.sqrt(2 * np.log(p / M.sizes))
+    finally:
+        M.scaling = old
     idx = np.argmax(T)
     return T[idx], M.slices[idx]
 
@@ -255,7 +260,7 @@ def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
     quantile : float
         Which quantile of Monte Carlo draws to choose.
     sigma : float, optional
-        Noise level (intended to be passed to `SMUCE_stat`).
+        Noise level passed to `SMUCE_stat`.
 
     Returns
     -------
@@ -271,6 +276,6 @@ def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
     p = M.input_shape[0]
     for i in range(ndraw):
         Z = np.random.standard_normal(p)
-        V.append(SMUCE_stat(M, Z)[0])
+        V.append(SMUCE_stat(M, Z, sigma=sigma)[0])
     return np.percentile(V, 100*quantile)
 

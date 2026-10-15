@@ -6,7 +6,7 @@ import numpy as np
 from ..identity_quadratic import identity_quadratic
 from ..problems.composite import nonsmooth
 from ..affine import (linear_transform, identity as identity_transform, 
-                    affine_transform)
+                    affine_transform, aslinear)
 from ..smooth import affine_smooth
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
@@ -174,13 +174,19 @@ class affine_atom(object):
         # if the affine transform has an offset, put it into
         # the atom. in this way, the affine_transform is actually
         # always linear
+        #
+        # the atom's offset is its center, i.e. it is evaluated at
+        # ``x - offset``, so the transform's offset is subtracted
         if atransform.affine_offset is not None:
             if self.atom.offset is not None:
-                self.atom.offset += atransform.affine_offset
+                self.atom.offset = self.atom.offset - atransform.affine_offset
             else:
-                self.atom.offset = atransform.affine_offset
-            ltransform = linear_transform(atransform.linear_operator,
-                                          diag=atransform.diagD)
+                self.atom.offset = -atransform.affine_offset
+            if getattr(atransform, 'linear_operator', None) is not None:
+                ltransform = linear_transform(atransform.linear_operator,
+                                              diag=atransform.diagD)
+            else: # e.g. a composition
+                ltransform = aslinear(atransform)
         else:
             ltransform = atransform
         self.linear_transform = ltransform
@@ -222,7 +228,9 @@ class affine_atom(object):
 
     def __repr__(self):
         return "affine_atom(%s, %s)" % (repr(self.atom),
-                                        repr(self.linear_transform.linear_operator))
+                                        repr(getattr(self.linear_transform,
+                                                     'linear_operator',
+                                                     self.linear_transform)))
 
     @property
     def dual(self):

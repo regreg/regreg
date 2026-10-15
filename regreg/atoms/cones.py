@@ -425,7 +425,9 @@ class affine_cone(affine_atom):
 
     def __repr__(self):
         return "affine_cone(%s, %s)" % (repr(self.atom),
-                                        repr(self.linear_transform.linear_operator))
+                                        repr(getattr(self.linear_transform,
+                                                     'linear_operator',
+                                                     self.linear_transform)))
 
 @objective_doc_templater()
 class nonnegative(cone):

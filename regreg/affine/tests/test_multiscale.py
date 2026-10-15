@@ -1,11 +1,7 @@
 import numpy as np
 import pytest
 
-try:
-    from regreg.affine.multiscale import multiscale, choose_tuning_parameter
-except AttributeError as e:  # e.g. removed numpy aliases (np.int) in NumPy >= 1.24
-    pytest.skip("regreg.affine.multiscale fails to import (library bug): %s" % str(e).splitlines()[0],
-                allow_module_level=True)
+from regreg.affine.multiscale import multiscale, choose_tuning_parameter
 import regreg.api as rr
 import regreg.affine as ra
 from regreg.tests.decorators import set_seed_for_test
@@ -131,3 +127,23 @@ def test_choose_parameter(delta=2, p=60):
 
 
 
+
+def test_SMUCE_stat_sigma():
+    # gh-68: SMUCE_stat failed when sigma was given, and left M.scaling
+    # modified; choose_tuning_parameter did not pass sigma on
+    from regreg.affine.multiscale import SMUCE_stat, choose_tuning_parameter
+    M = multiscale(20)
+    scaling = M.scaling
+    Z = np.random.default_rng(0).standard_normal(20)
+    T1, _ = SMUCE_stat(M, Z, sigma=np.std(Z))
+    T2, _ = SMUCE_stat(M, Z)
+    np.testing.assert_allclose(T1, T2)
+    assert M.scaling is scaling
+    T3, _ = SMUCE_stat(M, Z, sigma=2 * np.std(Z))
+    assert T3 < T1
+
+    np.random.seed(0)
+    v1 = choose_tuning_parameter(M, ndraw=20, sigma=1.)
+    np.random.seed(0)
+    v2 = choose_tuning_parameter(M, ndraw=20, sigma=2.)
+    assert v2 < v1
