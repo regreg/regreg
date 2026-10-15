@@ -267,7 +267,6 @@ class sparse_group_lasso(group_lasso, seminorm):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
 @objective_doc_templater()
 class sparse_group_lasso_dual(sparse_group_lasso):

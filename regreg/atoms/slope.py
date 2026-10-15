@@ -178,7 +178,6 @@ class slope(seminorm):
          self._conjugate = atom
          self._conjugate._conjugate = self
          return self._conjugate
-    conjugate = property(get_conjugate)
 
 @objective_doc_templater()
 class slope_conjugate(slope):

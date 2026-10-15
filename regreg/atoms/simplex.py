@@ -65,7 +65,6 @@ class simplex_constraint(atom):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @classmethod
     @doc_template_user
@@ -209,7 +208,6 @@ class maximum(atom):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @classmethod
     @doc_template_user

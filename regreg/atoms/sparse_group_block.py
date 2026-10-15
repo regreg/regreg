@@ -146,7 +146,6 @@ class sparse_group_block(l1_l2):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     def __copy__(self):
          return self.__class__(self.shape,
@@ -279,7 +278,6 @@ class sparse_group_block_dual(sparse_group_block):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     def terms(self, arg):
          """

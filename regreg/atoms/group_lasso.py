@@ -190,7 +190,6 @@ class group_lasso(seminorm):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     def terms(self, arg):
         """
@@ -328,7 +327,7 @@ class group_lasso(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class group_lasso_dual(group_lasso):
@@ -488,7 +487,7 @@ class group_lasso_dual(group_lasso):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class group_lasso_cone(cone):
@@ -575,7 +574,6 @@ class group_lasso_cone(cone):
         self._conjugate = new_atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @property
     def weights(self):
@@ -646,7 +644,7 @@ class group_lasso_epigraph(group_lasso_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class group_lasso_epigraph_polar(group_lasso_cone):
@@ -702,7 +700,7 @@ class group_lasso_epigraph_polar(group_lasso_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class group_lasso_dual_epigraph(group_lasso_cone):
@@ -759,7 +757,7 @@ class group_lasso_dual_epigraph(group_lasso_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class group_lasso_dual_epigraph_polar(group_lasso_cone):
@@ -817,7 +815,7 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 conjugate_seminorm_pairs = {}
 conjugate_seminorm_pairs[group_lasso_dual] = group_lasso

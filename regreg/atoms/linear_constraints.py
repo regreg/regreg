@@ -103,7 +103,6 @@ class linear_constraint(cone):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @classmethod
     @doc_template_user
@@ -154,11 +153,11 @@ class projection(linear_constraint):
 
     @doc_template_user
     def get_conjugate(self):
-        return cone.get_conjugate(self)
+        return linear_constraint.get_conjugate(self)
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class projection_complement(linear_constraint):
@@ -194,11 +193,11 @@ class projection_complement(linear_constraint):
 
     @doc_template_user
     def get_conjugate(self):
-        return cone.get_conjugate(self)
+        return linear_constraint.get_conjugate(self)
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 conjugate_cone_pairs = {}
 for n1, n2 in [(projection, projection_complement),

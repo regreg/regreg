@@ -246,7 +246,6 @@ class seminorm(atom):
         self._conjugate = conjugate_atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @doc_template_user
     @doc_template_provider
@@ -810,7 +809,7 @@ class l1norm(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class supnorm(seminorm):
@@ -883,7 +882,7 @@ class supnorm(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class l2norm(seminorm):
@@ -958,7 +957,7 @@ class l2norm(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 def positive_part_lagrange(shape, lagrange,
                            offset=None, quadratic=None, initial=None):
@@ -1074,7 +1073,7 @@ class positive_part(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class constrained_max(seminorm):
@@ -1153,7 +1152,7 @@ class constrained_max(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class constrained_positive_part(seminorm):
@@ -1237,7 +1236,7 @@ class constrained_positive_part(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class max_positive_part(seminorm):
@@ -1310,7 +1309,7 @@ class max_positive_part(seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 conjugate_seminorm_pairs = {}
 for n1, n2 in [(l1norm,supnorm),

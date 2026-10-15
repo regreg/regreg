@@ -135,7 +135,6 @@ class seminorm(unweighted_seminorm):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
     
     def form_transform(self, subsample=False):
         '''

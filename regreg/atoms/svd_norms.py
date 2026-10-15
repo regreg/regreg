@@ -138,7 +138,7 @@ class nuclear_norm(svd_atom):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class operator_norm(svd_atom):
@@ -238,7 +238,7 @@ class operator_norm(svd_atom):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class svd_cone(cone):
@@ -313,7 +313,6 @@ class svd_cone(cone):
         self._conjugate = new_atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -321,7 +320,7 @@ class svd_cone(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class nuclear_norm_epigraph(svd_cone):
@@ -375,7 +374,7 @@ class nuclear_norm_epigraph(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -434,7 +433,7 @@ class nuclear_norm_epigraph_polar(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -493,7 +492,7 @@ class operator_norm_epigraph(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -551,7 +550,7 @@ class operator_norm_epigraph_polar(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
