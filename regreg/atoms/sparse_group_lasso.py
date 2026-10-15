@@ -201,7 +201,7 @@ class sparse_group_lasso(group_lasso, seminorm):
 
     def __repr__(self):
         if self.lagrange is not None:
-            if not self.quadratic.iszero:
+            if self.quadratic.iszero:
                 return "%s(%s, %s, weights=%s, lagrange=%f, offset=%s)" % \
                     (self.__class__.__name__,
                      str(self.groups),
@@ -219,7 +219,7 @@ class sparse_group_lasso(group_lasso, seminorm):
                      str(self.offset),
                      self.quadratic)
         else:
-            if not self.quadratic.iszero:
+            if self.quadratic.iszero:
                 return "%s(%s, %s, weights=%s, bound=%f, offset=%s)" % \
                     (self.__class__.__name__,
                      str(self.groups),
@@ -293,14 +293,19 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          Notes
          -----
          This conjugate does not take into account the atom's quadratic
-         and offset terms.
+         and offset terms. It is cached, and rebuilt if the bound or the
+         weights change.
          """
-         if not hasattr(self, "_conjugate_atom"):
+         key = (self.bound,
+                tuple(np.asarray(self.lasso_weights).ravel()),
+                tuple(sorted(self.weights.items())))
+         if getattr(self, '_base_conjugate_key', None) != key:
               self._base_conjugate_atom = sparse_group_lasso(  
                                              self.groups,
                                              self.lasso_weights,
                                              weights=self.weights,
                                              lagrange=self.bound)
+              self._base_conjugate_key = key
          return self._base_conjugate_atom
 
      @doc_template_user
@@ -331,7 +336,10 @@ class sparse_group_lasso_dual(sparse_group_lasso):
      @doc_template_user
      def constraint(self, x, bound=None):
          bound = seminorm.constraint(self, x, bound=bound)
-         return inside_set(self.base_conjugate, x)
+         # inside_set checks the unit dual ball
+         if inside_set(self.base_conjugate, np.asarray(x, float) / bound):
+              return 0
+         return np.inf
 
      @doc_template_user
      def lagrange_prox(self, x,  lipschitz=1, lagrange=None):

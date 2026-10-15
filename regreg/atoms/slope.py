@@ -126,7 +126,7 @@ class slope(seminorm):
     
     def __repr__(self):
          if self.lagrange is not None:
-              if not self.quadratic.iszero:
+              if self.quadratic.iszero:
                    return "%s(%s, lagrange=%f, offset=%s)" % \
                        (self.__class__.__name__,
                         str(self.weights),
@@ -140,7 +140,7 @@ class slope(seminorm):
                         str(self.offset),
                         self.quadratic)
          else:
-              if not self.quadratic.iszero:
+              if self.quadratic.iszero:
                    return "%s(%s, bound=%f, offset=%s)" % \
                        (self.__class__.__name__,
                         str(self.weights),
