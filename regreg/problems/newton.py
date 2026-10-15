@@ -4,6 +4,7 @@ and a single penalty.
 """
 from __future__ import print_function, division, absolute_import
 
+from copy import copy
 from functools import partial
 
 import numpy as np, warnings
@@ -43,6 +44,8 @@ class quasi_newton(object):
     """
 
     damping_term = 1.
+
+    objective_vars = copy(composite.objective_vars)
 
     def __init__(self, 
                  smooth_atom, 
@@ -84,7 +87,7 @@ class quasi_newton(object):
             Value of the objective.
         """
         return (self.smooth_objective(coefs, 'func') +
-                self.nonsmooth_objective(coefs, 'func'))
+                self.nonsmooth_objective(coefs, check_feasibility=True))
 
     def update_hessian(self,
                        old_soln,
@@ -184,6 +187,8 @@ class quasi_newton(object):
         Return a LaTeX representation of the problem.
         """
         template_dict = self.objective_vars.copy()
+        if var is not None:
+            template_dict['var'] = var
         template_dict['prox'] =  self.proximal_atom.latexify(var=var,idx='2')
         template_dict['smooth'] = self.smooth_atom.latexify(var=var,idx='1')
         result = r'''

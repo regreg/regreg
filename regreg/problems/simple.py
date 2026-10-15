@@ -71,13 +71,18 @@ class simple_problem(composite):
         vs = self.smooth_atom.nonsmooth_objective(x, check_feasibility=check_feasibility)
         return vn + vs + self.quadratic.objective(x, 'func')
 
-    def proximal(self, proxq):
+    def proximal(self, proxq, prox_control=None):
         """
         Proximal map of ``proximal_atom``, with the quadratic parts of
         ``smooth_atom`` and the problem added to `proxq`.
+
+        `prox_control`, if given, is passed on to
+        ``proximal_atom.proximal``.
         """
         proxq = proxq + self.smooth_atom.quadratic + self.quadratic
-        return self.proximal_atom.solve(proxq)
+        if prox_control is None:
+            return self.proximal_atom.solve(proxq)
+        return self.proximal_atom.proximal(proxq, prox_control=prox_control)
 
     @staticmethod
     def smooth(smooth_atom):
@@ -202,12 +207,14 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
         The solution.
     """
     itercount = 0
-    coef = simple_problem.coefs
+    coef = simple_problem.coefs.copy()
     value = np.inf
     while True:
         vnew, g = simple_problem.smooth_objective(coef, 'both')
         vnew += simple_problem.nonsmooth_objective(coef)
-        newcoef = simple_problem.solve(identity_quadratic(lipschitz, coef, g, 0))
+        # a proximal gradient step (as in FISTA), not a full solve: the
+        # quadratic only linearizes the smooth part
+        newcoef = simple_problem.proximal(identity_quadratic(lipschitz, coef, g, 0))
         if coef_stop:
             coef_stop_check = (np.linalg.norm(coef-newcoef) <= tol * 
                                np.max([np.linalg.norm(coef),
@@ -216,7 +223,7 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
             if coef_stop_check:
                 break
         else:
-            obj_stop_check = np.fabs(value - vnew) <= tol * np.max([vnew, 1])
+            obj_stop_check = np.fabs(value - vnew) <= tol * max(np.fabs(vnew), 1)
             if obj_stop_check:
                 break
         if itercount == max_its:

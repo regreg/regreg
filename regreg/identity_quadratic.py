@@ -102,8 +102,8 @@ class identity_quadratic(object):
             self.constant_term = 0
         if self.linear_term is not None and all(self.linear_term == 0):
             self.linear_term = None
-        if self.center is not None and all(self.center_term == 0):
-            self.center_term = None
+        if self.center is not None and all(self.center == 0):
+            self.center = None
 
     def zeroify(self):
         """
@@ -339,7 +339,8 @@ class identity_quadratic(object):
                                       0,
                                       -a.constant_term)
         else:
-            # possible import problem here
-            from ..atoms.cones import zero_constraint
+            # imported here to avoid a circular import
+            from .atoms.cones import zero_constraint
             q = identity_quadratic(0,0,0,-a.constant_term)
-            return zero_constraint(a.linear_term.shape, offset=-a.linear_term, quadratic=q)
+            # the conjugate of x -> l^T x + c is the indicator of {l}, minus c
+            return zero_constraint(a.linear_term.shape, offset=a.linear_term, quadratic=q)

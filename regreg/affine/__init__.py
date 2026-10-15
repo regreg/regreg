@@ -897,8 +897,8 @@ class aslinear(linear_transform):
     def __init__(self, transform):
         self._transform = astransform(transform)
         self.affine_offset = None
-        self.input_shape = self._transform.output_shape
-        self.output_shape = self._transform.input_shape
+        self.input_shape = self._transform.input_shape
+        self.output_shape = self._transform.output_shape
 
     def linear_map(self, x):
         return self._transform.linear_map(x)

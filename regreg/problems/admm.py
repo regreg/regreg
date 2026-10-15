@@ -74,7 +74,8 @@ class admm_problem(object):
 
         self.fit_args = fit_args # for the smooth_sum FISTA run
 
-        assert (self.loss.shape == self.transform.output_shape)
+        # the loss acts on x, the input of D
+        assert (self.loss.shape == self.transform.input_shape)
 
     def update_loss_coefs(self):
         r"""
@@ -92,7 +93,7 @@ class admm_problem(object):
                             self.transform.affine_offset)
         if alpha is None:
             alpha = 0
-        linear_term = self.linear_transform.dot(y - rho * (z - alpha))
+        linear_term = self.linear_transform.adjoint_map(y - rho * (z - alpha)) # D^T(...)
         self.loss_coefs[:] = self.augmented_loss.solve(quadratic=identity_quadratic(0, 0, linear_term, 0),
                                                        **self.fit_args)
 

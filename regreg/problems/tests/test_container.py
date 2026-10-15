@@ -205,3 +205,18 @@ def test_quadratic_for_smooth2():
                        'container with loss having a quadratic',
                        'simple_problem having a quadratic']):
         all_close(aq, p, msg, None)
+
+def test_container_solve_quadratic():
+    # gh-84: container.solve ignored its quadratic argument
+
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((100, 5))
+    Y = rng.standard_normal(100)
+    q = rr.identity_quadratic(50., np.ones(5), 0, 0)
+    c = rr.container(rr.squared_error(X, Y), rr.l1norm(5, lagrange=1.))
+    soln = c.solve(quadratic=q, tol=1e-12, min_its=200).copy()
+
+    ref = rr.simple_problem(rr.squared_error(X, Y), rr.l1norm(5, lagrange=1.))
+    ref_soln = ref.solve(quadratic=q, tol=1e-12, min_its=200)
+    np.testing.assert_allclose(soln, ref_soln, atol=1e-6)
+    assert c.quadratic.iszero   # restored after the solve
