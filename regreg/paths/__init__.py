@@ -334,14 +334,19 @@ def strong_rules(path_obj,
     grad_solution = grad_solution.copy()
 
     linear_predictor = path_obj.X.dot(solution)
-    ever_active = path_obj.updated_ever_active([])
+
+    # unpenalized groups are in every subproblem, as in `basil`;
+    # the KKT checks for inactive groups never add them
+    unpen = np.zeros(path_obj.group_shape, bool)
+    unpen[path_obj.unpenalized[1]] = True
+    ever_active = path_obj.updated_ever_active(unpen)
 
     dev_solution = path_obj.saturated_loss.smooth_objective(linear_predictor, 'func')
     solutions = [solution.T.copy()]
     dev_explained = [dev_solution]
 
     all_failing = np.zeros(path_obj.group_shape, bool)
-    subproblem_set = path_obj.updated_ever_active([])
+    subproblem_set = path_obj.updated_ever_active(unpen)
 
     for lagrange_new, lagrange_cur in zip(lagrange_seq[1:], 
                                           lagrange_seq[:-1]):
@@ -473,7 +478,7 @@ def warm_start(path_obj,
                inner_tol=1.e-5,
                verbose=False,
                initial_step=None,
-               solve_args={}):
+               solve_args=None):
     """
     Compute a regularization path using warm starts.
 
@@ -507,6 +512,7 @@ def warm_start(path_obj,
     """
 
     solution, _ = initial_data
+    solve_args = dict(solve_args or {})
 
     # basic setup
 

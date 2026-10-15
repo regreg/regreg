@@ -82,11 +82,11 @@ class sparse_group_common_path(group_lasso_path):
             self.X.input_shape = (self.X.input_shape +           # but its output should be same shape
                                   self.saturated_loss.shape[1:]) # as self.saturated_loss.shape
 
+        if l1_alpha is not None:
+            l1_penalty = l1_penalty * l1_alpha
+            l2_penalty = l2_penalty * (1 - l1_alpha)
         self.l1_penalty = l1_penalty
         self.l2_penalty = l2_penalty
-        if l1_alpha is not None:
-            self.l1_penalty *= l1_alpha
-            self.l2_penalty *= (1 - l1_alpha)
 
         # the penalty parameters
 
@@ -772,7 +772,7 @@ def _check_KKT(grad,
                                                           l1_weight,
                                                           l2_weight)[0] / lagrange
 
-    inactive_ranks = inactive_results.shape[0] - np.argsort(inactive_results)
+    inactive_ranks = inactive_results.shape[0] - rankdata(inactive_results)
     inactive_ranks[inactive_results <= 1 + tol] = -1
 
     return active_results, inactive_ranks

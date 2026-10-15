@@ -8,7 +8,7 @@ from joblib.parallel import Parallel, delayed
 
 have_sklearn = True
 try:
-    from sklearn.model_selection import check_cv
+    from sklearn.model_selection import check_cv, GroupKFold
 except ImportError:
     have_sklearn = False
     pass
@@ -44,10 +44,14 @@ def cross_validate(path_obj,
     initial_data : tuple, optional
         Pair ``(solution, grad_solution)`` to start each path. Defaults to
         ``(path_obj.solution, path_obj.grad_solution)``.
-    cv : int, optional
-        Number of folds.
+    cv : int or cross-validation splitter, optional
+        Number of folds, or anything accepted by
+        `sklearn.model_selection.check_cv` (a splitter object or an
+        iterable of ``(train, test)`` index pairs).
     group_labels : ndarray, optional
-        Currently unused.
+        Group label for each case, passed as ``groups`` to the splitter.
+        With an integer `cv`, `sklearn.model_selection.GroupKFold` is
+        used, so that no group is split across folds.
     n_jobs : int, optional
         Number of jobs passed to `joblib.Parallel`.
     score : callable, optional
@@ -73,17 +77,7 @@ def cross_validate(path_obj,
 
     response = path_obj.saturated_loss.data
     nsample = response.shape[0]
-    have_sklearn = False
-    if have_sklearn:
-        cv = check_cv(cv)
-        folds = list(cv.split(range(nsample), range(nsample)))
-    else:
-        if type(cv) != type(3):
-            raise ValueError('without sklearn, cv should be an integer')
-        groups = np.floor(np.arange(nsample)  / nsample * cv).astype(int)
-        np.random.shuffle(groups)
-        folds = [(groups != g, groups == g)
-                 for g in np.unique(groups)]
+    folds = _make_folds(cv, nsample, group_labels)
 
     # Loop over folds, computing path
     # for each (train, test)
@@ -99,7 +93,7 @@ def cross_validate(path_obj,
                  train,
                  inner_tol):
         train_path = path_obj.subsample(train)
-        train_path.saturated_loss.coef *= train.shape[0] / train.sum()
+        train_path.saturated_loss.coef *= nsample / train.sum()
         train_results = path_fitter(train_path, 
                                     lagrange_seq, 
                                     initial_data,
@@ -166,10 +160,14 @@ def cross_validate_alt(path_obj,
     initial_data : tuple, optional
         Pair ``(solution, grad_solution)`` to start each path. Defaults to
         ``(path_obj.solution, path_obj.grad_solution)``.
-    cv : int, optional
-        Number of folds.
+    cv : int or cross-validation splitter, optional
+        Number of folds, or anything accepted by
+        `sklearn.model_selection.check_cv` (a splitter object or an
+        iterable of ``(train, test)`` index pairs).
     group_labels : ndarray, optional
-        Currently unused.
+        Group label for each case, passed as ``groups`` to the splitter.
+        With an integer `cv`, `sklearn.model_selection.GroupKFold` is
+        used, so that no group is split across folds.
     n_jobs : int, optional
         Number of jobs passed to `joblib.Parallel`.
     score : callable, optional
@@ -195,17 +193,7 @@ def cross_validate_alt(path_obj,
 
     response = path_obj.saturated_loss.data
     nsample = response.shape[0]
-    have_sklearn = False
-    if have_sklearn:
-        cv = check_cv(cv)
-        folds = list(cv.split(range(nsample), range(nsample)))
-    else:
-        if type(cv) != type(3):
-            raise ValueError('without sklearn, cv should be an integer')
-        groups = np.floor(np.arange(nsample)  / nsample * cv).astype(int)
-        np.random.shuffle(groups)
-        folds = [(groups != g, groups == g)
-                 for g in np.unique(groups)]
+    folds = _make_folds(cv, nsample, group_labels)
 
     if initial_data is None:
         initial_data = (path_obj.solution,
@@ -240,3 +228,33 @@ def cross_validate_alt(path_obj,
 
 
 
+
+def _make_folds(cv, nsample, group_labels=None):
+    """
+    Return a list of ``(train, test)`` pairs of boolean masks over cases.
+
+    An integer `cv` without `group_labels` gives randomly assigned folds
+    of (nearly) equal size, and does not need sklearn. Otherwise the folds
+    come from `sklearn.model_selection.check_cv`.
+    """
+    if isinstance(cv, (int, np.integer)) and group_labels is None:
+        labels = np.floor(np.arange(nsample) / nsample * cv).astype(int)
+        np.random.shuffle(labels)
+        return [(labels != g, labels == g) for g in np.unique(labels)]
+
+    if not have_sklearn:
+        raise ValueError('without sklearn, cv should be an integer '
+                         'and group_labels should be None')
+    if isinstance(cv, (int, np.integer)):
+        cv = GroupKFold(n_splits=cv)
+    else:
+        cv = check_cv(cv)
+
+    folds = []
+    for train_idx, test_idx in cv.split(np.zeros((nsample, 1)),
+                                        groups=group_labels):
+        train, test = np.zeros(nsample, bool), np.zeros(nsample, bool)
+        train[train_idx] = True
+        test[test_idx] = True
+        folds.append((train, test))
+    return folds

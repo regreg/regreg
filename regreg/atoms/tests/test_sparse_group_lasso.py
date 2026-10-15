@@ -165,3 +165,19 @@ def test_proximal_maps(klass, mode):
         factory = SparseGroupSolverFactory(klass, mode)
         for solver in factory:
             run_checks(solver.all_tests())
+
+def test_dual_ignores_unpenalized_groups():
+    # as for group_lasso_dual, a group with no penalty is ignored by the
+    # dual seminorm unless checking feasibility
+    groups = np.array([0, 0, 1, 1, 2, 2])
+    lasso_weights = np.array([0, 0, 1, 1, 1, 1.])
+    weights = {0: 0., 1: 1., 2: 1.}
+    pen = sparse_group_lasso(groups, lasso_weights, weights=weights, lagrange=1.)
+    x = np.array([1e-3, -1e-3, 2, 1, -1, 0.5])
+    x0 = x.copy()
+    x0[:2] = 0
+    dual = pen.conjugate
+    np.testing.assert_allclose(dual.seminorm(x, lagrange=1), 
+                               dual.seminorm(x0, lagrange=1))
+    assert dual.seminorm(x, lagrange=1, check_feasibility=True) == np.inf
+    np.testing.assert_allclose(x[:2], [1e-3, -1e-3])

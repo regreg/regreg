@@ -77,6 +77,9 @@ class sparse_group_lasso_path(group_lasso_path):
         self.X = astransform(X)
         self.l1_alpha = l1_alpha # used only in constructor and 
                                  # in subsample
+        # unscaled weights, so subsample does not apply l1_alpha twice
+        self._lasso_weights = lasso_weights
+        self._weights = weights
 
         # the penalty parameters
 
@@ -104,7 +107,7 @@ class sparse_group_lasso_path(group_lasso_path):
 
         self._unpenalized_vars = _candidate_bool(self.penalty.groups, 
                                                  unpenalized_groups)
-        self._penalized_vars = np.zeros(self.shape, bool)
+        self._penalized_vars = np.ones(self.shape, bool)
         self._penalized_vars[self._unpenalized_vars] = 0
 
         if np.any(unpenalized_idx):
@@ -147,8 +150,8 @@ class sparse_group_lasso_path(group_lasso_path):
             self._unpen_groups = []
             self._unpen_group_idx = np.zeros(self.group_shape, bool)
             for i, g in enumerate(self.penalty._sorted_groupids):
-                unpen_group = (self.penalty.weights[g] == 0 +
-                               np.any(self.penalty.lasso_weights[self.penalty.groups == g]
+                unpen_group = ((self.penalty.weights[g] == 0) and
+                               np.all(self.penalty.lasso_weights[self.penalty.groups == g]
                                       == 0))
                 self._unpen_group_idx[i] = unpen_group
                 if unpen_group:
@@ -180,8 +183,8 @@ class sparse_group_lasso_path(group_lasso_path):
         return self.__class__(subsample_loss,
                               self.X,
                               self.penalty.groups,
-                              self.penalty.lasso_weights,
-                              weights=self.penalty.weights,
+                              self._lasso_weights,
+                              weights=self._weights,
                               elastic_net_param=self.elastic_net_param,
                               alpha=self.alpha,
                               l1_alpha=self.l1_alpha)
@@ -548,7 +551,7 @@ def _check_KKT(sglasso,
             inactive_results[i] = _gauge_function_dual_strong(subgrad_g, l1weight_g,
                                                               l2weight_g)[0] / lagrange
         else:   # unpenalized
-            active_results[i] = (np.linalg.norm(subgrad_g) > tol * sqlasso.l1weight_g.mean()) * UNPENALIZED
+            active_results[i] = (np.linalg.norm(subgrad_g) > tol * max(1, np.linalg.norm(soln_g))) * UNPENALIZED
 
     inactive_ranks = inactive_results.shape[0] - rankdata(inactive_results)
     inactive_ranks[inactive_results <= 1 + tol] = -1
