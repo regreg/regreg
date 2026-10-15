@@ -653,8 +653,8 @@ class group_lasso_epigraph_polar(group_lasso_cone):
     The polar of the epigraph of the group LASSO seminorm.
     """
 
-    objective_template = (r"""I^{\infty}(\max_g \|%(var)s[g]\|_2 \leq """
-                          + r"""-%(var)s[-1]\)""")
+    objective_template = (r"""I^{\infty}\left(\max_g \|%(var)s[g]\|_2 """
+                          + r"""\leq -%(var)s[-1]\right)""")
     objective_vars = cone.objective_vars.copy()
     objective_vars['coneklass'] = 'group_lasso_epigraph_polar'
     objective_vars['dualconeklass'] = 'group_lasso_epigraph'
@@ -709,8 +709,8 @@ class group_lasso_dual_epigraph(group_lasso_cone):
     The group LASSO conjugate epigraph constraint.
     """
 
-    objective_template = (r"""I^{\infty}(%(var)s: \max_g """ + 
-                          r"""\|%(var)s[1:][g]\|_2 \leq %(var)s[0])""")
+    objective_template = (r"""I^{\infty}\left(\max_g \|%(var)s[g]\|_2 """
+                          + r"""\leq %(var)s[-1]\right)""")
 
     objective_vars = cone.objective_vars.copy()
     objective_vars['coneklass'] = 'group_lasso_dual_epigraph'
@@ -766,8 +766,8 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
     The polar of the group LASSO dual epigraph constraint.
     """
 
-    objective_template = (r"""I^{\infty}(%(var)s: \sum_g \|%(var)s[g]\|_2 \leq """
-                          + r"""-%(var)s[-1]\}}""")
+    objective_template = (r"""I^{\infty}\left(\sum_g \|%(var)s[g]\|_2 """
+                          + r"""\leq -%(var)s[-1]\right)""")
 
     objective_vars = cone.objective_vars.copy()
     objective_vars['coneklass'] = 'group_lasso_dual_epigraph_polar'

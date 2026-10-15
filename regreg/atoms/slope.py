@@ -65,6 +65,7 @@ class slope(seminorm):
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['normklass'] = 'slope'
     objective_vars['dualnormklass'] = 'slope_conjugate'
+    objective_vars['initargs'] = '[3., 2., 1.]'
 
     def __init__(self, weights, 
                  lagrange=None, 
@@ -198,7 +199,9 @@ class slope_conjugate(slope):
      """
 
      objective_template = r"""{\cal D}^{SLOPE}(%(var)s)"""
-     objective_vars = seminorm.objective_vars.copy()
+     objective_vars = slope.objective_vars.copy()
+     objective_vars['normklass'] = 'slope_conjugate'
+     objective_vars['dualnormklass'] = 'slope'
 
      @doc_template_user
      def seminorm(self, x, lagrange=None, check_feasibility=False):

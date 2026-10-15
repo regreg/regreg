@@ -173,11 +173,6 @@ class maximum(atom):
 
     tol = 1.0e-05
 
-    objective_vars = atom.objective_vars.copy()
-    objective_vars['klass'] = 'simplex_constraint'
-    objective_vars['dualklass'] = 'maximum'
-    objective_vars['initargs'] = '(4,)'
-
     def __eq__(self, other):
         if self.__class__ == other.__class__:
             return self.shape == other.shape

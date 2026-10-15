@@ -279,7 +279,9 @@ class sparse_group_lasso_dual(sparse_group_lasso):
      """
 
      objective_template = r"""{\cal D}^{group sparse}(%(var)s)"""
-     objective_vars = seminorm.objective_vars.copy()
+     objective_vars = sparse_group_lasso.objective_vars.copy()
+     objective_vars['normklass'] = 'sparse_group_lasso_dual'
+     objective_vars['dualnormklass'] = 'sparse_group_lasso'
 
      @property
      def base_conjugate(self):
