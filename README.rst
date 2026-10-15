@@ -9,6 +9,13 @@ models and choices of regularization.  In that spirit, the emphasis is on the
 flexibility of the framework instead of computational speed for any particular
 problem, though the speed trade-off will generally not be too bad.
 
+*************
+Documentation
+*************
+
+https://regreg.github.io/regreg/ (with the API reference at
+https://regreg.github.io/regreg/api/)
+
 ****
 Code
 ****
