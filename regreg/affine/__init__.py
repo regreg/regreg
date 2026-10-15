@@ -821,7 +821,7 @@ class product(affine_transform):
         return result
 
 
-def power_L(transform, max_its=500,tol=1e-8, debug=False):
+def power_L(transform, max_its=500, tol=1e-8, debug=False, rng=0):
     """
     Approximate the largest singular value (squared) of a transform.
 
@@ -838,6 +838,10 @@ def power_L(transform, max_its=500,tol=1e-8, debug=False):
         Relative tolerance for convergence.
     debug : bool, optional
         If True, print the estimate at each iteration.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random starting vector, passed to
+        `np.random.default_rng`. The default is a fixed seed, so that
+        results are reproducible.
 
     Returns
     -------
@@ -850,7 +854,7 @@ def power_L(transform, max_its=500,tol=1e-8, debug=False):
     """
 
     transform = astransform(transform)
-    v = np.random.standard_normal(transform.input_shape)
+    v = np.random.default_rng(rng).standard_normal(transform.input_shape)
     old_norm = 0.
     norm = 1.
     itercount = 0
