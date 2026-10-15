@@ -778,7 +778,8 @@ class l1norm(seminorm):
         bound = seminorm.bound_prox(self, arg, bound)
         arg = np.asarray(arg, float)
         absarg = np.fabs(arg)
-        cut = find_solution_piecewise_linear_c(bound, 0, absarg)
+        # the piecewise linear solver takes a 1-D array
+        cut = find_solution_piecewise_linear_c(bound, 0, absarg.ravel())
         if cut < np.inf:
             return np.sign(arg) * (absarg - cut) * (absarg > cut)
         return arg
@@ -844,7 +845,8 @@ class supnorm(seminorm):
         lagrange = seminorm.lagrange_prox(self, arg, lipschitz, lagrange)
         arg = np.asarray(arg, float)
         absarg = np.fabs(arg)
-        cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, absarg)
+        # the piecewise linear solver takes a 1-D array
+        cut = find_solution_piecewise_linear_c(lagrange / lipschitz, 0, absarg.ravel())
         if cut < np.inf:
             proj = np.sign(arg) * (absarg - cut) * (absarg > cut)
         else:

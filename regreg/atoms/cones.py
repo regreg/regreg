@@ -590,14 +590,7 @@ class l2_epigraph(cone):
 
     @doc_template_user
     def cone_prox(self, x):
-        norm = x[-1]
-        coef = x[:-1]
-        norm_coef = np.linalg.norm(coef)
-        thold = (norm_coef - norm) / 2.
-        result = np.zeros_like(x)
-        result[:-1] = coef / norm_coef * max(norm_coef - thold, 0)
-        result[-1] = max(norm + thold, 0)
-        return result
+        return _project_l2_epigraph(x)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -633,15 +626,8 @@ class l2_epigraph_polar(cone):
 
     @doc_template_user
     def cone_prox(self, arg):
-        arg = -arg
-        norm = arg[-1]
-        coef = arg[:-1]
-        norm_coef = np.linalg.norm(coef)
-        thold = (norm_coef - norm) / 2.
-        result = np.zeros_like(arg)
-        result[:-1] = coef / norm_coef * max(norm_coef - thold, 0)
-        result[-1] = max(norm + thold, 0)
-        return -result
+        # the polar cone is the negative of the epigraph
+        return -_project_l2_epigraph(-np.asarray(arg, float))
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -818,3 +804,21 @@ for n1, n2 in [(nonnegative,nonpositive),
     conjugate_cone_pairs[n1] = n2
     conjugate_cone_pairs[n2] = n1
 
+
+def _project_l2_epigraph(x):
+    """
+    Project `x` onto the second-order cone ``{(v, t): ||v||_2 <= t}``, with
+    `t` the last coordinate of `x`.
+    """
+    x = np.asarray(x, float)
+    v, t = x[:-1], x[-1]
+    norm_v = np.linalg.norm(v)
+    if norm_v <= t:          # already in the cone
+        return x.copy()
+    if norm_v <= -t:         # in the polar cone: projects to the apex
+        return np.zeros_like(x)
+    a = (norm_v + t) / 2.
+    result = np.empty_like(x)
+    result[:-1] = v * (a / norm_v)
+    result[-1] = a
+    return result

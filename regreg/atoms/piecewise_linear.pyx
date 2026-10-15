@@ -54,13 +54,21 @@ def find_solution_piecewise_linear(DTYPE_float_t b,
         The solution.
     """
 
-    cdef int q = norms.shape[0]
     cdef int stop = 0
 
     if (weights * norms).sum() < b:
         return 0
 
-    cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms / np.maximum(weights, 1e-20)
+    # terms with weight 0 contribute nothing, but their knots (norm / 0)
+    # would start the sweep at a huge value
+    keep = weights > 0
+    norms = np.ascontiguousarray(norms[keep])
+    weights = np.ascontiguousarray(weights[keep])
+    cdef int q = norms.shape[0]
+    if q == 0:
+        return 0
+
+    cdef cnp.ndarray[DTYPE_float_t, ndim=1] knots = norms / weights
     cdef cnp.ndarray[DTYPE_intp_t, ndim=1] order = np.argsort(knots)
 
     slope = - slope # move the linear piece to the LHS

@@ -316,25 +316,18 @@ print(ml.proximal(rr.identity_quadratic(1, center, 0, 0)))
 
 The unpenalized coordinates are untouched, the $\ell_1$ ones are soft-thresholded,
 the nonnegative ones are projected onto $[0, \infty)$, and the group $(3, 4)$
-is shrunk by $\lambda w_g = \sqrt{2}$ in norm. (The `POSITIVE_PART` prox
-should leave the negative input $-3$ unchanged, as `rr.positive_part` does; it
-currently maps it to $0$, see
-[gh-103](https://github.com/regreg/regreg/issues/103).)
+is shrunk by $\lambda w_g = \sqrt{2}$ in norm. The positive-part
+coordinates are shifted down by $\lambda$ if above it, set to $0$ if in
+$[0, \lambda]$, and left unchanged if negative (the penalty is $0$ there).
 
 As a fitted example: keep the first group unpenalized, penalize the next two
 groups as groups, give the remaining features an $\ell_1$ penalty and constrain
-the last two to be nonnegative. FISTA evaluates the objective at its starting
-point with a feasibility check, which currently treats $\beta_j = 0$ as
-infeasible for `NONNEGATIVE` coordinates
-([gh-103](https://github.com/regreg/regreg/issues/103)), so we start those
-coordinates at a positive value.
+the last two to be nonnegative.
 
 ```{code-cell} ipython3
 structure = np.array([UNPENALIZED] * 3 + [0] * 3 + [1] * 3 +
                      [L1_PENALTY] * (p - 11) + [NONNEGATIVE] * 2)
-initial = np.zeros(p)
-initial[structure == NONNEGATIVE] = 1.
-ml = rr.mixed_lasso(structure, lagrange=0.3 * lagrange_max, initial=initial)
+ml = rr.mixed_lasso(structure, lagrange=0.3 * lagrange_max)
 beta_ml = rr.simple_problem(loss, ml).solve(tol=1e-12, min_its=50)
 print(np.round(beta_ml, 3))
 assert np.all(beta_ml[structure == NONNEGATIVE] >= 0)

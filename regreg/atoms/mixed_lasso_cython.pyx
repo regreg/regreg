@@ -86,8 +86,9 @@ def mixed_lasso_lagrange_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
                               np.minimum(1, implied_bound / 
                                          np.fabs(prox_center[l1_penalty])))
     projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(implied_bound, 
-                                           prox_center[positive_part])
+    # the dual set of lambda * max(x, 0) is [0, lambda] (gh-103)
+    projection[positive_part] = np.clip(prox_center[positive_part],
+                                        0, implied_bound)
     projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
     return prox_center - projection
@@ -150,10 +151,11 @@ def mixed_lasso_dual_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
 
     projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1, bound / np.fabs(prox_center[l1_penalty]))
     projection[unpenalized] = 0
-    projection[positive_part] = np.minimum(bound, prox_center[positive_part])
+    projection[positive_part] = np.clip(prox_center[positive_part], 0, bound)
     projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
-    return projection
+    # a copy: `projection` is a work buffer reused by the next call
+    return projection.copy()
 
 def seminorm_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x, 
                          cnp.ndarray[DTYPE_intp_t, ndim=1] l1_penalty, 
@@ -212,13 +214,10 @@ def seminorm_mixed_lasso(cnp.ndarray[DTYPE_float_t, ndim=1] x,
         elif norms[j] != 0:
             return np.inf
 
-    tol = 1.e-5
     if check_feasibility:
-        xpos = x[positive_part]
-        if tuple(xpos.shape) not in [(),(0,)] and xpos.min() < tol:
-            value = np.inf
+        # POSITIVE_PART coordinates are penalized, not constrained (gh-103)
         xnn = x[nonnegative]
-        if tuple(xnn.shape) not in [(),(0,)] and xnn.min() < nntol:
+        if tuple(xnn.shape) not in [(),(0,)] and xnn.min() < -nntol:
             value = np.inf
 
     return value
@@ -485,10 +484,17 @@ def seminorm_mixed_lasso_dual(cnp.ndarray[DTYPE_float_t, ndim=1] x,
                 value = np.inf
 
     if check_feasibility:
+        # the dual set: u = 0 for unpenalized coordinates, u >= 0 for
+        # positive-part ones and u <= 0 for nonnegative ones (the polar
+        # of the nonnegative orthant)
+        xun = x[unpenalized]
+        if xun.shape not in [(), (0,)] and np.fabs(xun).max() > nntol:
+            value = np.inf
+        if xpos.shape not in [(), (0,)] and xpos.min() < -nntol:
+            value = np.inf
         xnn = x[nonnegative]
-        if xnn.shape not in [(), (0,)]:
-            if xnn.min() < -nntol:
-                value = np.inf
+        if xnn.shape not in [(), (0,)] and xnn.max() > nntol:
+            value = np.inf
 
     return value
 
@@ -576,7 +582,7 @@ def mixed_lasso_bound_prox(cnp.ndarray[DTYPE_float_t, ndim=1] prox_center,
 
         projection[l1_penalty] = prox_center[l1_penalty] * np.minimum(1., cut / np.fabs(prox_center[l1_penalty]))
         projection[unpenalized] = 0
-        projection[positive_part] = np.minimum(cut, prox_center[positive_part])
+        projection[positive_part] = np.clip(prox_center[positive_part], 0, cut)
         projection[nonnegative] = np.minimum(prox_center[nonnegative], 0)
 
         return prox_center - projection
@@ -669,7 +675,7 @@ def mixed_lasso_epigraph(cnp.ndarray[DTYPE_float_t, ndim=1] center,
 
             projection[l1_penalty] = x[l1_penalty] * np.minimum(1., cut / np.fabs(x[l1_penalty]))
             projection[unpenalized] = 0
-            projection[positive_part] = np.minimum(cut, x[positive_part])
+            projection[positive_part] = np.clip(x[positive_part], 0, cut)
             projection[nonnegative] = np.minimum(x[nonnegative], 0)
 
             result[:-1] = x - projection
