@@ -349,7 +349,7 @@ class nuclear_norm_epigraph(svd_cone):
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
 
-        incone = np.fabs(D[1:]).sum() <= (1 + self.tol) * norm
+        incone = D.sum() <= (1 + self.tol) * norm
         if incone:
             return 0
         return np.inf

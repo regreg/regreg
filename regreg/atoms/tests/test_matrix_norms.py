@@ -37,3 +37,11 @@ def test_proximal_maps(klass):
     factory = MatrixSolverFactory(klass, 'bound')
     for solver in factory:
         run_checks(solver.all_tests())
+
+def test_nuclear_norm_epigraph_constraint():
+    # gh-66: the constraint left out the largest singular value
+    cone = rr.nuclear_norm_epigraph((2, 2))
+    X = np.diag([3., 1])                  # nuclear norm 4
+    assert cone.constraint(np.hstack([X.ravel(), 4.1])) == 0
+    assert cone.constraint(np.hstack([X.ravel(), 3.9])) == np.inf
+    assert cone.constraint(np.hstack([X.ravel(), 1.5])) == np.inf
