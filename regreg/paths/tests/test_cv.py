@@ -4,7 +4,8 @@ from .. import (lasso,
                 group_lasso,
                 sparse_group_lasso,
                 sparse_group_block,
-                cross_validate)
+                cross_validate,
+                warm_start)
 
 from ...tests.decorators import set_seed_for_test
 
@@ -106,9 +107,9 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
 
 
 @set_seed_for_test()
-def test_sparse_group_lasso(n=1000, p=100, nstep=20):
+def test_sparse_group_lasso_warm_start(n=500, p=100, nstep=10):
     '''
-    CV for a LASSO path
+    CV for a sparse group LASSO path, fitted with `warm_start`
 
     '''
     X = np.random.standard_normal((n,p))
@@ -139,6 +140,7 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
 
     cross_validate.cross_validate(sparse_group_lasso1,
                                   lagrange_sequence,
+                                  path_fitter=warm_start,
                                   inner_tol=1.e-10,
                                   cv=3)
 

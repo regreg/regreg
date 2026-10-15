@@ -478,7 +478,7 @@ def warm_start(path_obj,
                inner_tol=1.e-5,
                verbose=False,
                initial_step=None,
-               solve_args={}):
+               solve_args=None):
     """
     Compute a regularization path using warm starts.
 
@@ -512,6 +512,7 @@ def warm_start(path_obj,
     """
 
     solution, _ = initial_data
+    solve_args = dict(solve_args or {})
 
     # basic setup
 

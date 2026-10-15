@@ -14,7 +14,7 @@ def basil_inner_loop(path_obj,
                      check_active=False,
                      step_nvar=50,
                      candidate_set=None,
-                     solve_args={}):
+                     solve_args=None):
     """
     Solve a path over a short sequence of Lagrange parameters.
 
@@ -61,6 +61,8 @@ def basil_inner_loop(path_obj,
 
     debug = True
     coef_stop = False
+    if solve_args is None:
+        solve_args = {}
 
     # take a guess at the inverse step size
     if initial_step is None:
@@ -74,6 +76,7 @@ def basil_inner_loop(path_obj,
     solution, grad_solution = initial_data
 
     solution = solution.copy()
+    grad_solution = grad_solution.copy()
     last_grad = grad_solution.copy()
     inactive_ranks = path_obj.check_KKT(grad_solution,
                                         solution,
@@ -159,7 +162,7 @@ def basil(path_obj,
           check_active=False,
           step_nvar=50,
           step_lagrange=5,
-          solve_args={}):
+          solve_args=None):
     """
     Compute a regularization path with the BASIL algorithm.
 
@@ -177,11 +180,12 @@ def basil(path_obj,
     inner_tol : float, optional
         Tolerance for each subproblem.
     verbose : bool, optional
-        Print progress information? (Currently unused.)
+        Print progress information?
     initial_step : float, optional
-        Initial step size for the solver. (Currently unused.)
+        Initial step size for the solver. If None, it is estimated once
+        from the Lipschitz constant of ``path_obj.X``.
     check_active : bool, optional
-        Also check KKT conditions for active groups? (Currently unused.)
+        Also check KKT conditions for active groups?
     step_nvar : int, optional
         Number of inactive groups added to the candidate set in each batch.
     step_lagrange : int, optional
@@ -199,6 +203,10 @@ def basil(path_obj,
 
     cur_data = initial_data
 
+    # estimate the step once rather than in every batch
+    if initial_step is None:
+        initial_step = 1000. / power_L(path_obj.X, max_its=50)
+
     while True:
         
         lagrange_start = np.sum(lagrange_seq >= np.min(lagrange_solved))
@@ -212,11 +220,15 @@ def basil(path_obj,
                                                lagrange_cand,
                                                cur_data,
                                                inner_tol=inner_tol,
+                                               verbose=verbose,
+                                               initial_step=initial_step,
+                                               check_active=check_active,
                                                step_nvar=step_nvar,
                                                candidate_set=candidate_set,
                                                solve_args=solve_args)
             if len(solution_incr) > 0:
-                cur_soln = (solution_incr[-1], last_grad)
+                # warm start the next batch; solutions are stored transposed
+                cur_data = (solution_incr[-1].T, last_grad)
 
                 solutions.extend(solution_incr)
                 lagrange_solved.extend(lagrange_incr)
