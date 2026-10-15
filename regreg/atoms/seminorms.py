@@ -514,7 +514,7 @@ class seminorm(atom):
         --------
         >>> import regreg.api as rr
         >>> penalty = rr.l1norm(4, lagrange=2)
-        >>> penalty.nonsmooth_objective([3, 4, 5, 9])
+        >>> print(penalty.nonsmooth_objective([3, 4, 5, 9]))
         42.0
         >>> 2 * sum([3, 4, 5, 9])
         42

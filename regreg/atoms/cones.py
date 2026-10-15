@@ -196,7 +196,7 @@ class cone(atom):
         --------
         >>> import regreg.api as rr
         >>> cone = rr.nonnegative(4)
-        >>> cone.nonsmooth_objective([3, 4, 5, 9])
+        >>> print(cone.nonsmooth_objective([3, 4, 5, 9]))
         0.0
         '''
         arg = np.asarray(x)
@@ -298,7 +298,6 @@ class cone(atom):
     # for atoms, the offset is really the "center"
 
     @classmethod
-    @doc_template_provider
     def linear(cls, linear_operator, diag=False,
                offset=None,
                quadratic=None):
@@ -337,7 +336,6 @@ class cone(atom):
         return affine_cone(cone, l)
 
     @classmethod
-    @doc_template_provider
     def affine(cls, linear_operator, offset, diag=False,
                quadratic=None):
         r"""
@@ -621,7 +619,7 @@ class l2_epigraph_polar(cone):
     l2 epigraph.
     """
 
-    objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_2 \in -%(var)s[-1])"""
+    objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_2 \leq -%(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
     objective_vars['dualconeklass'] = 'l2_epigraph'
     objective_vars['coneklass'] = 'l2_epigraph_polar'
@@ -669,8 +667,8 @@ class l1_epigraph(cone):
 
     objective_template = r"""I^{\infty}(\|%(var)s[:-1]\|_1 \leq %(var)s[-1])"""
     objective_vars = cone.objective_vars.copy()
-    objective_vars['dualconeklass'] = 'l1_epigraph'
-    objective_vars['coneklass'] = 'l1_epigraph_polar'
+    objective_vars['coneklass'] = 'l1_epigraph'
+    objective_vars['dualconeklass'] = 'l1_epigraph_polar'
 
     @doc_template_user
     def constraint(self, x):

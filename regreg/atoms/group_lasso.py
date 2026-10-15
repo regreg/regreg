@@ -213,13 +213,13 @@ class group_lasso(seminorm):
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        >>> [float(t) for t in penalty.terms(arg)] # doctest: +ELLIPSIS
         [6.3245..., 12.2474...]
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         18.5720...
-        >>> np.sqrt((2**2 + 4**2)*2), np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        >>> float(np.sqrt((2**2 + 4**2)*2)), float(np.sqrt((5**2 + 3**2 + 4**2) * 3.)) # doctest: +ELLIPSIS
         (6.3245..., 12.2474...)
-        >>> np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.) # doctest: +ELLIPSIS
+        >>> float(np.sqrt((2**2 + 4**2)*2) + np.sqrt((5**2 + 3**2 + 4**2) * 3.)) # doctest: +ELLIPSIS
         18.5720...
         """
         arg = np.asarray(arg)
@@ -374,9 +374,9 @@ class group_lasso_dual(group_lasso):
         >>> groups = [1,1,2,2,2]
         >>> penalty = rr.group_lasso_dual(groups, lagrange=1.)
         >>> arg = [2,4,5,3,4]
-        >>> list(penalty.terms(arg)) # doctest: +ELLIPSIS
+        >>> [float(t) for t in penalty.terms(arg)] # doctest: +ELLIPSIS
         [3.1622..., 4.0824...]
-        >>> np.sqrt((2**2 + 4**2)/2), np.sqrt((5**2 + 3**2 + 4**2) / 3.) # doctest: +ELLIPSIS
+        >>> float(np.sqrt((2**2 + 4**2)/2)), float(np.sqrt((5**2 + 3**2 + 4**2) / 3.)) # doctest: +ELLIPSIS
         (3.1622..., 4.0824...)
         >>> penalty.seminorm(arg) # doctest: +ELLIPSIS
         4.0824...
@@ -653,8 +653,8 @@ class group_lasso_epigraph_polar(group_lasso_cone):
     The polar of the epigraph of the group LASSO seminorm.
     """
 
-    objective_template = (r"""I^{\infty}(\max_g \|%(var)s[g]\|_2 \leq """
-                          + r"""-%(var)s[-1]\)""")
+    objective_template = (r"""I^{\infty}\left(\max_g \|%(var)s[g]\|_2 """
+                          + r"""\leq -%(var)s[-1]\right)""")
     objective_vars = cone.objective_vars.copy()
     objective_vars['coneklass'] = 'group_lasso_epigraph_polar'
     objective_vars['dualconeklass'] = 'group_lasso_epigraph'
@@ -709,8 +709,8 @@ class group_lasso_dual_epigraph(group_lasso_cone):
     The group LASSO conjugate epigraph constraint.
     """
 
-    objective_template = (r"""I^{\infty}(%(var)s: \max_g """ + 
-                          r"""\|%(var)s[1:][g]\|_2 \leq %(var)s[0])""")
+    objective_template = (r"""I^{\infty}\left(\max_g \|%(var)s[g]\|_2 """
+                          + r"""\leq %(var)s[-1]\right)""")
 
     objective_vars = cone.objective_vars.copy()
     objective_vars['coneklass'] = 'group_lasso_dual_epigraph'
@@ -766,8 +766,8 @@ class group_lasso_dual_epigraph_polar(group_lasso_cone):
     The polar of the group LASSO dual epigraph constraint.
     """
 
-    objective_template = (r"""I^{\infty}(%(var)s: \sum_g \|%(var)s[g]\|_2 \leq """
-                          + r"""-%(var)s[-1]\}}""")
+    objective_template = (r"""I^{\infty}\left(\sum_g \|%(var)s[g]\|_2 """
+                          + r"""\leq -%(var)s[-1]\right)""")
 
     objective_vars = cone.objective_vars.copy()
     objective_vars['coneklass'] = 'group_lasso_dual_epigraph_polar'
