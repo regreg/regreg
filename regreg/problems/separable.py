@@ -64,7 +64,7 @@ def has_overlap(shape, groups):
         for j in range(i):
             subset1 = subsets[i]
             subset2 = subsets[j]
-            if subset1 != subset2 and subset1.intersection(subset2):
+            if subset1.intersection(subset2):
                     return True
     return False
 
@@ -197,13 +197,19 @@ class separable(atom):
         # coefficient penalized in a natural way
         # because this instantiates it at the prox map of the zero penalty
         v = self.zero_atom.proximal(proxq)
+        # collapse the center into the linear term, so that only the linear
+        # term needs reshaping for each block
+        proxq = proxq.collapsed()
         for atom, group, shape, assign_shape in zip(self.atoms,
                                                     self.groups,
                                                     self.shapes,
                                                     self.assign_shapes):
             proxq_group = proxq[group]
             if shape is not None:
-                proxq_group.linear_term.shape = shape
+                linear_term = np.asarray(proxq_group.linear_term, float)
+                if linear_term.ndim > 0:
+                    # a reshaped copy: setting .shape would change proxq
+                    proxq_group.linear_term = linear_term.reshape(shape)
             v[group] = atom.proximal(proxq_group, prox_control).reshape(assign_shape)
         return v
 

@@ -356,6 +356,9 @@ def partial_svd(transform,
             U = warm_start
         elif len(warm_start.shape) == 1:
             U = np.hstack([warm_start.reshape((warm_start.shape[0],1)), rng.standard_normal((n,q-1))])            
+        elif warm_start.shape[1] >= q:
+            # more starting vectors than needed
+            U = warm_start[:,:q]
         else:
             U = np.hstack([warm_start, rng.standard_normal((n,q-warm_start.shape[1]))])            
     else:
@@ -445,7 +448,8 @@ class nuclear_norm(nuclear_norm_atom):
                                    quadratic=quadratic,
                                    initial=0)
 
-        self.initial_rank = initial_rank
+        # the rank cannot exceed the smaller dimension
+        self.initial_rank = min(initial_rank, min(self.shape))
         # the warm start should be of whichever side has largest
         # dimension
         m = max(self.shape)
@@ -572,7 +576,7 @@ class operator_norm(operator_norm_atom):
         Initial rank guess for the iterative SVD.
     warm_start : ndarray, optional
         Warm start for the singular vectors, of shape
-        ``(shape[0], initial_rank)``.
+        ``(max(shape), initial_rank)``.
     rng : int or `np.random.Generator`, optional
         Seed or generator for the random warm start, if `warm_start` is None, passed to
         `np.random.default_rng`. The default is a fixed seed, so that
@@ -594,19 +598,23 @@ class operator_norm(operator_norm_atom):
                                     quadratic=quadratic,
                                     initial=0)
 
-        self.initial_rank = initial_rank
+        # the rank cannot exceed the smaller dimension
+        self.initial_rank = min(initial_rank, min(self.shape))
+        # as for nuclear_norm (whose warm start this is), the warm start is
+        # of whichever side has largest dimension
+        m = max(self.shape)
         if warm_start is None:
-            self.warm_start = np.random.default_rng(rng).standard_normal((self.shape[0], self.initial_rank))
+            self.warm_start = np.random.default_rng(rng).standard_normal((m, self.initial_rank))
         else:
             self.warm_start = warm_start
-            if warm_start.shape != (self.shape[0], self.initial_rank):
-                raise ValueError('expecting warm_start to have shape %s' % ((self.shape[0], self.initial_rank),))
+            if warm_start.shape != (m, self.initial_rank):
+                raise ValueError('expecting warm_start to have shape %s' % ((m, self.initial_rank),))
 
         self._nuclear_atom = nuclear_norm(shape,
                                           lagrange=lagrange,
                                           bound=bound,
                                           initial=initial,
-                                          initial_rank=initial_rank,
+                                          initial_rank=self.initial_rank,
                                           warm_start=self.warm_start)
 
     @doc_template_user

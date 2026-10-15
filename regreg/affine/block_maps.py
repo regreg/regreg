@@ -52,6 +52,7 @@ class block_columns(affine_transform):
             raise ValueError('output of transforms should be stackable')
 
         self.output_shape = _buffer.shape
+        self.affine_offset = _buffer.copy() if np.any(_buffer != 0) else None
         self._slices = []
         idx = 0
         for offset in self._offsets:
