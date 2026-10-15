@@ -14,6 +14,12 @@ except ImportError:
 from ..smooth.mglm import (mglm, 
                            multinomial_loglike)
 
+def _multinomial_accuracy(predictions, successes, case_weights=None):
+    """(Weighted) proportion of cases whose most frequent category is the
+    one with the largest linear predictor."""
+    correct = np.argmax(predictions, 1) == np.argmax(successes, 1)
+    return np.average(correct, weights=case_weights)
+
 if have_sklearn:
     class sklearn_multinomial(sklearn_regression):
 
@@ -57,13 +63,14 @@ if have_sklearn:
                 return -2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = 2 * loss(predictions)
-                pi_0 = np.mean(response, 0)
-                multinom_0 = np.log(pi_0)
-                SST = 2 * loss(np.multiply.outer(multinom_0,  np.ones_like(response)))
+                # the null model fits the (weighted) overall category proportions
+                w = np.ones(successes.shape[0]) if case_weights is None else case_weights
+                totals = (w[:, None] * successes).sum(0)
+                multinom_0 = np.log(totals / totals.sum())
+                SST = 2 * loss(np.ones((successes.shape[0], 1)) * multinom_0[None, :])
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
-                labels = predictions > 0
-                return np.mean(labels == response)
+                return _multinomial_accuracy(predictions, successes, case_weights)
             else:
                 return np.nan
 
@@ -99,7 +106,7 @@ if have_sklearn:
             successes = response
 
             if self.score_method == 'accuracy':
-                return np.mean(predictions == successes)
+                return _multinomial_accuracy(predictions, successes, case_weights)
             return np.nan
 
         def predict(self, X):
@@ -134,14 +141,11 @@ if have_sklearn:
                 shape ``(n, J)``.
             """
             linpred = X.dot(self._coefs)
-            exp_lin = np.exp(linpred)
-            return exp_lin / exp_lin.sum(1)
+            exp_lin = np.exp(linpred - linpred.max(1)[:, None])
+            return exp_lin / exp_lin.sum(1)[:, None]
 
-    class sklearn_multinomial_classifier_lagrange(sklearn_multinomial_classifier):
-        """Multinomial classifier (intended Lagrange form).
-
-        Currently this is identical to `sklearn_multinomial_classifier`.
-        """
+    class sklearn_multinomial_classifier_lagrange(sklearn_classifier_lagrange, sklearn_multinomial_classifier):
+        """Lagrange-form multinomial classifier for sklearn."""
 
         pass
 

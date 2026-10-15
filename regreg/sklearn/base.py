@@ -26,6 +26,28 @@ except ImportError:
     have_sklearn = False
 
 
+
+def _null_success_probability(successes, trials=None, case_weights=None):
+    """(Weighted) overall success probability, the fitted mean of the null model."""
+    successes = np.asarray(successes, float)
+    w = np.ones_like(successes) if case_weights is None else np.asarray(case_weights, float)
+    t = np.ones_like(successes) if trials is None else np.asarray(trials, float)
+    return np.sum(w * successes) / np.sum(w * t)
+
+def _binary_accuracy(predictions, successes, trials=None, case_weights=None,
+                     threshold=0):
+    """(Weighted) proportion of cases whose label is predicted correctly.
+
+    The predicted label is ``predictions > threshold``, where
+    `predictions` is the linear predictor and `threshold` the value at
+    which the fitted probability is 1/2. The observed label is whether the
+    proportion of successes exceeds 1/2.
+    """
+    successes = np.asarray(successes, float)
+    observed = successes if trials is None else successes / np.asarray(trials, float)
+    correct = (np.asarray(predictions) > threshold) == (observed > 0.5)
+    return np.average(correct, weights=case_weights)
+
 class base_mixin(object):
     """Base mixin pairing a loss with an atom used as a regularizer."""
 
@@ -110,7 +132,7 @@ class base_mixin(object):
         problem = simple_problem(loglike, atom_)
         if self.initial is not None:
             problem.coefs[:] = self.initial
-        self._coefs = problem.solve(**self.solve_args)
+        self._coefs = problem.solve(quadratic=self.quadratic, **self.solve_args)
         return self
 
     def predict(self, X):
@@ -143,8 +165,8 @@ class base_mixin(object):
             True values for `X`, possibly with case weight and offset
             columns as in `fit`.
         sample_weight : array-like, shape (n_samples,), optional
-            Sample weights, multiplied into the case weights (only used if
-            `y` includes case weights).
+            Sample weights, multiplied into the case weights if `y`
+            includes them, and used as the case weights otherwise.
 
         Returns
         -------
@@ -157,15 +179,18 @@ class base_mixin(object):
             predictions -= offset   # this is how offsets are incorporated
                                     # in regreg
         if sample_weight is not None:
+            sample_weight = np.asarray(sample_weight)
             if case_weights is not None:
                 case_weights = case_weights * sample_weight
+            else:
+                case_weights = sample_weight
         return self._saturated_score(predictions, response, case_weights=case_weights)
 
     def _construct_atom(self):
         return self.atom_constructor(**self.atom_params)
 
     def _loglike_factory(self, X, y):
-        raise NotImplementedErorr
+        raise NotImplementedError
 
     def _check_y_arg(self, y):
         """Split the `y` argument of `fit` into its components.
@@ -233,6 +258,7 @@ class lagrange_mixin(base_mixin):
                  coef=1., 
                  score_method='deviance',
                  unpenalized=False,
+                 quadratic=None,
                  solve_args={},
                  initial=None):
 
@@ -265,6 +291,9 @@ class lagrange_mixin(base_mixin):
             Whether any features are unpenalized. If so, the null solution
             (with ``lagrange=np.inf``) requires solving a problem, whose
             gradient is then used to construct the atom.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the problem. Its gradient is
+            included in the gradient used to construct the atom.
         solve_args : dict, optional
             Keyword arguments passed to `simple_problem.solve`.
         initial : ndarray, optional
@@ -291,6 +320,7 @@ class lagrange_mixin(base_mixin):
         self.score_method = score_method
         self.enet_alpha = enet_alpha
         self.unpenalized = unpenalized
+        self.quadratic = quadratic
         self.solve_args = solve_args
         self.initial = initial
         
@@ -316,7 +346,8 @@ class lagrange_mixin(base_mixin):
         # this may be best found by solving a problem with an atom with lagrange=np.inf
         # this could get expensive though
 
-        null_grad = loglike.smooth_objective(np.zeros(loglike.shape), 'grad')
+        null_soln = np.zeros(loglike.shape)
+        null_grad = self._null_grad(loglike, null_soln)
         atom_ = self._construct_atom(null_grad)
         if self.unpenalized:
             null_grad = self._fit_null_soln(loglike, atom_)
@@ -324,17 +355,22 @@ class lagrange_mixin(base_mixin):
         problem = simple_problem(loglike, atom_)
         if self.initial is not None:
             problem.coefs[:] = self.initial
-        self._coefs = problem.solve(**self.solve_args)
+        self._coefs = problem.solve(quadratic=self.quadratic, **self.solve_args)
 
         return self
 
+    def _null_grad(self, loglike, null_soln):
+        # gradient of the smooth part of the objective
+        grad = loglike.smooth_objective(null_soln, 'grad')
+        if getattr(self, 'quadratic', None) is not None:
+            grad = grad + self.quadratic.objective(null_soln, 'grad')
+        return grad
+
     def _fit_null_soln(self, loglike, atom):
-        old_lagrange = atom.lagrange
         atom.lagrange = np.inf
         problem = simple_problem(loglike, atom)
-        null_soln = problem.solve()
-        null_grad = loglike.smooth_objective(null_soln, 'grad')
-        return null_grad
+        null_soln = problem.solve(quadratic=getattr(self, 'quadratic', None))
+        return self._null_grad(loglike, null_soln)
 
     def _construct_atom(self, score):
         atom_ = self.atom_constructor(score, **self.atom_params)
@@ -437,6 +473,9 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
                  enet_alpha=0.,
                  coef=1., 
                  score_method='accuracy',
+                 unpenalized=False,
+                 quadratic=None,
+                 solve_args={},
                  initial=None):
 
         """Initialize the estimator.
@@ -461,6 +500,12 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
             Scaling to be put in front of the loss.
         score_method : str, optional
             Which score to use as default `score`. One of ``['accuracy']``.
+        unpenalized : bool, optional
+            Whether any features are unpenalized; see `lagrange_mixin`.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the problem.
+        solve_args : dict, optional
+            Keyword arguments passed to `simple_problem.solve`.
         initial : ndarray, optional
             Warm start for the coefficients.
 
@@ -471,15 +516,18 @@ class classifier_lagrange_mixin(classifier_mixin, lagrange_mixin):
         be taken to be the case weights.
         """
 
-        lagrange_mixin(self, 
-                       atom_constructor, 
-                       atom_params, 
-                       case_weights=case_weights,
-                       offset=offset,
-                       enet_alpha=enet_alpha,
-                       coef=coef, 
-                       score_method=score_method,
-                       initial=initial)
+        lagrange_mixin.__init__(self, 
+                                atom_constructor, 
+                                atom_params, 
+                                case_weights=case_weights,
+                                offset=False,
+                                enet_alpha=enet_alpha,
+                                coef=coef, 
+                                score_method=score_method,
+                                unpenalized=unpenalized,
+                                quadratic=quadratic,
+                                solve_args=solve_args,
+                                initial=initial)
                        
 
 class survival_mixin(base_mixin):
@@ -498,6 +546,9 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
                  enet_alpha=0.,
                  coef=1., 
                  score_method='deviance',
+                 unpenalized=False,
+                 quadratic=None,
+                 solve_args={},
                  initial=None):
 
         """Initialize the estimator.
@@ -525,6 +576,12 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
         score_method : str, optional
             Which score to use as default `score`. One of
             ``['deviance', 'mean_deviance', 'R2', 'C-index']``.
+        unpenalized : bool, optional
+            Whether any features are unpenalized; see `lagrange_mixin`.
+        quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+            Quadratic term to be added to the problem.
+        solve_args : dict, optional
+            Keyword arguments passed to `simple_problem.solve`.
         initial : ndarray, optional
             Warm start for the coefficients.
 
@@ -549,6 +606,9 @@ class survival_mixin_lagrange(survival_mixin, lagrange_mixin):
                                 enet_alpha=enet_alpha,
                                 coef=coef, 
                                 score_method=score_method,
+                                unpenalized=unpenalized,
+                                quadratic=quadratic,
+                                solve_args=solve_args,
                                 initial=initial)
                        
 
@@ -581,7 +641,7 @@ if have_sklearn:
 
         pass
 
-    class sklearn_survival_lagrange(classifier_mixin, BaseEstimator, RegressorMixin):
+    class sklearn_survival_lagrange(survival_mixin_lagrange, BaseEstimator, RegressorMixin):
         """sklearn survival estimator with a regularizer in Lagrange form."""
 
         pass
