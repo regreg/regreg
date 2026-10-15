@@ -436,7 +436,7 @@ class nuclear_norm(nuclear_norm_atom):
         else:
             self.warm_start = warm_start
             if warm_start.shape != (m, self.initial_rank):
-                raise ValueError('expecting warm_start to have shape %s' % (m, self.initial_rank))
+                raise ValueError('expecting warm_start to have shape %s' % ((m, self.initial_rank),))
 
     @doc_template_user
     def seminorm(self, X, check_feasibility=False,
@@ -578,7 +578,7 @@ class operator_norm(operator_norm_atom):
         else:
             self.warm_start = warm_start
             if warm_start.shape != (self.shape[0], self.initial_rank):
-                raise ValueError('expecting warm_start to have shape %s' % (self.shape[0], self.initial_rank))
+                raise ValueError('expecting warm_start to have shape %s' % ((self.shape[0], self.initial_rank),))
 
         self._nuclear_atom = nuclear_norm(shape,
                                           lagrange=lagrange,

@@ -779,7 +779,7 @@ class product(affine_transform):
         self.input_groups = self.input_group_dtype.names 
 
         self.output_group_dtype = np.dtype([('group_%d' % i, float, shape) 
-                                           for i, shape in enumerate(self.input_shapes)])
+                                           for i, shape in enumerate(self.output_shapes)])
         self.output_groups = self.output_group_dtype.names 
 
         # figure out the affine offset
@@ -1017,7 +1017,7 @@ class composition(affine_transform):
 
         # compute the affine_offset
         affine_offset = self.affine_map(np.zeros(self.input_shape))
-        if not np.allclose(affine_offset, 0): 
+        if np.allclose(affine_offset, 0): 
             self.affine_offset = None
         else:
             self.affine_offset = affine_offset

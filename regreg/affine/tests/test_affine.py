@@ -349,3 +349,43 @@ def test_aslinear_shapes():
     x, u = np.arange(5.), np.arange(4.)
     np.testing.assert_allclose(L.linear_map(x), D @ x)
     np.testing.assert_allclose(L.adjoint_map(u), D.T @ u)
+
+def test_composition_offset():
+    # gh-68: the offset test in composition was inverted
+    from regreg.affine import composition as comp
+    c = comp(affine_transform(np.eye(3), np.ones(3)), np.eye(3))
+    np.testing.assert_allclose(c.affine_offset, np.ones(3))
+    assert comp(np.eye(3), np.eye(3)).affine_offset is None
+
+def test_affine_atom_offset():
+    # gh-68: affine_atom dropped the offset of a composition, failed for
+    # a composition without one, and (not in the issue) added the
+    # transform's offset to the atom's center rather than subtracting it
+    import regreg.api as rr
+    from regreg.atoms import affine_atom
+    from regreg.affine import composition as comp
+
+    rng = np.random.default_rng(0)
+    D = rng.standard_normal((3, 4))
+    o = rng.standard_normal(3)
+    c = rng.standard_normal(3)
+    x = rng.standard_normal(4)
+    expected = np.fabs(D.dot(x) + o - c).sum()
+    for T in [affine_transform(D, o),
+              comp(affine_transform(np.eye(3), o), D)]:
+        atom = rr.l1norm(3, lagrange=1., offset=c.copy())
+        A = affine_atom(atom, T)
+        np.testing.assert_allclose(A.nonsmooth_objective(x), expected)
+        # the caller's atom is unchanged
+        np.testing.assert_allclose(atom.offset, c)
+        repr(A)
+
+    A = affine_atom(rr.l1norm(3, lagrange=1.), comp(np.eye(3), D))
+    np.testing.assert_allclose(A.nonsmooth_objective(x), np.fabs(D.dot(x)).sum())
+
+def test_product_output_dtype():
+    # gh-68: output_group_dtype used the input shapes
+    from regreg.affine import product
+    P = product([np.ones((2, 5)), np.ones((3, 4))])
+    assert [P.output_group_dtype[n].shape for n in P.output_groups] == [(2,), (3,)]
+    assert [P.input_group_dtype[n].shape for n in P.input_groups] == [(5,), (4,)]

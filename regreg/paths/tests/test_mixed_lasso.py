@@ -2,28 +2,28 @@ import numpy as np, regreg.api as rr, regreg.affine as ra
 import pytest
 import regreg.paths.mixed_lasso as mixed_lasso
 
-from regreg.tests.decorators import set_seed_for_test
 
 from regreg.paths import subsample_columns
 
 def test_subsample_cols():
 
-    X = np.random.standard_normal((50,20)); L = ra.affine_transform(X, None)
+    rng = np.random.default_rng(10)
+    X = rng.standard_normal((50,20)); L = ra.affine_transform(X, None)
     Xs = subsample_columns(L, range(5))
     Xs - X[:,range(5)]
     np.testing.assert_allclose(Xs, X[:,range(5)])
 
-@set_seed_for_test()
 def test_path():
     '''
     this test looks at the paths of three different parameterizations
     of the same problem
 
     '''
-    X = np.random.standard_normal((100,5))
+    rng = np.random.default_rng(11)
+    X = rng.standard_normal((100,5))
     Z = np.zeros((100,10))
-    Y = np.random.standard_normal(100)
-    U = np.random.standard_normal((100,2))
+    Y = rng.standard_normal(100)
+    U = rng.standard_normal((100,2))
     betaX = np.array([3,4,5,0,0])
     betaU = np.array([10,-5])
     Y += np.dot(X, betaX) + np.dot(U, betaU)
@@ -55,17 +55,17 @@ def test_path():
     np.testing.assert_allclose(beta1, beta2)
     np.testing.assert_allclose(beta2, beta3)
 
-@set_seed_for_test()
 def test_path_unpenalized():
     '''
     this test looks at the paths of three different parameterizations
     of the same problem
 
     '''
-    X = np.random.standard_normal((100,5))
-    U = np.random.standard_normal((100,2))
+    rng = np.random.default_rng(12)
+    X = rng.standard_normal((100,5))
+    U = rng.standard_normal((100,2))
     Z = np.zeros((100,10))
-    Y = np.random.standard_normal(100)
+    Y = rng.standard_normal(100)
     betaX = np.array([3,4,5,0,0])
     betaU = np.array([10,-5])
     Y += np.dot(X, betaX) + np.dot(U, betaU)
@@ -107,10 +107,11 @@ def test_path_lasso_as_group():
     of the same problem
 
     '''
-    X = np.random.standard_normal((100,5))
-    U = np.random.standard_normal((100,2))
+    rng = np.random.default_rng(13)
+    X = rng.standard_normal((100,5))
+    U = rng.standard_normal((100,2))
     Z = np.zeros((100,10))
-    Y = np.random.standard_normal(100)
+    Y = rng.standard_normal(100)
     betaX = np.array([3,4,5,0,0])
     betaU = np.array([10,-5])
     Y += np.dot(X, betaX) + np.dot(U, betaU)
@@ -165,9 +166,10 @@ def test_path_group_lasso():
 
     '''
     n = 100
-    X = np.random.standard_normal((n,10))
-    U = np.random.standard_normal((n,2))
-    Y = np.random.standard_normal(100)
+    rng = np.random.default_rng(14)
+    X = rng.standard_normal((n,10))
+    U = rng.standard_normal((n,2))
+    Y = rng.standard_normal(100)
     betaX = np.array([3,4,5,0,0] + [0]*5)
     betaU = np.array([10,-5])
     Y += (np.dot(X, betaX) + np.dot(U, betaU)) * 5
@@ -203,10 +205,11 @@ def test_path_nonnegative():
     this test looks at the paths of three different parameterizations
     of the same problem
     '''
-    X = np.random.standard_normal((100,5))
-    U = np.random.standard_normal((100,2))
+    rng = np.random.default_rng(15)
+    X = rng.standard_normal((100,5))
+    U = rng.standard_normal((100,2))
     U2 = np.zeros((100,4))
-    Y = np.random.standard_normal(100)
+    Y = rng.standard_normal(100)
     betaX = np.array([3,4,5,0,0])
     betaU = np.array([10,-5])
     Y += np.dot(X, betaX) + np.dot(U, betaU)

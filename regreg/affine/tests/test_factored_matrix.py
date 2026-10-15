@@ -192,3 +192,10 @@ def test_max_rank():
     assert np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
     assert np.linalg.norm(np.dot(VT, VT.T) - np.identity(100)) < 1.e-6
 
+
+def test_warm_start_shape_error():
+    # gh-68: the error message had one %s and two arguments
+    from regreg.affine.factored_matrix import nuclear_norm as fm_nuclear_norm
+    with pytest.raises(ValueError, match=r'\(5, 2\)'):
+        fm_nuclear_norm((5, 4), lagrange=1., initial_rank=2,
+                        warm_start=np.zeros((3, 3)))

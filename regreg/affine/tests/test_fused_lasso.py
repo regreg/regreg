@@ -45,3 +45,12 @@ def test_difference_transform():
     for order in range(1,3):
         FL.difference_transform(np.arange(p), order=order, sorted=False)
         FL.difference_transform(np.arange(p), order=order, transform=False)
+
+def test_trend_filter_unsorted_knots():
+    # gh-68: the difference matrix was built from the unsorted knots
+    from regreg.affine.fused_lasso import trend_filter, difference_transform
+    knots = np.array([0., 2., 1., 4.])
+    for order in [1, 2]:
+        T = trend_filter(knots, order=order)
+        np.testing.assert_allclose(T.linear_map(np.identity(4)),
+                                   difference_transform(np.sort(knots), order=order).toarray())

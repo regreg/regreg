@@ -64,7 +64,7 @@ class trend_filter(affine_transform):
         self.knots = np.sort(knots)
         self.steps = self.knots[1:] - self.knots[:-1]
 
-        self.linear_transform = difference_transform(knots, order=order, sorted=True,
+        self.linear_transform = difference_transform(self.knots, order=order, sorted=True,
                                                      transform=True)
         self.affine_offset = None
         self.input_shape = self.linear_transform.input_shape
@@ -111,7 +111,7 @@ class trend_filter_inverse(affine_transform):
         if order != 1:
             raise ValueError('pseudo inverse only worked out for first order')
             
-        dtransform = difference_transform(knots, order=order, sorted=True,
+        dtransform = difference_transform(self.knots, order=order, sorted=True,
                                           transform=True)
 
         self.affine_offset = None
