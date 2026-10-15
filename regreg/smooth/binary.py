@@ -11,7 +11,7 @@ from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
 from ..identity_quadratic import identity_quadratic
-from . import smooth_atom, combine_case_weights
+from . import _without_saturated_constant, smooth_atom, combine_case_weights
 
 class logistic_loglike(smooth_atom):
 
@@ -86,6 +86,8 @@ class logistic_loglike(smooth_atom):
 
         devq = identity_quadratic(0,0,0,-loss_constant)
         self.quadratic += devq
+        # remembered so that __copy__ does not add it a second time
+        self._saturated_constant = -loss_constant
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -257,7 +259,7 @@ class logistic_loglike(smooth_atom):
                                 trials=copy(trials),
                                 coef=self.coef,
                                 offset=copy(self.offset),
-                                quadratic=copy(self.quadratic),
+                                quadratic=_without_saturated_constant(self),
                                 initial=copy(self.coefs),
                                 case_weights=copy(self.case_weights))
 
@@ -385,6 +387,8 @@ class probit_loglike(smooth_atom):
 
         devq = identity_quadratic(0,0,0,-loss_constant)
         self.quadratic += devq
+        # remembered so that __copy__ does not add it a second time
+        self._saturated_constant = -loss_constant
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -434,35 +438,23 @@ class probit_loglike(smooth_atom):
         x = self.apply_offset(x)
 
 
-        prob = normal_dbn.cdf(x)
-        prob[x < -20] = normal_dbn.cdf(-20)   # to prevent overflow
-        prob_c = normal_dbn.sf(x) # to prevent overflow
-        prob_c[x > 20] = normal_dbn.sf(20)
-
+        # log-probabilities computed directly, so that they stay accurate
+        # (and finite) for large |eta|
+        lprob = normal_dbn.logcdf(x)
+        lprob_c = normal_dbn.logsf(x)
+        if mode in ['both', 'func']:
+            f = -self.scale(np.sum(cw * (_times(self.successes, lprob) +
+                                         _times(self.trials - self.successes, lprob_c))))
+        if mode in ['both', 'grad']:
+            # d log Phi / d eta = phi / Phi, d log (1 - Phi) / d eta = -phi / (1 - Phi)
+            lpdf = normal_dbn.logpdf(x)
+            g = -self.scale(cw * (_times(self.successes, np.exp(lpdf - lprob)) -
+                                  _times(self.trials - self.successes, np.exp(lpdf - lprob_c))))
         if mode == 'both':
-
-            lprob = np.log(prob)
-            lprob_c = np.log(prob_c)
-            pdf = normal_dbn.pdf(x)
-
-            f, g = (-self.scale(np.sum(cw * (self.successes * lprob + 
-                                            (self.trials - self.successes) * lprob_c))),
-                     -self.scale(cw * pdf * (self.successes / prob - 
-                                             (self.trials - self.successes) / prob_c)))
             return f, g
         elif mode == 'grad':
-            pdf = normal_dbn.pdf(x)
-            g = - self.scale(cw * pdf * (self.successes / prob - 
-                                         (self.trials - self.successes) / prob_c)) 
             return g
-
         elif mode == 'func':
-
-            lprob = np.log(prob)
-            lprob_c = np.log(prob_c)
-
-            f = -self.scale(np.sum(cw * (self.successes * lprob + 
-                                         (self.trials - self.successes) * lprob_c)))
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -499,10 +491,9 @@ class probit_loglike(smooth_atom):
                                   self.case_weights,
                                   natural_param.shape)
 
-        pi = self.mean_function(x)
-        V = pi * (1 - pi)
-        deriv_term = normal_dbn.pdf(x)**2
-        return self.scale(deriv_term * self.trials * cw / V)
+        # Fisher information: n phi^2 / (Phi (1 - Phi)), on the log scale
+        info = np.exp(2 * normal_dbn.logpdf(x) - normal_dbn.logcdf(x) - normal_dbn.logsf(x))
+        return self.scale(info * self.trials * cw)
 
     def get_data(self):
         """Return the vector of successes."""
@@ -553,7 +544,7 @@ class probit_loglike(smooth_atom):
                               trials=copy(trials),
                               coef=self.coef,
                               offset=copy(self.offset),
-                              quadratic=copy(self.quadratic),
+                              quadratic=_without_saturated_constant(self),
                               initial=copy(self.coefs),
                               case_weights=copy(self.case_weights))
 
@@ -680,6 +671,8 @@ class cloglog_loglike(smooth_atom):
 
         devq = identity_quadratic(0,0,0,-loss_constant)
         self.quadratic += devq
+        # remembered so that __copy__ does not add it a second time
+        self._saturated_constant = -loss_constant
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -728,39 +721,25 @@ class cloglog_loglike(smooth_atom):
         x = natural_param # shorthand
         x = self.apply_offset(x)
 
-        cutoff = 5
-        x_ = np.clip(x, -cutoff, cutoff) # to prevent overflow
-        prob_ = 1 - np.exp(-np.exp(x_))
-        prob_c_ = np.exp(-np.exp(x_)) 
-        prob = prob_.copy()
-        prob_c = prob_c_.copy()
+        # with e = exp(eta): p = 1 - exp(-e), log p = log(-expm1(-e)),
+        # log(1 - p) = -e; computed directly, rather than by clipping eta
+        e = np.exp(x)
+        lprob = np.log(-np.expm1(-e))
+        lprob_c = -e
+        if mode in ['both', 'func']:
+            f = -self.scale(np.sum(cw * (_times(self.successes, lprob) +
+                                         _times(self.trials - self.successes, lprob_c))))
+        if mode in ['both', 'grad']:
+            # d log p / d eta = e exp(-e) / p = e / expm1(e) (-> 1 as e -> 0),
+            # d log(1 - p) / d eta = -e
+            ratio = _e_over_expm1(e)
+            g = -self.scale(cw * (_times(self.successes, ratio) -
+                                  _times(self.trials - self.successes, e)))
         if mode == 'both':
-
-            lprob = np.log(prob)
-            lprob_c = np.log(prob_c)
-            lpdf = x - np.exp(x)
-            pdf = np.exp(lpdf)
-
-            f, g = (-self.scale(np.sum(cw * (self.successes * lprob + 
-                                            (self.trials - self.successes) * lprob_c))),
-                     -self.scale(cw * pdf * (self.successes / prob - 
-                                             (self.trials - self.successes) / prob_c)))
             return f, g
         elif mode == 'grad':
-            lpdf = x - np.exp(x)
-            pdf = np.exp(lpdf)
-
-            g = - self.scale(cw * pdf * (self.successes / prob - 
-                                         (self.trials - self.successes) / prob_c)) 
             return g
-
         elif mode == 'func':
-
-            lprob = np.log(prob)
-            lprob_c = np.log(prob_c)
-
-            f = -self.scale(np.sum(cw * (self.successes * lprob + 
-                                         (self.trials - self.successes) * lprob_c)))
             return f
         else:
             raise ValueError("mode incorrectly specified")
@@ -797,12 +776,9 @@ class cloglog_loglike(smooth_atom):
                                   self.case_weights,
                                   natural_param.shape)
 
-        pi = self.mean_function(x)
-        V = pi * (1 - pi)
-        lpdf = x - np.exp(x)
-        pdf = np.exp(lpdf)
-        deriv_term = pdf**2
-        return self.scale(deriv_term * self.trials * cw / V)
+        # Fisher information: n pdf^2 / (p (1 - p)) = n e^2 / expm1(e)
+        e = np.exp(x)
+        return self.scale(e * _e_over_expm1(e) * self.trials * cw)
 
     def get_data(self):
         """Return the vector of successes."""
@@ -853,7 +829,7 @@ class cloglog_loglike(smooth_atom):
                                trials=copy(trials),
                                coef=self.coef,
                                offset=copy(self.offset),
-                               quadratic=copy(self.quadratic),
+                               quadratic=_without_saturated_constant(self),
                                initial=copy(self.coefs),
                                case_weights=copy(self.case_weights))
 
@@ -892,7 +868,7 @@ class cloglog_loglike(smooth_atom):
         r"""Compute the mean function (inverse link).
 
         The success probability is :math:`1 - \exp(-e^{\eta})`, with
-        :math:`\eta` clipped to :math:`[-5, 5]`.
+        :math:`\eta`.
 
         Parameters
         ----------
@@ -906,8 +882,7 @@ class cloglog_loglike(smooth_atom):
         mean : ndarray
             Success probabilities.
         """
-        eta = np.clip(eta, -5, 5)
-        return 1 - np.exp(-np.exp(eta))
+        return -np.expm1(-np.exp(eta))
 
 class huber_svm(smooth_atom):
     r"""Huberized hinge (SVM) loss for binary responses.
@@ -963,6 +938,10 @@ class huber_svm(smooth_atom):
             self.successes = successes.toarray().flatten()
         else:
             self.successes = np.asarray(successes)
+        if not np.all(np.isin(self.successes, [0, 1])):
+            # the loss is (1 - (2y - 1) eta)_+, smoothed; labels coded +1 / -1
+            # would silently give the wrong loss
+            raise ValueError('huber_svm expects 0 / 1 labels')
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -1104,3 +1083,22 @@ def _huber_svm(z, smoothing_parameter):
     proj_arg = (0 < arg) * (arg < 1) * arg + (arg >= 1) 
     return (1 - z) * proj_arg - eps * proj_arg**2 / 2, -proj_arg
 
+
+def _times(counts, values):
+    """
+    ``counts * values``, taken to be 0 where `counts` is 0 (so that, e.g.,
+    0 * log(0) contributes nothing rather than nan).
+    """
+    counts = np.asarray(counts, float)
+    values = np.asarray(values, float)
+    with np.errstate(invalid='ignore', divide='ignore', over='ignore'):
+        return np.where(counts != 0, counts * values, 0.)
+
+def _e_over_expm1(e):
+    """
+    ``e / expm1(e)`` for ``e >= 0``, with its limit 1 at ``e = 0``.
+    """
+    e = np.asarray(e, float)
+    with np.errstate(invalid='ignore', divide='ignore', over='ignore'):
+        out = e / np.expm1(e)
+    return np.where(e > 0, out, 1.)

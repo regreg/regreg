@@ -5,6 +5,7 @@ objectives, the composition `affine_smooth` of a smooth atom with an affine
 map, and a few simple smooth atoms (`zero`, `sum`).
 """
 
+from copy import copy
 import numpy as np
 from scipy import sparse
 import warnings
@@ -231,6 +232,16 @@ class smooth_atom(smooth_composite):
         """The convex conjugate of the atom."""
         return self.get_conjugate()
 
+
+def _without_saturated_constant(loss):
+    """
+    A copy of ``loss.quadratic`` without the saturated log-likelihood
+    constant that the saturated losses add to it in ``__init__``, so that a
+    copy built from it does not add the constant a second time.
+    """
+    q = copy(loss.quadratic)
+    q.constant_term = q.constant_term - getattr(loss, '_saturated_constant', 0)
+    return q
 
 def combine_case_weights(case_weights, loss_case_weights, shape):
     """

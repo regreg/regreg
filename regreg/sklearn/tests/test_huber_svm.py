@@ -17,7 +17,8 @@ def test_regression_huber_svm():
     rng = np.random.default_rng(5900)
     n, p = 100, 20
     X = rng.standard_normal((n, p))
-    y = rng.standard_normal(n)
+    # the Huberized SVM loss takes 0 / 1 labels
+    y = (rng.standard_normal(n) > 0).astype(float)
 
     atom = l1norm
     atom_args = {'shape': p,
