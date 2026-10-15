@@ -37,7 +37,10 @@ class atom(nonsmooth):
         Abstract method: subclasses must implement.
         """
         return None
-    conjugate = property(get_conjugate, None, None, 'The conjugate of an atom.')
+    # look up get_conjugate / get_dual on the instance, so that subclass
+    # overrides are used
+    conjugate = property(lambda self: self.get_conjugate(), None, None,
+                         'The conjugate of an atom.')
 
     @doc_template_provider
     def get_dual(self):
@@ -52,7 +55,8 @@ class atom(nonsmooth):
             The conjugate of the atom.
         """
         return self.linear_transform, self.conjugate
-    dual = property(get_dual)
+    dual = property(lambda self: self.get_dual(), None, None,
+                    'The dual of an atom.')
 
     @property
     def linear_transform(self):

@@ -21,6 +21,7 @@ from ._isotonic_py import pav as isotonic_regression_py
 from .seminorms import seminorm
 
 from ..atoms import _work_out_conjugate
+from ..problems.composite import smooth_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import (doc_template_user, doc_template_provider)
 
@@ -178,7 +179,6 @@ class slope(seminorm):
          self._conjugate = atom
          self._conjugate._conjugate = self
          return self._conjugate
-    conjugate = property(get_conjugate)
 
 @objective_doc_templater()
 class slope_conjugate(slope):

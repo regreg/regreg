@@ -11,6 +11,7 @@ from copy import copy
 import numpy as np
 
 from ..atoms import atom, _work_out_conjugate
+from ..problems.composite import smooth_conjugate
 from .seminorms import conjugate_seminorm_pairs, seminorm, l1norm, supnorm
 from .cones import cone, conjugate_cone_pairs
 from .projl1_cython import projl1, projl1_epigraph
@@ -138,7 +139,7 @@ class nuclear_norm(svd_atom):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class operator_norm(svd_atom):
@@ -238,7 +239,7 @@ class operator_norm(svd_atom):
 
     @doc_template_user
     def get_dual(self):
-        return seminorm.dual(self)
+        return seminorm.get_dual(self)
 
 @objective_doc_templater()
 class svd_cone(cone):
@@ -313,7 +314,6 @@ class svd_cone(cone):
         self._conjugate = new_atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -321,7 +321,7 @@ class svd_cone(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class nuclear_norm_epigraph(svd_cone):
@@ -349,7 +349,7 @@ class nuclear_norm_epigraph(svd_cone):
         X = normX[:-1].reshape(self.matrix_shape)
         U, D, V = np.linalg.svd(X, full_matrices=False)
 
-        incone = np.fabs(D[1:]).sum() <= (1 + self.tol) * norm
+        incone = D.sum() <= (1 + self.tol) * norm
         if incone:
             return 0
         return np.inf
@@ -375,7 +375,7 @@ class nuclear_norm_epigraph(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -434,7 +434,7 @@ class nuclear_norm_epigraph_polar(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -493,7 +493,7 @@ class operator_norm_epigraph(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -551,7 +551,7 @@ class operator_norm_epigraph_polar(svd_cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):

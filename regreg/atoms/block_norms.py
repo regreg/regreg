@@ -138,7 +138,7 @@ class block_sum(seminorms.seminorm):
         x = x.reshape(self.shape)
         lagrange = seminorms.seminorm.lagrange_prox(self, x, lipschitz, lagrange)
         v = np.empty(x.shape)
-        for i in xrange(self.shape[0]):
+        for i in range(self.shape[0]):
             v[i] = self.atom.lagrange_prox(x[i], lipschitz=lipschitz,
                                            lagrange=lagrange)
         return v
@@ -188,7 +188,6 @@ class block_sum(seminorms.seminorm):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -212,7 +211,7 @@ class block_sum(seminorms.seminorm):
 
     @doc_template_user
     def get_dual(self):
-        return seminorms.seminorm.dual(self)
+        return seminorms.seminorm.get_dual(self)
 
 
 @objective_doc_templater()
@@ -286,7 +285,7 @@ class block_max(block_sum):
         bound = seminorms.seminorm.bound_prox(self, x,
                                       bound=bound)
         v = np.empty(x.shape)
-        for i in xrange(self.shape[0]):
+        for i in range(self.shape[0]):
             v[i] = self.atom.bound_prox(x[i], 
                                         bound=bound)
         return v
@@ -313,7 +312,7 @@ class block_max(block_sum):
 
     @doc_template_user
     def get_dual(self):
-        return seminorms.seminorm.dual(self)
+        return seminorms.seminorm.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -434,7 +433,6 @@ class linf_l2(block_max):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @doc_template_user
     def proximal(self, quadratic, prox_control=None):
@@ -458,7 +456,7 @@ class linf_l2(block_max):
 
     @doc_template_user
     def get_dual(self):
-        return seminorms.seminorm.dual(self)
+        return seminorms.seminorm.get_dual(self)
 
 
 @objective_doc_templater()
@@ -567,11 +565,7 @@ class linf_linf(linf_l2):
 
     @doc_template_user
     def get_dual(self):
-        return seminorms.seminorm.dual(self)
-
-    @doc_template_user
-    def get_dual(self):
-        return seminorms.seminorm.dual(self)
+        return seminorms.seminorm.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -690,11 +684,7 @@ class l1_l2(block_sum):
 
     @doc_template_user
     def get_dual(self):
-        return seminorms.seminorm.dual(self)
-
-    @doc_template_user
-    def get_dual(self):
-        return seminorms.seminorm.dual(self)
+        return seminorms.seminorm.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):
@@ -716,7 +706,6 @@ class l1_l2(block_sum):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
 @objective_doc_templater()
 class l1_l1(l1_l2):
@@ -822,11 +811,7 @@ class l1_l1(l1_l2):
 
     @doc_template_user
     def get_dual(self):
-        return seminorms.seminorm.dual(self)
-
-    @doc_template_user
-    def get_dual(self):
-        return seminorms.seminorm.dual(self)
+        return seminorms.seminorm.get_dual(self)
 
     @doc_template_user
     def get_conjugate(self):

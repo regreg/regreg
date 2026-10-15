@@ -118,3 +118,21 @@ def test_proximal_maps(klass, mode):
     factory = SparseBlockSolverFactory(klass, mode)
     for solver in factory:
         run_checks(solver.all_tests())
+
+def test_constraint_terms_and_template():
+    # gh-63: constraint passed 1 as the `out` argument of np.sqrt, terms
+    # used the L1 weight for the L2 part, the template had w_1 twice, and the
+    # dual class had no docstrings
+    X = np.arange(20.).reshape(5, 4) / 10
+    pen = sparse_group_block((5, 4), 1, 2, lagrange=1.)
+    value = pen.seminorm(X)
+    np.testing.assert_allclose(pen.terms(X).sum(), value)
+
+    bound_pen = sparse_group_block((5, 4), 1, 2, bound=value * 1.01)
+    assert bound_pen.constraint(X) == 0
+    bound_pen = sparse_group_block((5, 4), 1, 2, bound=value * 0.99)
+    assert bound_pen.constraint(X) == np.inf
+
+    assert 'w_2' in sparse_group_block.objective_template
+    for name in ['seminorm', 'constraint', 'lagrange_prox', 'bound_prox', 'get_conjugate']:
+        assert getattr(sparse_group_block_dual, name).__doc__ is not None

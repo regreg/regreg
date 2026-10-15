@@ -92,7 +92,6 @@ class cone(atom):
         self._conjugate = atom
         self._conjugate._conjugate = self
         return self._conjugate
-    conjugate = property(get_conjugate)
 
     @doc_template_user
     @doc_template_provider
@@ -462,7 +461,7 @@ class nonnegative(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class nonpositive(nonnegative):
@@ -499,7 +498,7 @@ class nonpositive(nonnegative):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class zero(cone):
@@ -530,7 +529,7 @@ class zero(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class zero_constraint(cone):
@@ -564,7 +563,7 @@ class zero_constraint(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class l2_epigraph(cone):
@@ -610,7 +609,7 @@ class l2_epigraph(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class l2_epigraph_polar(cone):
@@ -654,7 +653,7 @@ class l2_epigraph_polar(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class l1_epigraph(cone):
@@ -692,7 +691,7 @@ class l1_epigraph(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class l1_epigraph_polar(cone):
@@ -730,7 +729,7 @@ class l1_epigraph_polar(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class linf_epigraph(cone):
@@ -770,7 +769,7 @@ class linf_epigraph(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 @objective_doc_templater()
 class linf_epigraph_polar(cone):
@@ -807,7 +806,7 @@ class linf_epigraph_polar(cone):
 
     @doc_template_user
     def get_dual(self):
-        return cone.dual(self)
+        return cone.get_dual(self)
 
 conjugate_cone_pairs = {}
 for n1, n2 in [(nonnegative,nonpositive),
