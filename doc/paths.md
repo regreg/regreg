@@ -141,24 +141,29 @@ print('max |strong_rules - warm_start| = %.2e' % np.fabs(B_sr - B_ws).max())
 print('max |basil - warm_start|        = %.2e' % np.fabs(B_basil - B_ws).max())
 ```
 
-The agreement is good but not perfect, and the reason is worth knowing. Before a step
-is accepted, the drivers check the KKT conditions with a relative tolerance of 1%: an
-inactive variable with $|\nabla_j \ell(X\hat\beta)| \le 1.01\,\lambda$ is treated as
-satisfying them (see [gh-99](https://github.com/regreg/regreg/issues/99)). A variable
-that is just about to enter can therefore be left at zero for one step, which gives
-errors of order $10^{-3}$ near entry points, regardless of `inner_tol`. The per-$\lambda$
-errors of `strong_rules` show this: they are at the level of the solver tolerance except at one or two values of $\lambda$. (The $10^{-5}$-level errors of `warm_start` and `basil` come from the stopping rule of the full-problem solver, which is not as strict as `inner_tol` suggests.)
+Before a step is accepted, the drivers check the KKT conditions on all variables. An
+inactive variable fails the check when $|\nabla_j \ell(X\hat\beta)| > (1 +
+\epsilon)\,\lambda$, and then joins the working set. The tolerance $\epsilon$ is
+`kkt_tol`, with default `1e-6`. It is an attribute of the path object (`path.kkt_tol`), and the drivers
+also take it as an argument. A looser value saves little time and can leave a variable
+that is just about to enter at zero for a step. Earlier versions used 1%, which
+gave errors of order $10^{-3}$ near entry points
+([gh-99](https://github.com/regreg/regreg/issues/99)). The KKT checks of the active
+variables (`check_active=True`) use their own, looser, tolerance, as they depend on how
+accurately each subproblem is solved.
+
+`strong_rules` agrees with the direct solves to the solver tolerance at every
+$\lambda$. The $10^{-5}$-level errors of `warm_start` and `basil` come from the
+stopping rule of their solves, which is not as strict as `inner_tol` suggests.
 
 ```{code-cell} ipython3
 print(np.array2string(np.fabs(B_sr - B_direct).max(1), precision=1))
 ```
 
-So comparisons of path solutions should use moderate tolerances:
-
 ```{code-cell} ipython3
-np.testing.assert_allclose(B_sr, B_direct, atol=5e-3)
-np.testing.assert_allclose(B_basil, B_direct, atol=5e-3)
-np.testing.assert_allclose(B_ws, B_direct, atol=5e-3)
+np.testing.assert_allclose(B_sr, B_direct, atol=1e-6)
+np.testing.assert_allclose(B_basil, B_direct, atol=5e-4)
+np.testing.assert_allclose(B_ws, B_direct, atol=5e-4)
 ```
 
 ## Elastic net
@@ -179,7 +184,7 @@ lam = lagrange_enet[-1]
 ridge = rr.identity_quadratic(lam * 0.5, 0, 0, 0)
 direct = rr.simple_problem(loss, rr.l1norm(p, lagrange=0.5 * lam)).solve(ridge, tol=1e-13, min_its=500)
 print('elastic net, max |path - direct| = %.2e' % np.fabs(B_enet[-1] - direct).max())
-np.testing.assert_allclose(B_enet[-1], direct, atol=5e-3)
+np.testing.assert_allclose(B_enet[-1], direct, atol=1e-6)
 ```
 
 ## Unpenalized variables: a group lasso path
@@ -229,7 +234,7 @@ print(active.astype(int)[::4])
 pen = rr.group_lasso(groups, weights=weights, lagrange=lagrange_g[-1])
 direct = rr.simple_problem(rr.squared_error(X, Y), pen).solve(tol=1e-13, min_its=500)
 print('group lasso, max |path - direct| = %.2e' % np.fabs(B_g[-1] - direct).max())
-np.testing.assert_allclose(B_g[-1], direct, atol=5e-3)
+np.testing.assert_allclose(B_g[-1], direct, atol=1e-6)
 ```
 
 ```{code-cell} ipython3
@@ -284,7 +289,7 @@ print('fraction of deviance explained at smallest lambda: %.3f' % res['dev expla
 pen = rr.weighted_l1norm(w, lagrange=lagrange_l[-1])
 direct = rr.simple_problem(rr.glm.logistic(X1, Yb), pen).solve(tol=1e-13, min_its=500)
 print('logistic, max |path - direct| = %.2e' % np.fabs(B_l[-1] - direct).max())
-np.testing.assert_allclose(B_l[-1], direct, atol=5e-3)
+np.testing.assert_allclose(B_l[-1], direct, atol=1e-6)
 ```
 
 ```{code-cell} ipython3

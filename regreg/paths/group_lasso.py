@@ -172,7 +172,8 @@ class group_lasso_path(grouped_path):
                   grad_solution,
                   solution,
                   lagrange,
-                  penalty=None):
+                  penalty=None,
+                  kkt_tol=None):
 
         '''
         Check KKT conditions over the groups in the path.
@@ -192,6 +193,10 @@ class group_lasso_path(grouped_path):
             Lagrange value for penalty.
         penalty : object, optional
             A group LASSO penalty. If None, defaults to ``self.penalty``.
+        kkt_tol : float, optional
+            Relative tolerance for the groups at zero: such a group fails
+            if its dual norm exceeds ``lagrange * (1 + kkt_tol)``. If None,
+            defaults to ``self.kkt_tol``.
 
         Returns
         -------
@@ -205,11 +210,14 @@ class group_lasso_path(grouped_path):
 
         if penalty is None:
             penalty = self.penalty
+        if kkt_tol is None:
+            kkt_tol = self.kkt_tol
 
         active, inactive_ranks = _check_KKT(penalty,
                                             grad_solution, 
                                             solution, 
-                                            lagrange)
+                                            lagrange,
+                                            kkt_tol=kkt_tol)
         return active > 0, inactive_ranks
 
     def strong_set(self,
@@ -554,12 +562,18 @@ def _check_KKT(penalty,
                grad, 
                solution, 
                lagrange, 
-               tol=1.e-2):
+               tol=1.e-2,
+               kkt_tol=None):
 
     """
     Check whether ``(grad, solution)`` satisfy KKT conditions at a given
     tolerance.
+
+    `tol` is used for the active and unpenalized groups, `kkt_tol` (which
+    defaults to `tol`) for the groups at zero.
     """
+    if kkt_tol is None:
+        kkt_tol = tol
     dual = penalty.conjugate
     terms = dual.terms(solution)
 
@@ -583,6 +597,6 @@ def _check_KKT(penalty,
     # rank inactive groups
 
     inactive_ranks = inactive_results.shape[0]  - rankdata(inactive_results)
-    inactive_ranks[inactive_results <= 1 + tol] = -1
+    inactive_ranks[inactive_results <= 1 + kkt_tol] = -1
 
     return active_results, inactive_ranks

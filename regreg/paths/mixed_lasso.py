@@ -536,7 +536,7 @@ class mixed_lasso_path(lasso_path):
         self.final_step = subproblem.final_step
         return self.final_step, grad, sub_soln, penalty_structure
 
-    def main(self, inner_tol=1.e-5, verbose=False):
+    def main(self, inner_tol=1.e-5, verbose=False, kkt_tol=None):
         """
         Compute the path over ``self.lagrange_sequence``.
 
@@ -546,6 +546,9 @@ class mixed_lasso_path(lasso_path):
             Tolerance for each subproblem.
         verbose : bool, optional
             Print progress information?
+        kkt_tol : float, optional
+            Relative tolerance of the KKT check for coordinates and groups
+            at zero. If None, ``self.kkt_tol`` is used.
 
         Returns
         -------
@@ -578,6 +581,8 @@ class mixed_lasso_path(lasso_path):
         retry_counter = 0
 
         all_failing = np.zeros(grad_solution.shape, bool)
+        if kkt_tol is None:
+            kkt_tol = self.kkt_tol
 
         for lagrange_new, lagrange_cur in zip(lseq[1:], lseq[:-1]):
             self.lagrange = lagrange_new
@@ -611,7 +616,8 @@ class mixed_lasso_path(lasso_path):
                 strong_grad = strong_problem.smooth_objective(strong_soln, mode='grad')
                 strong_penalty = strong_problem.proximal_atom
 
-                strong_failing = check_KKT(strong_penalty, strong_grad, strong_soln, lagrange_new) 
+                strong_failing = check_KKT(strong_penalty, strong_grad, strong_soln, lagrange_new,
+                                           kkt_tol=kkt_tol)
 
                 if np.any(strong_failing):
                     all_failing += (
@@ -619,7 +625,8 @@ class mixed_lasso_path(lasso_path):
                 else:
                     self.solution[subproblem_set] = sub_soln
                     grad_solution = self.grad()
-                    all_failing = check_KKT(self.penalty, grad_solution, self.solution, lagrange_new)
+                    all_failing = check_KKT(self.penalty, grad_solution, self.solution, lagrange_new,
+                                            kkt_tol=kkt_tol)
 
                     if not all_failing.sum():
                         self.ever_active += self.solution != 0

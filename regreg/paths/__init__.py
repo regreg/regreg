@@ -52,6 +52,13 @@ class grouped_path(object):
 
     BIG = 1e12 # lagrange parameter for finding null solution
 
+    # relative tolerance of the KKT check for groups at zero: a group whose
+    # dual norm exceeds lagrange * (1 + kkt_tol) enters the subproblem.
+    # Looser values let a group at the edge of the active set be left out
+    # (gh-99). The checks of active groups keep their own, looser, tolerance
+    # as they depend on the accuracy of the inner solves.
+    kkt_tol = 1.e-6
+
     def __init__(self, 
                  saturated_loss,
                  X, 
@@ -186,7 +193,8 @@ class grouped_path(object):
                   grad_solution,
                   solution,
                   lagrange,
-                  penalty=None):
+                  penalty=None,
+                  kkt_tol=None):
 
         '''
         Check KKT conditions over the groups in the path.
@@ -206,6 +214,10 @@ class grouped_path(object):
             Lagrange value for penalty.
         penalty : object, optional
             A penalty. If None, defaults to ``self.penalty``.
+        kkt_tol : float, optional
+            Relative tolerance for the groups at zero: such a group fails
+            if its dual norm exceeds ``lagrange * (1 + kkt_tol)``. If None,
+            defaults to ``self.kkt_tol``.
 
         Returns
         -------
@@ -288,7 +300,8 @@ def strong_rules(path_obj,
                  verbose=False,
                  initial_step=None,
                  check_active=False,
-                 max_tries=20):
+                 max_tries=20,
+                 kkt_tol=None):
     """
     Compute a regularization path using strong rules screening.
 
@@ -311,6 +324,9 @@ def strong_rules(path_obj,
         Also check KKT conditions for active groups?
     max_tries : int, optional
         Maximum number of attempts at each Lagrange parameter.
+    kkt_tol : float, optional
+        Relative tolerance of the KKT check for groups at zero. If None,
+        ``path_obj.kkt_tol`` is used.
 
     Returns
     -------
@@ -396,7 +412,8 @@ def strong_rules(path_obj,
              strong_I_ranks) = path_obj.check_KKT(strong_grad, 
                                                   strong_soln, 
                                                   path_obj.alpha * lagrange_new, 
-                                                  penalty=strong_penalty)
+                                                  penalty=strong_penalty,
+                                                  kkt_tol=kkt_tol)
 
             if check_active:
                 strong_failing = strong_A + (strong_I_ranks >= 0)
@@ -416,7 +433,8 @@ def strong_rules(path_obj,
                                     enet_grad)
                 failing_A, failing_I_ranks = path_obj.check_KKT(grad_solution, 
                                                                 solution, 
-                                                                path_obj.alpha * lagrange_new)
+                                                                path_obj.alpha * lagrange_new,
+                                                                kkt_tol=kkt_tol)
 
                 if check_active:
                     all_failing = failing_A + (failing_I_ranks >= 0)

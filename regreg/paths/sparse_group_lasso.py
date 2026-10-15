@@ -193,7 +193,8 @@ class sparse_group_lasso_path(group_lasso_path):
                   grad_solution,
                   solution,
                   lagrange,
-                  penalty=None):
+                  penalty=None,
+                  kkt_tol=None):
 
         '''
         Check KKT conditions over the groups in the path.
@@ -214,6 +215,10 @@ class sparse_group_lasso_path(group_lasso_path):
         penalty : object, optional
             A sparse group LASSO penalty. If None, defaults to
             ``self.penalty``.
+        kkt_tol : float, optional
+            Relative tolerance for the groups at zero: such a group fails
+            if its dual norm exceeds ``lagrange * (1 + kkt_tol)``. If None,
+            defaults to ``self.kkt_tol``.
 
         Returns
         -------
@@ -226,11 +231,14 @@ class sparse_group_lasso_path(group_lasso_path):
         '''
         if penalty is None:
             penalty = self.penalty
+        if kkt_tol is None:
+            kkt_tol = self.kkt_tol
 
         active, inactive_ranks = _check_KKT(penalty,
                                             grad_solution, 
                                             solution, 
-                                            lagrange)
+                                            lagrange,
+                                            kkt_tol=kkt_tol)
         return active > 0, inactive_ranks
 
 
@@ -502,14 +510,20 @@ def _check_KKT(sglasso,
                grad, 
                solution, 
                lagrange, 
-               tol=1.e-2):
+               tol=1.e-2,
+               kkt_tol=None):
 
     """
     Check whether ``(grad, solution)`` satisfy KKT conditions at a given
     tolerance.
 
+    `tol` is used for the active and unpenalized groups, `kkt_tol` (which
+    defaults to `tol`) for the groups at zero.
+
     Assumes `sglasso` is a sparse group LASSO penalty in Lagrange form.
     """
+    if kkt_tol is None:
+        kkt_tol = tol
 
     terms = sglasso.terms(solution)
     norm_soln = np.linalg.norm(solution)
@@ -522,6 +536,10 @@ def _check_KKT(sglasso,
 
     active_results = np.zeros(len(sglasso._sorted_groupids), int)
     inactive_results = np.zeros(len(sglasso._sorted_groupids), float)
+    # groups exactly at zero are checked at `kkt_tol`; the small nonzero
+    # groups treated as inactive below keep `tol`, as their dual norm is
+    # within the solver's accuracy of `lagrange`
+    inactive_tol = np.full(len(sglasso._sorted_groupids), kkt_tol)
 
     for i, g in enumerate(sglasso._sorted_groupids):
         group = sglasso.groups == g
@@ -548,13 +566,15 @@ def _check_KKT(sglasso,
                               soln_g / np.linalg.norm(soln_g)) > tol:
                 active_results[i] = ACTIVE_L2
         elif l1weight_g.sum() + sglasso.weights[g] > 0: # inactive penalized
+            if np.any(soln_g != 0):
+                inactive_tol[i] = tol
             inactive_results[i] = _gauge_function_dual_strong(subgrad_g, l1weight_g,
                                                               l2weight_g)[0] / lagrange
         else:   # unpenalized
             active_results[i] = (np.linalg.norm(subgrad_g) > tol * max(1, np.linalg.norm(soln_g))) * UNPENALIZED
 
     inactive_ranks = inactive_results.shape[0] - rankdata(inactive_results)
-    inactive_ranks[inactive_results <= 1 + tol] = -1
+    inactive_ranks[inactive_results <= 1 + inactive_tol] = -1
 
     return active_results, inactive_ranks
 

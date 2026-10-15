@@ -289,10 +289,7 @@ def test_basil(n=1000,p=600):
                       (lasso2.solution.copy(), lasso2.grad_solution.copy()),
                       inner_tol=1.e-14)['beta']
 
-    # BASIL accepts a batch when the KKT conditions hold to within 1%
-    # (`check_KKT` has tol=1e-2), so a variable at the edge of the active
-    # set can be left out for one Lagrange parameter (gh-99)
-    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-3)
+    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
 
 def test_basil_unpenalized(n=500,p=200):
     '''
@@ -330,9 +327,7 @@ def test_basil_unpenalized(n=500,p=200):
                       (lasso2.solution.copy(), lasso2.grad_solution.copy()),
                       inner_tol=1.e-14)['beta']
 
-    # as in test_basil: a variable whose KKT condition fails by under 1% can
-    # be left out for one Lagrange parameter (gh-99)
-    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 5.e-3)
+    assert(np.linalg.norm(sol1 - sol2) / np.linalg.norm(sol2) < 1.e-4)
 
 def test_basil_enet(n=500,p=200):
     '''

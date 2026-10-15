@@ -629,7 +629,8 @@ def check_KKT(glasso,
               grad, 
               solution, 
               lagrange, 
-              tol=1.e-2):
+              tol=1.e-2,
+              kkt_tol=None):
 
     """
     Check whether (grad, solution) satisfy the KKT conditions.
@@ -646,6 +647,10 @@ def check_KKT(glasso,
         Lagrange parameter.
     tol : float, optional
         Relative tolerance for the checks.
+    kkt_tol : float, optional
+        Tighter relative tolerance for the dual feasibility of the
+        :math:`\ell_1`, positive part and group coordinates at zero, which
+        decides whether they enter the model. If None, only `tol` is used.
 
     Returns
     -------
@@ -664,7 +669,22 @@ def check_KKT(glasso,
                                     glasso._groups,
                                     glasso._weight_array,
                                     tol=tol)
-    return failing > 0
+    failing = failing > 0
+
+    if kkt_tol is not None:
+        bound = lagrange * (1 + kkt_tol)
+        at_zero = solution == 0
+        l1 = glasso._l1_penalty
+        failing[l1] |= at_zero[l1] & (np.fabs(grad[l1]) > bound)
+        pp = glasso._positive_part
+        failing[pp] |= at_zero[pp] & (-grad[pp] > bound)
+        groups = glasso._groups
+        for j, w in enumerate(glasso._weight_array):
+            group = groups == j
+            if np.all(at_zero[group]):
+                if np.linalg.norm(grad[group]) > w * bound:
+                    failing[group] = True
+    return failing
 
 conjugate_mixed_lasso_pairs = {}
 for n1, n2 in [(mixed_lasso, mixed_lasso_dual)]:
