@@ -900,10 +900,10 @@ def check_KKT(glasso,
     """
 
     failing = False
-    norm_soln = np.linalg.norm(solutionn)
+    norm_soln = np.linalg.norm(solution)
     active = glasso.terms(solution) > tol * norm_soln
     inactive_groups = np.nonzero(~active)[0]
-    active_groups = np.nozero(active)[0]
+    active_groups = np.nonzero(active)[0]
     for g in active_groups:
         group = glasso.groups == g
         subgrad_g = -grad[group]

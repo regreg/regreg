@@ -11,6 +11,7 @@ from copy import copy
 import numpy as np
 
 from ..atoms import atom, _work_out_conjugate
+from ..problems.composite import smooth_conjugate
 from .seminorms import conjugate_seminorm_pairs, seminorm, l1norm, supnorm
 from .cones import cone, conjugate_cone_pairs
 from .projl1_cython import projl1, projl1_epigraph

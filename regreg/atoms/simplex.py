@@ -5,6 +5,8 @@ import numpy as np
 from copy import copy
 
 from ..atoms import atom, _work_out_conjugate, affine_atom
+from ..affine import linear_transform
+from ..problems.composite import smooth_conjugate
 from ..objdoctemplates import objective_doc_templater
 from ..doctemplates import doc_template_user
 
@@ -69,10 +71,16 @@ class simplex_constraint(atom):
     @classmethod
     @doc_template_user
     def linear(cls, linear_operator, diag=False,
-               linear_term=None, offset=None):
-        l = linear_transform(linear_operator, diag=diag)
-        atom = cls(l.input_shape, 
-                   linear_term=linear_term, offset=offset)
+               offset=None, quadratic=None):
+        if not isinstance(linear_operator, linear_transform):
+            l = linear_transform(linear_operator, diag=diag)
+        else:
+            l = linear_operator
+        if offset is None:
+            offset = 0
+        atom = cls(l.output_shape, 
+                   offset=-offset,
+                   quadratic=quadratic)
         return affine_atom(atom, l)
 
     @doc_template_user
@@ -212,10 +220,16 @@ class maximum(atom):
     @classmethod
     @doc_template_user
     def linear(cls, linear_operator, diag=False,
-               linear_term=None, offset=None):
-        l = linear_transform(linear_operator, diag=diag)
-        atom = cls(l.input_shape, 
-                   linear_term=linear_term, offset=offset)
+               offset=None, quadratic=None):
+        if not isinstance(linear_operator, linear_transform):
+            l = linear_transform(linear_operator, diag=diag)
+        else:
+            l = linear_operator
+        if offset is None:
+            offset = 0
+        atom = cls(l.output_shape, 
+                   offset=-offset,
+                   quadratic=quadratic)
         return affine_atom(atom, l)
 
     @doc_template_user

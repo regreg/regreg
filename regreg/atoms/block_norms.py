@@ -138,7 +138,7 @@ class block_sum(seminorms.seminorm):
         x = x.reshape(self.shape)
         lagrange = seminorms.seminorm.lagrange_prox(self, x, lipschitz, lagrange)
         v = np.empty(x.shape)
-        for i in xrange(self.shape[0]):
+        for i in range(self.shape[0]):
             v[i] = self.atom.lagrange_prox(x[i], lipschitz=lipschitz,
                                            lagrange=lagrange)
         return v
@@ -285,7 +285,7 @@ class block_max(block_sum):
         bound = seminorms.seminorm.bound_prox(self, x,
                                       bound=bound)
         v = np.empty(x.shape)
-        for i in xrange(self.shape[0]):
+        for i in range(self.shape[0]):
             v[i] = self.atom.bound_prox(x[i], 
                                         bound=bound)
         return v

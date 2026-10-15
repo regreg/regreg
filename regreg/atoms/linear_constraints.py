@@ -3,7 +3,8 @@ from scipy import sparse
 from copy import copy
 import warnings
 
-from ..problems.composite import composite, nonsmooth
+from ..problems.composite import composite, nonsmooth, smooth_conjugate
+from ..affine import linear_transform
 from .cones import cone, affine_cone
 from ..identity_quadratic import identity_quadratic
 from ..atoms import _work_out_conjugate
@@ -107,10 +108,16 @@ class linear_constraint(cone):
     @classmethod
     @doc_template_user
     def linear(cls, linear_operator, basis, diag=False,
-               linear_term=None, offset=None):
-        l = linear_transform(linear_operator, diag=diag)
-        cone = cls(l.input_shape, basis,
-                   linear_term=linear_term, offset=offset)
+               offset=None, quadratic=None):
+        if not isinstance(linear_operator, linear_transform):
+            l = linear_transform(linear_operator, diag=diag)
+        else:
+            l = linear_operator
+        if offset is None:
+            offset = 0
+        cone = cls(l.output_shape, basis,
+                   offset=-offset,
+                   quadratic=quadratic)
         return affine_cone(cone, l)
 
 @objective_doc_templater()
