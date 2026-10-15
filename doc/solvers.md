@@ -279,34 +279,72 @@ np.testing.assert_allclose(beta_admm, beta_container, atol=1e-3)
 
 ## Smoothing: TFOCS and NESTA
 
-Some problems have no smooth part at all, for instance basis pursuit,
+Some problems have no smooth part at all. Two examples are basis pursuit
+(Chen, Donoho and Saunders, 1998),
 
 $$
 \text{minimize}_\beta \ \|\beta\|_1 \quad \text{subject to} \quad X\beta = Y,
 $$
 
-or the Dantzig selector,
+and the Dantzig selector (Candès and Tao, 2007),
 $\text{minimize} \ \|\beta\|_1$ subject to $\|X^T(Y - X\beta)\|_\infty \le \delta$.
-Both are $h(\beta) + k(A\beta + a)$ with $h$ and $k$ having simple proximal
-maps. The TFOCS approach (Becker, Candès and Grant, 2011) adds a proximal
-term $\frac{\epsilon}{2}\|\beta - \beta_0\|_2^2$ to $h$. This makes the
-dual problem smooth,
+Both have the form
 
 $$
-\text{minimize}_u \ h_\epsilon^*(-A^Tu) - a^Tu + k^*(u),
+\text{minimize}_\beta \ h(\beta) + k(A\beta + a),
 $$
 
-with $h_\epsilon^*$ the conjugate of the regularized $h$, so the dual can
-be solved by FISTA. The primal solution is $\nabla h_\epsilon^*(-A^T\hat u)$.
-The regularized problem is then re-solved with $\beta_0$ moved to
-(an extrapolation of) the new primal solution. This outer loop is a
-proximal point method, so it converges to the solution of the original
-problem for any fixed $\epsilon$.
+where $h$ and $k$ have simple proximal maps but neither is smooth: for
+basis pursuit $h = \|\cdot\|_1$, $A = X$, $a = -Y$ and $k$ is the indicator
+of $\{0\}$. Two ways of making such a problem amenable to FISTA are to
+smooth the dual (TFOCS) or to smooth $k$ (NESTA). In both, the smoothing
+term has a *center* that is moved from one outer iteration to the next,
+so that the iterates converge to a solution of the original problem
+rather than of a smoothed one.
 
-`rr.tfocs(h, transform, k_conjugate, epsilon=[...])` runs this scheme, one
-outer iteration per entry of `epsilon`. The pair `(transform, k_conjugate)`
-is the `dual` attribute of the composed atom $k(A\beta + a)$. For basis
-pursuit we check the result against a linear-programming solve.
+### TFOCS: smoothing the dual
+
+Add a proximal term to $h$: with $h_\epsilon(\beta) = h(\beta) + \frac{\epsilon}{2}\|\beta - \beta_0\|_2^2$,
+consider $\text{minimize}_\beta \ h_\epsilon(\beta) + k(A\beta + a)$
+(Becker, Candès and Grant, 2011). Writing $k(z) = \sup_u u^Tz - k^*(u)$ and
+exchanging the min and the max gives the dual problem
+
+$$
+\text{minimize}_u \ h_\epsilon^*(-A^Tu) - a^Tu + k^*(u).
+$$
+
+Because $h_\epsilon$ is $\epsilon$-strongly convex, its conjugate
+$h_\epsilon^*$ is differentiable, with gradient
+
+$$
+\nabla h_\epsilon^*(v) = \text{argmin}_\beta \ h(\beta) + \frac{\epsilon}{2}\|\beta - \beta_0\|_2^2 - v^T\beta
+= \text{prox}_{h/\epsilon}\big(\beta_0 + v/\epsilon\big),
+$$
+
+which is Lipschitz with constant $1/\epsilon$ (Nesterov, 2005). So the
+dual is a smooth function, with Lipschitz constant $\|A\|_2^2/\epsilon$,
+plus $k^*$, which has a proximal map: a `simple_problem` for FISTA. Its
+solution $\hat u$ gives the primal solution
+$\hat\beta = \nabla h_\epsilon^*(-A^T\hat u)$ of the regularized problem.
+
+The outer loop sets $\beta_0 \leftarrow \hat\beta$ and repeats. This is the
+proximal point method (Rockafellar, 1976) applied to $h + k(A\cdot + a)$,
+so for any fixed $\epsilon$ the iterates converge to a solution of the
+original problem; `rr.tfocs` also extrapolates the center, as in Güler's
+(1992) accelerated proximal point method. The value of $\epsilon$ trades
+the two loops against each other. A small $\epsilon$ makes each outer
+step nearly a full step towards the solution, so few outer iterations are
+needed, but makes the inner problem worse conditioned (Lipschitz constant
+$\|A\|_2^2/\epsilon$). A large $\epsilon$ does the reverse. It changes how
+long the solve takes, not the accuracy of the answer, which is set by the
+inner tolerance `tol` and the outer tolerance `coef_tol`.
+
+`rr.tfocs(h, transform, k_conjugate, epsilon=[...])` runs this scheme, with
+at most one outer iteration per entry of `epsilon`. The pair
+`(transform, k_conjugate)` is the `dual` attribute of the composed atom
+$k(A\beta + a)$: `transform` is $\beta \mapsto A\beta + a$ and
+`k_conjugate` is $k^*$. For basis pursuit we check the result against a
+linear-programming solve, for several values of $\epsilon$.
 
 ```{code-cell} ipython3
 rng = np.random.default_rng(3)
@@ -316,50 +354,37 @@ beta = np.zeros(p)
 beta[:8] = np.arange(8) + 1
 Y = X @ beta                           # noiseless
 
-l1 = rr.l1norm(p, lagrange=1)
-transform, zero = rr.zero_constraint.affine(X, -Y).dual
-tic = time.time()
-beta_tfocs, u_tfocs = rr.tfocs(l1, transform, zero, epsilon=[1.] * 50)
-print('tfocs: %.2fs' % (time.time() - tic))
-
 # basis pursuit as a linear program in (beta^+, beta^-)
 lp = linprog(np.ones(2 * p), A_eq=np.hstack([X, -X]), b_eq=Y, bounds=(0, None))
 beta_lp = lp.x[:p] - lp.x[p:]
-print('max |tfocs - LP|:', np.abs(beta_tfocs - beta_lp).max())
-print('max |X beta - Y|:', np.abs(X @ beta_tfocs - Y).max())
-np.testing.assert_allclose(beta_tfocs, beta_lp, atol=1e-2)
+
+for eps in [10., 1., 0.1]:
+    l1 = rr.l1norm(p, lagrange=1)
+    transform, zero = rr.zero_constraint.affine(X, -Y).dual
+    tic = time.time()
+    beta_tfocs, u_tfocs = rr.tfocs(l1, transform, zero, epsilon=[eps] * 100)
+    print('eps %-5g  %.2fs  max |tfocs - LP| = %.1e  max |X beta - Y| = %.1e'
+          % (eps, time.time() - tic, np.abs(beta_tfocs - beta_lp).max(),
+             np.abs(X @ beta_tfocs - Y).max()))
+    np.testing.assert_allclose(beta_tfocs, beta_lp, atol=1e-6)
 ```
 
-The accuracy of `rr.tfocs` is limited because it solves each smoothed dual
-problem only to relative tolerance $\max(\epsilon, \text{tol})$, which
-for moderate $\epsilon$ is loose, and the error compounds over the outer
-iterations ([gh-104](https://github.com/regreg/regreg/issues/104)). The loop itself is short, and written out with a
-tight inner tolerance it converges well. Here it is for the Dantzig selector, whose
-constraint is `rr.supnorm.affine(X.T @ X, -X.T @ Y, bound=delta)`.
+The Dantzig selector's constraint is
+`rr.supnorm.affine(X.T @ X, -X.T @ Y, bound=delta)`, so here $A = X^TX$
+and the inner problem has Lipschitz constant $\|X^TX\|_2^2/\epsilon$, much
+larger than for basis pursuit (printed below). The inner problems are
+therefore slower; for harder instances (a smaller $\delta$, more active
+constraints) a larger $\epsilon$ or more outer iterations may be needed.
 
 ```{code-cell} ipython3
-from regreg.affine import adjoint, scalar_multiply
-
-def tfocs_loop(h, transform, k_conjugate, epsilon, niter, inner_tol=1e-10):
-    h_conjugate = h.conjugate
-    primal = np.zeros(h.shape)
-    for i in range(niter):
-        # h_eps^*: conjugate of h(beta) + eps/2 ||beta - primal||^2
-        smoothed = h_conjugate.smoothed(rr.identity_quadratic(epsilon, primal, 0, 0))
-        dual_loss = rr.affine_smooth(smoothed, scalar_multiply(adjoint(transform), -1))
-        rr.simple_problem(dual_loss, k_conjugate).solve(tol=inner_tol, max_its=5000)
-        new_primal = dual_loss.grad          # gradient of h_eps^* at -A^T u
-        primal = new_primal + i / (i + 3.) * (new_primal - primal)
-    return new_primal
-
 Y_noisy = Y + 0.5 * rng.standard_normal(n)
 G, g = X.T @ X, X.T @ Y_noisy
 delta = 0.5 * np.sqrt(2 * np.log(p) * n)
 
-dantzig = rr.supnorm.affine(G, -g, bound=delta)
-transform, k_conjugate = dantzig.dual
+transform, k_conjugate = rr.supnorm.affine(G, -g, bound=delta).dual
+print('||X^T X||^2 = %.3g,  ||X||^2 = %.3g' % (np.linalg.norm(G, 2)**2, np.linalg.norm(X, 2)**2))
 tic = time.time()
-beta_ds = tfocs_loop(rr.l1norm(p, lagrange=1), transform, k_conjugate, 1., 50)
+beta_ds, _ = rr.tfocs(rr.l1norm(p, lagrange=1), transform, k_conjugate, epsilon=[1.] * 50)
 print('Dantzig selector: %.2fs' % (time.time() - tic))
 
 lp = linprog(np.ones(2 * p),
@@ -369,36 +394,80 @@ beta_ds_lp = lp.x[:p] - lp.x[p:]
 print('||X^T(Y - X beta)||_inf / delta: %.5f' % (np.abs(g - G @ beta_ds).max() / delta))
 print('l1 norm: tfocs %.5f   LP %.5f' % (np.abs(beta_ds).sum(), np.abs(beta_ds_lp).sum()))
 print('max |tfocs - LP|:', np.abs(beta_ds - beta_ds_lp).max())
-np.testing.assert_allclose(beta_ds, beta_ds_lp, atol=1e-3)
+np.testing.assert_allclose(beta_ds, beta_ds_lp, atol=1e-5)
 ```
 
-NESTA (Becker, Bobin and Candès, 2011) smooths the other way: it keeps the
-proximal map of $h$ and replaces the constraint $k(A\beta + a)$ by its
-Moreau-Yosida smoothing, obtained by adding $\frac{\epsilon}{2}\|u - u_0\|_2^2$
-to its conjugate (the atom method `smoothed`). For the equality constraint
-this smoothing is the augmented-Lagrangian penalty
-$u_0^T(X\beta - Y) + \frac{1}{2\epsilon}\|X\beta - Y\|_2^2$, and updating
-$u_0$ to the gradient of the smoothed term is the multiplier update.
-`rr.nesta(smooth, h, k_atom, epsilon=[...])` runs this scheme, with an
-optional extra smooth term `smooth`. It ties the inner tolerance to
-$\epsilon$ in the same way as `rr.tfocs`, so again we write the loop out.
+### NESTA: smoothing the constraint
+
+The other option keeps the proximal map of $h$ and smooths $k$ instead,
+by adding a quadratic to its conjugate (the atom method `smoothed`):
+
+$$
+k_\epsilon(z) = \sup_u \ u^Tz - k^*(u) - \frac{\epsilon}{2}\|u - u_0\|_2^2,
+\qquad \nabla k_\epsilon(z) = \text{argmax}_u \ (\cdots) = \text{prox}_{\epsilon k^*}(u_0 + \epsilon z).
+$$
+
+$k_\epsilon$ is smooth with Lipschitz constant $1/\epsilon$ (Nesterov,
+2005), so $h(\beta) + k_\epsilon(A\beta + a)$ is a smooth function plus an
+atom, a `simple_problem`. For an equality constraint $k^* = 0$, and
+
+$$
+k_\epsilon(A\beta + a) = u_0^T(A\beta + a) + \frac{1}{2\epsilon}\|A\beta + a\|_2^2,
+$$
+
+the augmented Lagrangian with multiplier $u_0$ and penalty $1/\epsilon$.
+The outer loop sets $u_0 \leftarrow \nabla k_\epsilon(A\hat\beta + a)$, the
+method of multipliers (Hestenes, 1969; Powell, 1969), which is the proximal
+point method applied to the dual (Rockafellar, 1976). As for TFOCS, the
+iterates converge for any fixed $\epsilon$, and $\epsilon$ affects the
+speed only. NESTA itself (Becker, Bobin and Candès, 2011) smooths $h$
+rather than the constraint, with continuation in the smoothing parameter;
+`rr.nesta` is an accelerated augmented-Lagrangian method in the same
+spirit, and also allows an extra smooth term.
+
+`rr.nesta(smooth, h, k_atom, epsilon=[...])` takes the composed atom $k(A\beta + a)$
+itself, and `smooth` (which may be `None`) is an additional smooth term in
+the objective.
 
 ```{code-cell} ipython3
-def nesta_loop(h, k_atom, epsilon, niter, inner_tol=1e-12):
-    transform, _ = k_atom.dual
-    u = np.zeros(transform.output_shape)
-    for i in range(niter):
-        smoothed = k_atom.smoothed(rr.identity_quadratic(epsilon, u, 0, 0))
-        primal = rr.simple_problem(smoothed, h).solve(tol=inner_tol, max_its=5000)
-        u = smoothed.grad                   # multiplier update
-    return primal
-
-tic = time.time()
-beta_nesta = nesta_loop(rr.l1norm(p, lagrange=1), rr.zero_constraint.affine(X, -Y), 1., 50)
-print('NESTA: %.2fs' % (time.time() - tic))
-print('max |NESTA - LP|:', np.abs(beta_nesta - beta_lp).max())
-np.testing.assert_allclose(beta_nesta, beta_lp, atol=1e-6)
+for eps in [10., 1., 0.1]:
+    tic = time.time()
+    beta_nesta, u_nesta = rr.nesta(None, rr.l1norm(p, lagrange=1),
+                                   rr.zero_constraint.affine(X, -Y), epsilon=[eps] * 100)
+    print('eps %-5g  %.2fs  max |nesta - LP| = %.1e'
+          % (eps, time.time() - tic, np.abs(beta_nesta - beta_lp).max()))
+    np.testing.assert_allclose(beta_nesta, beta_lp, atol=1e-5)
 ```
+
+### References
+
+- Beck, A. and Teboulle, M. (2009). A fast iterative shrinkage-thresholding
+  algorithm for linear inverse problems. *SIAM Journal on Imaging Sciences*,
+  2(1), 183–202.
+- Becker, S., Bobin, J. and Candès, E. J. (2011). NESTA: a fast and accurate
+  first-order method for sparse recovery. *SIAM Journal on Imaging
+  Sciences*, 4(1), 1–39.
+- Becker, S., Candès, E. J. and Grant, M. (2011). Templates for convex cone
+  problems with applications to sparse signal recovery. *Mathematical
+  Programming Computation*, 3(3), 165–218.
+- Candès, E. and Tao, T. (2007). The Dantzig selector: statistical
+  estimation when $p$ is much larger than $n$. *The Annals of Statistics*,
+  35(6), 2313–2351.
+- Chen, S. S., Donoho, D. L. and Saunders, M. A. (1998). Atomic
+  decomposition by basis pursuit. *SIAM Journal on Scientific Computing*,
+  20(1), 33–61.
+- Güler, O. (1992). New proximal point algorithms for convex minimization.
+  *SIAM Journal on Optimization*, 2(4), 649–664.
+- Hestenes, M. R. (1969). Multiplier and gradient methods. *Journal of
+  Optimization Theory and Applications*, 4(5), 303–320.
+- Nesterov, Yu. (2005). Smooth minimization of non-smooth functions.
+  *Mathematical Programming*, 103(1), 127–152.
+- Powell, M. J. D. (1969). A method for nonlinear constraints in
+  minimization problems. In R. Fletcher (ed.), *Optimization*, 283–298.
+  Academic Press.
+- Rockafellar, R. T. (1976). Augmented Lagrangians and applications of the
+  proximal point algorithm in convex programming. *Mathematics of
+  Operations Research*, 1(2), 97–116.
 
 ## Proximal quasi-Newton
 
