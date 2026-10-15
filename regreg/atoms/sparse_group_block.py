@@ -63,7 +63,7 @@ class sparse_group_block(l1_l2):
         Initial value for the coefficients.
     """
 
-    objective_template = r"""w_1\|%(var)s\|_{1,1} + w_1\|%(var)s\|_{1,2}"""
+    objective_template = r"""w_1\|%(var)s\|_{1,1} + w_2\|%(var)s\|_{1,2}"""
     objective_vars = l1_l2.objective_vars.copy()
     objective_vars['var'] = 'B'
     objective_vars['normklass'] = 'sparse_group_block'
@@ -108,7 +108,7 @@ class sparse_group_block(l1_l2):
     def constraint(self, x):
         x = x.reshape(self.shape)
         l1_norms = np.fabs(x).sum()
-        l2_norms = np.sqrt(np.sum(x**2), 1).sum()
+        l2_norms = np.sqrt(np.sum(x**2, 1)).sum()
         norm_sum = self.l1_weight * l1_norms + self.l2_weight * l2_norms
         if norm_sum <= self.bound * (1 + self.tol):
             return 0
@@ -175,17 +175,18 @@ class sparse_group_block(l1_l2):
         --------
         >>> import numpy as np
         >>> import regreg.api as rr
-        >>> penalty = rr.sparse_group_block((2, 3), 1, 1, lagrange=1.)
+        >>> penalty = rr.sparse_group_block((2, 3), 1, 2, lagrange=1.)
         >>> arg = np.array([[1., 2, 2], [0, 3, 4]])
         >>> penalty.terms(arg)
-        array([ 8., 12.])
+        array([11., 17.])
         >>> print(penalty.seminorm(arg))
-        20.0
+        28.0
         """
         terms = (np.fabs(arg).sum(1) * self.l1_weight + 
-                 np.sqrt((arg**2).sum(1)) * self.l1_weight)
+                 np.sqrt((arg**2).sum(1)) * self.l2_weight)
         return terms
 
+@objective_doc_templater()
 class sparse_group_block_dual(sparse_group_block):
 
     """
