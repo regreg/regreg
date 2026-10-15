@@ -1,9 +1,18 @@
-# Build the Jupyter Book in doc/ and the Sphinx API reference, and deploy
-# them to GitHub Pages.
-# Requires Settings -> Pages -> Source: "GitHub Actions".
+# Build the Jupyter Book in doc/ and the Sphinx API reference. On pull
+# requests that touch the package or the docs, the site is only built (so a
+# page that stops running fails the check); on workflow_dispatch it is also
+# deployed to GitHub Pages.
+# Deploying requires Settings -> Pages -> Source: "GitHub Actions".
 
 name: Docs
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'doc/**'
+      - 'regreg/**'
+      - 'pyproject.toml'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
     inputs:
       tag_name:
@@ -16,33 +25,17 @@ env:
   # `BASE_URL` determines where the website is served from, including CSS & JS assets
   BASE_URL: /${{ github.event.repository.name }}
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run
-# in progress and the latest queued. Do NOT cancel in-progress runs, so that
-# production deployments complete.
-concurrency:
-  group: 'pages'
-  cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.inputs.tag_name }}
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
           fetch-depth: 0 # setuptools_scm needs the tags
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       # Jupyter Book 2 runs on Node
       - uses: actions/setup-node@v4
@@ -73,9 +66,31 @@ jobs:
           test -f doc/_build/html/api/index.html
 
       - name: Upload artifact
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'doc/_build/html'
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      pages: write
+      id-token: write
+    # Allow only one concurrent deployment, skipping runs queued between the
+    # run in progress and the latest queued. Do NOT cancel in-progress runs, so
+    # that production deployments complete.
+    concurrency:
+      group: 'pages'
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Deploy to GitHub Pages
         id: deployment
