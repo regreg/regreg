@@ -1,11 +1,9 @@
-# Requirements for building docs
-# Check these dependencies against doc/conf.py
--r dev-requirements.txt
--r test-requirements.txt
-sphinx>=1.4
-numpydoc
+# Requirements for building the docs (the same as the `doc` extra in
+# pyproject.toml); see doc/myst.yml and .github/workflows/docs.yml
+jupyter-book>=2
+ipykernel
 matplotlib
-texext
-nb2plots
-sklearn
-sphinx_rtd_theme
+pandas
+scikit-learn
+sphinx
+sphinx-book-theme

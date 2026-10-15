@@ -1,0 +1,41 @@
+version: 1
+project:
+  title: regreg
+  description: Regularized regression and structured convex optimization in Python, by proximal gradient methods
+  authors:
+    - name: Jonathan Taylor
+    - name: Brad Klingenberg
+  github: https://github.com/regreg/regreg
+  # the API reference (Sphinx autodoc) is built separately into api/ ;
+  # see doc/api/conf.py and .github/workflows/docs.yml
+  exclude:
+    - api/**
+    - examples/**
+    - notebooks/**
+    - sandbox/**
+    - tools/**
+    - '*.ipynb'
+    - _build
+  toc:
+    - file: index.md
+    - title: Getting started
+      children:
+        - file: lasso.md
+        - file: losses.md
+    - title: Penalties and constraints
+      children:
+        - file: atoms.md
+        - file: penalties.md
+        - file: constraints.md
+    - title: Fitting
+      children:
+        - file: solvers.md
+        - file: paths.md
+        - file: sklearn.md
+    - title: API Reference
+      url: https://regreg.github.io/regreg/api/
+
+site:
+  options:
+    folders: true
+  template: book-theme

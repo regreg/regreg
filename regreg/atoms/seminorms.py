@@ -1084,7 +1084,7 @@ class constrained_max(seminorm):
     """
 
     objective_template = (r"""\left\|%(var)s\right\|_{\infty} + """
-                          + r"""I^{\infty}\left(\min(%(var)s) \in [0,+\infty)\right) """)
+                          + r"""I^{\infty}\left(\min(%(var)s) \in [0,+\infty)\right)""")
     objective_vars = seminorm.objective_vars.copy()
     objective_vars['normklass'] = 'constrained_max'
     objective_vars['dualnormklass'] = 'positive_part'
