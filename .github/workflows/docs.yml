@@ -1,18 +1,10 @@
-# Build the Jupyter Book in doc/ and the Sphinx API reference. On pull
-# requests that touch the package or the docs, the site is only built (so a
-# page that stops running fails the check); on workflow_dispatch it is also
-# deployed to GitHub Pages.
+# Build the Jupyter Book in doc/ and the Sphinx API reference, and deploy
+# them to GitHub Pages. Runs only when triggered by hand (Actions -> Docs ->
+# Run workflow, or `gh workflow run docs.yml`).
 # Deploying requires Settings -> Pages -> Source: "GitHub Actions".
 
 name: Docs
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'doc/**'
-      - 'regreg/**'
-      - 'pyproject.toml'
-      - '.github/workflows/docs.yml'
   workflow_dispatch:
     inputs:
       tag_name:
@@ -34,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.inputs.tag_name || github.ref }}
+          ref: ${{ github.event.inputs.tag_name }}
           fetch-depth: 0 # setuptools_scm needs the tags
 
       # Jupyter Book 2 runs on Node
@@ -66,13 +58,11 @@ jobs:
           test -f doc/_build/html/api/index.html
 
       - name: Upload artifact
-        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'doc/_build/html'
 
   deploy:
-    if: github.event_name == 'workflow_dispatch'
     needs: build
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
