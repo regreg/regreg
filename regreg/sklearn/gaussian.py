@@ -46,7 +46,8 @@ if have_sklearn:
                 return -2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = 2 * loss(predictions)
-                SST = 2 * loss(response.mean() * np.ones_like(response))
+                # the null model fits the (weighted) mean
+                SST = 2 * loss(np.average(response, weights=case_weights) * np.ones_like(response))
                 return 1 - SSE / SST
             else:
                 return np.nan

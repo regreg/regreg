@@ -7,7 +7,9 @@ try:
     from .base import (sklearn_regression,
                        sklearn_regression_lagrange,
                        sklearn_classifier,
-                       sklearn_classifier_lagrange)
+                       sklearn_classifier_lagrange,
+                       _null_success_probability,
+                       _binary_accuracy)
 except:
     have_sklearn = False
 from ..smooth.glm import (glm, 
@@ -68,13 +70,14 @@ if have_sklearn:
                 return -2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = 2 * loss(predictions)
-                pi_0 = response.mean()
-                logit_0 = np.log(pi_0 / (1 - pi_0))
-                SST = 2 * loss(logit_0 * np.ones_like(response)) # X: correct for logistic?
+                # the null model fits the (weighted) overall success probability
+                pi_0 = _null_success_probability(successes, trials, case_weights)
+                eta_0 = np.log(pi_0 / (1 - pi_0))
+                SST = 2 * loss(eta_0 * np.ones(successes.shape[0]))
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
-                labels = predictions > 0
-                return np.mean(labels == response)
+                return _binary_accuracy(predictions, successes, trials,
+                                        case_weights, threshold=0)
             else:
                 return np.nan
 
@@ -120,7 +123,8 @@ if have_sklearn:
                 trials = None
 
             if self.score_method == 'accuracy':
-                return np.mean(predictions == successes)
+                return _binary_accuracy(predictions, successes, trials,
+                                        case_weights, threshold=0)
             return np.nan
 
         def predict_proba(self, X):
@@ -143,11 +147,8 @@ if have_sklearn:
             exp_lin = np.exp(linpred)
             return exp_lin / (1 + exp_lin)
 
-    class sklearn_logistic_classifier_lagrange(sklearn_logistic_classifier):
-        """Logistic classifier (intended Lagrange form).
-
-        Currently this is identical to `sklearn_logistic_classifier`.
-        """
+    class sklearn_logistic_classifier_lagrange(sklearn_classifier_lagrange, sklearn_logistic_classifier):
+        """Lagrange-form logistic classifier for sklearn."""
 
         pass
 

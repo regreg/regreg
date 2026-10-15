@@ -1,14 +1,15 @@
 """sklearn estimators for complementary log-log regression models."""
 
 import numpy as np
-from scipy.stats import gumbel_r
 
 have_sklearn = True
 try:
     from .base import (sklearn_regression,
                        sklearn_regression_lagrange,
                        sklearn_classifier,
-                       sklearn_classifier_lagrange)
+                       sklearn_classifier_lagrange,
+                       _null_success_probability,
+                       _binary_accuracy)
 except ImportError:
     have_sklearn = False
 
@@ -67,16 +68,17 @@ if have_sklearn:
             if self.score_method == 'deviance':
                 return -2 * loss(predictions)
             elif self.score_method == 'mean_deviance':
-                return -2 * loss(predictions)
+                return -2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = 2 * loss(predictions)
-                pi_0 = response.mean()
-                cloglog_0 = gumbel_r.ppf(pi_0)
-                SST = 2 * loss(cloglog_0 * np.ones_like(response)) # X: correct for cloglog?
+                # the null model fits the (weighted) overall success probability
+                pi_0 = _null_success_probability(successes, trials, case_weights)
+                eta_0 = np.log(-np.log(1 - pi_0))
+                SST = 2 * loss(eta_0 * np.ones(successes.shape[0]))
                 return 1 - SSE / SST
             elif self.score_method == 'accuracy':
-                labels = predictions > 0
-                return np.mean(labels == response)
+                return _binary_accuracy(predictions, successes, trials,
+                                        case_weights, threshold=np.log(np.log(2)))
             else:
                 return np.nan
 
@@ -122,8 +124,26 @@ if have_sklearn:
                 trials = None
 
             if self.score_method == 'accuracy':
-                return np.mean(predictions == successes)
+                return _binary_accuracy(predictions, successes, trials,
+                                        case_weights, threshold=np.log(np.log(2)))
             return np.nan
+
+        def predict(self, X):
+            """Predict new labels in the classification setting.
+
+            Parameters
+            ----------
+            X : ndarray
+                Feature matrix of shape ``(n, p)``.
+
+            Returns
+            -------
+            labels : ndarray
+                Boolean labels, True where the fitted probability exceeds
+                1/2, i.e. where the linear predictor exceeds
+                :math:`\\log(\\log 2)`.
+            """
+            return X.dot(self._coefs) > np.log(np.log(2))
 
         def predict_proba(self, X):
             r"""Predict success probabilities in the classification setting.
@@ -144,11 +164,8 @@ if have_sklearn:
             linpred = X.dot(self._coefs)
             return 1 - np.exp(-np.exp(linpred))
 
-    class sklearn_cloglog_classifier_lagrange(sklearn_cloglog_classifier):
-        """Complementary log-log classifier (intended Lagrange form).
-
-        Currently this is identical to `sklearn_cloglog_classifier`.
-        """
+    class sklearn_cloglog_classifier_lagrange(sklearn_classifier_lagrange, sklearn_cloglog_classifier):
+        """Lagrange-form cloglog classifier for sklearn."""
 
         pass
 

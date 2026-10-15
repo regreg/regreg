@@ -56,7 +56,8 @@ if have_sklearn:
                 return -2 * loss(predictions) / predictions.shape[0]
             elif self.score_method == 'R2':
                 SSE = 2 * loss(predictions)
-                SST = loss(response.mean() * np.ones(response.shape[0])) # X: correct for Cox?
+                # the null model has a linear predictor of 0
+                SST = 2 * loss(np.zeros(response.shape[0]))
                 return 1 - SSE / SST
             elif self.score_method == 'C-index':
                 return np.nan
