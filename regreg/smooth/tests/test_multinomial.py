@@ -8,13 +8,14 @@ def test_multinomial_vs_logistic():
     """
     Test that multinomial regression with two categories is the same as logistic regression
     """
+    rng = np.random.default_rng(1800)
 
     n = 500
     p = 10
     J = 2
 
-    X = np.random.standard_normal(n*p).reshape((n,p))
-    counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
+    X = rng.standard_normal(n*p).reshape((n,p))
+    counts = rng.integers(0,10,n*J).reshape((n,J)) + 2
 
     mult_x = rr.linear_transform(X, input_shape=(p,J-1))
     loss = rr.multinomial_baseline_loglike.linear(mult_x, counts=counts)

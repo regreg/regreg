@@ -5,18 +5,17 @@ import numpy as np
 
 import regreg.api as rr
 from regreg.atoms.tests.test_seminorms import all_close
-from regreg.tests.decorators import set_seed_for_test
 
 
-@set_seed_for_test()
 def test_class():
     '''
     runs several class methods on generic instance
     '''
+    rng = np.random.default_rng(3900)
 
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    Y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    Y = rng.standard_normal(n)
     loss = rr.squared_error(X, Y)
     pen = rr.l1norm(p, lagrange=1.)
     problem = rr.simple_problem(loss, pen)
@@ -26,9 +25,9 @@ def test_class():
     for debug, coef_stop, max_its in product([True, False], [True, False], [5, 100]):
         rr.gengrad(problem, rr.power_L(X)**2, max_its=max_its, debug=debug, coef_stop=coef_stop)
 
-@set_seed_for_test()
 def test_gengrad():
-    Z = np.random.standard_normal(100) * 4
+    rng = np.random.default_rng(3901)
+    Z = rng.standard_normal(100) * 4
     p = rr.l1norm(100, lagrange=0.13)
     L = 0.14
 
@@ -74,9 +73,9 @@ def test_gengrad():
     all_close(prox_coef, loss2_coefs, 'simple where loss has quadratic 1', None)
     all_close(prox_coef, solver2.composite.coefs, 'simple where loss has quadratic 2', None)
 
-@set_seed_for_test()
 def test_gengrad_blocknorms():
-    Z = np.random.standard_normal((10,10)) * 4
+    rng = np.random.default_rng(3902)
+    Z = rng.standard_normal((10,10)) * 4
     p = rr.l1_l2((10,10), lagrange=0.13)
     dual = p.conjugate
     L = 0.23

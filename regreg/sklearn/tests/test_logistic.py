@@ -12,15 +12,14 @@ except ImportError:
     have_sklearn = False
 
 from ...api import l1norm
-from ...tests.decorators import set_seed_for_test
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_logistic():
 
+    rng = np.random.default_rng(5200)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
     y = y > 0
 
     atom = l1norm
@@ -41,7 +40,7 @@ def test_logistic():
     logistic_lasso_offset = logistic(atom,
                                      atom_args,
                                      offset=True)
-    y_offset = np.array([y, np.random.standard_normal(n)]).T
+    y_offset = np.array([y, rng.standard_normal(n)]).T
     logistic_lasso_offset.fit(X, y_offset)
 
     logistic_lasso_weights = logistic(atom,
@@ -67,12 +66,12 @@ def test_logistic():
     GridSearchCV(logistic_lasso_both, params, cv=3).fit(X, y_both)
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_logistic_classifier():
 
+    rng = np.random.default_rng(5201)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
     y = y > 0
 
     atom = l1norm

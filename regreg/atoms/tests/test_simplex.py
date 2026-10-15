@@ -5,7 +5,6 @@ import numpy as np
 
 import regreg.api as rr
 import regreg.atoms.simplex as S
-from regreg.tests.decorators import set_seed_for_test
 from .test_seminorms import run_checks
 
 
@@ -39,12 +38,12 @@ class SimplexSolverFactory(ConeSolverFactory):
             atom.latexify(), atom.dual, atom.conjugate
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0,0,self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = SimplexSolver(atom,
+            solver = SimplexSolver(atom, rng=self.rng,
                                    interactive=self.interactive, 
                                    coef_stop=coef_stop,
                                    FISTA=FISTA,
@@ -66,7 +65,6 @@ class SimplexSolver(Solver):
 
 @pytest.mark.slow
 @pytest.mark.parametrize('klass', sorted(S.conjugate_simplex_pairs.keys(), key=str), ids=lambda k: k.__name__)
-@set_seed_for_test()
 def test_proximal_maps(klass):
     factory = SimplexSolverFactory(klass)
     for solver in factory:

@@ -12,15 +12,14 @@ except ImportError:
     have_sklearn = False
 
 from ...api import l1_l2
-from ...tests.decorators import set_seed_for_test
 
 @pytest.mark.skipif(True or not have_sklearn, reason='multinomial not working on its own yet')
-@set_seed_for_test()
 def test_multinomial():
 
+    rng = np.random.default_rng(5600)
     n, p, q = 100, 20, 3
-    X = np.random.standard_normal((n, p))
-    Z = np.random.standard_normal((n, q))
+    X = rng.standard_normal((n, p))
+    Z = rng.standard_normal((n, q))
     A = np.argmax(Z, 1)
     Y = np.zeros_like(Z)
     for i in range(n):
@@ -45,7 +44,7 @@ def test_multinomial():
     multinomial_lasso_offset = multinomial(atom,
                                            atom_args,
                                            offset=True)
-    response_offset = np.hstack([response, np.random.standard_normal((n, 1))])
+    response_offset = np.hstack([response, rng.standard_normal((n, 1))])
     multinomial_lasso_offset.fit(X, response_offset)
 
     multinomial_lasso_weights = multinomial(atom,

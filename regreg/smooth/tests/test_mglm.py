@@ -3,13 +3,12 @@ from copy import copy
 import numpy as np
 
 from regreg.smooth import mglm, glm
-from ...tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_gaussian_common():
 
-    X = np.random.standard_normal((10,5))
-    Y = np.random.standard_normal((10,3))
+    rng = np.random.default_rng(2000)
+    X = rng.standard_normal((10,5))
+    Y = rng.standard_normal((10,3))
 
     for case_weights in [np.ones(10), None]:
         sat = mglm.stacked_common_loglike.gaussian(Y.T)
@@ -68,20 +67,20 @@ def test_gaussian_common():
         np.testing.assert_allclose(L_sub.gradient(beta),
                                    Lsub2.gradient(beta))
 
-@set_seed_for_test()
 def test_multinomial():
 
     """
     Test that multinomial regression with two categories is the same as logistic regression
     """
+    rng = np.random.default_rng(2001)
 
     n = 500
     p = 10
     J = 4
 
 
-    X = np.random.standard_normal(n*p).reshape((n,p))
-    counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
+    X = rng.standard_normal(n*p).reshape((n,p))
+    counts = rng.integers(0,10,n*J).reshape((n,J)) + 2
     for case_weights in [np.ones(n), None]:
 
         sat = mglm.multinomial_loglike(counts.shape, counts)
@@ -130,20 +129,20 @@ def test_multinomial():
         np.testing.assert_allclose(L_sub.gradient(beta),
                                    Lsub2.gradient(beta))
 
-@set_seed_for_test()
 def test_multinomial_baseline():
 
     """
     Test that multinomial regression with two categories is the same as logistic regression
     """
+    rng = np.random.default_rng(2002)
 
     n = 500
     p = 10
     J = 4
 
 
-    X = np.random.standard_normal(n*p).reshape((n,p))
-    counts = np.random.randint(0,10,n*J).reshape((n,J)) + 2
+    X = rng.standard_normal(n*p).reshape((n,p))
+    counts = rng.integers(0,10,n*J).reshape((n,J)) + 2
     for case_weights in [np.ones(n), None]:
 
         sat = mglm.multinomial_baseline_loglike((n, J-1), counts)

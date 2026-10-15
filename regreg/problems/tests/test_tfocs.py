@@ -4,15 +4,14 @@ Solving basis pursuit with TFOCS
 import numpy as np
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_tfocs():
+    rng = np.random.default_rng(4200)
     n, p = 100, 200
-    X = np.random.standard_normal((n, p))
+    X = rng.standard_normal((n, p))
     beta = np.zeros(p)
     beta[:4] = 3
-    Y = np.random.standard_normal(n) + np.dot(X, beta)
+    Y = rng.standard_normal(n) + np.dot(X, beta)
 
     lscoef = np.dot(np.linalg.pinv(X), Y)
     minimum_l2 = np.linalg.norm(Y - np.dot(X, lscoef))

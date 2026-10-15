@@ -1,9 +1,7 @@
 import pytest
 import numpy as np
 import regreg.api as rr
-from ...tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 @pytest.mark.skipif(True, reason='NESTA path not implemented correctly')
 def test_nesta_path():
 

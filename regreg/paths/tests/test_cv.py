@@ -7,19 +7,18 @@ from .. import (lasso,
                 cross_validate,
                 warm_start)
 
-from ...tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_lasso(n=1000, p=100, nstep=20):
     '''
     CV for a LASSO path
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(3400)
+    X = rng.standard_normal((n,p))
+    Y = rng.standard_normal(n)
     betaX = np.zeros(p)
     betaX[:3] = [3,4,5]
-    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+    Y += np.dot(X, betaX) + rng.standard_normal(n)
 
     lasso1 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
@@ -31,18 +30,18 @@ def test_lasso(n=1000, p=100, nstep=20):
                                         inner_tol=1.e-5,
                                         cv=3))
 
-@set_seed_for_test()
 def test_group_lasso(n=1000, p=100, nstep=20):
     '''
     CV for a LASSO path
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(3401)
+    X = rng.standard_normal((n,p))
+    Y = rng.standard_normal(n)
     betaX = np.zeros(p)
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+    rng.shuffle(betaX)
+    Y += np.dot(X, betaX) + rng.standard_normal(n)
 
     groups = ['a', 'a', 'a', 'b', 'b', 'c']
     i = 0
@@ -53,7 +52,7 @@ def test_group_lasso(n=1000, p=100, nstep=20):
             groups = groups[:p]
             break
         i += 1
-    np.random.shuffle(groups)
+    rng.shuffle(groups)
     group_lasso1 = group_lasso.gaussian(X, 
                                         Y, 
                                         groups)
@@ -67,18 +66,18 @@ def test_group_lasso(n=1000, p=100, nstep=20):
                                   cv=3)
 
 
-@set_seed_for_test()
 def test_sparse_group_lasso(n=1000, p=100, nstep=20):
     '''
     CV for a LASSO path
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(3402)
+    X = rng.standard_normal((n,p))
+    Y = rng.standard_normal(n)
     betaX = np.zeros(p)
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+    rng.shuffle(betaX)
+    Y += np.dot(X, betaX) + rng.standard_normal(n)
 
     groups = ['a', 'a', 'a', 'b', 'b', 'c']
     i = 0
@@ -89,7 +88,7 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
             groups = groups[:p]
             break
         i += 1
-    np.random.shuffle(groups)
+    rng.shuffle(groups)
     l1weights = np.ones(p)
     sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
                                                       Y, 
@@ -106,18 +105,18 @@ def test_sparse_group_lasso(n=1000, p=100, nstep=20):
 
 
 
-@set_seed_for_test()
 def test_sparse_group_lasso_warm_start(n=500, p=100, nstep=10):
     '''
     CV for a sparse group LASSO path, fitted with `warm_start`
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(3403)
+    X = rng.standard_normal((n,p))
+    Y = rng.standard_normal(n)
     betaX = np.zeros(p)
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+    rng.shuffle(betaX)
+    Y += np.dot(X, betaX) + rng.standard_normal(n)
 
     groups = ['a', 'a', 'a', 'b', 'b', 'c']
     i = 0
@@ -128,7 +127,7 @@ def test_sparse_group_lasso_warm_start(n=500, p=100, nstep=10):
             groups = groups[:p]
             break
         i += 1
-    np.random.shuffle(groups)
+    rng.shuffle(groups)
     l1weights = np.ones(p)
     sparse_group_lasso1 = sparse_group_lasso.gaussian(X, 
                                                       Y, 
@@ -144,17 +143,17 @@ def test_sparse_group_lasso_warm_start(n=500, p=100, nstep=10):
                                   inner_tol=1.e-10,
                                   cv=3)
 
-@set_seed_for_test()
 def test_sparse_group_multiresponse(n=1000, p=100, q=3, nstep=20):
     '''
     CV for a LASSO path
 
     '''
-    X = np.random.standard_normal((n,p))
+    rng = np.random.default_rng(3404)
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+    rng.shuffle(betaX)
+    Y = np.dot(X, betaX) + rng.standard_normal((n,q))
 
     sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
                                                                     Y, 
@@ -169,21 +168,21 @@ def test_sparse_group_multiresponse(n=1000, p=100, q=3, nstep=20):
                                   inner_tol=1.e-10,
                                   cv=3)
 
-@set_seed_for_test()
 def test_sparse_group_block(n=1000, p=100, q=3, nstep=20):
     '''
     CV for a LASSO path
 
     '''
+    rng = np.random.default_rng(3405)
     n1, n2, n3, p, q = 1190, 1200, 1210, 100, 3
-    X1 = np.random.standard_normal((n1,p))
-    X2 = np.random.standard_normal((n2,p))
-    X3 = np.random.standard_normal((n3,p))
+    X1 = rng.standard_normal((n1,p))
+    X2 = rng.standard_normal((n2,p))
+    X3 = rng.standard_normal((n3,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
     betaX *= 0.2
-    np.random.shuffle(betaX)
-    Y = [np.dot(X, beta) + np.random.standard_normal(n) for
+    rng.shuffle(betaX)
+    Y = [np.dot(X, beta) + rng.standard_normal(n) for
          X, beta, n in zip([X1, X2, X3],
                            betaX.T,
                            [n1, n2, n3])]

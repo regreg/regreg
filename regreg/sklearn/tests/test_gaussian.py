@@ -10,15 +10,14 @@ except ImportError:
     have_sklearn = False
 
 from ...api import l1norm, group_lasso
-from ...tests.decorators import set_seed_for_test
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_regression_gaussian():
 
+    rng = np.random.default_rng(5800)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
 
     atom = l1norm
     atom_args = {'shape':p, 'lagrange':2*np.sqrt(n)}
@@ -35,7 +34,7 @@ def test_regression_gaussian():
 
     gaussian_lasso_offset = gaussian(atom, atom_args,
                                              offset=True)
-    y_offset = np.array([y, np.random.standard_normal(n)]).T
+    y_offset = np.array([y, rng.standard_normal(n)]).T
     gaussian_lasso_offset.fit(X, y_offset)
 
     gaussian_lasso_weights = gaussian(atom, atom_args,
@@ -70,12 +69,12 @@ def test_regression_gaussian():
     GridSearchCV(gaussian_lasso_enet, params, cv=3).fit(X, y_both)
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_regression_group_lasso():
 
+    rng = np.random.default_rng(5801)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
 
     atom = group_lasso
     atom_args = {'groups':[0]*10+[1]*10, 'lagrange':2*np.sqrt(n)}
@@ -92,7 +91,7 @@ def test_regression_group_lasso():
 
     gaussian_lasso_offset = gaussian(atom, atom_args,
                                              offset=True)
-    y_offset = np.array([y, np.random.standard_normal(n)]).T
+    y_offset = np.array([y, rng.standard_normal(n)]).T
     gaussian_lasso_offset.fit(X, y_offset)
 
     gaussian_lasso_weights = gaussian(atom, atom_args,
@@ -127,12 +126,12 @@ def test_regression_group_lasso():
     GridSearchCV(gaussian_lasso_enet, params, cv=3).fit(X, y_both)
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_regression_gaussian_bound():
 
+    rng = np.random.default_rng(5802)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
 
     atom = l1norm
     atom_args = {'shape':p, 'bound':3}
@@ -153,7 +152,7 @@ def test_regression_gaussian_bound():
     gaussian_lasso_offset = gaussian(atom,
                                      atom_args,
                                      offset=True)
-    y_offset = np.array([y, np.random.standard_normal(n)]).T
+    y_offset = np.array([y, rng.standard_normal(n)]).T
     gaussian_lasso_offset.fit(X, y_offset)
 
     gaussian_lasso_weights = gaussian(atom,

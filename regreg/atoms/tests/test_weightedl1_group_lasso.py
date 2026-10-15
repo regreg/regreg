@@ -6,16 +6,15 @@ import numpy as np
 
 import regreg.api as rr
 import regreg.atoms.weighted_atoms as WA
-from regreg.tests.decorators import set_seed_for_test
 
 from numpy import testing as npt
 
-@set_seed_for_test()
 def test_group_lasso_weightedl1_lagrange():
+    rng = np.random.default_rng(400)
     n, p = 100, 50
 
-    X = np.random.standard_normal((n, p))
-    Y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    Y = rng.standard_normal(n)
 
     loss = rr.glm.gaussian(X, Y)
     weights = np.ones(p)
@@ -45,12 +44,12 @@ def test_group_lasso_weightedl1_lagrange():
     npt.assert_allclose(beta3, beta4)
     npt.assert_allclose(beta3, beta1)
 
-@set_seed_for_test()
 def test_group_lasso_weightedl1_bound():
+    rng = np.random.default_rng(401)
     n, p = 100, 50
 
-    X = np.random.standard_normal((n, p))
-    Y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    Y = rng.standard_normal(n)
 
     loss = rr.glm.gaussian(X, Y)
     weights = np.ones(p)

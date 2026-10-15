@@ -24,7 +24,8 @@ def cross_validate(path_obj,
                    n_jobs=-1,
                    score=lambda x,y: np.linalg.norm(x-y)**2 / y.shape[0],
                    verbose=True,
-                   inner_tol=1.e-5):
+                   inner_tol=1.e-5,
+                   rng=None):
 
     '''
     Cross-validate a path fitter over a set of Lagrange parameters.
@@ -61,6 +62,9 @@ def cross_validate(path_obj,
         Verbosity passed to `joblib.Parallel`.
     inner_tol : float, optional
         Tolerance for each subproblem.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random assignment of cases to folds
+        when `cv` is an integer, passed to `np.random.default_rng`.
 
     Returns
     -------
@@ -77,7 +81,7 @@ def cross_validate(path_obj,
 
     response = path_obj.saturated_loss.data
     nsample = response.shape[0]
-    folds = _make_folds(cv, nsample, group_labels)
+    folds = _make_folds(cv, nsample, group_labels, rng=rng)
 
     # Loop over folds, computing path
     # for each (train, test)
@@ -136,7 +140,8 @@ def cross_validate_alt(path_obj,
                        n_jobs=-1,
                        score=lambda x,y: np.linalg.norm(x-y)**2 / y.shape[0],
                        verbose=True,
-                       inner_tol=1.e-5):
+                       inner_tol=1.e-5,
+                       rng=None):
 
     '''
     Cross-validate a path fitter over a set of Lagrange parameters.
@@ -177,6 +182,9 @@ def cross_validate_alt(path_obj,
         Verbosity passed to `joblib.Parallel`.
     inner_tol : float, optional
         Currently unused.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random assignment of cases to folds
+        when `cv` is an integer, passed to `np.random.default_rng`.
 
     Returns
     -------
@@ -193,7 +201,7 @@ def cross_validate_alt(path_obj,
 
     response = path_obj.saturated_loss.data
     nsample = response.shape[0]
-    folds = _make_folds(cv, nsample, group_labels)
+    folds = _make_folds(cv, nsample, group_labels, rng=rng)
 
     if initial_data is None:
         initial_data = (path_obj.solution,
@@ -229,17 +237,18 @@ def cross_validate_alt(path_obj,
 
 
 
-def _make_folds(cv, nsample, group_labels=None):
+def _make_folds(cv, nsample, group_labels=None, rng=None):
     """
     Return a list of ``(train, test)`` pairs of boolean masks over cases.
 
     An integer `cv` without `group_labels` gives randomly assigned folds
-    of (nearly) equal size, and does not need sklearn. Otherwise the folds
+    of (nearly) equal size, drawn with ``np.random.default_rng(rng)``, and
+    does not need sklearn. Otherwise the folds
     come from `sklearn.model_selection.check_cv`.
     """
     if isinstance(cv, (int, np.integer)) and group_labels is None:
         labels = np.floor(np.arange(nsample) / nsample * cv).astype(int)
-        np.random.shuffle(labels)
+        np.random.default_rng(rng).shuffle(labels)
         return [(labels != g, labels == g) for g in np.unique(labels)]
 
     if not have_sklearn:

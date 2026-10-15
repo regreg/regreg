@@ -7,9 +7,7 @@ import scipy.optimize
 
 import regreg.api as rr
 from regreg.atoms.tests.test_seminorms import all_close
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_lasso():
     '''
     this test verifies that the l1 prox can be solved
@@ -19,6 +17,7 @@ def test_lasso():
     but it verifies that specification is working correctly
 
     '''
+    rng = np.random.default_rng(3500)
 
     l1 = rr.l1norm(4, lagrange=2.)
 
@@ -26,8 +25,8 @@ def test_lasso():
     l12 = rr.l1norm(4, lagrange=1.)
 
 
-    X = np.random.standard_normal((10,4))
-    Y = np.random.standard_normal(10) + 3
+    X = rng.standard_normal((10,4))
+    Y = rng.standard_normal(10) + 3
     
     loss = rr.quadratic_loss.affine(X, -Y)
     p1 = rr.container(l11, loss, l12)
@@ -47,18 +46,18 @@ def test_lasso():
     all_close(ans, solver2.composite.coefs, 'singleton solver', None)
     all_close(solver1.composite.coefs, solver2.composite.coefs, 'container solver', None)
 
-@set_seed_for_test()
 def test_quadratic_for_smooth():
     '''
     this test is a check to ensure that the quadratic part 
     of the smooth functions are being used in the proximal step
     '''
+    rng = np.random.default_rng(3501)
 
     L = 0.45
 
-    W = np.random.standard_normal(40)
-    Z = np.random.standard_normal(40)
-    U = np.random.standard_normal(40)
+    W = rng.standard_normal(40)
+    Z = rng.standard_normal(40)
+    U = rng.standard_normal(40)
 
     atomq = rr.identity_quadratic(0.4, U, W, 0)
     atom = rr.l1norm(40, quadratic=atomq, lagrange=0.12)
@@ -68,7 +67,7 @@ def test_quadratic_for_smooth():
     lq = rr.identity_quadratic(0.4*L, Z, 0, 0)
     loss.quadratic = lq 
 
-    ww = np.random.standard_normal(40)
+    ww = rng.standard_normal(40)
 
     # specifying in this way should be the same as if we put 0.5*L below
     loss2 = rr.quadratic_loss.shift(Z, coef=L)
@@ -127,7 +126,6 @@ def test_quadratic_for_smooth():
                        'simple_problem having a quadratic']):
         all_close(aq, p, msg, None)
 
-@set_seed_for_test()
 def test_quadratic_for_smooth2():
     '''
     this test is a check to ensure that the

@@ -6,8 +6,9 @@ from regreg.problems.admm import admm_problem
 
 def test_admm(n=100, p=10):
 
-    X = np.random.standard_normal((n, p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(4100)
+    X = rng.standard_normal((n, p))
+    Y = rng.standard_normal(n)
     loss = rr.squared_error(X, Y)
     D = np.identity(p)
     pen = rr.l1norm(p, lagrange=1.5)

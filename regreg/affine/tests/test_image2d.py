@@ -6,15 +6,14 @@ import scipy.sparse
 import regreg.api as rr
 import regreg.affine.image2d as I2D
 from regreg.identity_quadratic import identity_quadratic as sq
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_class():
+    rng = np.random.default_rng(4900)
     p = 50
     diff = I2D.image2d_differences((p,p+5))
     diff2 = I2D.image2d_differences((p,p+5), affine_offset=1)
-    im = np.random.standard_normal((p,p+5))
-    di = np.random.standard_normal(diff.output_shape)
+    im = rng.standard_normal((p,p+5))
+    di = rng.standard_normal(diff.output_shape)
     diff.linear_map(im)
     diff.affine_map(im)
     diff.adjoint_map(di)

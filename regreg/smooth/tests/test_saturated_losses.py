@@ -19,11 +19,12 @@ def _binary_losses(n, **kw):
             glm.poisson_loglike((n,), np.arange(n), **kw)]
 
 def test_case_weights_not_modified():
+    rng = np.random.default_rng(2100)
     # gh-69: losses used to multiply the caller's case weights in place
 
     n = 5
-    X = np.random.standard_normal((n, 2))
-    Y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, 2))
+    Y = rng.standard_normal(n)
     w = np.arange(1., n + 1)
     G = glm.glm(X, Y, glm.gaussian_loglike((n,), Y, case_weights=w))
     values = [G.objective(np.ones(2)) for _ in range(3)]
@@ -45,24 +46,26 @@ def test_case_weights_not_modified():
         np.testing.assert_allclose(h1, h2)
 
 def test_cox_integer_case_weights():
+    rng = np.random.default_rng(2101)
     # gh-69: in-place multiply failed for integer weights
 
-    X = np.random.standard_normal((5, 2))
-    G = glm.glm.cox(X, np.random.exponential(size=5), np.ones(5),
+    X = rng.standard_normal((5, 2))
+    G = glm.glm.cox(X, rng.exponential(size=5), np.ones(5),
                     case_weights=np.ones(5, int))
     G0 = glm.glm.cox(X, G.saturated_loss.event_times, np.ones(5))
     np.testing.assert_allclose(G.objective(np.zeros(2)), G0.objective(np.zeros(2)))
 
 def test_stacked_common_case_weights():
+    rng = np.random.default_rng(2102)
     # gh-69: weights compounded across the component losses
 
     n, k = 6, 3
-    Y = np.random.standard_normal((n, k))
+    Y = rng.standard_normal((n, k))
     w = np.arange(1., n + 1)
     v = np.linspace(1, 2, n)
     losses = [glm.gaussian_loglike((n,), Y[:,i], case_weights=v) for i in range(k)]
     L = mglm.stacked_common_loglike(losses, case_weights=w)
-    eta = np.random.standard_normal((n, k))
+    eta = rng.standard_normal((n, k))
     expected = sum([0.5 * np.sum(w * v * (eta[:,i] - Y[:,i])**2) for i in range(k)])
     for _ in range(2):
         np.testing.assert_allclose(L.smooth_objective(eta, 'func'), expected)
@@ -71,6 +74,7 @@ def test_stacked_common_case_weights():
         np.testing.assert_allclose(l.case_weights, v)
 
 def test_offsets():
+    rng = np.random.default_rng(2103)
     # gh-70: offset ignored in some objectives and in all Hessians
 
     n = 5
@@ -84,16 +88,17 @@ def test_offsets():
         np.testing.assert_allclose(L_off.hessian(eta),
                                    L.hessian(eta - off))
 
-    X = np.random.standard_normal((n, 2))
+    X = rng.standard_normal((n, 2))
     y = (np.arange(n) % 2).astype(float)
     beta, o = np.array([.3, -.2]), np.array([.5, 1.])
     np.testing.assert_allclose(glm.glm.logistic(X, y, offset=o).hessian(beta),
                                glm.glm.logistic(X, y).hessian(beta - o))
 
 def test_huberized_svm_coef_offset():
+    rng = np.random.default_rng(2104)
     # gh-70: huberized_svm ignored both coef and offset
 
-    X = np.random.standard_normal((6, 2))
+    X = rng.standard_normal((6, 2))
     labels = np.array([0, 1, 1, 0, 1, 0])
     beta, o = np.array([.3, -.2]), np.array([10., 10.])
     L = huberized_svm(X, labels, .5)
@@ -151,11 +156,12 @@ def test_huber_copy_subsample_case_weights():
         np.testing.assert_allclose(L.case_weights, w)
 
 def test_multinomial_case_weights():
+    rng = np.random.default_rng(2105)
     # gh-73: multinomial losses ignored their stored case weights
 
     C = np.eye(3)[[0, 1, 2, 0, 1]]
     w = np.array([1., 0, 2, .5, 3])
-    eta3 = np.random.standard_normal((5, 3))
+    eta3 = rng.standard_normal((5, 3))
     eta2 = eta3[:, :2]
     for klass, eta in [(mglm.multinomial_loglike, eta3),
                        (mglm.multinomial_baseline_loglike, eta2)]:

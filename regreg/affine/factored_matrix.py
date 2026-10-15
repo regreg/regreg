@@ -146,7 +146,8 @@ def compute_iterative_svd(transform,
                           stopping_rule=None,
                           padding=5,
                           update_rank=lambda R: 2*R,
-                          max_rank=None):
+                          max_rank=None,
+                          rng=0):
 
     """
     Compute the SVD of a matrix using `partial_svd`.
@@ -189,6 +190,10 @@ def compute_iterative_svd(transform,
         Largest rank considered. Defaults to
         ``2 * min(transform.output_shape[0], transform.input_shape[0])``.
         An exception is raised if algorithm exceeds given value.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random starting vectors, passed to
+        `np.random.default_rng`. The default is a fixed seed, so that
+        results are reproducible.
 
     Returns
     -------
@@ -198,8 +203,8 @@ def compute_iterative_svd(transform,
     Examples
     --------
     >>> import regreg.api as rr
-    >>> np.random.seed(0)
-    >>> X = np.random.standard_normal((100, 200))
+    >>> rng = np.random.default_rng(0)
+    >>> X = rng.standard_normal((100, 200))
     >>> U, D, VT = rr.compute_iterative_svd(X)[:3]
     >>> np.linalg.norm(np.dot(U.T, U) - np.identity(100)) < 1.e-6
     True
@@ -232,6 +237,7 @@ def compute_iterative_svd(transform,
     else:
         U = None
 
+    rng = np.random.default_rng(rng)
     min_so_far = 1.
     D = [min_so_far]
     while D[-1] >= min_singular * np.max(D):
@@ -240,7 +246,8 @@ def compute_iterative_svd(transform,
         U, D, VT = partial_svd(transform, rank=rank, 
                                padding=padding, tol=tol, 
                                warm_start=U,
-                               return_full=True, debug=debug)
+                               return_full=True, debug=debug,
+                               rng=rng)
         if debug:
             print("Singular values", D)
         if len(D) < rank:
@@ -277,7 +284,8 @@ def partial_svd(transform,
                 warm_start=None,
                 return_full=False,
                 debug=False,
-                stopping_rule=None):
+                stopping_rule=None,
+                rng=0):
 
     """
     Compute partial SVD of the linear transform `transform`.
@@ -310,6 +318,10 @@ def partial_svd(transform,
         Print debugging statements.
     stopping_rule : None or callable, optional
         Function of the singular values used to determine whether to stop.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random starting vectors, passed to
+        `np.random.default_rng`. The default is a fixed seed, so that
+        results are reproducible.
 
     Returns
     -------
@@ -320,8 +332,8 @@ def partial_svd(transform,
     Examples
     --------
     >>> from regreg.affine.factored_matrix import partial_svd
-    >>> np.random.seed(0)
-    >>> X = np.random.standard_normal((100, 200))
+    >>> rng = np.random.default_rng(0)
+    >>> X = rng.standard_normal((100, 200))
     >>> U, D, VT = partial_svd(X, rank=10)[:3]
     >>> assert(np.linalg.norm(np.dot(U.T, U) - np.identity(10)) < 1.e-4)
     >>> assert(np.linalg.norm(np.dot(VT, VT.T) - np.identity(10)) < 1.e-4)
@@ -336,17 +348,18 @@ def partial_svd(transform,
     n = np.prod(transform.output_shape)
     p = np.prod(transform.input_shape)
 
+    rng = np.random.default_rng(rng)
     rank = int(np.min([rank,p]))
     q = np.min([rank + padding, p])
     if warm_start is not None:
         if warm_start.shape == (n,q):
             U = warm_start
         elif len(warm_start.shape) == 1:
-            U = np.hstack([warm_start.reshape((warm_start.shape[0],1)), np.random.standard_normal((n,q-1))])            
+            U = np.hstack([warm_start.reshape((warm_start.shape[0],1)), rng.standard_normal((n,q-1))])            
         else:
-            U = np.hstack([warm_start, np.random.standard_normal((n,q-warm_start.shape[1]))])            
+            U = np.hstack([warm_start, rng.standard_normal((n,q-warm_start.shape[1]))])            
     else:
-        U = np.random.standard_normal((n,q))
+        U = rng.standard_normal((n,q))
 
     if return_full:
         ind = np.arange(q)
@@ -409,6 +422,10 @@ class nuclear_norm(nuclear_norm_atom):
     warm_start : ndarray, optional
         Warm start for the singular vectors, of shape
         ``(max(shape), initial_rank)``.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random warm start, if `warm_start` is None, passed to
+        `np.random.default_rng`. The default is a fixed seed, so that
+        results are reproducible.
     """
     prox_tol = 1.0e-5
     svd_tol = 1.e-5
@@ -417,7 +434,8 @@ class nuclear_norm(nuclear_norm_atom):
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
                  initial_rank=10,
-                 warm_start=None):
+                 warm_start=None,
+                 rng=0):
 
         nuclear_norm_atom.__init__(self,
                                    shape,
@@ -432,7 +450,7 @@ class nuclear_norm(nuclear_norm_atom):
         # dimension
         m = max(self.shape)
         if warm_start is None:
-            self.warm_start = np.random.standard_normal((m, self.initial_rank))
+            self.warm_start = np.random.default_rng(rng).standard_normal((m, self.initial_rank))
         else:
             self.warm_start = warm_start
             if warm_start.shape != (m, self.initial_rank):
@@ -555,6 +573,10 @@ class operator_norm(operator_norm_atom):
     warm_start : ndarray, optional
         Warm start for the singular vectors, of shape
         ``(shape[0], initial_rank)``.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the random warm start, if `warm_start` is None, passed to
+        `np.random.default_rng`. The default is a fixed seed, so that
+        results are reproducible.
     """
     prox_tol = 1.0e-5
     svd_tol = 1.e-4
@@ -562,7 +584,7 @@ class operator_norm(operator_norm_atom):
 
     def __init__(self, shape, lagrange=None, bound=None,
                  offset=None, quadratic=None, initial=None,
-                 initial_rank=10, warm_start=None):
+                 initial_rank=10, warm_start=None, rng=0):
 
         operator_norm_atom.__init__(self,
                                     shape,
@@ -574,7 +596,7 @@ class operator_norm(operator_norm_atom):
 
         self.initial_rank = initial_rank
         if warm_start is None:
-            self.warm_start = np.random.standard_normal((self.shape[0], self.initial_rank))
+            self.warm_start = np.random.default_rng(rng).standard_normal((self.shape[0], self.initial_rank))
         else:
             self.warm_start = warm_start
             if warm_start.shape != (self.shape[0], self.initial_rank):

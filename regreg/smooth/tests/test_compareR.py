@@ -15,9 +15,7 @@ except ImportError:
     rpy2_available = False
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test(10)
 @pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_gaussian():
 
@@ -33,7 +31,6 @@ def test_gaussian():
 
     np.testing.assert_allclose(C, soln)
 
-@set_seed_for_test(10)
 @pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_logistic():
 
@@ -51,7 +48,6 @@ def test_logistic():
 
     np.testing.assert_allclose(C, soln, atol=1.e-5, rtol=1.e-5)
 
-@set_seed_for_test(10)
 @pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_poisson():
 
@@ -69,7 +65,6 @@ def test_poisson():
     # https://nipy.bic.berkeley.edu/builders/regreg-py2.6/builds/30/steps/shell_6/logs/stdio
     np.testing.assert_allclose(C, soln, atol=1.e-5, rtol=1.e-5)
 
-@set_seed_for_test(10)
 @pytest.mark.skipif(not rpy2_available, reason="rpy2 not available, skipping test")
 def test_coxph():
 

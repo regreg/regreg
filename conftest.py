@@ -4,9 +4,11 @@ Provides:
 
 * ``--runslow`` command line option; tests marked ``@pytest.mark.slow``
   are skipped unless it is given.
-* ``--seed`` option and an autouse fixture that seeds numpy's global
-  RNG before every test (restoring the previous state afterwards), plus
-  an ``rng`` fixture returning a seeded ``np.random.Generator``.
+* ``--seed`` option and an ``rng`` fixture returning a seeded
+  ``np.random.Generator``. Tests draw random numbers from their own
+  ``np.random.default_rng`` generators, never from numpy's global RNG.
+  (Fixtures defined here do not reach the tests when they are run from
+  the installed package, as in CI, so tests should not rely on them.)
 * automatic skipping of tests marked ``rpy2`` (comparisons with R) when
   ``rpy2`` or a working R installation is unavailable.
 * ``collect_ignore`` for sandbox directories.
@@ -30,7 +32,7 @@ def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true", default=False,
                      help="run tests marked as slow")
     parser.addoption("--seed", action="store", type=int, default=0,
-                     help="seed for numpy's global RNG, set before each test")
+                     help="seed for the rng fixture")
 
 
 @functools.lru_cache(maxsize=None)
@@ -54,22 +56,6 @@ def pytest_collection_modifyitems(config, items):
             ok, reason = _have_rpy2()
             if not ok:
                 item.add_marker(pytest.mark.skip(reason=reason))
-
-
-@pytest.fixture(autouse=True)
-def _seed_numpy(request):
-    """Seed numpy's legacy global RNG for every test, restoring state after.
-
-    Tests that need a specific seed can still use the
-    ``regreg.tests.decorators.set_seed_for_test`` decorator, which is
-    applied inside this fixture and therefore takes precedence.
-    """
-    state = np.random.get_state()
-    np.random.seed(request.config.getoption("--seed"))
-    try:
-        yield
-    finally:
-        np.random.set_state(state)
 
 
 @pytest.fixture

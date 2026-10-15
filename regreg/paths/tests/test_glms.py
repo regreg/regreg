@@ -1,19 +1,18 @@
 import numpy as np
 
 from .. import lasso, warm_start
-from ...tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_gaussian(n=200,p=50):
     '''
     run a basic path algorithm
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(3100)
+    X = rng.standard_normal((n,p))
+    Y = rng.standard_normal(n)
     betaX = np.zeros(p)
     betaX[:3] = [3,4,5]
-    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+    Y += np.dot(X, betaX) + rng.standard_normal(n)
 
     lasso1 = lasso.gaussian(X, Y, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
@@ -26,17 +25,17 @@ def test_gaussian(n=200,p=50):
                       inner_tol=1.e-5)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_huber(n=200,p=50):
     '''
     run a basic path algorithm
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.standard_normal(n)
+    rng = np.random.default_rng(3101)
+    X = rng.standard_normal((n,p))
+    Y = rng.standard_normal(n)
     betaX = np.zeros(p)
     betaX[:3] = [3,4,5]
-    Y += np.dot(X, betaX) + np.random.standard_normal(n)
+    Y += np.dot(X, betaX) + rng.standard_normal(n)
 
     lasso1 = lasso.huber(X, Y, 0.1, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
@@ -49,14 +48,14 @@ def test_huber(n=200,p=50):
                       inner_tol=1.e-5)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_logistic(n=200,p=50):
     '''
     run a basic path algorithm
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.binomial(1, 0.5, size=(n,))
+    rng = np.random.default_rng(3102)
+    X = rng.standard_normal((n,p))
+    Y = rng.binomial(1, 0.5, size=(n,))
 
     lasso1 = lasso.logistic(X, Y, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
@@ -69,14 +68,14 @@ def test_logistic(n=200,p=50):
                       inner_tol=1.e-5)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_huber_svm(n=200,p=50):
     '''
     run a basic path algorithm
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.binomial(1, 0.5, size=(n,))
+    rng = np.random.default_rng(3103)
+    X = rng.standard_normal((n,p))
+    Y = rng.binomial(1, 0.5, size=(n,))
 
     lasso1 = lasso.huber_svm(X, Y, 0.1, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
@@ -89,14 +88,14 @@ def test_huber_svm(n=200,p=50):
                       inner_tol=1.e-5)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_poisson(n=200,p=50):
     '''
     run a basic path algorithm
 
     '''
-    X = np.random.standard_normal((n,p))
-    Y = np.random.poisson(5, size=(n,))
+    rng = np.random.default_rng(3104)
+    X = rng.standard_normal((n,p))
+    Y = rng.poisson(5, size=(n,))
 
     lasso1 = lasso.poisson(X, Y, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
@@ -109,15 +108,15 @@ def test_poisson(n=200,p=50):
                       inner_tol=1.e-5)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_cox(n=200,p=50):
     '''
     run a basic path algorithm
 
     '''
-    X = np.random.standard_normal((n,p))
-    T = np.random.exponential(5, size=(n,))
-    C = np.random.binomial(1, 0.5, size=(n,))
+    rng = np.random.default_rng(3105)
+    X = rng.standard_normal((n,p))
+    T = rng.exponential(5, size=(n,))
+    C = rng.binomial(1, 0.5, size=(n,))
     lasso1 = lasso.cox(X, T, C, np.ones(X.shape[1]))
     lagrange_sequence = lasso.default_lagrange_sequence(lasso1.penalty,
                                                         lasso1.grad_solution,

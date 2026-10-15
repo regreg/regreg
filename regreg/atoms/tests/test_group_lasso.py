@@ -11,7 +11,6 @@ import regreg.api as rr
 
 from .test_seminorms import Solver, all_close, SolverFactory, run_checks, check_lagrange_bound_duality
 from .test_cones import ConeSolverFactory
-from regreg.tests.decorators import set_seed_for_test
 
 class GroupSolverFactory(SolverFactory):
 
@@ -45,12 +44,12 @@ class GroupSolverFactory(SolverFactory):
                 atom = self.klass(groups, w, bound=self.bound)
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0,0,self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -78,12 +77,12 @@ class GroupConeSolverFactory(ConeSolverFactory):
             atom = self.klass(groups, w)
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0,0,self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -92,7 +91,6 @@ class GroupConeSolverFactory(ConeSolverFactory):
 
 @pytest.mark.slow
 @pytest.mark.parametrize('klass', list(GL.conjugate_seminorm_pairs.keys()), ids=lambda k: k.__name__)
-@set_seed_for_test()
 def test_proximal_maps(klass):
     factory = GroupSolverFactory(klass, 'lagrange')
     for solver in factory:
@@ -105,7 +103,6 @@ def test_proximal_maps(klass):
 
 @pytest.mark.slow
 @pytest.mark.parametrize('klass', list(GL.conjugate_cone_pairs.keys()), ids=lambda k: k.__name__)
-@set_seed_for_test()
 def test_proximal_maps_cones(klass):
     factory = GroupConeSolverFactory(klass)
     for solver in factory:

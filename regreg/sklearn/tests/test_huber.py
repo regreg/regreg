@@ -10,15 +10,14 @@ except ImportError:
     have_sklearn = False
 
 from ...api import l1norm
-from ...tests.decorators import set_seed_for_test
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_regression_huber():
 
+    rng = np.random.default_rng(5300)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
 
     atom = l1norm
     atom_args = {'shape': p,
@@ -35,7 +34,7 @@ def test_regression_huber():
 
     huber_lasso_offset = huber(0.5, atom, atom_args,
                                offset=True)
-    y_offset = np.array([y, np.random.standard_normal(n)]).T
+    y_offset = np.array([y, rng.standard_normal(n)]).T
     huber_lasso_offset.fit(X, y_offset)
 
     huber_lasso_weights = huber(0.5, atom, atom_args,
