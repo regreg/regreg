@@ -405,3 +405,22 @@ class Solver(object):
                       ]:
             for t in group():
                 yield t
+
+def test_positive_part_constraints_accept_boundary():
+    # constrained_max and constrained_positive_part treated exact zeros as
+    # infeasible (arg < +tol), and constrained_positive_part /
+    # max_positive_part used >= bound, so their own bound_prox output (and,
+    # with bound=0, every point) was reported infeasible
+    a = S.constrained_max(3, bound=1.)
+    assert a.constraint(np.array([0., .5, .5])) == 0
+    assert a.constraint(np.array([-1., .5, .5])) == np.inf
+    assert a.constraint(a.bound_prox(np.array([-1., .5, .7]))) == 0
+    assert a.seminorm(np.zeros(3), lagrange=1., check_feasibility=True) == 0
+
+    b = S.constrained_positive_part(3, bound=1.)
+    assert b.constraint(b.bound_prox(np.array([-1., .5, 2.]))) == 0
+    assert b.seminorm(np.zeros(3), lagrange=1., check_feasibility=True) == 0
+
+    m = S.max_positive_part(5, bound=0.)
+    assert m.constraint(m.bound_prox(np.array([1., -1, 2, 0, 3]))) == 0
+    assert m.constraint(np.array([1., 0, 0, 0, 0])) == np.inf
