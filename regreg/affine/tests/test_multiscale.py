@@ -4,7 +4,6 @@ import pytest
 from regreg.affine.multiscale import multiscale, choose_tuning_parameter
 import regreg.api as rr
 import regreg.affine as ra
-from regreg.tests.decorators import set_seed_for_test
 
 INTERACTIVE = False
 
@@ -27,13 +26,13 @@ def _multiscale_matrix(p, minsize=None):
     A -= np.mean(A, 1)[:,None]
     return A
 
-@set_seed_for_test()
 def test_multiscale():
 
     M = _multiscale_matrix(200)
     Mtrans = multiscale(200)
-    V = np.random.standard_normal(M.shape[1])
-    W = np.random.standard_normal(M.shape[0])
+    rng = np.random.default_rng(0)
+    V = rng.standard_normal(M.shape[1])
+    W = rng.standard_normal(M.shape[0])
 
     np.testing.assert_allclose(np.dot(M, V), Mtrans.linear_map(V))
     np.testing.assert_allclose(np.dot(M.T, W), Mtrans.adjoint_map(W))
@@ -50,7 +49,6 @@ def test_multiscale():
     Mtrans.affine_map(V)
     Mtrans.adjoint_map(W)
 
-@set_seed_for_test()
 def test_changepoint():
 
     p = 150
@@ -58,7 +56,8 @@ def test_changepoint():
     M.minsize = 10
     X = ra.adjoint(M)
 
-    Y = np.random.standard_normal(p)
+    rng = np.random.default_rng(1)
+    Y = rng.standard_normal(p)
     Y[20:50] += 8
     Y += 2
     meanY = Y.mean()
@@ -77,7 +76,6 @@ def test_changepoint():
         plt.plot(np.arange(p), Yhat)
         plt.show()
 
-@set_seed_for_test()
 def test_changepoint_scaled():
 
     p = 150
@@ -85,7 +83,8 @@ def test_changepoint_scaled():
     M.minsize = 10
     X = ra.adjoint(M)
 
-    Y = np.random.standard_normal(p)
+    rng = np.random.default_rng(2)
+    Y = rng.standard_normal(p)
     Y[20:50] += 8
     Y += 2
     meanY = Y.mean()
@@ -108,11 +107,12 @@ def test_choose_parameter(delta=2, p=60):
 
     signal = np.zeros(p)
     signal[(p//2):] += delta
-    Z = np.random.standard_normal(p) + signal
+    rng = np.random.default_rng(3)
+    Z = rng.standard_normal(p) + signal
     p = Z.shape[0]
     M = multiscale(p)
     M.scaling = np.sqrt(M.sizes)
-    lam = choose_tuning_parameter(M)
+    lam = choose_tuning_parameter(M, rng=rng)
     weights = (lam + np.sqrt(2 * np.log(p / M.sizes))) / np.sqrt(p)
 
     Z0 = Z - Z.mean()
@@ -142,8 +142,8 @@ def test_SMUCE_stat_sigma():
     T3, _ = SMUCE_stat(M, Z, sigma=2 * np.std(Z))
     assert T3 < T1
 
-    np.random.seed(0)
-    v1 = choose_tuning_parameter(M, ndraw=20, sigma=1.)
-    np.random.seed(0)
-    v2 = choose_tuning_parameter(M, ndraw=20, sigma=2.)
+    v1 = choose_tuning_parameter(M, ndraw=20, sigma=1., rng=np.random.default_rng(0))
+    v2 = choose_tuning_parameter(M, ndraw=20, sigma=2., rng=np.random.default_rng(0))
     assert v2 < v1
+    # the same seed gives the same draws
+    assert v1 == choose_tuning_parameter(M, ndraw=20, sigma=1., rng=0)

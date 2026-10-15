@@ -244,7 +244,7 @@ def SMUCE_stat(M, Z, sigma=None):
     idx = np.argmax(T)
     return T[idx], M.slices[idx]
 
-def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
+def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None, rng=None):
     """
     Choose tuning parameter by Monte Carlo.
 
@@ -261,6 +261,9 @@ def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
         Which quantile of Monte Carlo draws to choose.
     sigma : float, optional
         Noise level passed to `SMUCE_stat`.
+    rng : int or `np.random.Generator`, optional
+        Seed or generator for the Monte Carlo draws, passed to
+        `np.random.default_rng`.
 
     Returns
     -------
@@ -272,10 +275,11 @@ def choose_tuning_parameter(M, ndraw=100, quantile=0.95, sigma=None):
     -----
     M's scaling is ignored, even if not None.
     """
+    rng = np.random.default_rng(rng)
     V = []
     p = M.input_shape[0]
     for i in range(ndraw):
-        Z = np.random.standard_normal(p)
+        Z = rng.standard_normal(p)
         V.append(SMUCE_stat(M, Z, sigma=sigma)[0])
     return np.percentile(V, 100*quantile)
 
