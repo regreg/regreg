@@ -1094,7 +1094,7 @@ class constrained_max(seminorm):
         lagrange = seminorm.seminorm(self, arg, 
                                  check_feasibility=check_feasibility, 
                                  lagrange=lagrange)
-        anyneg = np.any(arg < 0 + self.tol)
+        anyneg = np.any(arg < -self.tol)
         v = lagrange * np.max(arg)
         if not anyneg or not check_feasibility:
             return v
@@ -1103,7 +1103,7 @@ class constrained_max(seminorm):
     @doc_template_user
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
-        anyneg = np.any(arg < 0 + self.tol)
+        anyneg = np.any(arg < -self.tol)
         inside = np.max(arg) <= bound * (1 + self.tol)
         if inside and not anyneg:
             return 0
@@ -1174,7 +1174,7 @@ class constrained_positive_part(seminorm):
         lagrange = seminorm.seminorm(self, arg, 
                                  check_feasibility=check_feasibility, 
                                  lagrange=lagrange)
-        anyneg = np.any(arg < 0 + self.tol)
+        anyneg = np.any(arg < -self.tol)
         v = np.maximum(arg, 0).sum()
         if not anyneg or not check_feasibility:
             return v * lagrange
@@ -1184,7 +1184,7 @@ class constrained_positive_part(seminorm):
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
         value = self.seminorm(arg, lagrange=1, check_feasibility=True)
-        if value >= bound * (1 + self.tol):
+        if value > bound * (1 + self.tol):
             return np.inf
         return 0
 
@@ -1263,7 +1263,7 @@ class max_positive_part(seminorm):
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
         v = np.max(np.maximum(arg,0))
-        if v >= bound * (1 + self.tol):
+        if v > bound * (1 + self.tol):
             return np.inf
         return 0
 
