@@ -236,9 +236,9 @@ def gengrad(simple_problem, lipschitz, tol=1.0e-8, max_its=1000, debug=False,
     return coef
 
 def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
-          tol=1.e-06, max_iters=100,
+          tol=1.e-10, max_iters=100,
           min_iters=5, 
-          coef_tol=1.e-6,
+          coef_tol=1.e-8,
           initial_primal=None,
           initial_dual=None,
           coef_stop=False,
@@ -261,12 +261,16 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
     conjugate_atom : `regreg.atoms.atom`
         An atom that will be smoothed, by adding a quadratic to its
         conjugate.
-    epsilon : ndarray, optional
-        A decreasing array of positive constants for Moreau-Yosida
-        smoothing.
+    epsilon : sequence of float, optional
+        Smoothing parameters, one per outer iteration (so at most
+        ``len(epsilon)`` outer iterations are run). A constant sequence is
+        fine: each outer iteration moves the center of the smoothing term,
+        and the iterates converge to a solution of the unsmoothed problem.
     tol : float, optional
-        Tolerance to which each problem is solved is
-        ``max(tol, epsilon)``.
+        Tolerance (relative change in objective) to which each smoothed
+        problem is solved, passed to `simple_problem.solve`. It does not
+        depend on `epsilon`: the smoothing parameter changes how many
+        iterations are needed, not the accuracy of the solution.
     max_iters : int, optional
         Maximum number of iterations. If epsilon is not supplied,
         it is taken to be ``[1]*max_iters``.
@@ -292,58 +296,75 @@ def nesta(smooth_atom, proximal_atom, conjugate_atom, epsilon=None,
         Dual coefficients.
     '''
     if epsilon is None:
-        epsilon = [1]*max_iters # 2.**(-np.arange(20))
+        epsilon = [1]*max_iters
 
     transform, conjugate = conjugate_atom.dual
     if initial_dual is None:
         dual_coef = np.zeros(transform.output_shape) 
     else:
-        dual_coef = initial_dual.copy()
+        dual_coef = np.array(initial_dual, float)
 
     if quadratic is None:
         quadratic = identity_quadratic(0,0,0,0)
 
-    primal_old = np.zeros(transform.output_shape)
+    primal_coef = None
+    new_dual = dual_coef.copy()
     value = np.inf
     for idx, eps in enumerate(epsilon):
+
+        # Smooth h = conjugate_atom by adding (eps/2) ||u - dual_coef||^2 to
+        # its conjugate: h_eps(Dv) = sup_u u^T Dv - h^*(u) - eps/2 ||u - dual_coef||^2.
+        # Its gradient (the maximizing u) is the new multiplier estimate.
         smoothed = conjugate_atom.smoothed(identity_quadratic(eps, dual_coef, 0, 0))
         if smooth_atom is not None:
             final_smooth = smooth_sum([smooth_atom, smoothed])
         else:
             final_smooth = smoothed
+
         if proximal_atom is not None:
             problem = simple_problem(final_smooth, proximal_atom)
         else:
             problem = simple_problem.smooth(final_smooth)
 
-        if idx == 0 and initial_primal is not None:
+        # warm start from the previous primal solution; the problem shares
+        # its coefficients with `proximal_atom`, so always set them, rather
+        # than starting from whatever the atom holds
+        if primal_coef is not None:
+            problem.coefs[:] = primal_coef
+        elif initial_primal is not None:
             problem.coefs[:] = initial_primal
+        else:
+            problem.coefs[:] = 0
 
-        primal_coef = problem.solve(quadratic,tol=max(eps,tol))
+        # each subproblem is solved to `tol`, independently of `eps`
+        primal_coef = problem.solve(quadratic, tol=tol).copy()
         updated = problem.objective(primal_coef) + quadratic.objective(primal_coef, 'func')
 
-        # should we have a better convergence criterion?
+        # the multiplier at the solution
+        smoothed.smooth_objective(primal_coef, 'grad')
+        new_dual = np.array(smoothed.grad, float).reshape(dual_coef.shape)
+
         if coef_stop:
-            if (np.linalg.norm(dual_coef - smoothed.grad) < coef_tol * (np.linalg.norm(smoothed.grad) + 1)
-                and idx >= min_iters):
-                break
+            converged = (np.linalg.norm(new_dual - dual_coef) < 
+                         coef_tol * (np.linalg.norm(new_dual) + 1))
         else:
-            if (np.fabs(updated - value) < coef_tol * (np.fabs(updated) + 1) and
-                idx >= min_iters):
-                break
+            converged = np.fabs(updated - value) < coef_tol * (np.fabs(updated) + 1)
         value = updated
 
-        # when there's an affine transform involved
-        dual_coef[:] = smoothed.grad + idx / (idx + 3.) * (smoothed.grad - dual_coef)
-        if idx == max_iters-1:
-            warnings.warn('problem not solved after %d iterations' % max_iters)
+        # accelerated update of the center of the smoothing
+        dual_coef = new_dual + idx / (idx + 3.) * (new_dual - dual_coef)
 
-    return primal_coef, dual_coef
+        if converged and idx >= min_iters:
+            break
+    else:
+        warnings.warn('problem not solved after %d iterations' % len(epsilon))
+
+    return primal_coef, new_dual
 
 def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
-          tol=1.e-06,
+          tol=1.e-10,
           max_iters=100,
-          coef_tol=1.e-6,
+          coef_tol=1.e-8,
           quadratic=None):
     r'''
     Solve a problem with a TFOCS-style smoothed dual method.
@@ -371,12 +392,16 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
         The affine transform :math:`v \mapsto Dv+a` for the composition.
     dual_proximal_atom : `regreg.atoms.atom`
         The atom :math:`h^*`, which must have a proximal method.
-    epsilon : ndarray, optional
-        A decreasing array of positive constants for Moreau-Yosida
-        smoothing.
+    epsilon : sequence of float, optional
+        Smoothing parameters, one per outer iteration (so at most
+        ``len(epsilon)`` outer iterations are run). A constant sequence is
+        fine: each outer iteration moves the center of the smoothing term,
+        and the iterates converge to a solution of the unsmoothed problem.
     tol : float, optional
-        Tolerance to which each problem is solved is
-        ``max(tol, epsilon)``.
+        Tolerance (relative change in objective) to which each smoothed
+        problem is solved, passed to `simple_problem.solve`. It does not
+        depend on `epsilon`: the smoothing parameter changes how many
+        iterations are needed, not the accuracy of the solution.
     max_iters : int, optional
         Maximum number of iterations. If epsilon is not supplied,
         it is taken to be ``[1]*max_iters``.
@@ -432,37 +457,51 @@ def tfocs(primal_atom, transform, dual_proximal_atom, epsilon=None,
     '''
     transform = astransform(transform)
 
-    #conjugate_atom needs a conjugate so it can be smoothed
-
+    # Adding (eps/2) ||v - primal_center||^2 to f makes the dual smooth: the
+    # smoothed conjugate f_eps^* of `primal_atom` has gradient (the primal
+    # minimizer) Lipschitz with constant 1/eps.
     conjugate_atom = primal_atom.conjugate
 
     if epsilon is None:
-        epsilon = [1]*max_iters # 2.**(-np.arange(20))
+        epsilon = [1]*max_iters
 
     offset = transform.affine_offset
     if offset is not None:
         dual_sq = identity_quadratic(0,0,-offset, 0)
     else:
         dual_sq = identity_quadratic(0,0,0,0)
-        
+
     if quadratic is None:
         quadratic = identity_quadratic(0,0,0,0)
 
-    primal_coef = np.zeros(conjugate_atom.shape)
+    primal_center = np.zeros(conjugate_atom.shape)
+    primal_coef = primal_center.copy()
+    dual_coef = None
     for idx, eps in enumerate(epsilon):
-        smoothed = conjugate_atom.smoothed(identity_quadratic(eps, primal_coef, 0, 0) + quadratic)
+        smoothed = conjugate_atom.smoothed(identity_quadratic(eps, primal_center, 0, 0) + quadratic)
         final_smooth = affine_smooth(smoothed, scalar_multiply(adjoint(transform), -1))
         problem = simple_problem(final_smooth, dual_proximal_atom)
-        dual_coef = problem.solve(dual_sq, tol=max(eps,tol))
 
-        # should we have a better convergence criterion?
-        if (np.linalg.norm(primal_coef - final_smooth.grad) < 
-            coef_tol * max(np.linalg.norm(final_smooth.grad),1)):
+        # warm start from the previous dual solution; the problem shares its
+        # coefficients with `dual_proximal_atom`, so always set them
+        problem.coefs[:] = 0 if dual_coef is None else dual_coef
+
+        # each smoothed dual problem is solved to `tol`, independently of `eps`
+        dual_coef = problem.solve(dual_sq, tol=tol).copy()
+
+        # the primal solution of the smoothed problem: the gradient of the
+        # smoothed conjugate at -D^T u
+        primal_old, primal_coef = primal_coef, np.array(
+            smoothed.smooth_objective(final_smooth.affine_transform.affine_map(dual_coef), 'grad'),
+            float).reshape(primal_center.shape)
+
+        if (idx > 0 and np.linalg.norm(primal_coef - primal_old) <
+            coef_tol * max(np.linalg.norm(primal_coef), 1)):
             break
 
-        # when there's an affine transform involved
-        primal_coef[:] = final_smooth.grad + idx / (idx + 3.) * (final_smooth.grad - primal_coef)
-        if idx == max_iters-1:
-            warnings.warn('problem not solved after %d iterations' % max_iters)
-    
+        # accelerated update of the center of the proximity term
+        primal_center = primal_coef + idx / (idx + 3.) * (primal_coef - primal_old)
+    else:
+        warnings.warn('problem not solved after %d iterations' % len(epsilon))
+
     return primal_coef, dual_coef
