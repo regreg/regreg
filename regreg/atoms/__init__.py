@@ -176,12 +176,18 @@ class affine_atom(object):
         # always linear
         #
         # the atom's offset is its center, i.e. it is evaluated at
-        # ``x - offset``, so the transform's offset is subtracted
-        if atransform.affine_offset is not None:
+        # ``x - offset``, so the transform's offset is subtracted.
+        #
+        # The offset is computed from the map itself, as affine_map(0): the
+        # `affine_offset` attribute leaves out the offsets of nested
+        # transforms (an affine_transform built from an affine transform, or
+        # a linear_transform wrapping one)
+        offset = np.asarray(atransform.affine_map(np.zeros(atransform.input_shape)), float)
+        if np.any(offset != 0):
             if self.atom.offset is not None:
-                self.atom.offset = self.atom.offset - atransform.affine_offset
+                self.atom.offset = self.atom.offset - offset
             else:
-                self.atom.offset = -atransform.affine_offset
+                self.atom.offset = -offset
             if getattr(atransform, 'linear_operator', None) is not None:
                 ltransform = linear_transform(atransform.linear_operator,
                                               diag=atransform.diagD)

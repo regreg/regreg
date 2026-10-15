@@ -197,6 +197,7 @@ class FISTA(algorithm):
                 if coef_stop:
                     if coef_rel_change < tol:
                         self.working_coefs = proposed_coefs
+                        self._accept_if_better(proposed_coefs, proposed_obj, working_obj)
                         if self.debug:
                             print("Success: Optimization stopped because "
                                   "change in coefficients was below tolerance")
@@ -204,6 +205,7 @@ class FISTA(algorithm):
                 else:
                     if obj_rel_change < tol or obj_change < tol:
                         self.working_coefs = proposed_coefs
+                        self._accept_if_better(proposed_coefs, proposed_obj, working_obj)
                         if self.debug:
                             print('Success: Optimization stopped because '
                                   'decrease in objective was below tolerance')
@@ -246,6 +248,12 @@ class FISTA(algorithm):
             print("FISTA used", itercount, "of", max_its, "iterations")
         if return_objective_hist:
             return objective_hist[:itercount]
+
+    def _accept_if_better(self, proposed_coefs, proposed_obj, working_obj):
+        # on convergence, keep the final proximal step (the solution
+        # returned used to be the previous iterate) unless it is worse
+        if proposed_obj <= working_obj:
+            self.composite.coefs = proposed_coefs
 
     def update_working_coefs(self, proposed_coefs):
         """

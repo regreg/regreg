@@ -150,7 +150,7 @@ class trend_filter_inverse(affine_transform):
         if x.ndim == 2:
             # assuming m is the first axis
             x = x - x.mean(0)[np.newaxis,:]
-            C = np.cumsum(x[1:][::-1], 1)[::-1]
+            C = np.cumsum(x[1:][::-1], 0)[::-1]
             return C * self.steps[:,np.newaxis]
 
 

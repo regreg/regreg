@@ -148,8 +148,13 @@ class container(composite):
                 prox_defaults.update(prox_control)
             prox_control = prox_defaults
 
+            # the problem solved is the total quadratic (the proximal
+            # quadratic plus the container's own and the smooth atoms'
+            # quadratics) plus the atoms; the primal is rebuilt from the same
+            # total quadratic below
+            totalq = proxq + self.quadratic + self.smoothq
             primal_objective = zero_nonsmooth(transform.input_shape)
-            primal_objective.quadratic = proxq + self.quadratic + self.smoothq
+            primal_objective.quadratic = totalq
             dual_objective = primal_objective.conjugate
             dualp = dual_problem(dual_objective,
                                  transform,
@@ -169,19 +174,18 @@ class container(composite):
 
             if dualopt.perform_backtrack:
                 #If backtracking set start_step
-                prox_control['start_step'] = proxq.coef / self.dual_reference_lipschitz 
+                prox_control['start_step'] = totalq.coef / self.dual_reference_lipschitz 
 
             # the lipschitz estimate comes from the
             # fact that the conjugate of a quadratic
             # with coef lipschitz is quadratic with coef 1/lipschitz
 
-            dualp.lipschitz = self.dual_reference_lipschitz / proxq.coef
+            dualp.lipschitz = self.dual_reference_lipschitz / totalq.coef
 
             if hasattr(self, 'dual_minimizer'):
                 dualopt.composite.coefs[:] = self.dual_minimizer
             history = dualopt.fit(**prox_control)
-            dual_minimizer = dualopt.composite.coefs
-            lipschitz, x, grad = proxq.coef, proxq.center, proxq.linear_term
+            lipschitz, x, grad = totalq.coef, totalq.center, totalq.linear_term
             if prox_control['return_objective_hist']:
                 return x - grad / lipschitz - transform.adjoint_map(dualopt.composite.coefs/lipschitz), history
             else:

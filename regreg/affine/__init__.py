@@ -52,6 +52,9 @@ class affine_transform(object):
     ``adjoint_map``, ``affine_offset``, ``input_shape``, ``output_shape``).
     """
     
+    # subclasses that never set it are linear
+    affine_offset = None
+
     def __init__(self, linear_operator, affine_offset, diag=False, input_shape=None):
         """
         Create affine transform.
@@ -98,12 +101,14 @@ class affine_transform(object):
             self.output_shape = affine_offset.shape
         else:
             self.noneD = False
-            self.sparseD = sparse.isspmatrix(self.linear_operator)
-            self.sparseD_csr = sparse.isspmatrix_csr(self.linear_operator)
+            # sparse.issparse covers both scipy sparse matrices and sparse
+            # arrays (csr_array, ...)
+            self.sparseD = sparse.issparse(self.linear_operator)
+            self.sparseD_csr = self.sparseD and self.linear_operator.format == 'csr'
             if self.sparseD and not self.sparseD_csr:
                 warnings.warn("Linear operator matrix is sparse, but not csr_matrix. Convert to csr_matrix for faster multiplications!")
             if self.sparseD_csr:
-                self.linear_operator_T = sparse.csr_matrix(self.linear_operator.T)
+                self.linear_operator_T = self.linear_operator.T.tocsr()
 
 
             # does it support the affine_transform API
@@ -167,7 +172,8 @@ class affine_transform(object):
         elif self.affineD:
             return self.linear_operator.linear_map(x)
         elif self.sparseD:
-            return self.linear_operator * x
+            # `@`: for scipy sparse arrays `*` is elementwise
+            return self.linear_operator @ x
         elif self.diagD:
             # Deal with 1D or 2D input or linear operator
             return broadcast_first(self.linear_operator, x, mul)
@@ -279,9 +285,9 @@ class affine_transform(object):
         if self.noneD:
             return u
         if self.sparseD_csr:
-            return self.linear_operator_T * u
+            return self.linear_operator_T @ u
         if self.sparseD:
-            return self.linear_operator.T * u
+            return self.linear_operator.T @ u
         if self.diagD:
             # Deal with 1D or 2D input or linear operator
             return broadcast_first(self.linear_operator, u, mul)
@@ -371,24 +377,27 @@ class selector(linear_transform):
             self.output_shape = self.reshape
             
     def linear_map(self, x):
-        x_indexed = x[self.index_obj]
+        x_indexed = np.asarray(x)[self.index_obj]
         if self.reshape is not None:
-            x_indexed.shape = self.reshape
+            x_indexed = x_indexed.reshape(self.reshape)
         return self.affine_transform.linear_map(x_indexed)
 
     def affine_map(self, x):
-        x_indexed = x[self.index_obj]
+        x_indexed = np.asarray(x)[self.index_obj]
         if self.reshape is not None:
-            x_indexed.shape = self.reshape
+            x_indexed = x_indexed.reshape(self.reshape)
         return self.affine_transform.affine_map(x_indexed)
 
     def adjoint_map(self, u):
-        if not hasattr(self, "_output"):
-            self._output = np.zeros(self.initial_shape)
-        if self.reshape is not None:
-            u.shape = self.affine_transform.output_shape
-        self._output[self.index_obj] = self.affine_transform.adjoint_map(u)
-        return self._output
+        v = np.asarray(self.affine_transform.adjoint_map(np.asarray(u)))
+        if not hasattr(self, "_indexed_shape"):
+            self._indexed_shape = np.empty(self.initial_shape)[self.index_obj].shape
+        # a new array each time (the result is often kept by the caller), and
+        # np.add.at so that repeated indices are summed, as the adjoint of
+        # x -> x[index_obj] requires
+        output = np.zeros(self.initial_shape)
+        np.add.at(output, self.index_obj, v.reshape(self._indexed_shape))
+        return output
 
 class scaler(linear_transform):
     r"""
@@ -485,16 +494,14 @@ def normalize(transform,
     """
 
     M = transform # should be a matrix
-    sparseM = sparse.isspmatrix(M)
+    sparseM = sparse.issparse(M)
     n = M.shape[0]
 
     if center:
         if not sparseM:
             col_means = M.mean(0)
         else:
-            tmp = M.copy()
-            col_means = np.asarray(tmp.mean(0)).reshape(-1)
-            tmp.data **= 2
+            col_means = np.asarray(M.mean(0)).reshape(-1)
     else:
         col_means = np.zeros(M.shape[1])
         ddof = ddof - 1
@@ -503,6 +510,8 @@ def normalize(transform,
         if not sparseM:
             col_scales = np.sqrt((np.sum(M**2,0) - n * col_means**2) / (n - ddof)) 
         else:
+            tmp = M.copy()
+            tmp.data **= 2
             col_scales = np.asarray(np.sqrt((np.asarray(tmp.sum(0)).reshape(-1) -
                                              n * col_means**2) / (n - ddof))).reshape(-1)
         nonzero_scales = col_scales > 0
@@ -542,6 +551,8 @@ class add_intercept(affine_transform):
         self.input_shape = (self._transform.input_shape[0] + 1,) # assumes a vector input, 
         self.output_shape = self._transform.output_shape
         self.linear_operator = None
+        # affine_map adds the intercept to the transform's affine_map
+        self.affine_offset = self._transform.affine_offset
         
     def affine_map(self, x): # first coordinate is intercept
         return self._transform.affine_map(x[1:]) + x[0]
@@ -643,20 +654,20 @@ class vstack(affine_transform):
         self.affine_offset = np.empty(self.output_shape)
         x = np.zeros(self.input_shape)
         for g, t in zip(self.output_slices, self.transforms):
-            self.affine_offset[g] = t.affine_map(x)
+            self.affine_offset[g] = np.ravel(t.affine_map(x))
         if np.all(np.equal(self.affine_offset, 0)):
             self.affine_offset = None
             
     def linear_map(self, x):
         result = np.empty(self.output_shape)
         for g, t in zip(self.output_slices, self.transforms):
-            result[g] = t.linear_map(x)
+            result[g] = np.ravel(t.linear_map(x))
         return result
 
     def affine_map(self, x):
         result = np.empty(self.output_shape)
         for g, t in zip(self.output_slices, self.transforms):
-            result[g] = t.linear_map(x)
+            result[g] = np.ravel(t.linear_map(x))
         if self.affine_offset is not None:
             return result + self.affine_offset
         else:
@@ -786,7 +797,7 @@ class product(affine_transform):
         self.affine_offset = np.zeros(self.output_shape)
         for g, s, t in zip(self.output_slices, self.input_shapes,
                            self.transforms):
-            self.affine_offset[g] = t.affine_map(np.zeros(s))
+            self.affine_offset[g] = np.ravel(t.affine_map(np.zeros(s)))
         if np.all(np.equal(self.affine_offset, 0)):
             self.affine_offset = None
 
@@ -796,7 +807,7 @@ class product(affine_transform):
                                 self.input_slices, 
                                 self.transforms,
                                 self.input_shapes):
-            result[og] = t.linear_map(x[ig].reshape(s))
+            result[og] = np.ravel(t.linear_map(x[ig].reshape(s)))
         return result
 
     def affine_map(self, x):
@@ -805,7 +816,7 @@ class product(affine_transform):
                                 self.input_slices, 
                                 self.transforms,
                                 self.input_shapes):
-            result[og] = t.linear_map(x[ig].reshape(s))
+            result[og] = np.ravel(t.linear_map(x[ig].reshape(s)))
         if self.affine_offset is not None:
             return result + self.affine_offset
         else:
@@ -817,7 +828,7 @@ class product(affine_transform):
                                 self.input_slices, 
                                 self.transforms,
                                 self.input_shapes):
-            result[ig] = t.adjoint_map(u[og]).reshape(-1)
+            result[ig] = np.ravel(t.adjoint_map(u[og].reshape(t.output_shape)))
         return result
 
 
@@ -989,7 +1000,11 @@ class residual(affine_transform):
         self.transform = astransform(transform)
         self.input_shape = self.transform.input_shape
         self.output_shape = self.transform.output_shape
-        self.affine_offset = None
+        # x - (Ax + b) has offset -b
+        if self.transform.affine_offset is not None:
+            self.affine_offset = -np.asarray(self.transform.affine_offset)
+        else:
+            self.affine_offset = None
         if not self.input_shape == self.output_shape:
             raise ValueError('output and input shapes should be the same to compute residual')
 
@@ -1110,7 +1125,10 @@ class scalar_multiply(affine_transform):
     def __init__(self, atransform, scalar):
         self.input_shape, self.output_shape = (atransform.input_shape, atransform.output_shape)
         self.scalar = scalar
-        self.affine_offset = None
+        if atransform.affine_offset is not None:
+            self.affine_offset = scalar * np.asarray(atransform.affine_offset)
+        else:
+            self.affine_offset = None
         self._atransform = atransform
 
     def affine_map(self, x):
