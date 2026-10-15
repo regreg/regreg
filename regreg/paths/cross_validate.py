@@ -44,7 +44,7 @@ def cross_validate(path_obj,
         `regreg.paths.strong_rules`.
     initial_data : tuple, optional
         Pair ``(solution, grad_solution)`` to start each path. Defaults to
-        ``(path_obj.solution, path_obj.grad_solution)``.
+        the null solution and gradient of each training fold's path.
     cv : int or cross-validation splitter, optional
         Number of folds, or anything accepted by
         `sklearn.model_selection.check_cv` (a splitter object or an
@@ -86,10 +86,6 @@ def cross_validate(path_obj,
     # Loop over folds, computing path
     # for each (train, test)
 
-    if initial_data is None:
-        initial_data = (path_obj.solution,
-                        path_obj.grad_solution)
-
     def fit_fold(path_obj,
                  lagrange_seq,
                  initial_data,
@@ -97,7 +93,14 @@ def cross_validate(path_obj,
                  train,
                  inner_tol):
         train_path = path_obj.subsample(train)
-        train_path.saturated_loss.coef *= nsample / train.sum()
+        factor = nsample / train.sum()
+        train_path.saturated_loss.coef *= factor
+        if initial_data is None:
+            # start from the training fold's own null solution (the full-data
+            # one is fitted on the test fold too); its gradient was computed
+            # before the loss was rescaled
+            initial_data = (train_path.solution,
+                            train_path.grad_solution * factor)
         train_results = path_fitter(train_path, 
                                     lagrange_seq, 
                                     initial_data,
@@ -119,7 +122,9 @@ def cross_validate(path_obj,
 
     # Form the linear predictors and responses
 
-    linpred_responses = [(path_obj.linpred(result['beta'], 
+    # path fitters return a dict with key 'beta' (strong_rules, warm_start)
+    # or the array of solutions (basil)
+    linpred_responses = [(path_obj.linpred(result['beta'] if isinstance(result, dict) else result, 
                                               path_obj.X,
                                               train_test[1]),
                           response[train_test[1]])

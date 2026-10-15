@@ -25,7 +25,10 @@ if have_sklearn:
                      case_weights=False,
                      offset=False,
                      coef=1., 
-                     score_method='deviance'):
+                     score_method='deviance',
+                     quadratic=None,
+                     solve_args={},
+                     initial=None):
 
             """Initialize the estimator.
 
@@ -48,6 +51,12 @@ if have_sklearn:
             score_method : str, optional
                 Which score to use as default `score`. One of
                 ``['deviance', 'mean_deviance', 'R2']``.
+            quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+                Quadratic term to be added to the problem.
+            solve_args : dict, optional
+                Keyword arguments passed to `simple_problem.solve`.
+            initial : ndarray, optional
+                Warm start for the coefficients.
 
             Notes
             -----
@@ -69,7 +78,10 @@ if have_sklearn:
                                         case_weights=case_weights,
                                         coef=coef,
                                         offset=offset,
-                                        score_method=score_method)
+                                        score_method=score_method,
+                                        quadratic=quadratic,
+                                        solve_args=solve_args,
+                                        initial=initial)
 
         def _loglike_factory(self, X, y):
             response, case_weights_, offset_ = self._check_y_arg(y)
@@ -114,7 +126,11 @@ if have_sklearn:
                      offset=False,
                      enet_alpha=0.,
                      coef=1., 
-                     score_method='deviance'):
+                     score_method='deviance',
+                     unpenalized=False,
+                     quadratic=None,
+                     solve_args={},
+                     initial=None):
 
             """Initialize the estimator.
 
@@ -143,6 +159,15 @@ if have_sklearn:
             score_method : str, optional
                 Which score to use as default `score`. One of
                 ``['deviance', 'mean_deviance', 'R2']``.
+            unpenalized : bool, optional
+                Whether any features are unpenalized; see
+                `regreg.sklearn.base.lagrange_mixin`.
+            quadratic : `regreg.identity_quadratic.identity_quadratic`, optional
+                Quadratic term to be added to the problem.
+            solve_args : dict, optional
+                Keyword arguments passed to `simple_problem.solve`.
+            initial : ndarray, optional
+                Warm start for the coefficients.
 
             Notes
             -----
@@ -165,5 +190,9 @@ if have_sklearn:
                                                  case_weights=case_weights,
                                                  coef=coef,
                                                  offset=offset,
-                                                 score_method=score_method)
+                                                 score_method=score_method,
+                                                 unpenalized=unpenalized,
+                                                 quadratic=quadratic,
+                                                 solve_args=solve_args,
+                                                 initial=initial)
 
