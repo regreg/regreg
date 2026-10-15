@@ -15,7 +15,7 @@ import numpy as np
 from scipy import sparse
 from scipy.stats import norm as normal_dbn
 
-from . import smooth_atom, combine_case_weights, affine_smooth
+from . import _without_saturated_constant, smooth_atom, combine_case_weights, affine_smooth
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform,
@@ -223,22 +223,32 @@ class glm(smooth_atom):
         if self._is_transform:
             raise ValueError('refusing to form Hessian for arbitrary affine_transform, use an ndarray or scipy.sparse')
 
+        is_sparse = sparse.issparse(X)
+        if is_sparse:
+            X = sparse.csc_matrix(X)
+
         if not hasattr(self.saturated_loss, 'hessian'):
             if not hasattr(self.saturated_loss, 'hessian_mult'):
                 raise ValueError('loss has no hessian or hessian_mult method')
             right_mult = np.zeros(X.shape)
             for j in range(X.shape[1]):
+                X_j = X[:,j].toarray().ravel() if is_sparse else X[:,j]
                 right_mult[:,j] = self.saturated_loss.hessian_mult(linpred, 
-                                                                   X[:,j], 
+                                                                   X_j, 
                                                                    case_weights=self.case_weights)
         else:
             W = self.saturated_loss.hessian(linpred, 
                                             case_weights=self.case_weights)
-            right_mult = W[:,None] * X
-        if not sparse.issparse(X): # assuming it is an ndarray
-            return X.T.dot(right_mult)
-        else:
-            return X.T * right_mult
+            if is_sparse:
+                # for sparse X, `W[:,None] * X` is a matrix product
+                right_mult = sparse.diags(W) @ X
+            else:
+                right_mult = W[:,None] * X
+
+        H = X.T @ right_mult
+        if sparse.issparse(H):
+            H = H.toarray()
+        return np.asarray(H)
 
     def latexify(self, var=None, idx=''):
         """Return a LaTeX representation of the loss.
@@ -1000,6 +1010,8 @@ class poisson_loglike(smooth_atom):
 
         devq = identity_quadratic(0,0,0,-loss_constant)
         self.quadratic += devq
+        # remembered so that __copy__ does not add it a second time
+        self._saturated_constant = -loss_constant
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -1103,7 +1115,7 @@ class poisson_loglike(smooth_atom):
                                copy(counts),
                                coef=self.coef,
                                offset=copy(self.offset),
-                               quadratic=copy(self.quadratic),
+                               quadratic=_without_saturated_constant(self),
                                initial=copy(self.coefs),
                                case_weights=copy(self.case_weights))
 

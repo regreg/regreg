@@ -390,7 +390,10 @@ class smooth(composite):
         self.quadratic = oldq
 
         if return_optimum:
-            return self.objective(self.coefs), self.coefs
+            # the optimal value of the problem solved, which includes
+            # `quadratic` (as in `nonsmooth.solve`)
+            return (self.objective(self.coefs) +
+                    quadratic.objective(self.coefs, 'func')), self.coefs
         else:
             return self.coefs
 

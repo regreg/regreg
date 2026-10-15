@@ -11,7 +11,8 @@ from copy import copy
 import numpy as np
 from scipy import sparse
 
-from . import smooth_atom, combine_case_weights, affine_smooth
+from . import (smooth_atom, combine_case_weights, affine_smooth,
+                _without_saturated_constant)
 from ..affine import (astransform, 
                       linear_transform, 
                       affine_transform)
@@ -767,28 +768,10 @@ class multinomial_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        if sparse.issparse(counts):
-            #Convert sparse success vector to an array
-            self.counts = counts.toarray()
-        else:
-            self.counts = counts
-
-        self.J = self.counts.shape[1]
-
-        if np.min(self.counts) < 0:
-            raise ValueError("Counts vector is not non-negative")
-
-        self.trials = np.sum(self.counts, axis=1)
-
-        saturated = self.counts / (1. * self.trials[:,np.newaxis])
-        loss_terms = np.log(saturated) * self.counts
-        loss_terms[np.isnan(loss_terms)] = 0
-        loss_constant = - coef * loss_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-loss_constant)
-        self.quadratic += devq
-
-        self.data = self.counts, self.trials
+        # set_data computes the counts, trials and the saturated
+        # log-likelihood constant, which is added to `self.quadratic`
+        self._saturated_constant = 0.
+        self.set_data(counts)
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -804,8 +787,36 @@ class multinomial_loglike(smooth_atom):
         return self._data
 
     def set_data(self, data):
-        """Set the data ``(counts, trials)``."""
-        self._data = data
+        """Set the counts.
+
+        Parameters
+        ----------
+        data : ndarray or tuple
+            The ``(n, J)`` array of counts, or a pair ``(counts, trials)``
+            (the trials are recomputed from the counts).
+        """
+        counts = data[0] if isinstance(data, tuple) else data
+        if sparse.issparse(counts):
+            #Convert sparse success vector to an array
+            counts = counts.toarray()
+        self.counts = np.asarray(counts, float)
+        self.J = self.counts.shape[1]
+        if np.min(self.counts) < 0:
+            raise ValueError("Counts vector is not non-negative")
+        self.trials = np.sum(self.counts, axis=1)
+
+        _counts, _trials = self.counts, self.trials[:,np.newaxis]
+        _mask = _counts > 0
+        loss_terms = np.zeros_like(_counts)
+        loss_terms[_mask] = np.log((_counts / _trials)[_mask]) * _counts[_mask]
+        loss_constant = - self.coef * loss_terms.sum()
+
+        # replace the previous saturated constant in the quadratic
+        new_constant = -loss_constant
+        self.quadratic = self.quadratic + identity_quadratic(0, 0, 0,
+                                                             new_constant - self._saturated_constant)
+        self._saturated_constant = new_constant
+        self._data = self.counts, self.trials
 
     data = property(get_data, set_data)
 
@@ -864,6 +875,15 @@ class multinomial_loglike(smooth_atom):
         else:
             raise ValueError("mode incorrectly specified")
 
+    def __copy__(self):
+        return self.__class__(self.shape,
+                              copy(self.counts),
+                              coef=self.coef,
+                              offset=copy(self.offset),
+                              quadratic=_without_saturated_constant(self),
+                              initial=copy(self.coefs),
+                              case_weights=copy(self.case_weights))
+
     def subsample(self, case_idx):
         """Create a saturated loss using a subsample of the data.
 
@@ -885,7 +905,7 @@ class multinomial_loglike(smooth_atom):
         if loss_cp.case_weights is None:
             case_weights = loss_cp.case_weights = np.ones(self.shape[0])
         else:
-            case_weights = loss_cp.case_weights
+            case_weights = loss_cp.case_weights = np.array(loss_cp.case_weights, float)
 
         idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
@@ -948,35 +968,10 @@ class multinomial_baseline_loglike(smooth_atom):
                              initial=initial,
                              coef=coef)
 
-        if sparse.issparse(counts):
-            #Convert sparse success vector to an array
-            self.counts = counts.toarray()
-        else:
-            self.counts = counts
-
-        self.J = self.counts.shape[1]
-        #Select the counts for the first J-1 categories
-        self.firstcounts = self.counts[:,range(self.J-1)]
-
-        if not np.allclose(np.round(self.counts),self.counts):
-            raise ValueError("Counts vector is not integer valued")
-        if np.min(self.counts) < 0:
-            raise ValueError("Counts vector is not non-negative")
-
-        self.trials = np.sum(self.counts, axis=1)
-
-        if shape[1] != self.J - 1:
-            raise ValueError("Primal shape is incorrect - should only have coefficients for first J-1 categories")
-
-        saturated = self.counts / (1. * self.trials[:,np.newaxis])
-        loss_terms = np.log(saturated) * self.counts
-        loss_terms[np.isnan(loss_terms)] = 0
-        loss_constant = - coef * loss_terms.sum()
-
-        devq = identity_quadratic(0,0,0,-loss_constant)
-        self.quadratic += devq
-
-        self.data = self.counts, self.trials
+        # set_data computes the counts, trials and the saturated
+        # log-likelihood constant, which is added to `self.quadratic`
+        self._saturated_constant = 0.
+        self.set_data(counts)
 
         if case_weights is not None:
             if not np.all(case_weights >= 0):
@@ -992,8 +987,43 @@ class multinomial_baseline_loglike(smooth_atom):
         return self._data
 
     def set_data(self, data):
-        """Set the data ``(counts, trials)``."""
-        self._data = data
+        """Set the counts.
+
+        Parameters
+        ----------
+        data : ndarray or tuple
+            The ``(n, J)`` array of counts, or a pair ``(counts, trials)``
+            (the trials are recomputed from the counts).
+        """
+        counts = data[0] if isinstance(data, tuple) else data
+        if sparse.issparse(counts):
+            #Convert sparse success vector to an array
+            counts = counts.toarray()
+        self.counts = np.asarray(counts, float)
+        self.J = self.counts.shape[1]
+        #Select the counts for the first J-1 categories
+        self.firstcounts = self.counts[:,range(self.J-1)]
+        if not np.allclose(np.round(self.counts),self.counts):
+            raise ValueError("Counts vector is not integer valued")
+        if np.min(self.counts) < 0:
+            raise ValueError("Counts vector is not non-negative")
+        self.trials = np.sum(self.counts, axis=1)
+
+        if self.shape[1] != self.J - 1:
+            raise ValueError("Primal shape is incorrect - should only have coefficients for first J-1 categories")
+
+        _counts, _trials = self.counts, self.trials[:,np.newaxis]
+        _mask = _counts > 0
+        loss_terms = np.zeros_like(_counts)
+        loss_terms[_mask] = np.log((_counts / _trials)[_mask]) * _counts[_mask]
+        loss_constant = - self.coef * loss_terms.sum()
+
+        # replace the previous saturated constant in the quadratic
+        new_constant = -loss_constant
+        self.quadratic = self.quadratic + identity_quadratic(0, 0, 0,
+                                                             new_constant - self._saturated_constant)
+        self._saturated_constant = new_constant
+        self._data = self.counts, self.trials
 
     data = property(get_data, set_data)
 
@@ -1055,6 +1085,15 @@ class multinomial_baseline_loglike(smooth_atom):
         else:
             raise ValueError("mode incorrectly specified")
 
+    def __copy__(self):
+        return self.__class__(self.shape,
+                              copy(self.counts),
+                              coef=self.coef,
+                              offset=copy(self.offset),
+                              quadratic=_without_saturated_constant(self),
+                              initial=copy(self.coefs),
+                              case_weights=copy(self.case_weights))
+
     def subsample(self, case_idx):
         """Create a saturated loss using a subsample of the data.
 
@@ -1076,7 +1115,7 @@ class multinomial_baseline_loglike(smooth_atom):
         if loss_cp.case_weights is None:
             case_weights = loss_cp.case_weights = np.ones(self.shape[0])
         else:
-            case_weights = loss_cp.case_weights
+            case_weights = loss_cp.case_weights = np.array(loss_cp.case_weights, float)
 
         idx_bool = np.zeros_like(case_weights, bool)
         idx_bool[case_idx] = 1
