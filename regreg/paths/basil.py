@@ -2,6 +2,8 @@
 The BASIL (batch screening iterative lasso) path algorithm.
 """
 
+import warnings
+
 import numpy as np
 from ..affine import power_L
 
@@ -162,7 +164,8 @@ def basil(path_obj,
           check_active=False,
           step_nvar=50,
           step_lagrange=5,
-          solve_args=None):
+          solve_args=None,
+          max_tries=20):
     """
     Compute a regularization path with the BASIL algorithm.
 
@@ -192,6 +195,11 @@ def basil(path_obj,
         Number of Lagrange parameters in each batch.
     solve_args : dict, optional
         Extra arguments passed to ``path_obj.solve_subproblem``.
+    max_tries : int, optional
+        Number of attempts, with the inner tolerance halved each time, at a
+        batch that solves no Lagrange parameter without enlarging the
+        candidate set. After that the active-set KKT check (if
+        `check_active`) is dropped for the batch, with a warning.
 
     Returns
     -------
@@ -207,22 +215,29 @@ def basil(path_obj,
     if initial_step is None:
         initial_step = 1000. / power_L(path_obj.X, max_its=50)
 
+    # a batch can solve nothing without enlarging the candidate set (e.g.
+    # when an active or unpenalized group fails its KKT check); the loop
+    # would then repeat the same call forever. Retry with a smaller inner
+    # tolerance, then without the active-set check, then give up.
+    stalls, tol = 0, inner_tol
     while True:
         
         lagrange_start = np.sum(lagrange_seq >= np.min(lagrange_solved))
         lagrange_cand = lagrange_seq[lagrange_start:(lagrange_start + step_lagrange)] 
 
         if len(lagrange_cand) > 0:
+            previous_candidates = sorted(candidate_set)
+            use_check_active = check_active and stalls < max_tries
             (lagrange_incr, 
              solution_incr, 
              last_grad,
              candidate_set) = basil_inner_loop(path_obj,
                                                lagrange_cand,
                                                cur_data,
-                                               inner_tol=inner_tol,
+                                               inner_tol=tol,
                                                verbose=verbose,
                                                initial_step=initial_step,
-                                               check_active=check_active,
+                                               check_active=use_check_active,
                                                step_nvar=step_nvar,
                                                candidate_set=candidate_set,
                                                solve_args=solve_args)
@@ -232,6 +247,18 @@ def basil(path_obj,
 
                 solutions.extend(solution_incr)
                 lagrange_solved.extend(lagrange_incr)
+                stalls, tol = 0, inner_tol
+            elif sorted(candidate_set) == previous_candidates:
+                stalls += 1
+                tol /= 2.
+                if stalls == max_tries and check_active:
+                    warnings.warn('active-set KKT conditions not satisfied at '
+                                  'lagrange=%0.4e after %d tries; continuing '
+                                  'without checking them' % (lagrange_cand[0], max_tries))
+                elif stalls >= max_tries + (max_tries if check_active else 0):
+                    warnings.warn('no progress at lagrange=%0.4e; stopping the '
+                                  'path there' % lagrange_cand[0])
+                    break
         else:
             break
 

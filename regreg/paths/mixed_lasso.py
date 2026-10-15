@@ -21,6 +21,7 @@ from ..affine import power_L, normalize, selector, identity, add_intercept
 from ..atoms.seminorms import l1norm, constrained_positive_part
 from ..smooth import sum as smooth_sum, affine_smooth
 from ..smooth.glm import glm
+from ..smooth.quadratic import quadratic_loss
 from ..problems.simple import simple_problem
 from ..identity_quadratic import identity_quadratic as iq
 from ..atoms.mixed_lasso import mixed_lasso, strong_set as strong_set_ml, check_KKT
@@ -486,6 +487,14 @@ class mixed_lasso_path(lasso_path):
         rps = restricted_penalty_structure # shorthand
 
         sliced_penalty = mixed_lasso(rps, lagrange, weights=self.group_weights)
+        # the elastic net term lagrange * coef / 2 ||beta_penalized||^2, as in
+        # `grad` and the KKT checks (it was left out of the problems solved)
+        ridge = (self._elastic_net.coef or 0) * lagrange
+        if ridge != 0:
+            ridge_weights = ridge * (rps != UNPENALIZED)
+            loss = smooth_sum([loss, quadratic_loss(ridge_weights.shape,
+                                                    ridge_weights,
+                                                    Qdiag=True)])
         problem_sliced = simple_problem(loss, sliced_penalty)
         candidate_selector = selector(candidate_set, self.shape[1])
         return problem_sliced, candidate_selector, restricted_penalty_structure
@@ -598,8 +607,8 @@ class mixed_lasso_path(lasso_path):
 
                 strong_problem = self.restricted_problem(strong, lagrange_new)[0]
                 strong_soln = self.solution[strong]
-                strong_grad = (strong_problem.smooth_objective(strong_soln, mode='grad') + 
-                               self.elastic_net[strong].objective(strong_soln, mode='grad'))
+                # the restricted problem's smooth part includes the elastic net
+                strong_grad = strong_problem.smooth_objective(strong_soln, mode='grad')
                 strong_penalty = strong_problem.proximal_atom
 
                 strong_failing = check_KKT(strong_penalty, strong_grad, strong_soln, lagrange_new) 

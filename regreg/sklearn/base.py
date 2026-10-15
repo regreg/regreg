@@ -367,7 +367,9 @@ class lagrange_mixin(base_mixin):
         return grad
 
     def _fit_null_soln(self, loglike, atom):
-        atom.lagrange = np.inf
+        # a large finite value, as in regreg.paths: with np.inf the objective
+        # is inf * 0 = nan at any point where the penalty is 0
+        atom.lagrange = 1e12
         problem = simple_problem(loglike, atom)
         null_soln = problem.solve(quadratic=getattr(self, 'quadratic', None))
         return self._null_grad(loglike, null_soln)
@@ -378,6 +380,9 @@ class lagrange_mixin(base_mixin):
             # reweight penalty and add elastic net
             ridge_term = identity_quadratic(self.enet_alpha * atom_.lagrange, 0, 0, 0)
             atom_.lagrange *= (1 - self.enet_alpha)
+            # add to, rather than replace, any quadratic the atom carries
+            if atom_.quadratic is not None:
+                ridge_term = atom_.quadratic + ridge_term
             atom_.quadratic = ridge_term
         return atom_
             
@@ -394,6 +399,7 @@ class classifier_mixin(base_mixin):
                  coef=1., 
                  quadratic=None,
                  score_method='accuracy',
+                 solve_args={},
                  initial=None):
 
         """Initialize the estimator.
@@ -414,6 +420,8 @@ class classifier_mixin(base_mixin):
             Quadratic term to be added to the problem.
         score_method : str, optional
             Which score to use as default `score`. One of ``['accuracy']``.
+        solve_args : dict, optional
+            Keyword arguments passed to `simple_problem.solve`.
         initial : ndarray, optional
             Warm start for the coefficients.
 
@@ -431,6 +439,7 @@ class classifier_mixin(base_mixin):
                             coef=coef,
                             quadratic=quadratic,
                             score_method=score_method,
+                            solve_args=solve_args,
                             initial=initial)
 
     def predict(self, X):

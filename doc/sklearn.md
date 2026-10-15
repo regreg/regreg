@@ -200,9 +200,8 @@ eta = X[:, :3] @ np.array([1.5, -1, 1])
 yb = rng.uniform(size=n) < 1 / (1 + np.exp(-eta))
 
 lam_logit = 5.
-l1_atom = lambda score, lagrange: rr.l1norm(score.shape, lagrange=lagrange)
-clf = rsk.logistic_classifier_lagrange(l1_atom, {'lagrange': lam_logit},
-                                       solve_args={'tol': 1e-12, 'min_its': 200})
+clf = rsk.logistic_classifier(rr.l1norm, {'shape': X.shape[1], 'lagrange': lam_logit},
+                              solve_args={'tol': 1e-12, 'min_its': 200})
 sk_clf = LogisticRegression(C=1 / lam_logit, l1_ratio=1.0, solver='saga',
                             fit_intercept=False, tol=1e-12, max_iter=100000)
 
@@ -220,10 +219,8 @@ np.testing.assert_allclose(clf._coefs, sk_clf.coef_[0], atol=1e-6)
 print('predicted probabilities:', np.round(clf.predict_proba(X[:4]), 3))
 ```
 
-Here the Lagrange form is used with a fixed $\lambda$ (the constructor ignores `score`)
-because only the `_lagrange` classifiers accept `solve_args`; the plain `logistic_classifier`
-uses the solver's default tolerance, which agrees with scikit-learn only to about $10^{-2}$
-([gh-104](https://github.com/regreg/regreg/issues/104)).
+`solve_args` matters for comparisons like this one: with the solver's default tolerance
+the coefficients agree with scikit-learn only to about $10^{-2}$.
 
 The same accuracy can be had from the regression estimator `logistic` with
 `score_method='accuracy'`, whose `predict` returns the linear predictor instead of labels.
