@@ -234,3 +234,26 @@ def test_basil(n=300,p=100):
                                                                     1,
                                                                     np.sqrt(2))
 
+
+def test_l1_alpha():
+    # gh-81: l1_alpha scaled attributes that were not used to build the penalty
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((30, 5))
+    Y = rng.standard_normal((30, 3))
+    path = sparse_group_block.multiresponse_gaussian(X, Y, 1., 1., l1_alpha=0.25)
+    assert path.penalty.l1_weight == 0.25
+    assert path.penalty.l2_weight == 0.75
+    # the caller's array is left alone
+    l1, l2 = np.array(2.), np.array(2.)
+    sparse_group_block.multiresponse_gaussian(X, Y, l1, l2, l1_alpha=0.25)
+    assert l1 == 2 and l2 == 2
+
+def test_check_KKT_ranks():
+    # gh-81: violations were ranked with argsort, which is not a ranking
+    from ..sparse_group_block import _check_KKT
+    grad = np.zeros((3, 3))
+    grad[0] = 10.
+    grad[1] = 3.
+    grad[2] = 5.
+    _, ranks = _check_KKT(grad, np.zeros((3, 3)), 1., 1., 1.)
+    np.testing.assert_array_equal(ranks, [0, 2, 1])

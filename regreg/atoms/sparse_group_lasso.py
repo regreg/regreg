@@ -309,7 +309,25 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          lagrange = seminorm.seminorm(self, x, 
                                       check_feasibility=check_feasibility, 
                                       lagrange=lagrange)
+         # as in `group_lasso_dual`, groups with no penalty at all are
+         # ignored unless checking feasibility
+         x = np.array(x, float)
+         unpenalized = self._unpenalized_coords
+         if np.any(unpenalized):
+              if check_feasibility and np.any(x[unpenalized] != 0):
+                   return np.inf
+              x[unpenalized] = 0
          return gauge_function_dual(self.base_conjugate, x) * lagrange
+
+     @property
+     def _unpenalized_coords(self):
+         # coordinates in groups with zero L2 weight and zero L1 weights
+         unpenalized = np.zeros(self.groups.shape, bool)
+         for g in np.unique(self.groups):
+              group = self.groups == g
+              if self.weights[g] == 0 and np.all(self.lasso_weights[group] == 0):
+                   unpenalized[group] = True
+         return unpenalized
 
      @doc_template_user
      def constraint(self, x, bound=None):
