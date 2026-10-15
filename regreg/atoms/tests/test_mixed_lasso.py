@@ -4,11 +4,9 @@ import itertools
 import numpy as np, regreg.api as rr
 from .. import mixed_lasso as ml
 from .. import group_lasso as gl
-from ...tests.decorators import set_seed_for_test
 from .test_seminorms import Solver, all_close, SolverFactory, run_checks
 
 
-@set_seed_for_test()
 def test_mixed_lasso():
 
     prox_center = np.array([1,3,5,7,-9,3,4,6,7,8,9,11,13,4,-23,40], float)
@@ -154,16 +152,16 @@ def test_mixed_lasso():
                             factors,
                             projection)
 
-@set_seed_for_test()
 def test_compare_to_group_lasso():
 
+    rng = np.random.default_rng(6000)
     ps = np.array([0]*5 + [3]*3)
     weights = {3:2., 0:2.3}
 
     lagrange = 1.5
     lipschitz = 0.2
     p = gl.group_lasso(ps, weights=weights, lagrange=lagrange)
-    z = 30 * np.random.standard_normal(8)
+    z = 30 * rng.standard_normal(8)
     q = rr.identity_quadratic(lipschitz, z, 0, 0)
 
     x = p.solve(q)
@@ -271,12 +269,12 @@ class MixedSolverFactory(SolverFactory):
             atom = self.klass(spec, l, weights=w)
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0, 0, np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0, 0, self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -286,7 +284,6 @@ class MixedSolverFactory(SolverFactory):
 @pytest.mark.parametrize('klass,mode', [(ml.mixed_lasso, 'lagrange'),
                                         (ml.mixed_lasso_dual, 'bound')],
                          ids=['mixed_lasso', 'mixed_lasso_dual'])
-@set_seed_for_test()
 def test_proximal_maps(klass, mode):
     for _ in range(2):
         factory = MixedSolverFactory(klass, mode)

@@ -10,17 +10,16 @@ except ImportError:
     have_sklearn = False
 
 from ...api import l1norm
-from ...tests.decorators import set_seed_for_test
 
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_cox():
 
+    rng = np.random.default_rng(5400)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    Y = np.random.exponential(1, size=(n,))
-    C = np.random.binomial(1, 0.5, size=(n,))
+    X = rng.standard_normal((n, p))
+    Y = rng.exponential(1, size=(n,))
+    C = rng.binomial(1, 0.5, size=(n,))
     response = np.array([Y, C]).T
 
     atom = l1norm
@@ -41,7 +40,7 @@ def test_cox():
     cox_lasso_offset = cox(atom,
                            atom_args,
                            offset=True)
-    response_offset = np.hstack([response, np.random.standard_normal((n, 1))])
+    response_offset = np.hstack([response, rng.standard_normal((n, 1))])
     cox_lasso_offset.fit(X, response_offset)
 
     cox_lasso_weights = cox(atom,

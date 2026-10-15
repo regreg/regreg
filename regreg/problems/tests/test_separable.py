@@ -5,9 +5,7 @@ from copy import copy
 import numpy as np
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -15,9 +13,10 @@ def test_lasso_separable():
     with selector matrices. The penalty here is a lasso, i.e. l1
     penalty.
     """
+    rng = np.random.default_rng(3700)
 
-    X = np.random.standard_normal((100,20))
-    Y = np.random.standard_normal((100,)) + np.dot(X, np.random.standard_normal(20))
+    X = rng.standard_normal((100,20))
+    Y = rng.standard_normal((100,)) + np.dot(X, rng.standard_normal(20))
 
     penalty1 = rr.l1norm(10, lagrange=1.2)
     penalty2 = rr.l1norm(10, lagrange=1.2)
@@ -71,7 +70,6 @@ def test_lasso_separable():
 
 
     
-@set_seed_for_test()
 def test_group_lasso_separable():
     """
     This test verifies that the specification of a separable
@@ -79,9 +77,10 @@ def test_group_lasso_separable():
     with selector matrices. The penalty here is a group_lasso, i.e. l2
     penalty.
     """
+    rng = np.random.default_rng(3701)
 
-    X = np.random.standard_normal((100,20))
-    Y = np.random.standard_normal((100,)) + np.dot(X, np.random.standard_normal(20))
+    X = rng.standard_normal((100,20))
+    Y = rng.standard_normal((100,)) + np.dot(X, rng.standard_normal(20))
 
     penalty1 = rr.l2norm(10, lagrange=.2)
     penalty2 = rr.l2norm(10, lagrange=.2)
@@ -107,7 +106,6 @@ def test_group_lasso_separable():
     np.testing.assert_almost_equal(coefs, coefs_s)
 
 
-@set_seed_for_test()
 def test_nonnegative_positive_part(debug=False):
     """
     This test verifies that using nonnegative constraint
@@ -117,6 +115,7 @@ def test_nonnegative_positive_part(debug=False):
     import numpy as np
     import regreg.api as rr
     import regreg.atoms as rra
+    rng = np.random.default_rng(3702)
 
     # N - number of data points
     # P - number of columns in design == number of betas
@@ -124,10 +123,10 @@ def test_nonnegative_positive_part(debug=False):
     # an arbitrary positive offset for data and design
     offset = 2
     # data
-    Y = np.random.normal(size=(N,)) + offset
+    Y = rng.normal(size=(N,)) + offset
     # design - with ones as last column
     X = np.ones((N,P))
-    X[:,:-1] = np.random.normal(size=(N,P-1)) + offset
+    X[:,:-1] = rng.normal(size=(N,P-1)) + offset
     # coef for loss
     coef = 0.5
     # lagrange for penalty
@@ -167,16 +166,16 @@ def test_nonnegative_positive_part(debug=False):
 
     assert np.linalg.norm(coefs - coefs_s) / np.linalg.norm(coefs) < 1.0e-02
 
-@set_seed_for_test()
 def test_different_dim():
     """
     This test checks that the reshape argument of separable
     works properly.
     """
+    rng = np.random.default_rng(3703)
 
-    X = np.random.standard_normal((100,20))
-    Y = (np.random.standard_normal((100,)) +
-         np.dot(X, np.random.standard_normal(20)))
+    X = rng.standard_normal((100,20))
+    Y = (rng.standard_normal((100,)) +
+         np.dot(X, rng.standard_normal(20)))
 
     penalty1 = rr.nuclear_norm((5, 2), lagrange=1.2)
     penalty2 = rr.l1norm(10, lagrange=1.2)

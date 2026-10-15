@@ -8,8 +8,9 @@ from ...affine.block_maps import block_columns
 
 def test_poisson():
 
-    X = np.random.standard_normal((10,5))
-    Y = np.random.poisson(10, size=(10,))
+    rng = np.random.default_rng(2300)
+    X = rng.standard_normal((10,5))
+    Y = rng.poisson(10, size=(10,))
 
     for case_weights in [np.ones(10), None]:
         L = glm.glm.poisson(X, Y, case_weights=case_weights)
@@ -72,8 +73,9 @@ def test_poisson():
 
 def test_gaussian():
 
-    X = np.random.standard_normal((10,5))
-    Y = np.random.standard_normal(10)
+    rng = np.random.default_rng(2301)
+    X = rng.standard_normal((10,5))
+    Y = rng.standard_normal(10)
 
     for case_weights in [np.ones(10), None]:
         L = glm.glm.gaussian(X, Y, case_weights=case_weights)
@@ -150,8 +152,9 @@ def test_gaussian():
 
 def test_huber():
 
-    X = np.random.standard_normal((10,5))
-    Y = np.random.standard_normal(10)
+    rng = np.random.default_rng(2302)
+    X = rng.standard_normal((10,5))
+    Y = rng.standard_normal(10)
 
     for case_weights in [np.ones(10), None]:
         L = glm.glm.huber(X, Y, 0.1, case_weights=case_weights)
@@ -178,8 +181,9 @@ def test_huber():
 
 def test_huber_svm():
 
-    X = np.random.standard_normal((10,5))
-    Y = np.random.binomial(1,0.5,size=(10,))
+    rng = np.random.default_rng(2303)
+    X = rng.standard_normal((10,5))
+    Y = rng.binomial(1,0.5,size=(10,))
 
     for case_weights in [np.ones(10), None]:
         L = glm.glm.huber_svm(X, Y, 0.1, case_weights=case_weights)
@@ -207,9 +211,10 @@ def test_huber_svm():
 
 def test_coxph():
 
-    X = np.random.standard_normal((100,5))
-    T = np.random.standard_exponential(100)
-    S = np.random.binomial(1, 0.5, size=(100,))
+    rng = np.random.default_rng(2304)
+    X = rng.standard_normal((100,5))
+    T = rng.standard_exponential(100)
+    S = rng.binomial(1, 0.5, size=(100,))
 
     for case_weights in [np.ones(100), None]:
         L = glm.glm.cox(X, T, S, case_weights=case_weights)
@@ -230,8 +235,9 @@ def test_coxph():
 
 def test_stacked():
 
-    X = np.random.standard_normal((10,5))
-    Y = np.random.standard_normal((10,3))
+    rng = np.random.default_rng(2305)
+    X = rng.standard_normal((10,5))
+    Y = rng.standard_normal((10,3))
 
     Xstack = block_columns([X for _ in range(3)])
     for case_weights in [np.ones(30), None]:

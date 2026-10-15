@@ -8,7 +8,6 @@ import numpy as np
 
 import regreg.api as rr
 import regreg.atoms.weighted_atoms as WA
-from regreg.tests.decorators import set_seed_for_test
 
 from numpy import testing as npt
 
@@ -53,12 +52,12 @@ class WeightedSolverFactory(SolverFactory):
             if q: 
                 atom.quadratic = rr.identity_quadratic(0,
                                                        0,
-                                                       np.random.standard_normal(atom.shape)*0.02)
+                                                       self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom,
+            solver = Solver(atom, rng=self.rng,
                             interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
@@ -68,31 +67,30 @@ class WeightedSolverFactory(SolverFactory):
 @pytest.mark.slow
 @pytest.mark.parametrize('mode', ['lagrange', 'bound'])
 @pytest.mark.parametrize('klass', [WA.l1norm, WA.supnorm], ids=lambda k: k.__name__)
-@set_seed_for_test()
 def test_proximal_maps(klass, mode):
     factory = WeightedSolverFactory(klass, mode)
     for solver in factory:
         run_checks(solver.all_tests())
 
-@set_seed_for_test()
 def test_weighted_l1():
+    rng = np.random.default_rng(100)
     a =rr.weighted_l1norm(2*np.ones(10), lagrange=0.5)
     b= rr.l1norm(10, lagrange=1)
-    z = np.random.standard_normal(10)
+    z = rng.standard_normal(10)
     npt.assert_equal(b.lagrange_prox(z), a.lagrange_prox(z))
     npt.assert_equal(b.dual[1].bound_prox(z), a.dual[1].bound_prox(z))
 
-@set_seed_for_test()
 def test_weighted_l1_bound():
+    rng = np.random.default_rng(101)
     a =rr.weighted_supnorm(2*np.ones(10), bound=2)
     b= rr.supnorm(10, bound=1)
-    z = np.random.standard_normal(10)
+    z = rng.standard_normal(10)
     npt.assert_equal(b.bound_prox(z), a.bound_prox(z))
     npt.assert_equal(b.dual[1].lagrange_prox(z), a.dual[1].lagrange_prox(z))
 
-@set_seed_for_test()
 def test_weighted_l1_with_zero():
-    z = np.random.standard_normal(5)
+    rng = np.random.default_rng(102)
+    z = rng.standard_normal(5)
     a=rr.weighted_l1norm([0,1,1,1,1], lagrange=0.5)
     b=a.dual[1]
     c=rr.l1norm(4, lagrange=0.5)
@@ -100,11 +98,11 @@ def test_weighted_l1_with_zero():
     npt.assert_equal(a.lagrange_prox(z)[0], z[0])
     npt.assert_equal(a.lagrange_prox(z)[1:], c.lagrange_prox(z[1:]))
 
-@set_seed_for_test()
 def test_weighted_l1_bound_loose():
+    rng = np.random.default_rng(103)
     n, p = 100, 10
-    X = np.random.standard_normal((n, p))
-    Y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    Y = rng.standard_normal(n)
     beta = np.linalg.pinv(X).dot(Y)
     bound = 2 * np.fabs(beta).sum()
     atom = rr.weighted_l1norm(np.ones(p), bound=bound)

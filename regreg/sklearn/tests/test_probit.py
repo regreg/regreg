@@ -12,15 +12,14 @@ except ImportError:
     have_sklearn = False
 
 from ...api import l1norm
-from ...tests.decorators import set_seed_for_test
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_probit():
 
+    rng = np.random.default_rng(5700)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
     y = y > 0
 
     atom = l1norm
@@ -41,7 +40,7 @@ def test_probit():
     probit_lasso_offset = probit(atom,
                                  atom_args,
                                  offset=True)
-    y_offset = np.array([y, np.random.standard_normal(n)]).T
+    y_offset = np.array([y, rng.standard_normal(n)]).T
     probit_lasso_offset.fit(X, y_offset)
 
     probit_lasso_weights = probit(atom,
@@ -67,12 +66,12 @@ def test_probit():
     GridSearchCV(probit_lasso_both, params, cv=3).fit(X, y_both)
 
 @pytest.mark.skipif(not have_sklearn, reason="scikit-learn not available")
-@set_seed_for_test()
 def test_probit_classifier():
 
+    rng = np.random.default_rng(5701)
     n, p = 100, 20
-    X = np.random.standard_normal((n, p))
-    y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    y = rng.standard_normal(n)
     y = y > 0
 
     atom = l1norm

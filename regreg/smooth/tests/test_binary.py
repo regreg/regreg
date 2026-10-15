@@ -7,13 +7,14 @@ from .. import glm
 
 def test_logistic():
 
-    for Y, T in [(np.random.binomial(1,0.5,size=(10,)),
+    rng = np.random.default_rng(2600)
+    for Y, T in [(rng.binomial(1,0.5,size=(10,)),
                   np.ones(10)),
-                 (np.random.binomial(1,0.5,size=(10,)),
+                 (rng.binomial(1,0.5,size=(10,)),
                   None),
-                 (np.random.binomial(3,0.5,size=(10,)),
+                 (rng.binomial(3,0.5,size=(10,)),
                   3*np.ones(10))]:
-        X = np.random.standard_normal((10,5))
+        X = rng.standard_normal((10,5))
 
         for case_weights in [None, np.ones(10)]:
             L = glm.glm.logistic(X, Y, trials=T, case_weights=case_weights)
@@ -100,13 +101,14 @@ def test_logistic():
 
 def test_probit():
 
-    for Y, T in [(np.random.binomial(1,0.5,size=(10,)),
+    rng = np.random.default_rng(2601)
+    for Y, T in [(rng.binomial(1,0.5,size=(10,)),
                   np.ones(10)),
-                 (np.random.binomial(1,0.5,size=(10,)),
+                 (rng.binomial(1,0.5,size=(10,)),
                   None),
-                 (np.random.binomial(3,0.5,size=(10,)),
+                 (rng.binomial(3,0.5,size=(10,)),
                   3*np.ones(10))]:
-        X = np.random.standard_normal((10,5))
+        X = rng.standard_normal((10,5))
 
         for case_weights in [None, np.ones(10)]:
             L = glm.glm.probit(X, Y, trials=T, case_weights=case_weights)
@@ -198,13 +200,14 @@ def test_probit():
 
 def test_cloglog():
 
-    for Y, T in [(np.random.binomial(1,0.5,size=(10,)),
+    rng = np.random.default_rng(2602)
+    for Y, T in [(rng.binomial(1,0.5,size=(10,)),
                   np.ones(10)),
-                 (np.random.binomial(1,0.5,size=(10,)),
+                 (rng.binomial(1,0.5,size=(10,)),
                   None),
-                 (np.random.binomial(3,0.5,size=(10,)),
+                 (rng.binomial(3,0.5,size=(10,)),
                   3*np.ones(10))]:
-        X = np.random.standard_normal((10,5))
+        X = rng.standard_normal((10,5))
 
         for case_weights in [None, np.ones(10)]:
             L = glm.glm.cloglog(X, Y, trials=T, case_weights=case_weights)

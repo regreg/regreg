@@ -3,20 +3,19 @@ import regreg.api as rr
 import itertools
 from numpy import testing as npt
 
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_affine_linear_offset_l1norm():
 
     """
     Test linear, affine and offset with the l1norm atom
     """
+    rng = np.random.default_rng(200)
     
     n = 1000
     p = 10
     
-    X = np.random.standard_normal((n,p))
-    Y = 10*np.random.standard_normal(n)
+    X = rng.standard_normal((n,p))
+    Y = 10*rng.standard_normal(n)
     
     coefs = []
     

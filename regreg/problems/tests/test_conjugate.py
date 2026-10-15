@@ -3,15 +3,14 @@ from copy import copy
 import numpy as np
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_conjugate_l1norm():
     '''
     this test verifies that numerically computing the conjugate
     is essentially the same as using the smooth_conjugate
     of the atom
     '''
+    rng = np.random.default_rng(3600)
 
     q = rr.identity_quadratic(1.2,0,0,0)
     l1 = rr.l1norm(4, lagrange=0.3)
@@ -21,7 +20,7 @@ def test_conjugate_l1norm():
     v1 = rr.smooth_conjugate(l1, q)
     v2 = rr.conjugate(l1, q, tol=1.e-12, min_its=100)
     v3 = rr.conjugate(pen2, None, tol=1.e-12, min_its=100)
-    w = np.random.standard_normal(4)
+    w = rng.standard_normal(4)
 
     u11, u12 = v1.smooth_objective(w)
     u21, u22 = v2.smooth_objective(w)
@@ -36,22 +35,22 @@ def test_conjugate_l1norm():
     with pytest.raises(ValueError):
         v2.smooth_objective(w, 'blah')
 
-@set_seed_for_test()
 def test_conjugate_sqerror():
     """
     This verifies the conjugate class can compute the conjugate
     of a quadratic function.
     """
+    rng = np.random.default_rng(3601)
 
     ridge_coef = 0.4
 
-    X = np.random.standard_normal((10,4))
-    Y = np.random.standard_normal(10)
+    X = rng.standard_normal((10,4))
+    Y = rng.standard_normal(10)
     l = rr.squared_error(X, Y)
 
     q = rr.identity_quadratic(ridge_coef,0,0,0)
     atom_conj = rr.conjugate(l, q, tol=1.e-12, min_its=100)
-    w = np.random.standard_normal(4)
+    w = rng.standard_normal(4)
     u11, u12 = atom_conj.smooth_objective(w)
 
     # check that objective is half of squared error

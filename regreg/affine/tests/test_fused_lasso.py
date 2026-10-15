@@ -6,22 +6,21 @@ import scipy.sparse
 import regreg.api as rr
 import regreg.affine.fused_lasso as FL
 from regreg.identity_quadratic import identity_quadratic as sq
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_class():
+    rng = np.random.default_rng(4600)
     p = 50
     for order in range(1,3):
         fused = FL.trend_filter.grid(p, order=order)
         fused2 = FL.trend_filter(np.arange(p), order=order)
-        V = np.random.standard_normal(p)
-        U = np.random.standard_normal(p - order)
+        V = rng.standard_normal(p)
+        U = rng.standard_normal(p - order)
         np.testing.assert_allclose(fused.linear_map(V), fused2.linear_map(V))
         np.testing.assert_allclose(fused.affine_map(V), fused2.affine_map(V))
         np.testing.assert_allclose(fused.adjoint_map(U), fused2.adjoint_map(U))
 
-        V2 = np.random.standard_normal((p, 3))
-        U2 = np.random.standard_normal((p - order, 3))
+        V2 = rng.standard_normal((p, 3))
+        U2 = rng.standard_normal((p - order, 3))
 
         np.testing.assert_allclose(fused.linear_map(V2), fused2.linear_map(V2))
         np.testing.assert_allclose(fused.affine_map(V2), fused2.affine_map(V2))

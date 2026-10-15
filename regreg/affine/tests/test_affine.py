@@ -28,7 +28,6 @@ from numpy.testing import (assert_array_almost_equal,
 import scipy.sparse
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
 def test_broad_first():
     # Test broadcasting over second axis
@@ -48,13 +47,14 @@ def test_broad_first():
 
 def test_dot():
 
-    A = np.random.standard_normal((20, 12))
-    B = np.random.standard_normal((10, 20))
+    rng = np.random.default_rng(4800)
+    A = rng.standard_normal((20, 12))
+    B = rng.standard_normal((10, 20))
 
     C = rr.astransform(B).dot(rr.astransform(A))
 
     assert C.shape == (10, 12)
-    Z = np.random.standard_normal(12)
+    Z = rng.standard_normal(12)
     assert_array_almost_equal(C.dot(Z), B.dot(A.dot(Z)))
 
     assert C.ndim == 2
@@ -95,39 +95,39 @@ def test_affine_transform():
         assert_array_almost_equal(trans.linear_map(x), x)
         assert_array_almost_equal(trans.adjoint_map(x), x)
 
-@set_seed_for_test()
 def test_composition():
-    X1 = np.random.standard_normal((20,30))
-    X2 = np.random.standard_normal((30,10))
-    b1 = np.random.standard_normal(20)
-    b2 = np.random.standard_normal(30)
+    rng = np.random.default_rng(4801)
+    X1 = rng.standard_normal((20,30))
+    X2 = rng.standard_normal((30,10))
+    b1 = rng.standard_normal(20)
+    b2 = rng.standard_normal(30)
     L1 = affine_transform(X1, b1)
     L2 = affine_transform(X2, b2)
 
-    z = np.random.standard_normal(10)
-    w = np.random.standard_normal(20)
+    z = rng.standard_normal(10)
+    w = rng.standard_normal(20)
     comp = composition(L1,L2)
 
     assert_array_almost_equal(comp.linear_map(z), np.dot(X1, np.dot(X2, z)))
     assert_array_almost_equal(comp.adjoint_map(w), np.dot(X2.T, np.dot(X1.T, w)))
     assert_array_almost_equal(comp.affine_map(z), np.dot(X1, np.dot(X2, z)+b2)+b1)
 
-@set_seed_for_test()
 def test_composition2():
-    X1 = np.random.standard_normal((20,30))
-    X2 = np.random.standard_normal((30,10))
-    X3 = np.random.standard_normal((10,20))
+    rng = np.random.default_rng(4802)
+    X1 = rng.standard_normal((20,30))
+    X2 = rng.standard_normal((30,10))
+    X3 = rng.standard_normal((10,20))
 
-    b1 = np.random.standard_normal(20)
-    b2 = np.random.standard_normal(30)
-    b3 = np.random.standard_normal(10)
+    b1 = rng.standard_normal(20)
+    b2 = rng.standard_normal(30)
+    b3 = rng.standard_normal(10)
 
     L1 = affine_transform(X1, b1)
     L2 = affine_transform(X2, b2)
     L3 = affine_transform(X3, b3)
 
-    z = np.random.standard_normal(20)
-    w = np.random.standard_normal(20)
+    z = rng.standard_normal(20)
+    w = rng.standard_normal(20)
     comp = composition(L1,L2,L3)
 
     assert_array_almost_equal(comp.linear_map(z), 
@@ -138,30 +138,30 @@ def test_composition2():
         comp.affine_map(z),
         np.dot(X1, np.dot(X2, np.dot(X3, z) + b3) + b2) + b1)
 
-@set_seed_for_test()
 def test_adjoint():
-    X = np.random.standard_normal((20,30))
-    b = np.random.standard_normal(20)
+    rng = np.random.default_rng(4803)
+    X = rng.standard_normal((20,30))
+    b = rng.standard_normal(20)
     L = affine_transform(X, b)
 
-    z = np.random.standard_normal(30)
-    w = np.random.standard_normal(20)
+    z = rng.standard_normal(30)
+    w = rng.standard_normal(20)
     A = adjoint(L)
 
     assert_array_almost_equal(A.linear_map(w), L.adjoint_map(w))
     assert_array_almost_equal(A.affine_map(w), L.adjoint_map(w))
     assert_array_almost_equal(A.adjoint_map(z), L.linear_map(z))
 
-@set_seed_for_test()
 def test_affine_sum():
 
+    rng = np.random.default_rng(4804)
     n = 100
     p = 25
 
-    X1 = np.random.standard_normal((n,p))
-    X2 = np.random.standard_normal((n,p))
-    b = np.random.standard_normal(n)
-    v = np.random.standard_normal(p)
+    X1 = rng.standard_normal((n,p))
+    X2 = rng.standard_normal((n,p))
+    b = rng.standard_normal(n)
+    v = rng.standard_normal(p)
 
     transform1 = rr.affine_transform(X1, b)
     transform2 = rr.linear_transform(X2)
@@ -179,17 +179,17 @@ def test_affine_sum():
     assert_array_almost_equal(3*np.dot(X1.T,b) + 4*np.dot(X2.T,b), sum_transform.adjoint_map(b))
     assert_array_almost_equal(3*b, sum_transform.affine_offset)
 
-@set_seed_for_test()
 def test_affine_sparse():
+    rng = np.random.default_rng(4805)
     # test using sparse matrices for affine transforms
 
     n = 100
     p = 25
 
-    X1 = scipy.sparse.csr_matrix(np.random.standard_normal((n,p)))
-    b = scipy.sparse.csr_matrix(np.random.standard_normal(n))
-    v = np.random.standard_normal(p)
-    y = np.random.standard_normal(n)
+    X1 = scipy.sparse.csr_matrix(rng.standard_normal((n,p)))
+    b = scipy.sparse.csr_matrix(rng.standard_normal(n))
+    v = rng.standard_normal(p)
+    y = rng.standard_normal(n)
 
     transform1 = rr.affine_transform(X1, b)
 
@@ -199,10 +199,10 @@ def test_affine_sparse():
     
     # should raise a warning about type of sparse matrix
 
-    X1 = scipy.sparse.coo_matrix(np.random.standard_normal((n,p)))
-    b = scipy.sparse.coo_matrix(np.random.standard_normal(n))
-    v = np.random.standard_normal(p)
-    y = np.random.standard_normal(n)
+    X1 = scipy.sparse.coo_matrix(rng.standard_normal((n,p)))
+    b = scipy.sparse.coo_matrix(rng.standard_normal(n))
+    v = rng.standard_normal(p)
+    y = rng.standard_normal(n)
 
     transform2 = rr.affine_transform(X1, b)
 
@@ -210,15 +210,15 @@ def test_affine_sparse():
     transform2.adjoint_map(y)
     transform2.affine_map(v)
     
-@set_seed_for_test()
 def test_row_matrix():
+    rng = np.random.default_rng(4806)
     # make sure we can input a vector as a transform
 
     n, p = 20, 1
-    x = np.random.standard_normal(n)
-    b = np.random.standard_normal(p)
-    v = np.random.standard_normal(n)
-    y = np.random.standard_normal(p)
+    x = rng.standard_normal(n)
+    b = rng.standard_normal(p)
+    v = rng.standard_normal(n)
+    y = rng.standard_normal(p)
 
     transform1 = rr.linear_transform(x)
     transform2 = rr.affine_transform(x, b)
@@ -231,15 +231,15 @@ def test_row_matrix():
     transform2.affine_map(v)
     transform2.adjoint_map(y)
 
-@set_seed_for_test()
 def test_coefs_matrix():
 
+    rng = np.random.default_rng(4807)
     n, p, q = 20, 10, 5
 
-    X = np.random.standard_normal((n, p))
-    B = np.random.standard_normal((n, q))
-    V = np.random.standard_normal((p, q))
-    Y = np.random.standard_normal((n, q))
+    X = rng.standard_normal((n, p))
+    B = rng.standard_normal((n, q))
+    V = rng.standard_normal((p, q))
+    Y = rng.standard_normal((n, q))
 
     transform1 = rr.linear_transform(X, input_shape=(p,q))
     assert transform1.linear_map(V).shape == (n,q)
@@ -272,12 +272,12 @@ def test_reshape():
     assert reshape_.affine_map(np.arange(30)).shape == (6,5)
     assert reshape_.adjoint_map(np.zeros((6,5))).shape == (30,)
 
-@set_seed_for_test()
 def test_stack_product():
-    X = np.random.standard_normal((5, 30))
-    Y = np.random.standard_normal((5, 30))
-    Z = np.random.standard_normal((5, 31))
-    U = np.random.standard_normal((6, 30))
+    rng = np.random.default_rng(4808)
+    X = rng.standard_normal((5, 30))
+    Y = rng.standard_normal((5, 30))
+    Z = rng.standard_normal((5, 31))
+    U = rng.standard_normal((6, 30))
     stack = vstack([X, Y])
 
     with pytest.raises(ValueError):
@@ -298,7 +298,7 @@ def test_stack_product():
     _hstack.affine_map(np.arange(91))
     _hstack.adjoint_map(np.arange(5))
 
-    b = np.random.standard_normal(5)
+    b = rng.standard_normal(5)
     XA = rr.affine_transform(X, b)
     _product = product([XA,Y])
     np.testing.assert_allclose(_product.linear_map(np.arange(60))[:5], np.dot(X, np.arange(30)))
@@ -314,22 +314,22 @@ def test_stack_product():
     np.testing.assert_allclose(scale_prod.affine_map(np.arange(60)), 2 * _product.affine_map(np.arange(60)))
     np.testing.assert_allclose(scale_prod.adjoint_map(np.arange(60)), 2 * _product.adjoint_map(np.arange(60)))
 
-@set_seed_for_test()
 def test_posneg():
 
-    X = np.random.standard_normal((40, 5))
+    rng = np.random.default_rng(4809)
+    X = rng.standard_normal((40, 5))
     X_pn = posneg(X)
     
-    V = np.random.standard_normal((2, 5))
-    U = np.random.standard_normal(40)
+    V = rng.standard_normal((2, 5))
+    U = rng.standard_normal(40)
     np.testing.assert_allclose(X_pn.linear_map(V), np.dot(X, V[0] - V[1]))
     np.testing.assert_allclose(X_pn.affine_map(V), np.dot(X, V[0] - V[1]))
     np.testing.assert_allclose(X_pn.adjoint_map(U)[0], np.dot(X.T, U))
     np.testing.assert_allclose(X_pn.adjoint_map(U)[1], -np.dot(X.T, U))
 
-@set_seed_for_test()
 def test_misc():
-    X = np.random.standard_normal((40, 5))
+    rng = np.random.default_rng(4810)
+    X = rng.standard_normal((40, 5))
     power_L(X)
     Xa = rr.astransform(X)
     np.testing.assert_allclose(todense(Xa), X)

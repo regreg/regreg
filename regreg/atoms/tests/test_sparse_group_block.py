@@ -8,7 +8,6 @@ from ..sparse_group_block import (sparse_group_block,
                                              _inside_set,
                                              _gauge_function_dual)
 from ..sparse_group_lasso import sparse_group_lasso
-from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close, run_checks
 
@@ -16,6 +15,7 @@ def test_sparse_group_lasso_equivalent():
     """
     check agrees with equivalent group lasso
     """
+    rng = np.random.default_rng(1400)
 
     l1_weight = 1.
     l2_weight = 2.
@@ -26,7 +26,7 @@ def test_sparse_group_lasso_equivalent():
                               weights=dict([(j, l2_weight) for j in range(4)]),
                               lagrange=lagrange)
 
-    Z = np.random.standard_normal(pen.shape) * 2
+    Z = rng.standard_normal(pen.shape) * 2
     np.testing.assert_allclose(pen.lagrange_prox(Z), pen2.lagrange_prox(Z.reshape(-1)).reshape(Z.shape))
 
     dual = pen.conjugate
@@ -38,6 +38,7 @@ def test_inside_set():
     """
     with 0 as lasso weights should be group lasso
     """
+    rng = np.random.default_rng(1401)
     l1_weight, l2_weight = 1, 2
     pen = sparse_group_block((4, 5),
                              l1_weight, 
@@ -46,7 +47,7 @@ def test_inside_set():
     point = np.zeros(pen.shape)
     assert _inside_set(point, pen.lagrange, l1_weight, l2_weight)
 
-    Z = np.random.standard_normal(pen.shape) * 20
+    Z = rng.standard_normal(pen.shape) * 20
     proxZ = pen.lagrange_prox(Z)
     assert _inside_set(Z - proxZ, pen.lagrange, l1_weight, l2_weight)  # its gauge norm is 0.4, larger than 1
 
@@ -59,7 +60,7 @@ def test_inside_set():
     point = np.zeros(pen2.shape)
     assert _inside_set(point, pen.lagrange, l1_weight, l2_weight) 
 
-    Z = np.random.standard_normal(pen.shape) * 20
+    Z = rng.standard_normal(pen.shape) * 20
     proxZ = pen2.lagrange_prox(Z)
     print(Z, proxZ)
     assert np.fabs(_gauge_function_dual(Z - proxZ, l1_weight, l2_weight) - 1.2) < 1.e-4
@@ -98,12 +99,12 @@ class SparseBlockSolverFactory(SolverFactory):
                                   self.l2_weight, bound=self.bound)
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0, 0, np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0, 0, self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -113,7 +114,6 @@ class SparseBlockSolverFactory(SolverFactory):
 @pytest.mark.parametrize('klass,mode', [(sparse_group_block, 'lagrange'),
                                         (sparse_group_block_dual, 'bound')],
                          ids=['sparse_group_block', 'sparse_group_block_dual'])
-@set_seed_for_test()
 def test_proximal_maps(klass, mode):
     factory = SparseBlockSolverFactory(klass, mode)
     for solver in factory:

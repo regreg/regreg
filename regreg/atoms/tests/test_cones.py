@@ -6,7 +6,6 @@ import numpy as np
 import regreg.api as rr
 import regreg.atoms.cones as C
 import regreg.atoms.svd_norms as C_SVD
-from regreg.tests.decorators import set_seed_for_test
 
 
 from .test_seminorms import Solver, SolverFactory, run_checks
@@ -38,12 +37,12 @@ class ConeSolverFactory(SolverFactory):
             atom.latexify(), atom.dual, atom.conjugate
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0,0,np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0,0,self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -57,7 +56,6 @@ _svd_cones = [C_SVD.nuclear_norm_epigraph,
 
 @pytest.mark.slow
 @pytest.mark.parametrize('klass', sorted(C.conjugate_cone_pairs.keys(), key=str), ids=lambda k: k.__name__)
-@set_seed_for_test()
 def test_proximal_maps(klass):
     factory = ConeSolverFactory(klass)
     if klass in _svd_cones:

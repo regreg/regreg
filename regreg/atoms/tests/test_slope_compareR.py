@@ -26,7 +26,6 @@ except:
 
 import regreg.api as rr
 from regreg.atoms.slope import slope
-from regreg.tests.decorators import set_seed_for_test
 
 def fit_slope_R(X, Y):
     rpy2.robjects.numpy2ri.activate()
@@ -55,20 +54,20 @@ def fit_slope_R(X, Y):
 
     return result[0], result[1], result[2], result[3], result[4]
 
-@set_seed_for_test(10)
 @pytest.mark.skipif(True, reason="SLOPE parameterization in R has changed")
 def test_using_SLOPE_weights():
 
+    rng = np.random.default_rng(800)
     n, p = 500, 50
 
-    X = np.random.standard_normal((n, p))
-    #Y = np.random.standard_normal(n)
+    X = rng.standard_normal((n, p))
+    #Y = rng.standard_normal(n)
     X -= X.mean(0)[None, :]
     X /= (X.std(0)[None, :] * np.sqrt(n))
     beta = np.zeros(p)
     beta[:5] = 5.
 
-    Y = X.dot(beta) + np.random.standard_normal(n)
+    Y = X.dot(beta) + rng.standard_normal(n)
 
     output_R = fit_slope_R(X, Y)
     r_beta = np.squeeze(output_R[0])[:,3]
@@ -87,17 +86,17 @@ def test_using_SLOPE_weights():
     assert np.linalg.norm(soln - r_beta) < 1.e-6 * np.linalg.norm(soln)
 
 
-@set_seed_for_test(10)
 @pytest.mark.skipif(True, reason="SLOPE parameterization in R has changed")
 def test_using_SLOPE_prox():
 
+    rng = np.random.default_rng(801)
     n, p = 50, 50
 
     X = np.identity(n)
     beta = np.zeros(p)
     beta[:5] = 5.
 
-    Y = X.dot(beta) + np.random.standard_normal(n)
+    Y = X.dot(beta) + rng.standard_normal(n)
 
     output_R = fit_slope_R(X, Y)
     r_beta = np.squeeze(output_R[0])[:,3]

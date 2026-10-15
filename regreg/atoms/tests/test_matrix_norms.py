@@ -9,7 +9,6 @@ import numpy as np
 import regreg.atoms.block_norms as B
 import regreg.atoms.svd_norms as SVD
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
 
 from .test_seminorms import Solver, all_close, SolverFactory, run_checks, check_lagrange_bound_duality
@@ -27,7 +26,6 @@ class MatrixSolverFactory(SolverFactory):
                                            SVD.conjugate_svd_pairs.keys())
                           if k not in [B.block_max, B.block_sum]],
                          ids=lambda k: k.__name__)
-@set_seed_for_test(seed=20)
 def test_proximal_maps(klass):
     factory = MatrixSolverFactory(klass, 'lagrange')
     for solver in factory:

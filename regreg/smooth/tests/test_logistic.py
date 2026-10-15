@@ -11,13 +11,14 @@ def test_logistic_counts():
     """
     Test the equivalence of binary/count specification in logistic_loglike
     """
+    rng = np.random.default_rng(1500)
 
     #Form the count version of the problem
-    trials = np.random.binomial(5,0.5,100)+1
-    successes = np.random.binomial(trials,0.5,len(trials)) 
+    trials = rng.binomial(5,0.5,100)+1
+    successes = rng.binomial(trials,0.5,len(trials)) 
     n = len(successes)
     p = 2*n
-    X = np.random.normal(0,1,n*p).reshape((n,p))
+    X = rng.normal(0,1,n*p).reshape((n,p))
 
     loss = rr.logistic_loglike.linear(X, successes=successes, trials=trials)
     penalty = rr.quadratic_loss(p, coef=1.)
@@ -54,14 +55,15 @@ def test_logistic_offset():
     """
     Test the equivalence of binary/count specification in logistic_likelihood
     """
+    rng = np.random.default_rng(1501)
 
     #Form the count version of the problem
-    trials = np.random.binomial(5,0.5,10)+1
-    successes = np.random.binomial(trials,0.5,len(trials)) 
+    trials = rng.binomial(5,0.5,10)+1
+    successes = rng.binomial(trials,0.5,len(trials)) 
     n = len(successes)
     p = 2*n
 
-    X = np.hstack([np.ones((n,1)),np.random.normal(0,1,n*p).reshape((n,p))])
+    X = np.hstack([np.ones((n,1)),rng.normal(0,1,n*p).reshape((n,p))])
 
     loss = rr.logistic_loglike.linear(X, successes=successes, trials=trials)
     weights = np.ones(p+1)

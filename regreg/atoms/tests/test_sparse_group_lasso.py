@@ -7,7 +7,6 @@ from regreg.atoms.sparse_group_lasso import (sparse_group_lasso,
                                              sparse_group_lasso_dual,
                                              inside_set,
                                              gauge_function_dual)
-from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close, run_checks
 
@@ -15,6 +14,7 @@ def test_l1norm_equivalent():
     """
     with equal weights the prox is the same as l1 norm
     """
+    rng = np.random.default_rng(900)
     pen1 = sparse_group_lasso([1,1,2,2,2], 
                               np.ones(5), 
                               weights={1:0, 2:0},
@@ -24,7 +24,7 @@ def test_l1norm_equivalent():
     Z = np.array([3,2,4,6,7])
     np.testing.assert_allclose(pen1.lagrange_prox(Z), pen2.lagrange_prox(Z))
 
-    Z = np.random.standard_normal(5) * 100
+    Z = rng.standard_normal(5) * 100
     np.testing.assert_allclose(pen1.lagrange_prox(Z), pen2.lagrange_prox(Z))
 
     dual1 = pen1.conjugate
@@ -37,6 +37,7 @@ def test_group_lasso_equivalent():
     """
     with 0 as lasso weights should be group lasso
     """
+    rng = np.random.default_rng(901)
     pen1 = sparse_group_lasso([1,1,2,2,2], 
                               np.zeros(5), 
                               weights={1:0.2, 2:0.1},
@@ -46,7 +47,7 @@ def test_group_lasso_equivalent():
     Z = np.array([3,2,4,6,7])
     np.testing.assert_allclose(pen1.lagrange_prox(Z), pen2.lagrange_prox(Z))
 
-    Z = np.random.standard_normal(5) * 100
+    Z = rng.standard_normal(5) * 100
     np.testing.assert_allclose(pen1.lagrange_prox(Z), pen2.lagrange_prox(Z))
 
     dual1 = pen1.conjugate
@@ -84,6 +85,7 @@ def test_inside_set():
     """
     with 0 as lasso weights should be group lasso
     """
+    rng = np.random.default_rng(902)
     pen = sparse_group_lasso([1,1,2,2,2], 
                              np.ones(5), 
                              weights={1:0.2, 2:0.1},
@@ -91,7 +93,7 @@ def test_inside_set():
     point = np.zeros(5)
     assert inside_set(pen, point)
 
-    Z = np.random.standard_normal(5) * 20
+    Z = rng.standard_normal(5) * 20
     proxZ = pen.lagrange_prox(Z)
     assert inside_set(pen, Z - proxZ)  # its gauge norm is 0.4, larger than 1
 
@@ -104,7 +106,7 @@ def test_inside_set():
     point = np.zeros(5)
     assert inside_set(pen2, point) 
 
-    Z = np.random.standard_normal(5) * 20
+    Z = rng.standard_normal(5) * 20
     proxZ = pen2.lagrange_prox(Z)
     print(Z, proxZ)
     assert np.fabs(gauge_function_dual(pen2, Z - proxZ) - 1.2) < 1.e-4
@@ -144,12 +146,12 @@ class SparseGroupSolverFactory(SolverFactory):
                 atom = self.klass(g, l, weights=w, bound=self.bound)
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0, 0, np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0, 0, self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -159,7 +161,6 @@ class SparseGroupSolverFactory(SolverFactory):
 @pytest.mark.parametrize('klass,mode', [(sparse_group_lasso, 'lagrange'),
                                         (sparse_group_lasso_dual, 'bound')],
                          ids=['sparse_group_lasso', 'sparse_group_lasso_dual'])
-@set_seed_for_test()
 def test_proximal_maps(klass, mode):
     for _ in range(2):
         factory = SparseGroupSolverFactory(klass, mode)

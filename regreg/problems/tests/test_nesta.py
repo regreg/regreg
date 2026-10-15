@@ -6,24 +6,21 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_nesta_nonnegative():
 
-    state = np.random.get_state()
-    np.random.seed(10)
+    rng = np.random.default_rng(3800)
     n, p, q = 1000, 20, 5
-    X = np.random.standard_normal((n, p))
-    A = np.random.standard_normal((q,p))
+    X = rng.standard_normal((n, p))
+    A = rng.standard_normal((q,p))
 
-    coef = 10 * np.fabs(np.random.standard_normal(q)) + 1
+    coef = 10 * np.fabs(rng.standard_normal(q)) + 1
     coef[:2] = -0.2
     beta = np.dot(np.linalg.pinv(A), coef)
     print(r'\beta', beta)
     print(r'A\beta', np.dot(A, beta))
 
-    Y = np.random.standard_normal(n) + np.dot(X, beta)
+    Y = rng.standard_normal(n) + np.dot(X, beta)
 
     loss = rr.squared_error(X,Y)
     penalty = rr.l1norm(p, lagrange=0.2)
@@ -34,16 +31,15 @@ def test_nesta_nonnegative():
     print(r'A \hat{\beta}', np.dot(A, primal))
     assert_almost_nonnegative(np.dot(A,primal), tol=1.e-3)
 
-    np.random.set_state(state)
 
-@set_seed_for_test()
 def test_nesta_lasso():
 
+    rng = np.random.default_rng(3801)
     n, p = 1000, 20
-    X = np.random.standard_normal((n, p))
+    X = rng.standard_normal((n, p))
     beta = np.zeros(p)
     beta[:4] = 30
-    Y = np.random.standard_normal(n) + np.dot(X, beta)
+    Y = rng.standard_normal(n) + np.dot(X, beta)
 
     loss = rr.squared_error(X,Y)
     penalty = rr.l1norm(p, lagrange=2.)

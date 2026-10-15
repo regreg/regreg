@@ -2,20 +2,19 @@ import numpy as np
 
 from .. import lasso, sparse_group_block, strong_rules, warm_start
 from ..basil import basil_inner_loop, basil
-from ...tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_gaussian_multiresponse():
     '''
     run a basic path algorithm
 
     '''
+    rng = np.random.default_rng(3300)
     n, p, q = 200, 50, 3
-    X = np.random.standard_normal((n,p))
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+    rng.shuffle(betaX)
+    Y = np.dot(X, betaX) + rng.standard_normal((n,q))
 
     sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
                                                                     Y, 
@@ -30,20 +29,20 @@ def test_gaussian_multiresponse():
                         inner_tol=1.e-12)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_gaussian_blocks():
     '''
     run a basic path algorithm
 
     '''
+    rng = np.random.default_rng(3301)
     n1, n2, n3, p, q = 190, 200, 210, 50, 3
-    X1 = np.random.standard_normal((n1,p))
-    X2 = np.random.standard_normal((n2,p))
-    X3 = np.random.standard_normal((n3,p))
+    X1 = rng.standard_normal((n1,p))
+    X2 = rng.standard_normal((n2,p))
+    X3 = rng.standard_normal((n3,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = [np.dot(X, beta) + np.random.standard_normal(n) for
+    rng.shuffle(betaX)
+    Y = [np.dot(X, beta) + rng.standard_normal(n) for
          X, beta, n in zip([X1, X2, X3],
                            betaX.T,
                            [n1, n2, n3])]
@@ -64,20 +63,20 @@ def test_gaussian_blocks():
 
     print(np.sqrt((beta1**2).sum(2).sum(1)))
     
-@set_seed_for_test()
 def test_multinomial():
     '''
     run a basic path algorithm with multinomial loss
 
     '''
+    rng = np.random.default_rng(3302)
     n, p, q = 200, 50, 3
-    X = np.random.standard_normal((n,p))
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = np.array([3,4,5]) / np.sqrt(n)
-    np.random.shuffle(betaX)
+    rng.shuffle(betaX)
     eta = np.dot(X, betaX)
     prob = np.exp(eta) / (1 + np.exp(eta))
-    Y = np.random.binomial(1, prob) # not really "multinomial", but it will do for testing
+    Y = rng.binomial(1, prob) # not really "multinomial", but it will do for testing
 
     sparse_group_block1 = sparse_group_block.multinomial(X, 
                                                          Y, 
@@ -92,18 +91,18 @@ def test_multinomial():
                         inner_tol=1.e-12)
     beta1 = sol1['beta']
 
-@set_seed_for_test()
 def test_path_subsample(n=200,p=50):
     '''
     compare a subsample path to the full path on subsampled data
 
     '''
+    rng = np.random.default_rng(3303)
     n, p, q = 200, 50, 3
-    X = np.random.standard_normal((n,p))
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+    rng.shuffle(betaX)
+    Y = np.dot(X, betaX) + rng.standard_normal((n,q))
 
     sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
                                                                     Y, 
@@ -133,18 +132,18 @@ def test_path_subsample(n=200,p=50):
 
     np.testing.assert_allclose(beta1, beta2, rtol=1.e-3)
 
-@set_seed_for_test()
 def test_elastic_net(n=200, p=50):
     '''
     run a basic elastic net path algorithm
 
     '''
+    rng = np.random.default_rng(3304)
     n, p, q = 200, 50, 3
-    X = np.random.standard_normal((n,p))
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+    rng.shuffle(betaX)
+    Y = np.dot(X, betaX) + rng.standard_normal((n,q))
 
 
     enet = np.zeros((X.shape[1], Y.shape[1]))
@@ -166,18 +165,18 @@ def test_elastic_net(n=200, p=50):
     beta1 = sol1['beta']
 
 
-@set_seed_for_test()
 def test_basil_inner_loop(n=200,p=50):
     '''
     test one run of the BASIL inner loop
 
     '''
+    rng = np.random.default_rng(3305)
     n, p, q = 200, 50, 3
-    X = np.random.standard_normal((n,p))
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+    rng.shuffle(betaX)
+    Y = np.dot(X, betaX) + rng.standard_normal((n,q))
 
     enet = np.zeros((X.shape[1], Y.shape[1]))
     enet[4:7] = 0
@@ -201,18 +200,18 @@ def test_basil_inner_loop(n=200,p=50):
 
     print(active1, 'active')
 
-@set_seed_for_test()
 def test_basil(n=300,p=100):
     '''
     run BASIL
 
     '''
+    rng = np.random.default_rng(3306)
     n, p, q = 200, 50, 3
-    X = np.random.standard_normal((n,p))
+    X = rng.standard_normal((n,p))
     betaX = np.zeros((p,q))
     betaX[:3] = [3,4,5]
-    np.random.shuffle(betaX)
-    Y = np.dot(X, betaX) + np.random.standard_normal((n,q))
+    rng.shuffle(betaX)
+    Y = np.dot(X, betaX) + rng.standard_normal((n,q))
 
     sparse_group_block1 = sparse_group_block.multiresponse_gaussian(X, 
                                                                     Y, 

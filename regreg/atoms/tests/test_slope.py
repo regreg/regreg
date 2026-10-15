@@ -4,7 +4,6 @@ import numpy as np
 
 import regreg.api as rr
 from regreg.atoms.slope import slope, slope_conjugate, have_sklearn_iso
-from regreg.tests.decorators import set_seed_for_test
 
 from .test_seminorms import Solver, SolverFactory, all_close, run_checks
 
@@ -40,13 +39,14 @@ def test_l1norm_equivalent():
     """
     with equal weights the prox is the same as l1 norm
     """
+    rng = np.random.default_rng(1000)
     pen1 = slope(np.ones(3) * 4, lagrange=0.3)
     pen2 = rr.l1norm(3, lagrange=1.2)
 
     Z = np.array([3,2,4])
     np.testing.assert_allclose(pen1.lagrange_prox(Z), pen2.lagrange_prox(Z))
 
-    Z = np.random.standard_normal(3) * 100
+    Z = rng.standard_normal(3) * 100
     np.testing.assert_allclose(pen1.lagrange_prox(Z), pen2.lagrange_prox(Z))
 
     dual1 = pen1.conjugate
@@ -59,9 +59,10 @@ def test_duality():
     """
     with equal weights the prox is the same as l1 norm
     """
+    rng = np.random.default_rng(1001)
     pen1 = slope(np.array([0.4,0.35,0.1]), lagrange=1.1)
     dual1 = pen1.conjugate
-    Z = np.random.standard_normal(3) * 100
+    Z = rng.standard_normal(3) * 100
     np.testing.assert_allclose(Z, pen1.lagrange_prox(Z) + dual1.bound_prox(Z))
 
 class SlopeSolverFactory(SolverFactory):
@@ -94,12 +95,12 @@ class SlopeSolverFactory(SolverFactory):
             atom.use_sklearn = self.use_sklearn and have_sklearn_iso # test out both prox maps if available
 
             if q: 
-                atom.quadratic = rr.identity_quadratic(0, 0, np.random.standard_normal(atom.shape)*0.02)
+                atom.quadratic = rr.identity_quadratic(0, 0, self.rng.standard_normal(atom.shape)*0.02)
 
             if offset:
-                atom.offset = 0.02 * np.random.standard_normal(atom.shape)
+                atom.offset = 0.02 * self.rng.standard_normal(atom.shape)
 
-            solver = Solver(atom, interactive=self.interactive, 
+            solver = Solver(atom, rng=self.rng, interactive=self.interactive, 
                             coef_stop=coef_stop,
                             FISTA=FISTA,
                             L=L)
@@ -110,7 +111,6 @@ class SlopeSolverFactory(SolverFactory):
 @pytest.mark.parametrize('klass,mode', [(slope, 'lagrange'),
                                         (slope_conjugate, 'bound')],
                          ids=['slope', 'slope_conjugate'])
-@set_seed_for_test()
 def test_proximal_maps(klass, mode, use_sklearn):
     factory = SlopeSolverFactory(klass, mode, use_sklearn=use_sklearn)
     for solver in factory:

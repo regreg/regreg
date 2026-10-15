@@ -7,9 +7,7 @@ import numpy as np
 import scipy.optimize
 
 import regreg.api as rr
-from regreg.tests.decorators import set_seed_for_test
 
-@set_seed_for_test()
 def test_l1prox():
     '''
     this test verifies that the l1 prox in lagrange form can be solved
@@ -19,9 +17,10 @@ def test_l1prox():
     but it verifies that specification is working correctly
 
     '''
+    rng = np.random.default_rng(4000)
 
     l1 = rr.l1norm(4, lagrange=0.3)
-    ww = np.random.standard_normal(4)*3
+    ww = rng.standard_normal(4)*3
     ab = l1.proximal(rr.identity_quadratic(0.5, ww, 0,0))
 
     l1c = copy(l1)
@@ -49,7 +48,6 @@ def test_l1prox():
     np.testing.assert_allclose(ac + 0.1, ab + 0.1, rtol=1.e-4)
     np.testing.assert_allclose(ac + 0.1, ad + 0.1, rtol=1.e-4)
 
-@set_seed_for_test()
 def test_l1prox_bound():
     '''
     this test verifies that the l1 prox in bound form can be solved
@@ -59,9 +57,10 @@ def test_l1prox_bound():
     but it verifies that specification is working correctly
 
     '''
+    rng = np.random.default_rng(4001)
 
     l1 = rr.l1norm(4, bound=2.)
-    ww = np.random.standard_normal(4)*2
+    ww = rng.standard_normal(4)*2
     ab = l1.proximal(rr.identity_quadratic(0.5, ww, 0, 0))
 
     l1c = copy(l1)
@@ -81,7 +80,6 @@ def test_l1prox_bound():
     np.testing.assert_allclose(ac + 0.1, ab + 0.1, rtol=1.e-4)
 
 
-@set_seed_for_test()
 def test_lasso():
     '''
     this test verifies that the l1 prox can be solved
@@ -91,12 +89,13 @@ def test_lasso():
     but it verifies that specification is working correctly
 
     '''
+    rng = np.random.default_rng(4002)
 
     l1 = rr.l1norm(4, lagrange=2.)
     l1.quadratic = rr.identity_quadratic(0.5, 0, None, 0.)
 
-    X = np.random.standard_normal((10,4))
-    Y = np.random.standard_normal(10) + 3
+    X = rng.standard_normal((10,4))
+    Y = rng.standard_normal(10) + 3
     
     loss = rr.quadratic_loss.affine(X, -Y, coef=0.5)
 

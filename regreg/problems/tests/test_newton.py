@@ -7,13 +7,14 @@ from ..simple import simple_problem
 
 def test_lagrange():
 
+    rng = np.random.default_rng(4500)
     n, p, s = 1000, 50, 5
-    X = np.random.standard_normal((n, p))
+    X = rng.standard_normal((n, p))
     beta = np.zeros(p)
-    beta[:s] = 20 * np.random.standard_normal(s) / np.sqrt(n)
+    beta[:s] = 20 * rng.standard_normal(s) / np.sqrt(n)
     eta = X.dot(beta)
     pi = np.exp(eta) / (1 + np.exp(eta))
-    Y = np.random.binomial(1, pi)
+    Y = rng.binomial(1, pi)
     assert(Y.shape == pi.shape)
     loss = glm.logistic(X, Y)
     penalty = l1norm(p, lagrange=4)
@@ -34,9 +35,10 @@ def test_lagrange():
 
 def test_bound():
 
+    rng = np.random.default_rng(4501)
     n, p = 1000, 50
-    X = np.random.standard_normal((n, p))
-    Y = np.random.binomial(1, 0.5, size=(n,))
+    X = rng.standard_normal((n, p))
+    Y = rng.binomial(1, 0.5, size=(n,))
     loss = glm.logistic(X, Y)
     penalty = l1norm(p, bound=0.5)
 
