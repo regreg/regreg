@@ -208,7 +208,7 @@ class mixed_lasso(atom):
         """
         if bound is None:
             raise ValueError('bound must be suppled')
-        if self.seminorm(x) <= bound:
+        if self.seminorm(x, check_feasibility=True) <= bound * (1 + self.tol):
             return 0
         return np.inf
 
@@ -451,7 +451,7 @@ class mixed_lasso_dual(mixed_lasso):
     def constraint(self, x, bound=None):
         if bound is None:
             raise ValueError('bound must be suppled')
-        if self.seminorm(x) <= bound:
+        if self.seminorm(x, check_feasibility=True) <= bound * (1 + self.tol):
             return 0
         return np.inf
 
@@ -494,7 +494,9 @@ class mixed_lasso_dual(mixed_lasso):
         lagrange : float, optional
             Ignored.
         check_feasibility : bool, optional
-            Ignored.
+            If True, return `np.inf` when `x` is outside the dual set: a
+            nonzero unpenalized coordinate or group of weight 0, a negative
+            positive-part coordinate, or a positive nonnegative one.
 
         Returns
         -------
@@ -505,14 +507,15 @@ class mixed_lasso_dual(mixed_lasso):
 
         self._norms_cython[:] = 0
 
-        v = seminorm_mixed_lasso_dual(x, 
+        v = seminorm_mixed_lasso_dual(np.asarray(x, float), 
                                       self._l1_penalty,
                                       self._unpenalized,
                                       self._positive_part,
                                       self._nonnegative,
                                       self._groups,
                                       self._weight_array,
-                                      self._norms_cython)
+                                      self._norms_cython,
+                                      check_feasibility=int(check_feasibility))
         return v 
 
     def proximal(self, proxq, prox_control=None):

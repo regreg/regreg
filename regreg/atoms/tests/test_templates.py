@@ -38,10 +38,14 @@ def test_sparse_group_lasso_dual_base_conjugate():
     # the dual norm of x is about 1.6
     assert 1 < d.seminorm(x, lagrange=1.) < 2
     assert d.constraint(x) == np.inf
-    # changing the bound rebuilds it
+    # the cached atom does not depend on the bound ...
     d.bound = 2.
-    assert d.base_conjugate.lagrange == 2.
     assert d.constraint(x) == 0
+    # ... and is rebuilt when the weights change
+    conj = d.base_conjugate
+    d.lasso_weights = d.lasso_weights * 2
+    assert d.base_conjugate is not conj
+    np.testing.assert_allclose(d.base_conjugate.lasso_weights, d.lasso_weights)
 
 def test_sparse_group_lasso_dual_constraint():
     # constraint checked the unit dual ball whatever the bound, and returned

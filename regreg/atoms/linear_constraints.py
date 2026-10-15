@@ -184,7 +184,7 @@ class projection_complement(linear_constraint):
     @doc_template_user
     def constraint(self, x):
         projx = self.cone_prox(x)
-        incone = np.linalg.norm(projx) / max([np.linalg.norm(x),1]) < self.tol
+        incone = np.linalg.norm(x - projx) / max([np.linalg.norm(x),1]) < self.tol
         if incone:
             return 0
         return np.inf

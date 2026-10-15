@@ -248,7 +248,7 @@ class group_lasso(seminorm):
                                                self._group_array,
                                                self._weight_array,
                                                self._norms_cython,
-                                               False)
+                                               int(check_feasibility))
 
     @doc_template_user
     def lagrange_prox(self, arg,  lipschitz=1, lagrange=None):
@@ -299,7 +299,8 @@ class group_lasso(seminorm):
     @doc_template_user
     def constraint(self, arg, bound=None):
         bound = seminorm.constraint(self, arg, bound=bound)
-        inball = self.seminorm(arg, lagrange=1) <= bound
+        inball = (self.seminorm(arg, lagrange=1, check_feasibility=True)
+                  <= bound * (1 + self.tol))
         if inball:
             return 0
         else:
@@ -413,7 +414,7 @@ class group_lasso_dual(group_lasso):
                                                     self._group_array,
                                                     self._weight_array,
                                                     self._norms_cython,
-                                                    False)
+                                                    check_feasibility=int(check_feasibility))
 
     @doc_template_user
     def bound_prox(self, arg, bound=None):

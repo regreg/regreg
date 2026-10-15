@@ -10,6 +10,7 @@ These are used in multiresponse LASSOs.
 from __future__ import print_function, division, absolute_import
 
 import warnings
+from copy import copy
 
 import numpy as np
 
@@ -88,6 +89,17 @@ class block_sum(seminorms.seminorm):
                              offset=None,
                              quadratic=quadratic)
 
+    def __copy__(self):
+        kwargs = dict(bound=copy(self.bound),
+                      lagrange=copy(self.lagrange),
+                      offset=copy(self.offset),
+                      quadratic=copy(self.quadratic))
+        # the generic block atoms are built from a row atom class; the
+        # specific block norms (l1_l2, ...) take only a shape
+        if type(self) in (block_sum, block_max):
+            return type(self)(self.atom.__class__, copy(self.shape), **kwargs)
+        return type(self)(copy(self.shape), **kwargs)
+
     @doc_template_user
     @doc_template_provider
     def seminorms(self, x, lagrange=None, check_feasibility=False):
@@ -145,9 +157,10 @@ class block_sum(seminorms.seminorm):
 
     @doc_template_user
     def bound_prox(self, x, bound=None):
-        x = x.reshape(self.shape)
-        warnings.warn('bound_prox of block_sum requires a little thought -- should be like l1prox')
-        return 0 * x
+        # projecting onto {sum_i h(x_i) <= bound} for a general row atom h
+        # is not implemented (the specific block norms implement it)
+        raise NotImplementedError('bound_prox of block_sum is only implemented '
+                                  'for the specific block norms, e.g. l1_l2')
 
     @doc_template_user
     def get_lagrange(self):
@@ -155,7 +168,7 @@ class block_sum(seminorms.seminorm):
 
     @doc_template_user
     def set_lagrange(self, lagrange):
-        return seminorms.seminorm.set_lagrange(self)
+        return seminorms.seminorm.set_lagrange(self, lagrange)
 
     @doc_template_user
     def get_bound(self):
@@ -163,7 +176,7 @@ class block_sum(seminorms.seminorm):
 
     @doc_template_user
     def set_bound(self, bound):
-        return seminorms.seminorm.get_bound(self)
+        return seminorms.seminorm.set_bound(self, bound)
 
     @doc_template_user
     def get_conjugate(self):

@@ -28,7 +28,10 @@ def test_mixed_lasso():
     result = np.zeros_like(prox_center)
 
     result[unpenalized] = prox_center[unpenalized]
-    result[positive_part] = (prox_center[positive_part] - lagrange / lipschitz) * np.maximum(prox_center[positive_part] - lagrange / lipschitz, 0)
+    # prox of t * max(x, 0): x - t above t, 0 on [0, t], unchanged below 0
+    # (the expected value here used to be (c - t) * max(c - t, 0), gh-103)
+    c_pp, t = prox_center[positive_part], lagrange / lipschitz
+    result[positive_part] = np.where(c_pp > t, c_pp - t, np.where(c_pp < 0, c_pp, 0))
     result[l1_penalty] = np.maximum(np.fabs(prox_center[l1_penalty]) - lagrange / lipschitz, 0) * np.sign(prox_center[l1_penalty])
 
     result[6:11] = prox_center[6:11] / np.linalg.norm(prox_center[6:11]) * max(np.linalg.norm(prox_center[6:11]) - weights[0] * lagrange/lipschitz, 0)

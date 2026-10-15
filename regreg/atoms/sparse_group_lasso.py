@@ -295,18 +295,18 @@ class sparse_group_lasso_dual(sparse_group_lasso):
          Notes
          -----
          This conjugate does not take into account the atom's quadratic
-         and offset terms. It is cached, and rebuilt if the bound or the
-         weights change.
+         and offset terms. Its Lagrange parameter is 1: every use scales it
+         explicitly (the gauge is homogeneous), so it also works for an atom
+         in Lagrange form. It is cached, and rebuilt if the weights change.
          """
-         key = (self.bound,
-                tuple(np.asarray(self.lasso_weights).ravel()),
+         key = (tuple(np.asarray(self.lasso_weights).ravel()),
                 tuple(sorted(self.weights.items())))
          if getattr(self, '_base_conjugate_key', None) != key:
               self._base_conjugate_atom = sparse_group_lasso(  
                                              self.groups,
                                              self.lasso_weights,
                                              weights=self.weights,
-                                             lagrange=self.bound)
+                                             lagrange=1.)
               self._base_conjugate_key = key
          return self._base_conjugate_atom
 
