@@ -16,7 +16,8 @@ def basil_inner_loop(path_obj,
                      check_active=False,
                      step_nvar=50,
                      candidate_set=None,
-                     solve_args=None):
+                     solve_args=None,
+                     kkt_tol=None):
     """
     Solve a path over a short sequence of Lagrange parameters.
 
@@ -48,6 +49,9 @@ def basil_inner_loop(path_obj,
         Extra groups to include in the subproblem.
     solve_args : dict, optional
         Extra arguments passed to ``path_obj.solve_subproblem``.
+    kkt_tol : float, optional
+        Relative tolerance of the KKT check for groups at zero. If None,
+        ``path_obj.kkt_tol`` is used.
 
     Returns
     -------
@@ -82,7 +86,8 @@ def basil_inner_loop(path_obj,
     last_grad = grad_solution.copy()
     inactive_ranks = path_obj.check_KKT(grad_solution,
                                         solution,
-                                        path_obj.alpha * np.min(lagrange_subseq))[1]
+                                        path_obj.alpha * np.min(lagrange_subseq),
+                                        kkt_tol=kkt_tol)[1]
 
     linear_predictor = path_obj.X.dot(solution)
     unpen = np.zeros(path_obj.group_shape, bool)
@@ -130,7 +135,8 @@ def basil_inner_loop(path_obj,
                             enet_grad)
         failing_A, failing_I_ranks = path_obj.check_KKT(grad_solution, 
                                                         solution, 
-                                                        path_obj.alpha * lagrange)
+                                                        path_obj.alpha * lagrange,
+                                                        kkt_tol=kkt_tol)
 
         if check_active:
             all_failing = failing_A + (failing_I_ranks >= 0)
@@ -165,7 +171,8 @@ def basil(path_obj,
           step_nvar=50,
           step_lagrange=5,
           solve_args=None,
-          max_tries=20):
+          max_tries=20,
+          kkt_tol=None):
     """
     Compute a regularization path with the BASIL algorithm.
 
@@ -200,6 +207,9 @@ def basil(path_obj,
         batch that solves no Lagrange parameter without enlarging the
         candidate set. After that the active-set KKT check (if
         `check_active`) is dropped for the batch, with a warning.
+    kkt_tol : float, optional
+        Relative tolerance of the KKT check for groups at zero. If None,
+        ``path_obj.kkt_tol`` is used.
 
     Returns
     -------
@@ -240,7 +250,8 @@ def basil(path_obj,
                                                check_active=use_check_active,
                                                step_nvar=step_nvar,
                                                candidate_set=candidate_set,
-                                               solve_args=solve_args)
+                                               solve_args=solve_args,
+                                               kkt_tol=kkt_tol)
             if len(solution_incr) > 0:
                 # warm start the next batch; solutions are stored transposed
                 cur_data = (solution_incr[-1].T, last_grad)

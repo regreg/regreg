@@ -222,7 +222,8 @@ class sparse_group_common_path(group_lasso_path):
                   grad_solution,
                   solution,
                   lagrange,
-                  penalty=None):
+                  penalty=None,
+                  kkt_tol=None):
 
         '''
         Check KKT conditions over the groups in the path.
@@ -243,6 +244,10 @@ class sparse_group_common_path(group_lasso_path):
         penalty : object, optional
             A sparse group block penalty. Currently ignored: the weights
             of ``self.penalty`` are always used.
+        kkt_tol : float, optional
+            Relative tolerance for the groups at zero: such a group fails
+            if its dual norm exceeds ``lagrange * (1 + kkt_tol)``. If None,
+            defaults to ``self.kkt_tol``.
 
         Returns
         -------
@@ -255,12 +260,15 @@ class sparse_group_common_path(group_lasso_path):
         '''
         if penalty is None:
             penalty = self.penalty
+        if kkt_tol is None:
+            kkt_tol = self.kkt_tol
 
         active, inactive_ranks = _check_KKT(grad_solution, 
                                             solution, 
                                             self.penalty.l1_weight,
                                             self.penalty.l2_weight,
-                                            lagrange)
+                                            lagrange,
+                                            kkt_tol=kkt_tol)
         return active > 0, inactive_ranks
 
     def strong_set(self,
@@ -727,14 +735,20 @@ def _check_KKT(grad,
                l1_weight,
                l2_weight,
                lagrange, 
-               tol=1.e-2):
+               tol=1.e-2,
+               kkt_tol=None):
 
     """
     Check whether ``(grad, solution)`` satisfy KKT conditions at a given
     tolerance.
 
+    `tol` is used for the active and unpenalized groups, `kkt_tol` (which
+    defaults to `tol`) for the groups at zero.
+
     Assumes Lagrange form of penalty.
     """
+    if kkt_tol is None:
+        kkt_tol = tol
 
     ACTIVE_L1 = 10
     ACTIVE_NORM = 11
@@ -766,6 +780,10 @@ def _check_KKT(grad,
                           soln_g / np.linalg.norm(soln_g)) > tol:
             active_results[g] = ACTIVE_L2
 
+    # rows exactly at zero are checked at `kkt_tol`; the small nonzero rows
+    # treated as inactive keep `tol`, as their dual norm is within the
+    # solver's accuracy of `lagrange`
+    inactive_tol = np.where(norm_soln == 0, kkt_tol, tol)
     for g in np.nonzero(~active)[0]:
         subgrad_g = -grad[g]
         inactive_results[g] = _gauge_function_dual_strong(subgrad_g, 
@@ -773,7 +791,7 @@ def _check_KKT(grad,
                                                           l2_weight)[0] / lagrange
 
     inactive_ranks = inactive_results.shape[0] - rankdata(inactive_results)
-    inactive_ranks[inactive_results <= 1 + tol] = -1
+    inactive_ranks[inactive_results <= 1 + inactive_tol] = -1
 
     return active_results, inactive_ranks
 

@@ -158,7 +158,8 @@ class lasso_path(grouped_path):
                   grad_solution,
                   solution,
                   lagrange,
-                  penalty=None):
+                  penalty=None,
+                  kkt_tol=None):
 
         '''
         Check KKT conditions over the groups in the path.
@@ -178,6 +179,10 @@ class lasso_path(grouped_path):
             Lagrange value for penalty.
         penalty : object, optional
             A weighted L1 penalty. If None, defaults to ``self.penalty``.
+        kkt_tol : float, optional
+            Relative tolerance for the groups at zero: such a group fails
+            if its dual norm exceeds ``lagrange * (1 + kkt_tol)``. If None,
+            defaults to ``self.kkt_tol``.
 
         Returns
         -------
@@ -191,11 +196,14 @@ class lasso_path(grouped_path):
 
         if penalty is None:
             penalty = self.penalty
+        if kkt_tol is None:
+            kkt_tol = self.kkt_tol
 
         value = _check_KKT(penalty.weights, 
                            grad_solution, 
                            solution, 
-                           lagrange)
+                           lagrange,
+                           kkt_tol=kkt_tol)
         return value[0] > 0, value[1]
 
     def strong_set(self,
@@ -519,12 +527,18 @@ def _check_KKT(lasso_weights,
                grad, 
                solution, 
                lagrange, 
-               tol=1.e-2):
+               tol=1.e-2,
+               kkt_tol=None):
 
     """
     Check whether ``(grad, solution)`` satisfy KKT conditions at a given
     tolerance.
+
+    `tol` is used for the active and unpenalized groups, `kkt_tol` (which
+    defaults to `tol`) for the groups at zero.
     """
+    if kkt_tol is None:
+        kkt_tol = tol
 
     ACTIVE = 1
     INACTIVE = 2
@@ -542,11 +556,11 @@ def _check_KKT(lasso_weights,
     inactive_terms = np.zeros(solution.shape)
     inactive_terms[inactive] = np.fabs(grad[inactive] / (lagrange * lasso_weights[inactive]))
     inactive_ranks = solution.shape[0] - rankdata(inactive_terms)
-    inactive_ranks[inactive_terms <= 1+tol] = -1
+    inactive_ranks[inactive_terms <= 1 + kkt_tol] = -1
 
     unpenalized = lasso_weights == 0
     active_failing[unpenalized] = (np.fabs(grad[unpenalized] / np.mean(lasso_weights[lasso_weights>0])) > tol) * UNPENALIZED
 
-    np.testing.assert_allclose(inactive_ranks >= 0, inactive_terms > 1 + tol)
+    np.testing.assert_allclose(inactive_ranks >= 0, inactive_terms > 1 + kkt_tol)
 
     return active_failing, inactive_ranks
