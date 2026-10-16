@@ -14,7 +14,7 @@ dependencies = [
     "numpy",
     "scipy",
     "joblib",
-    "coxdev",
+    "coxdev>=0.3.0",
 ]
 classifiers = ["Development Status :: 3 - Alpha",
                "Environment :: Console",
