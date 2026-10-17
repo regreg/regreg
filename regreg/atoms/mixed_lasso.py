@@ -632,7 +632,7 @@ def check_KKT(glasso,
               tol=1.e-2,
               kkt_tol=None):
 
-    """
+    r"""
     Check whether (grad, solution) satisfy the KKT conditions.
 
     Parameters

@@ -1,3 +1,8 @@
+# Build the wheels and the sdist, on a v* tag or by hand. Releases are uploaded
+# from a local machine: download the artifacts of the run with
+#   gh run download <run-id> -R regreg/regreg -D dist
+# then run `twine check` and `twine upload` on the files.
+
 name: Build Wheels
 
 on:
