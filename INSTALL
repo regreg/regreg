@@ -5,20 +5,30 @@
 Download and Install
 ====================
 
-This page covers the necessary steps to install and run RegReg.  Below
-is a list of required dependencies, along with additional software
-recommendations.
+This page covers the necessary steps to install and run RegReg.
 
-RegReg is currently *ALPHA* quality, but is rapidly improving. If you are
-trying to get some work done wait until we have a stable release. For now,
-the code will primarily be of interest to developers.
+RegReg is *ALPHA* quality: the API may still change between releases.
+
+Installing a release
+--------------------
+
+Install the latest release from PyPI with::
+
+    pip install regreg
+
+There are wheels for Linux (x86_64), macOS (arm64) and Windows (64-bit). On
+other platforms pip builds from the source distribution (see below).
 
 Dependencies
 ------------
 
   Python_ 3.10 or later
 
-  NumPy_ and SciPy_
+  NumPy_, SciPy_, joblib_ and coxdev_ (0.3.0 or later), which pip installs
+  automatically
+
+  scikit-learn_ (optional) for ``regreg.sklearn`` and cross-validation;
+  install with ``pip install regreg[sklearn]``
 
   A C compiler, Cython_ (3.0 or later), meson-python_ and ninja are
   needed to build the extensions from source; ``pip`` installs these
@@ -39,10 +49,16 @@ editable install (the Cython extensions are rebuilt on import)::
 
 Run the tests with::
 
+    pip install pytest scikit-learn
     pytest regreg
+
+Slow tests are skipped unless ``--runslow`` is given.
 
 .. _Python: https://www.python.org
 .. _NumPy: https://numpy.org
 .. _SciPy: https://scipy.org
 .. _Cython: https://cython.org
 .. _meson-python: https://meson-python.readthedocs.io
+.. _joblib: https://joblib.readthedocs.io
+.. _coxdev: https://github.com/jonathan-taylor/coxdev
+.. _scikit-learn: https://scikit-learn.org

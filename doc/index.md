@@ -48,15 +48,20 @@ with strong rules and cross-validation, and `regreg.sklearn` wraps models as
 
 ## Installation
 
-These pages describe the development version, which installs from the
-repository (this builds the Cython extensions with meson-python):
+Install the latest release from PyPI:
+
+```
+pip install regreg
+```
+
+There are wheels for Linux (x86_64), macOS (arm64) and Windows (64-bit); on
+other platforms pip builds the Cython extensions from the source
+distribution, which needs a C compiler. These pages are built from the
+development version, which installs from the repository:
 
 ```
 pip install git+https://github.com/regreg/regreg
 ```
-
-or `pip install .` from a clone. The release on PyPI (0.1.3) predates the
-current API.
 
 The optional extras are `regreg[sklearn]` (scikit-learn, for the
 `regreg.sklearn` estimators and cross-validation splitters) and
